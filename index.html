@@ -222,6 +222,7 @@
     var STARTING_MONEY = 500;
     var LEG_STIPEND = 400;
     var TOTAL_STOPS = 3;
+    var NON_ELIM_CHANCE = 0.15;
 
     var playerTeam = null;
     var skills = {};
@@ -240,6 +241,7 @@
     var legFlightTime = 0;
     var legHasConnection = false;
     var flightBoarded = false;
+    var legIsNonElim = false;
 
     function buildTeamButtons() {
       var list = document.getElementById('teamList');
@@ -342,9 +344,12 @@
     function startLeg() {
       currentStop = 0;
       raceTime = 0;
+
       if (legNum > 1) {
         remainingTeams.forEach(function (name) { money[name] += LEG_STIPEND; });
       }
+
+      legIsNonElim = remainingTeams.length > 3 && Math.random() < NON_ELIM_CHANCE;
 
       var dest;
       do {
@@ -564,10 +569,22 @@
         return;
       }
 
-      var eliminated = results[results.length - 1].team;
-      remainingTeams = remainingTeams.filter(function (n) { return n !== eliminated; });
+      var lastPlaceTeam = results[results.length - 1].team;
 
-      if (eliminated === playerTeam) {
+      if (legIsNonElim) {
+        var nonElimBody = route + standingsHtml(results) +
+          '<br><strong>' + lastPlaceTeam + '</strong> finished last, but this is a NON-ELIMINATION leg!' +
+          '<br>No team has been eliminated.' +
+          '<br>Teams left: ' + remainingTeams.length +
+          ' · Your cash: $' + money[playerTeam] + chart;
+
+        renderResults('Non-Elimination Leg', nonElimBody, 'Next Leg', nextLeg);
+        return;
+      }
+
+      remainingTeams = remainingTeams.filter(function (n) { return n !== lastPlaceTeam; });
+
+      if (lastPlaceTeam === playerTeam) {
         var body2 = route + standingsHtml(results) +
           '<br>You finished last on Leg ' + legNum + ' and have been eliminated.' + chart;
         renderResults('Eliminated', body2, 'New Game', resetToStart);
@@ -575,7 +592,7 @@
       }
 
       var body3 = route + standingsHtml(results) +
-        '<br><strong>' + eliminated + '</strong> finished last and is eliminated.' +
+        '<br><strong>' + lastPlaceTeam + '</strong> finished last and is eliminated.' +
         '<br>Teams left: ' + remainingTeams.length +
         ' · Your cash: $' + money[playerTeam] + chart;
       renderResults('Leg ' + legNum + ' Complete', body3, 'Next Leg', nextLeg);
