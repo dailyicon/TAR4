@@ -367,8 +367,8 @@
         '<strong>' + playerTeam + '</strong><br>' +
         'Leg ' + legNum + '<br><br>' +
         'Fly from <strong>' + legOrigin.name + '</strong><br>to <strong>' + legDest.name + '</strong><br><br>' +
-        km.toLocaleString() + ' km  ·  ~' + legFlightTime + ' min flight' +
-        (legHasConnection ? '<br><br>🔗 This leg has a connection — a long delay could make you miss it.' : '');
+        km.toLocaleString() + ' km · ~' + legFlightTime + ' min flight' +
+        (legHasConnection ? '<br><br>🔗 This leg has a connection. A long delay could make you miss it.' : '');
 
       flightBoarded = false;
       document.getElementById('flightResult').style.display = 'none';
@@ -390,7 +390,7 @@
 
       var msg;
       if (f.delay === 0) {
-        msg = '✅ On time — no delay.';
+        msg = '✅ On time. No delay.';
       } else if (f.missed) {
         msg = '❌ Delayed ' + f.delay + ' min, and you MISSED the connection. Rebooked at a cost of extra time.';
       } else {
@@ -443,7 +443,7 @@
       STANDARD_TRANSPORT.forEach(function (opt) {
         var btn = document.createElement('button');
         btn.className = 'opt-btn';
-        btn.textContent = opt.method + '  —  $' + opt.cost + '  ·  ' + opt.time + ' min';
+        btn.textContent = opt.method + ' - $' + opt.cost + ' · ' + opt.time + ' min';
         if (opt.cost > money[playerTeam]) { btn.disabled = true; }
         btn.onclick = function () { chooseTransport(opt); };
         list.appendChild(btn);
@@ -481,8 +481,8 @@
       results.forEach(function (r, i) {
         var isYou = (r.team === playerTeam);
         var style = isYou ? ' style="color:#ffd166;font-weight:bold;"' : '';
-        var tag = isYou ? '  ← YOU' : '';
-        rows += '<div' + style + '>' + (i + 1) + '. ' + r.team + ' — ' + r.time + ' min' + tag + '</div>';
+        var tag = isYou ? ' ← YOU' : '';
+        rows += '<div' + style + '>' + (i + 1) + '. ' + r.team + ' - ' + r.time + ' min' + tag + '</div>';
       });
       return '<div class="standings">' + rows + '</div>';
     }
@@ -558,7 +558,7 @@
         var winner = results[0].team;
         var body = route + standingsHtml(results) +
           '<br>🏆 <strong>' + winner + '</strong> wins The Amazing Race!' +
-          (winner === playerTeam ? ' That\'s you — you won the whole thing!' : '') +
+          (winner === playerTeam ? ' That\'s you. You won the whole thing!' : '') +
           chart;
         renderResults('Final Leg', body, 'New Game', resetToStart);
         return;
@@ -582,6 +582,7 @@
     }
 
     function nextLeg() {
+      currentCity = legDest;
       legNum = legNum + 1;
       startLeg();
     }
