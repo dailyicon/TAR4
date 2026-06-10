@@ -1,10 +1,61 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>The Amazing Race</title>
-  </head>
-  <body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Amazing Race</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f1b2d;
+      color: #ffffff;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .screen { display: none; padding: 20px; }
+    .screen.active { display: block; }
+    h1 { font-size: 2.4em; margin-bottom: 10px; }
+    button {
+      font-size: 1.2em;
+      padding: 14px 28px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 10px;
+      background: #e63946;
+      color: #ffffff;
+      cursor: pointer;
+    }
+    button:active { background: #c1121f; }
+  </style>
+</head>
+<body>
+
+  <!-- Screen 1: Start -->
+  <div id="start" class="screen active">
     <h1>The Amazing Race</h1>
-    <button onclick="alert('It works!')">Tap me</button>
-  </body>
+    <p>Race around the world. Tap to begin.</p>
+    <button onclick="showScreen('teams')">Start</button>
+  </div>
+
+  <!-- Screen 2: Choose your team (placeholder for now) -->
+  <div id="teams" class="screen">
+    <h1>Choose Your Team</h1>
+    <p>We'll add the real teams here next.</p>
+    <button onclick="showScreen('start')">Back</button>
+  </div>
+
+  <script>
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(function (s) {
+        s.classList.remove('active');
+      });
+      document.getElementById(id).classList.add('active');
+    }
+  </script>
+
+</body>
 </html>
