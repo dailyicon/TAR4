@@ -121,7 +121,8 @@
   <div id="flight" class="screen">
     <h1>✈️ Flight</h1>
     <div class="status" id="flightBody"></div>
-    <button onclick="boardFlight()">Board flight</button>
+    <div class="status" id="flightResult" style="display:none;"></div>
+    <button id="flightBtn" onclick="flightButton()">Board flight</button>
   </div>
 
   <!-- Challenge -->
@@ -182,7 +183,6 @@
       { method: "🚶 Walk",  cost: 0,  time: 60 }
     ];
 
-    // Real cities with real coordinates
     var WORLD_CITIES = [
       { name: "Tokyo",          lat: 35.6762,  lon: 139.6503 },
       { name: "London",         lat: 51.5074,  lon: -0.1278 },
@@ -212,7 +212,7 @@
 
     var STARTING_MONEY = 500;
     var LEG_STIPEND = 400;
-    var TOTAL_STOPS = 10;
+    var TOTAL_STOPS = 3;
 
     var playerTeam = null;
     var skills = {};
@@ -224,10 +224,12 @@
     var raceTime = 0;
     var currentChallenge = null;
 
-    var currentCity = null;  // where the race currently is
+    var currentCity = null;
     var legOrigin = null;
     var legDest = null;
     var legFlightTime = 0;
+    var legHasConnection = false;
+    var flightBoarded = false;
 
     function buildTeamButtons() {
       var list = document.getElementById('teamList');
@@ -275,7 +277,6 @@
       return 1.6 - 0.1 * level;
     }
 
-    // Great-circle distance between two cities, in km
     function haversineKm(a, b) {
       var R = 6371;
       var toRad = function (d) { return d * Math.PI / 180; };
@@ -288,9 +289,32 @@
       return Math.round(2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)));
     }
 
-    // Flight time scales with distance (tuned to feel right in-game)
     function flightMinutes(km) {
       return Math.round(km / 200) + 10;
+    }
+
+    // Same delay odds as your Python: 80% on time, otherwise 1-30 min in tiers
+    function rollDelayMinutes() {
+      if (Math.random() >= 0.2) return 0;
+      var r = Math.random();
+      var lo, hi;
+      if (r < 0.50) { lo = 1; hi = 5; }
+      else if (r < 0.80) { lo = 6; hi = 10; }
+      else if (r < 0.95) { lo = 11; hi = 20; }
+      else { lo = 21; hi = 30; }
+      return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+    }
+
+    // One team's full flight time: base + delay + maybe a missed-connection penalty
+    function rollFlight() {
+      var delay = rollDelayMinutes();
+      var total = legFlightTime + delay;
+      var missed = false;
+      if (legHasConnection && delay >= 15) {
+        missed = true;
+        total += Math.floor(Math.random() * 26) + 20; // 20-45 min rebooking
+      }
+      return { total: total, delay: delay, missed: missed };
     }
 
     function startSeason() {
@@ -312,7 +336,6 @@
         remainingTeams.forEach(function (name) { money[name] += LEG_STIPEND; });
       }
 
-      // Pick a destination different from where we are
       var dest;
       do {
         dest = WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)];
@@ -321,6 +344,7 @@
       legDest = dest;
       var km = haversineKm(legOrigin, legDest);
       legFlightTime = flightMinutes(km);
+      legHasConnection = Math.random() < 0.35;
 
       legStops = [];
       for (var i = 0; i < TOTAL_STOPS; i++) {
@@ -333,14 +357,41 @@
         '<strong>' + playerTeam + '</strong><br>' +
         'Leg ' + legNum + '<br><br>' +
         'Fly from <strong>' + legOrigin.name + '</strong><br>to <strong>' + legDest.name + '</strong><br><br>' +
-        km.toLocaleString() + ' km  ·  ~' + legFlightTime + ' min flight';
+        km.toLocaleString() + ' km  ·  ~' + legFlightTime + ' min flight' +
+        (legHasConnection ? '<br><br>🔗 This leg has a connection — a long delay could make you miss it.' : '');
+
+      flightBoarded = false;
+      document.getElementById('flightResult').style.display = 'none';
+      document.getElementById('flightBtn').textContent = 'Board flight';
       showScreen('flight');
     }
 
+    function flightButton() {
+      if (!flightBoarded) {
+        boardFlight();
+      } else {
+        showChallenge();
+      }
+    }
+
     function boardFlight() {
-      raceTime = raceTime + legFlightTime;
-      currentCity = legDest;
-      showChallenge();
+      var f = rollFlight();
+      raceTime = raceTime + f.total;
+
+      var msg;
+      if (f.delay === 0) {
+        msg = '✅ On time — no delay.';
+      } else if (f.missed) {
+        msg = '❌ Delayed ' + f.delay + ' min, and you MISSED the connection. Rebooked at a cost of extra time.';
+      } else {
+        msg = '⏱️ Delayed ' + f.delay + ' min.';
+      }
+      var res = document.getElementById('flightResult');
+      res.innerHTML = msg + '<br>Time so far: ' + raceTime + ' min';
+      res.style.display = 'block';
+
+      flightBoarded = true;
+      document.getElementById('flightBtn').textContent = 'Continue to ' + legDest.name;
     }
 
     function showChallenge() {
@@ -403,7 +454,7 @@
     }
 
     function simulateRivalLeg(name) {
-      var total = legFlightTime; // same flight for everyone
+      var total = rollFlight().total; // each rival rolls its own flight luck
       legStops.forEach(function (stop) {
         var lvl = skills[name][stop.skill];
         total += Math.max(1, Math.round(stop.base * skillMultiplier(lvl)));
