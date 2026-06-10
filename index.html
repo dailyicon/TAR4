@@ -110,9 +110,17 @@
     <button onclick="showScreen('teams')">Pick a different team</button>
   </div>
 
-  <!-- Race -->
+  <!-- Challenge -->
+  <div id="challenge" class="screen">
+    <h1>Challenge</h1>
+    <div class="status" id="challengeStatus"></div>
+    <div class="status" id="challengeInfo"></div>
+    <button onclick="attemptChallenge()">Take on the challenge</button>
+  </div>
+
+  <!-- Race / transport -->
   <div id="race" class="screen">
-    <h1>The Race</h1>
+    <h1>Travel On</h1>
     <div class="status" id="raceStatus"></div>
     <p>Choose your transport:</p>
     <div id="transportList"></div>
@@ -166,6 +174,7 @@
     var player = { team: null, money: STARTING_MONEY, skills: {} };
     var currentStop = 0;
     var raceTime = 0;
+    var currentChallenge = null;
 
     function buildTeamButtons() {
       var list = document.getElementById('teamList');
@@ -210,6 +219,37 @@
     function startRace() {
       currentStop = 0;
       raceTime = 0;
+      showChallenge();
+    }
+
+    // Higher level = smaller multiplier = faster, just like your Python
+    function skillMultiplier(level) {
+      return 1.6 - 0.1 * level;
+    }
+
+    function showChallenge() {
+      var skill = SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)];
+      var base = Math.floor(Math.random() * 31) + 10; // 10 to 40 min
+      var level = player.skills[skill];
+      var adjusted = Math.max(1, Math.round(base * skillMultiplier(level)));
+      currentChallenge = { skill: skill, adjusted: adjusted };
+
+      document.getElementById('challengeStatus').innerHTML =
+        '<strong>' + player.team + '</strong><br>' +
+        'Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
+        'Cash: $' + player.money + ' · Time: ' + raceTime + ' min';
+
+      document.getElementById('challengeInfo').innerHTML =
+        'Challenge type: <strong>' + skill + '</strong><br>' +
+        'Base time: ' + base + ' min<br>' +
+        'Your ' + skill + ' level: ' + level + '<br>' +
+        'Adjusted time: <strong>' + adjusted + ' min</strong>';
+
+      showScreen('challenge');
+    }
+
+    function attemptChallenge() {
+      raceTime = raceTime + currentChallenge.adjusted;
       showRace();
     }
 
@@ -243,7 +283,7 @@
       if (currentStop >= TOTAL_STOPS) {
         showFinish();
       } else {
-        showRace();
+        showChallenge();
       }
     }
 
