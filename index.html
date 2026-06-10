@@ -89,6 +89,17 @@
       line-height: 1.4;
     }
 
+    .route-history {
+      background: #14243d;
+      border: 1px solid #2a4a78;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 8px;
+      line-height: 1.6;
+      color: #ffd166;
+      font-weight: bold;
+    }
+
     .chart { border-collapse: collapse; margin: 8px auto 0; font-size: 0.85em; }
     .chart th, .chart td {
       border: 1px solid #2a4a78;
@@ -124,6 +135,13 @@
     <button onclick="startSeason()">Start Racing</button>
     <br>
     <button onclick="showScreen('teams')">Pick a different team</button>
+  </div>
+
+  <!-- Leg Intro -->
+  <div id="legIntro" class="screen">
+    <h1 id="legIntroTitle"></h1>
+    <div class="status" id="legIntroBody"></div>
+    <button onclick="showFlightScreen()">Begin Leg</button>
   </div>
 
   <!-- Flight -->
@@ -219,8 +237,8 @@
       { name: "Toronto",        lat: 43.6532,  lon: -79.3832 }
     ];
 
-    var STARTING_MONEY = 100;
-    var LEG_STIPEND = 75;
+    var STARTING_MONEY = 500;
+    var LEG_STIPEND = 400;
     var TOTAL_STOPS = 3;
     var NON_ELIM_CHANCE = 0.15;
     var MIN_TRANSPORT_OPTIONS = 2;
@@ -237,6 +255,7 @@
     var raceTime = 0;
     var currentChallenge = null;
     var placementHistory = {};
+    var routeHistory = [];
 
     var currentCity = null;
     var legOrigin = null;
@@ -303,6 +322,29 @@
       });
 
       return selected;
+    }
+
+    function updateRouteHistoryForCompletedLeg() {
+      if (!legDest) {
+        return;
+      }
+
+      if (routeHistory.length === 0 && legOrigin) {
+        routeHistory.push(legOrigin.name);
+      }
+
+      var lastCity = routeHistory[routeHistory.length - 1];
+      if (lastCity !== legDest.name) {
+        routeHistory.push(legDest.name);
+      }
+    }
+
+    function routeHistoryHtml() {
+      if (routeHistory.length === 0) {
+        return '';
+      }
+
+      return '<div class="route-history">' + routeHistory.join(' → ') + '</div>';
     }
 
     function selectTeam(name) {
@@ -372,12 +414,16 @@
       legNum = 1;
       money = {};
       placementHistory = {};
+      routeHistory = [];
+
       teams.forEach(function (name) {
         money[name] = STARTING_MONEY;
         placementHistory[name] = [];
         if (!skills[name]) { skills[name] = rollSkills(); }
       });
+
       currentCity = WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)];
+      routeHistory.push(currentCity.name);
       startLeg();
     }
 
@@ -409,16 +455,29 @@
         legStops.push({ skill: skill, base: base });
       }
 
+      document.getElementById('legIntroTitle').textContent = 'Leg ' + legNum;
+      document.getElementById('legIntroBody').innerHTML =
+        '<strong>' + playerTeam + '</strong><br><br>' +
+        'Starting City: <strong>' + legOrigin.name + '</strong><br>' +
+        'Destination: <strong>Unknown until you land</strong><br><br>' +
+        'Teams Remaining: <strong>' + remainingTeams.length + '</strong><br>' +
+        'Your Cash: <strong>$' + money[playerTeam] + '</strong>';
+
       document.getElementById('flightBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
         'Leg ' + legNum + '<br><br>' +
-        'Fly from <strong>' + legOrigin.name + '</strong><br>to <strong>' + legDest.name + '</strong><br><br>' +
+        'Fly from <strong>' + legOrigin.name + '</strong><br>' +
+        'to your next mystery destination.<br><br>' +
         km.toLocaleString() + ' km · ~' + legFlightTime + ' min flight' +
         (legHasConnection ? '<br><br>🔗 This leg has a connection. A long delay could make you miss it.' : '');
 
       flightBoarded = false;
       document.getElementById('flightResult').style.display = 'none';
       document.getElementById('flightBtn').textContent = 'Board flight';
+      showScreen('legIntro');
+    }
+
+    function showFlightScreen() {
       showScreen('flight');
     }
 
@@ -442,12 +501,15 @@
       } else {
         msg = '⏱️ Delayed ' + f.delay + ' min.';
       }
+
+      msg += '<br><br>📍 You have landed in <strong>' + legDest.name + '</strong>.';
+
       var res = document.getElementById('flightResult');
       res.innerHTML = msg + '<br>Time so far: ' + raceTime + ' min';
       res.style.display = 'block';
 
       flightBoarded = true;
-      document.getElementById('flightBtn').textContent = 'Continue to ' + legDest.name;
+      document.getElementById('flightBtn').textContent = 'Continue in ' + legDest.name;
     }
 
     function showChallenge() {
@@ -615,6 +677,8 @@
       });
       results.sort(function (a, b) { return a.time - b.time; });
 
+      updateRouteHistoryForCompletedLeg();
+
       // Record this leg's placements for the chart
       var placeOf = {};
       results.forEach(function (r, i) { placeOf[r.team] = i + 1; });
@@ -622,11 +686,13 @@
         placementHistory[name].push(placeOf[name] != null ? placeOf[name] : null);
       });
 
+      var routeTrail = '<br><strong>Route History</strong>' + routeHistoryHtml();
       var chart = '<br><strong>Placement Chart</strong>' + placementChartHtml();
 
       if (remainingTeams.length <= 3) {
         var winner = results[0].team;
         var body = route + standingsHtml(results) +
+          routeTrail +
           '<br>🏆 <strong>' + winner + '</strong> wins The Amazing Race!' +
           (winner === playerTeam ? ' That\'s you. You won the whole thing!' : '') +
           chart;
@@ -638,6 +704,7 @@
 
       if (legIsNonElim) {
         var nonElimBody = route + standingsHtml(results) +
+          routeTrail +
           '<br><strong>' + lastPlaceTeam + '</strong> finished last, but this is a NON-ELIMINATION leg!' +
           '<br>No team has been eliminated.' +
           '<br>Teams left: ' + remainingTeams.length +
@@ -651,12 +718,14 @@
 
       if (lastPlaceTeam === playerTeam) {
         var body2 = route + standingsHtml(results) +
+          routeTrail +
           '<br>You finished last on Leg ' + legNum + ' and have been eliminated.' + chart;
         renderResults('Eliminated', body2, 'New Game', resetToStart);
         return;
       }
 
       var body3 = route + standingsHtml(results) +
+        routeTrail +
         '<br><strong>' + lastPlaceTeam + '</strong> finished last and is eliminated.' +
         '<br>Teams left: ' + remainingTeams.length +
         ' · Your cash: $' + money[playerTeam] + chart;
