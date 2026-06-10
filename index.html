@@ -223,6 +223,8 @@
     var LEG_STIPEND = 400;
     var TOTAL_STOPS = 3;
     var NON_ELIM_CHANCE = 0.15;
+    var MIN_TRANSPORT_OPTIONS = 2;
+    var MAX_TRANSPORT_OPTIONS = 4;
 
     var playerTeam = null;
     var skills = {};
@@ -230,6 +232,7 @@
     var remainingTeams = [];
     var legNum = 1;
     var legStops = [];
+    var legTransportOptions = [];
     var currentStop = 0;
     var raceTime = 0;
     var currentChallenge = null;
@@ -263,6 +266,43 @@
       var s = {};
       SKILL_TYPES.forEach(function (sk) { s[sk] = randomLevel(); });
       return s;
+    }
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function shuffledCopy(arr) {
+      var copy = arr.slice();
+      for (var i = copy.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = copy[i];
+        copy[i] = copy[j];
+        copy[j] = temp;
+      }
+      return copy;
+    }
+
+    function makeTransportOptionsForSegment() {
+      var count = randomInt(MIN_TRANSPORT_OPTIONS, MAX_TRANSPORT_OPTIONS);
+      var walk = STANDARD_TRANSPORT.find(function (opt) {
+        return opt.method.indexOf("Walk") !== -1;
+      });
+      var paidOptions = STANDARD_TRANSPORT.filter(function (opt) {
+        return opt !== walk;
+      });
+
+      var selected = shuffledCopy(paidOptions).slice(0, count - 1);
+
+      if (walk) {
+        selected.push(walk);
+      }
+
+      selected.sort(function (a, b) {
+        return a.time - b.time;
+      });
+
+      return selected;
     }
 
     function selectTeam(name) {
@@ -313,7 +353,7 @@
       else if (r < 0.80) { lo = 6; hi = 10; }
       else if (r < 0.95) { lo = 11; hi = 20; }
       else { lo = 21; hi = 30; }
-      return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+      return randomInt(lo, hi);
     }
 
     function rollFlight() {
@@ -322,7 +362,7 @@
       var missed = false;
       if (legHasConnection && delay >= 15) {
         missed = true;
-        total += Math.floor(Math.random() * 26) + 20;
+        total += randomInt(20, 45);
       }
       return { total: total, delay: delay, missed: missed };
     }
@@ -344,6 +384,7 @@
     function startLeg() {
       currentStop = 0;
       raceTime = 0;
+      legTransportOptions = [];
 
       if (legNum > 1) {
         remainingTeams.forEach(function (name) { money[name] += LEG_STIPEND; });
@@ -364,7 +405,7 @@
       legStops = [];
       for (var i = 0; i < TOTAL_STOPS; i++) {
         var skill = SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)];
-        var base = Math.floor(Math.random() * 31) + 10;
+        var base = randomInt(10, 40);
         legStops.push({ skill: skill, base: base });
       }
 
@@ -443,9 +484,15 @@
         'Cash: $' + money[playerTeam] + '<br>' +
         'Time elapsed: ' + raceTime + ' min';
 
+      if (!legTransportOptions[currentStop]) {
+        legTransportOptions[currentStop] = makeTransportOptionsForSegment();
+      }
+
+      var optionsForThisSegment = legTransportOptions[currentStop];
       var list = document.getElementById('transportList');
       list.innerHTML = '';
-      STANDARD_TRANSPORT.forEach(function (opt) {
+
+      optionsForThisSegment.forEach(function (opt) {
         var btn = document.createElement('button');
         btn.className = 'opt-btn';
         btn.textContent = opt.method + ' - $' + opt.cost + ' · ' + opt.time + ' min';
@@ -470,11 +517,29 @@
 
     function simulateRivalLeg(name) {
       var total = rollFlight().total;
-      legStops.forEach(function (stop) {
+      legStops.forEach(function (stop, index) {
         var lvl = skills[name][stop.skill];
         total += Math.max(1, Math.round(stop.base * skillMultiplier(lvl)));
-        var affordable = STANDARD_TRANSPORT.filter(function (o) { return o.cost <= money[name]; });
-        var pick = affordable[Math.floor(Math.random() * affordable.length)];
+
+        var optionsForThisSegment = legTransportOptions[index];
+        if (!optionsForThisSegment) {
+          optionsForThisSegment = makeTransportOptionsForSegment();
+          legTransportOptions[index] = optionsForThisSegment;
+        }
+
+        var affordable = optionsForThisSegment.filter(function (o) {
+          return o.cost <= money[name];
+        });
+
+        var pick;
+        if (affordable.length > 0) {
+          pick = affordable[Math.floor(Math.random() * affordable.length)];
+        } else {
+          pick = optionsForThisSegment.reduce(function (cheapest, opt) {
+            return opt.cost < cheapest.cost ? opt : cheapest;
+          }, optionsForThisSegment[0]);
+        }
+
         money[name] -= pick.cost;
         total += pick.time;
       });
