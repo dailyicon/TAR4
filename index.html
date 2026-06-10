@@ -117,6 +117,13 @@
     <button onclick="showScreen('teams')">Pick a different team</button>
   </div>
 
+  <!-- Flight -->
+  <div id="flight" class="screen">
+    <h1>✈️ Flight</h1>
+    <div class="status" id="flightBody"></div>
+    <button onclick="boardFlight()">Board flight</button>
+  </div>
+
   <!-- Challenge -->
   <div id="challenge" class="screen">
     <h1>Challenge</h1>
@@ -133,7 +140,7 @@
     <div id="transportList"></div>
   </div>
 
-  <!-- Results (leg standings / elimination / finale) -->
+  <!-- Results -->
   <div id="results" class="screen">
     <h1 id="resultsTitle"></h1>
     <div class="status" id="resultsBody"></div>
@@ -175,19 +182,52 @@
       { method: "🚶 Walk",  cost: 0,  time: 60 }
     ];
 
+    // Real cities with real coordinates
+    var WORLD_CITIES = [
+      { name: "Tokyo",          lat: 35.6762,  lon: 139.6503 },
+      { name: "London",         lat: 51.5074,  lon: -0.1278 },
+      { name: "New York",       lat: 40.7128,  lon: -74.0060 },
+      { name: "Paris",          lat: 48.8566,  lon: 2.3522 },
+      { name: "Sydney",         lat: -33.8688, lon: 151.2093 },
+      { name: "Cairo",          lat: 30.0444,  lon: 31.2357 },
+      { name: "Rio de Janeiro", lat: -22.9068, lon: -43.1729 },
+      { name: "Cape Town",      lat: -33.9249, lon: 18.4241 },
+      { name: "Moscow",         lat: 55.7558,  lon: 37.6173 },
+      { name: "Dubai",          lat: 25.2048,  lon: 55.2708 },
+      { name: "Singapore",      lat: 1.3521,   lon: 103.8198 },
+      { name: "Los Angeles",    lat: 34.0522,  lon: -118.2437 },
+      { name: "Mumbai",         lat: 19.0760,  lon: 72.8777 },
+      { name: "Beijing",        lat: 39.9042,  lon: 116.4074 },
+      { name: "Mexico City",    lat: 19.4326,  lon: -99.1332 },
+      { name: "Istanbul",       lat: 41.0082,  lon: 28.9784 },
+      { name: "Bangkok",        lat: 13.7563,  lon: 100.5018 },
+      { name: "Buenos Aires",   lat: -34.6037, lon: -58.3816 },
+      { name: "Nairobi",        lat: -1.2921,  lon: 36.8219 },
+      { name: "Reykjavik",      lat: 64.1466,  lon: -21.9426 },
+      { name: "Honolulu",       lat: 21.3069,  lon: -157.8583 },
+      { name: "Hong Kong",      lat: 22.3193,  lon: 114.1694 },
+      { name: "Lima",           lat: -12.0464, lon: -77.0428 },
+      { name: "Toronto",        lat: 43.6532,  lon: -79.3832 }
+    ];
+
     var STARTING_MONEY = 500;
     var LEG_STIPEND = 400;
-    var TOTAL_STOPS = 3;
+    var TOTAL_STOPS = 10;
 
     var playerTeam = null;
-    var skills = {};   // team -> { skill: level }
-    var money = {};    // team -> cash
+    var skills = {};
+    var money = {};
     var remainingTeams = [];
     var legNum = 1;
     var legStops = [];
     var currentStop = 0;
     var raceTime = 0;
     var currentChallenge = null;
+
+    var currentCity = null;  // where the race currently is
+    var legOrigin = null;
+    var legDest = null;
+    var legFlightTime = 0;
 
     function buildTeamButtons() {
       var list = document.getElementById('teamList');
@@ -235,6 +275,24 @@
       return 1.6 - 0.1 * level;
     }
 
+    // Great-circle distance between two cities, in km
+    function haversineKm(a, b) {
+      var R = 6371;
+      var toRad = function (d) { return d * Math.PI / 180; };
+      var dLat = toRad(b.lat - a.lat);
+      var dLon = toRad(b.lon - a.lon);
+      var lat1 = toRad(a.lat);
+      var lat2 = toRad(b.lat);
+      var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return Math.round(2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)));
+    }
+
+    // Flight time scales with distance (tuned to feel right in-game)
+    function flightMinutes(km) {
+      return Math.round(km / 200) + 10;
+    }
+
     function startSeason() {
       remainingTeams = teams.slice();
       legNum = 1;
@@ -243,6 +301,7 @@
         money[name] = STARTING_MONEY;
         if (!skills[name]) { skills[name] = rollSkills(); }
       });
+      currentCity = WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)];
       startLeg();
     }
 
@@ -252,12 +311,35 @@
       if (legNum > 1) {
         remainingTeams.forEach(function (name) { money[name] += LEG_STIPEND; });
       }
+
+      // Pick a destination different from where we are
+      var dest;
+      do {
+        dest = WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)];
+      } while (dest.name === currentCity.name);
+      legOrigin = currentCity;
+      legDest = dest;
+      var km = haversineKm(legOrigin, legDest);
+      legFlightTime = flightMinutes(km);
+
       legStops = [];
       for (var i = 0; i < TOTAL_STOPS; i++) {
         var skill = SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)];
         var base = Math.floor(Math.random() * 31) + 10;
         legStops.push({ skill: skill, base: base });
       }
+
+      document.getElementById('flightBody').innerHTML =
+        '<strong>' + playerTeam + '</strong><br>' +
+        'Leg ' + legNum + '<br><br>' +
+        'Fly from <strong>' + legOrigin.name + '</strong><br>to <strong>' + legDest.name + '</strong><br><br>' +
+        km.toLocaleString() + ' km  ·  ~' + legFlightTime + ' min flight';
+      showScreen('flight');
+    }
+
+    function boardFlight() {
+      raceTime = raceTime + legFlightTime;
+      currentCity = legDest;
       showChallenge();
     }
 
@@ -269,7 +351,8 @@
 
       document.getElementById('challengeStatus').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
-        'Leg ' + legNum + ' · Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
+        'Leg ' + legNum + ' · ' + legDest.name + '<br>' +
+        'Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
         'Cash: $' + money[playerTeam] + ' · Time: ' + raceTime + ' min';
 
       document.getElementById('challengeInfo').innerHTML =
@@ -289,7 +372,8 @@
     function showRace() {
       document.getElementById('raceStatus').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
-        'Leg ' + legNum + ' · Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
+        'Leg ' + legNum + ' · ' + legDest.name + '<br>' +
+        'Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
         'Cash: $' + money[playerTeam] + '<br>' +
         'Time elapsed: ' + raceTime + ' min';
 
@@ -319,7 +403,7 @@
     }
 
     function simulateRivalLeg(name) {
-      var total = 0;
+      var total = legFlightTime; // same flight for everyone
       legStops.forEach(function (stop) {
         var lvl = skills[name][stop.skill];
         total += Math.max(1, Math.round(stop.base * skillMultiplier(lvl)));
@@ -355,6 +439,7 @@
     }
 
     function showLegResults() {
+      var route = legOrigin.name + ' → ' + legDest.name;
       var results = [];
       remainingTeams.forEach(function (name) {
         var t = (name === playerTeam) ? raceTime : simulateRivalLeg(name);
@@ -362,28 +447,26 @@
       });
       results.sort(function (a, b) { return a.time - b.time; });
 
-      // Final leg: 3 or fewer left, winner is first place
       if (remainingTeams.length <= 3) {
         var winner = results[0].team;
-        var body = standingsHtml(results) +
+        var body = route + standingsHtml(results) +
           '<br>🏆 <strong>' + winner + '</strong> wins The Amazing Race!' +
           (winner === playerTeam ? ' That\'s you — you won the whole thing!' : '');
         renderResults('Final Leg', body, 'New Game', resetToStart);
         return;
       }
 
-      // Otherwise eliminate last place
       var eliminated = results[results.length - 1].team;
       remainingTeams = remainingTeams.filter(function (n) { return n !== eliminated; });
 
       if (eliminated === playerTeam) {
-        var body2 = standingsHtml(results) +
+        var body2 = route + standingsHtml(results) +
           '<br>You finished last on Leg ' + legNum + ' and have been eliminated.';
         renderResults('Eliminated', body2, 'New Game', resetToStart);
         return;
       }
 
-      var body3 = standingsHtml(results) +
+      var body3 = route + standingsHtml(results) +
         '<br><strong>' + eliminated + '</strong> finished last and is eliminated.' +
         '<br>Teams left: ' + remainingTeams.length +
         ' · Your cash: $' + money[playerTeam];
