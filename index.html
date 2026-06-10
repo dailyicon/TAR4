@@ -32,6 +32,7 @@
       cursor: pointer;
     }
     button:active { background: #c1121f; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .team-btn {
       display: block;
@@ -62,6 +63,24 @@
       justify-content: space-between;
     }
     .skill .lvl { font-weight: bold; color: #ffd166; }
+
+    .status {
+      background: #1d3050;
+      border: 1px solid #2a4a78;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 12px 0;
+      line-height: 1.6;
+    }
+    .opt-btn {
+      display: block;
+      width: 100%;
+      margin: 10px 0 0 0;
+      background: #1d3050;
+      border: 2px solid #2a4a78;
+      text-align: left;
+    }
+    .opt-btn:active { background: #2a4a78; }
   </style>
 </head>
 <body>
@@ -86,9 +105,24 @@
     <div class="cash" id="rosterCash"></div>
     <p>Your skills:</p>
     <div class="skills" id="skillList"></div>
-    <button onclick="alert('The race itself is what we build next!')">Start Racing</button>
+    <button onclick="startRace()">Start Racing</button>
     <br>
     <button onclick="showScreen('teams')">Pick a different team</button>
+  </div>
+
+  <!-- Race -->
+  <div id="race" class="screen">
+    <h1>The Race</h1>
+    <div class="status" id="raceStatus"></div>
+    <p>Choose your transport:</p>
+    <div id="transportList"></div>
+  </div>
+
+  <!-- Finish -->
+  <div id="finish" class="screen">
+    <h1>Leg Complete!</h1>
+    <div class="status" id="finishStatus"></div>
+    <button onclick="showScreen('start')">Race Again</button>
   </div>
 
   <script>
@@ -117,10 +151,21 @@
       "Calculation", "Mobility", "Agility", "Negotiation", "Calibration"
     ];
 
-    var STARTING_MONEY = 500;
+    var STANDARD_TRANSPORT = [
+      { method: "🚕 Taxi",  cost: 75, time: 10 },
+      { method: "🚂 Train", cost: 50, time: 20 },
+      { method: "🚌 Bus",   cost: 30, time: 30 },
+      { method: "🚲 Bike",  cost: 15, time: 40 },
+      { method: "🗺️ Map",   cost: 5,  time: 50 },
+      { method: "🚶 Walk",  cost: 0,  time: 60 }
+    ];
 
-    // Remembers your run as you play
+    var STARTING_MONEY = 500;
+    var TOTAL_STOPS = 4;
+
     var player = { team: null, money: STARTING_MONEY, skills: {} };
+    var currentStop = 0;
+    var raceTime = 0;
 
     function buildTeamButtons() {
       var list = document.getElementById('teamList');
@@ -134,7 +179,6 @@
       });
     }
 
-    // A random level from 1 to 11, like randint(1, 11) in your Python
     function randomLevel() {
       return Math.floor(Math.random() * 11) + 1;
     }
@@ -161,6 +205,54 @@
         box.appendChild(item);
       });
       showScreen('roster');
+    }
+
+    function startRace() {
+      currentStop = 0;
+      raceTime = 0;
+      showRace();
+    }
+
+    function showRace() {
+      document.getElementById('raceStatus').innerHTML =
+        '<strong>' + player.team + '</strong><br>' +
+        'Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
+        'Cash: $' + player.money + '<br>' +
+        'Time elapsed: ' + raceTime + ' min';
+
+      var list = document.getElementById('transportList');
+      list.innerHTML = '';
+      STANDARD_TRANSPORT.forEach(function (opt) {
+        var btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.textContent = opt.method + '  —  $' + opt.cost + '  ·  ' + opt.time + ' min';
+        if (opt.cost > player.money) {
+          btn.disabled = true;
+        }
+        btn.onclick = function () { chooseTransport(opt); };
+        list.appendChild(btn);
+      });
+
+      showScreen('race');
+    }
+
+    function chooseTransport(opt) {
+      player.money = player.money - opt.cost;
+      raceTime = raceTime + opt.time;
+      currentStop = currentStop + 1;
+      if (currentStop >= TOTAL_STOPS) {
+        showFinish();
+      } else {
+        showRace();
+      }
+    }
+
+    function showFinish() {
+      document.getElementById('finishStatus').innerHTML =
+        '<strong>' + player.team + '</strong><br>' +
+        'You completed the leg in ' + raceTime + ' minutes.<br>' +
+        'Cash left: $' + player.money;
+      showScreen('finish');
     }
 
     function showScreen(id) {
