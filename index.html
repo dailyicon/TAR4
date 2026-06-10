@@ -18,7 +18,7 @@
       box-sizing: border-box;
       text-align: center;
     }
-    .screen { display: none; width: 100%; max-width: 520px; }
+    .screen { display: none; width: 100%; max-width: 560px; }
     .screen.active { display: block; }
     h1 { font-size: 2.2em; margin-bottom: 10px; }
     button {
@@ -88,6 +88,15 @@
       border-bottom: 1px solid #2a4a78;
       line-height: 1.4;
     }
+
+    .chart { border-collapse: collapse; margin: 8px auto 0; font-size: 0.85em; }
+    .chart th, .chart td {
+      border: 1px solid #2a4a78;
+      padding: 5px 7px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .chart th:first-child, .chart td:first-child { text-align: left; }
   </style>
 </head>
 <body>
@@ -223,6 +232,7 @@
     var currentStop = 0;
     var raceTime = 0;
     var currentChallenge = null;
+    var placementHistory = {};
 
     var currentCity = null;
     var legOrigin = null;
@@ -293,7 +303,6 @@
       return Math.round(km / 200) + 10;
     }
 
-    // Same delay odds as your Python: 80% on time, otherwise 1-30 min in tiers
     function rollDelayMinutes() {
       if (Math.random() >= 0.2) return 0;
       var r = Math.random();
@@ -305,14 +314,13 @@
       return Math.floor(Math.random() * (hi - lo + 1)) + lo;
     }
 
-    // One team's full flight time: base + delay + maybe a missed-connection penalty
     function rollFlight() {
       var delay = rollDelayMinutes();
       var total = legFlightTime + delay;
       var missed = false;
       if (legHasConnection && delay >= 15) {
         missed = true;
-        total += Math.floor(Math.random() * 26) + 20; // 20-45 min rebooking
+        total += Math.floor(Math.random() * 26) + 20;
       }
       return { total: total, delay: delay, missed: missed };
     }
@@ -321,8 +329,10 @@
       remainingTeams = teams.slice();
       legNum = 1;
       money = {};
+      placementHistory = {};
       teams.forEach(function (name) {
         money[name] = STARTING_MONEY;
+        placementHistory[name] = [];
         if (!skills[name]) { skills[name] = rollSkills(); }
       });
       currentCity = WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)];
@@ -454,7 +464,7 @@
     }
 
     function simulateRivalLeg(name) {
-      var total = rollFlight().total; // each rival rolls its own flight luck
+      var total = rollFlight().total;
       legStops.forEach(function (stop) {
         var lvl = skills[name][stop.skill];
         total += Math.max(1, Math.round(stop.base * skillMultiplier(lvl)));
@@ -475,6 +485,43 @@
         rows += '<div' + style + '>' + (i + 1) + '. ' + r.team + ' — ' + r.time + ' min' + tag + '</div>';
       });
       return '<div class="standings">' + rows + '</div>';
+    }
+
+    function truncateName(name, n) {
+      return name.length > n ? name.slice(0, n - 1) + '…' : name;
+    }
+
+    function lastPlacement(name) {
+      var h = placementHistory[name];
+      for (var i = h.length - 1; i >= 0; i--) {
+        if (h[i] != null) return { place: h[i], leg: i };
+      }
+      return { place: 999, leg: -1 };
+    }
+
+    function placementChartHtml() {
+      var numLegs = placementHistory[teams[0]].length;
+      if (numLegs === 0) return '';
+      var sorted = teams.slice().sort(function (a, b) {
+        var la = lastPlacement(a), lb = lastPlacement(b);
+        if (la.place !== lb.place) return la.place - lb.place;
+        return lb.leg - la.leg;
+      });
+      var html = '<div style="overflow-x:auto;"><table class="chart"><thead><tr><th>Team</th>';
+      for (var l = 1; l <= numLegs; l++) { html += '<th>L' + l + '</th>'; }
+      html += '<th>Avg</th></tr></thead><tbody>';
+      sorted.forEach(function (name) {
+        var h = placementHistory[name];
+        var nums = h.filter(function (x) { return x != null; });
+        var avg = nums.length ? (nums.reduce(function (s, x) { return s + x; }, 0) / nums.length).toFixed(1) : '';
+        var isYou = (name === playerTeam);
+        var rowStyle = isYou ? ' style="color:#ffd166;font-weight:bold;"' : '';
+        html += '<tr' + rowStyle + '><td>' + truncateName(name, 14) + '</td>';
+        h.forEach(function (p) { html += '<td>' + (p == null ? '' : p) + '</td>'; });
+        html += '<td>' + avg + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+      return html;
     }
 
     function renderResults(title, bodyHtml, buttonLabel, buttonAction) {
@@ -498,11 +545,21 @@
       });
       results.sort(function (a, b) { return a.time - b.time; });
 
+      // Record this leg's placements for the chart
+      var placeOf = {};
+      results.forEach(function (r, i) { placeOf[r.team] = i + 1; });
+      teams.forEach(function (name) {
+        placementHistory[name].push(placeOf[name] != null ? placeOf[name] : null);
+      });
+
+      var chart = '<br><strong>Placement Chart</strong>' + placementChartHtml();
+
       if (remainingTeams.length <= 3) {
         var winner = results[0].team;
         var body = route + standingsHtml(results) +
           '<br>🏆 <strong>' + winner + '</strong> wins The Amazing Race!' +
-          (winner === playerTeam ? ' That\'s you — you won the whole thing!' : '');
+          (winner === playerTeam ? ' That\'s you — you won the whole thing!' : '') +
+          chart;
         renderResults('Final Leg', body, 'New Game', resetToStart);
         return;
       }
@@ -512,7 +569,7 @@
 
       if (eliminated === playerTeam) {
         var body2 = route + standingsHtml(results) +
-          '<br>You finished last on Leg ' + legNum + ' and have been eliminated.';
+          '<br>You finished last on Leg ' + legNum + ' and have been eliminated.' + chart;
         renderResults('Eliminated', body2, 'New Game', resetToStart);
         return;
       }
@@ -520,7 +577,7 @@
       var body3 = route + standingsHtml(results) +
         '<br><strong>' + eliminated + '</strong> finished last and is eliminated.' +
         '<br>Teams left: ' + remainingTeams.length +
-        ' · Your cash: $' + money[playerTeam];
+        ' · Your cash: $' + money[playerTeam] + chart;
       renderResults('Leg ' + legNum + ' Complete', body3, 'Next Leg', nextLeg);
     }
 
