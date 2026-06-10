@@ -82,7 +82,7 @@
     }
     .opt-btn:active { background: #2a4a78; }
 
-    .standings { text-align: left; }
+    .standings { text-align: left; margin-top: 8px; }
     .standings > div {
       padding: 6px 0;
       border-bottom: 1px solid #2a4a78;
@@ -112,7 +112,7 @@
     <div class="cash" id="rosterCash"></div>
     <p>Your skills:</p>
     <div class="skills" id="skillList"></div>
-    <button onclick="startRace()">Start Racing</button>
+    <button onclick="startSeason()">Start Racing</button>
     <br>
     <button onclick="showScreen('teams')">Pick a different team</button>
   </div>
@@ -133,11 +133,11 @@
     <div id="transportList"></div>
   </div>
 
-  <!-- Finish -->
-  <div id="finish" class="screen">
-    <h1>Leg Complete!</h1>
-    <div class="status" id="finishStatus"></div>
-    <button onclick="showScreen('start')">Race Again</button>
+  <!-- Results (leg standings / elimination / finale) -->
+  <div id="results" class="screen">
+    <h1 id="resultsTitle"></h1>
+    <div class="status" id="resultsBody"></div>
+    <div id="resultsButtons"></div>
   </div>
 
   <script>
@@ -176,14 +176,18 @@
     ];
 
     var STARTING_MONEY = 500;
-    var TOTAL_STOPS = 4;
+    var LEG_STIPEND = 400;
+    var TOTAL_STOPS = 3;
 
-    var player = { team: null, money: STARTING_MONEY, skills: {} };
+    var playerTeam = null;
+    var skills = {};   // team -> { skill: level }
+    var money = {};    // team -> cash
+    var remainingTeams = [];
+    var legNum = 1;
+    var legStops = [];
     var currentStop = 0;
     var raceTime = 0;
     var currentChallenge = null;
-    var allTeams = {};   // every team's skills + cash this leg
-    var legStops = [];   // the challenges everyone faces this leg
 
     function buildTeamButtons() {
       var list = document.getElementById('teamList');
@@ -201,25 +205,27 @@
       return Math.floor(Math.random() * 11) + 1;
     }
 
+    function rollSkills() {
+      var s = {};
+      SKILL_TYPES.forEach(function (sk) { s[sk] = randomLevel(); });
+      return s;
+    }
+
     function selectTeam(name) {
-      player.team = name;
-      player.money = STARTING_MONEY;
-      player.skills = {};
-      SKILL_TYPES.forEach(function (skill) {
-        player.skills[skill] = randomLevel();
-      });
+      playerTeam = name;
+      skills[name] = rollSkills();
       showRoster();
     }
 
     function showRoster() {
-      document.getElementById('rosterTeam').textContent = player.team;
-      document.getElementById('rosterCash').textContent = "Cash: $" + player.money;
+      document.getElementById('rosterTeam').textContent = playerTeam;
+      document.getElementById('rosterCash').textContent = "Cash: $" + STARTING_MONEY;
       var box = document.getElementById('skillList');
       box.innerHTML = '';
       SKILL_TYPES.forEach(function (skill) {
         var item = document.createElement('div');
         item.className = 'skill';
-        item.innerHTML = '<span>' + skill + '</span><span class="lvl">' + player.skills[skill] + '</span>';
+        item.innerHTML = '<span>' + skill + '</span><span class="lvl">' + skills[playerTeam][skill] + '</span>';
         box.appendChild(item);
       });
       showScreen('roster');
@@ -229,43 +235,42 @@
       return 1.6 - 0.1 * level;
     }
 
-    function startRace() {
+    function startSeason() {
+      remainingTeams = teams.slice();
+      legNum = 1;
+      money = {};
+      teams.forEach(function (name) {
+        money[name] = STARTING_MONEY;
+        if (!skills[name]) { skills[name] = rollSkills(); }
+      });
+      startLeg();
+    }
+
+    function startLeg() {
       currentStop = 0;
       raceTime = 0;
-
-      // Build the leg everyone faces (same challenges for all teams)
+      if (legNum > 1) {
+        remainingTeams.forEach(function (name) { money[name] += LEG_STIPEND; });
+      }
       legStops = [];
       for (var i = 0; i < TOTAL_STOPS; i++) {
         var skill = SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)];
-        var base = Math.floor(Math.random() * 31) + 10; // 10 to 40 min
+        var base = Math.floor(Math.random() * 31) + 10;
         legStops.push({ skill: skill, base: base });
       }
-
-      // Give every team skills + cash (you keep your roster)
-      allTeams = {};
-      teams.forEach(function (name) {
-        if (name === player.team) {
-          allTeams[name] = { skills: player.skills, money: player.money };
-        } else {
-          var s = {};
-          SKILL_TYPES.forEach(function (sk) { s[sk] = randomLevel(); });
-          allTeams[name] = { skills: s, money: STARTING_MONEY };
-        }
-      });
-
       showChallenge();
     }
 
     function showChallenge() {
       var stop = legStops[currentStop];
-      var level = player.skills[stop.skill];
+      var level = skills[playerTeam][stop.skill];
       var adjusted = Math.max(1, Math.round(stop.base * skillMultiplier(level)));
       currentChallenge = { adjusted: adjusted };
 
       document.getElementById('challengeStatus').innerHTML =
-        '<strong>' + player.team + '</strong><br>' +
-        'Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
-        'Cash: $' + player.money + ' · Time: ' + raceTime + ' min';
+        '<strong>' + playerTeam + '</strong><br>' +
+        'Leg ' + legNum + ' · Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
+        'Cash: $' + money[playerTeam] + ' · Time: ' + raceTime + ' min';
 
       document.getElementById('challengeInfo').innerHTML =
         'Challenge type: <strong>' + stop.skill + '</strong><br>' +
@@ -283,9 +288,9 @@
 
     function showRace() {
       document.getElementById('raceStatus').innerHTML =
-        '<strong>' + player.team + '</strong><br>' +
-        'Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
-        'Cash: $' + player.money + '<br>' +
+        '<strong>' + playerTeam + '</strong><br>' +
+        'Leg ' + legNum + ' · Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
+        'Cash: $' + money[playerTeam] + '<br>' +
         'Time elapsed: ' + raceTime + ' min';
 
       var list = document.getElementById('transportList');
@@ -294,9 +299,7 @@
         var btn = document.createElement('button');
         btn.className = 'opt-btn';
         btn.textContent = opt.method + '  —  $' + opt.cost + '  ·  ' + opt.time + ' min';
-        if (opt.cost > player.money) {
-          btn.disabled = true;
-        }
+        if (opt.cost > money[playerTeam]) { btn.disabled = true; }
         btn.onclick = function () { chooseTransport(opt); };
         list.appendChild(btn);
       });
@@ -305,53 +308,95 @@
     }
 
     function chooseTransport(opt) {
-      player.money = player.money - opt.cost;
+      money[playerTeam] = money[playerTeam] - opt.cost;
       raceTime = raceTime + opt.time;
       currentStop = currentStop + 1;
       if (currentStop >= TOTAL_STOPS) {
-        showFinish();
+        showLegResults();
       } else {
         showChallenge();
       }
     }
 
-    // Run one rival through the whole leg and return their total time
     function simulateRivalLeg(name) {
-      var skills = allTeams[name].skills;
-      var money = allTeams[name].money;
       var total = 0;
       legStops.forEach(function (stop) {
-        var lvl = skills[stop.skill];
+        var lvl = skills[name][stop.skill];
         total += Math.max(1, Math.round(stop.base * skillMultiplier(lvl)));
-        var affordable = STANDARD_TRANSPORT.filter(function (o) { return o.cost <= money; });
+        var affordable = STANDARD_TRANSPORT.filter(function (o) { return o.cost <= money[name]; });
         var pick = affordable[Math.floor(Math.random() * affordable.length)];
-        money -= pick.cost;
+        money[name] -= pick.cost;
         total += pick.time;
       });
       return total;
     }
 
-    function showFinish() {
-      var results = [];
-      teams.forEach(function (name) {
-        var t = (name === player.team) ? raceTime : simulateRivalLeg(name);
-        results.push({ team: name, time: t });
-      });
-      results.sort(function (a, b) { return a.time - b.time; });
-
+    function standingsHtml(results) {
       var rows = '';
       results.forEach(function (r, i) {
-        var isYou = (r.team === player.team);
+        var isYou = (r.team === playerTeam);
         var style = isYou ? ' style="color:#ffd166;font-weight:bold;"' : '';
         var tag = isYou ? '  ← YOU' : '';
         rows += '<div' + style + '>' + (i + 1) + '. ' + r.team + ' — ' + r.time + ' min' + tag + '</div>';
       });
+      return '<div class="standings">' + rows + '</div>';
+    }
 
-      document.getElementById('finishStatus').innerHTML =
-        '<strong>Leg Standings</strong>' +
-        '<div class="standings">' + rows + '</div>' +
-        '<br>Your cash left: $' + player.money;
-      showScreen('finish');
+    function renderResults(title, bodyHtml, buttonLabel, buttonAction) {
+      document.getElementById('resultsTitle').textContent = title;
+      document.getElementById('resultsBody').innerHTML = bodyHtml;
+      var area = document.getElementById('resultsButtons');
+      area.innerHTML = '';
+      var btn = document.createElement('button');
+      btn.textContent = buttonLabel;
+      btn.onclick = buttonAction;
+      area.appendChild(btn);
+      showScreen('results');
+    }
+
+    function showLegResults() {
+      var results = [];
+      remainingTeams.forEach(function (name) {
+        var t = (name === playerTeam) ? raceTime : simulateRivalLeg(name);
+        results.push({ team: name, time: t });
+      });
+      results.sort(function (a, b) { return a.time - b.time; });
+
+      // Final leg: 3 or fewer left, winner is first place
+      if (remainingTeams.length <= 3) {
+        var winner = results[0].team;
+        var body = standingsHtml(results) +
+          '<br>🏆 <strong>' + winner + '</strong> wins The Amazing Race!' +
+          (winner === playerTeam ? ' That\'s you — you won the whole thing!' : '');
+        renderResults('Final Leg', body, 'New Game', resetToStart);
+        return;
+      }
+
+      // Otherwise eliminate last place
+      var eliminated = results[results.length - 1].team;
+      remainingTeams = remainingTeams.filter(function (n) { return n !== eliminated; });
+
+      if (eliminated === playerTeam) {
+        var body2 = standingsHtml(results) +
+          '<br>You finished last on Leg ' + legNum + ' and have been eliminated.';
+        renderResults('Eliminated', body2, 'New Game', resetToStart);
+        return;
+      }
+
+      var body3 = standingsHtml(results) +
+        '<br><strong>' + eliminated + '</strong> finished last and is eliminated.' +
+        '<br>Teams left: ' + remainingTeams.length +
+        ' · Your cash: $' + money[playerTeam];
+      renderResults('Leg ' + legNum + ' Complete', body3, 'Next Leg', nextLeg);
+    }
+
+    function nextLeg() {
+      legNum = legNum + 1;
+      startLeg();
+    }
+
+    function resetToStart() {
+      showScreen('start');
     }
 
     function showScreen(id) {
