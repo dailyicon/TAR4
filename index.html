@@ -239,7 +239,8 @@
 
     var STARTING_MONEY = 100;
     var LEG_STIPEND = 75;
-    var TOTAL_STOPS = 3;
+    var MIN_STOPS_PER_LEG = 2;
+    var MAX_STOPS_PER_LEG = 5;
     var NON_ELIM_CHANCE = 0.15;
     var MIN_TRANSPORT_OPTIONS = 2;
     var MAX_TRANSPORT_OPTIONS = 4;
@@ -251,6 +252,7 @@
     var legNum = 1;
     var legStops = [];
     var legTransportOptions = [];
+    var totalStopsThisLeg = 3;
     var currentStop = 0;
     var raceTime = 0;
     var currentChallenge = null;
@@ -448,6 +450,7 @@
       currentStop = 0;
       raceTime = 0;
       legTransportOptions = [];
+      totalStopsThisLeg = randomInt(MIN_STOPS_PER_LEG, MAX_STOPS_PER_LEG);
 
       if (legNum > 1) {
         remainingTeams.forEach(function (name) { money[name] += LEG_STIPEND; });
@@ -466,7 +469,7 @@
       legHasConnection = Math.random() < 0.35;
 
       legStops = [];
-      for (var i = 0; i < TOTAL_STOPS; i++) {
+      for (var i = 0; i < totalStopsThisLeg; i++) {
         var skill = SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)];
         var base = randomInt(10, 40);
         legStops.push({ skill: skill, base: base });
@@ -476,6 +479,7 @@
       document.getElementById('legIntroBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br><br>' +
         'Starting City: <strong>' + legOrigin.name + '</strong><br><br>' +
+        'Leg Stops: <strong>' + totalStopsThisLeg + '</strong><br>' +
         'Teams Remaining: <strong>' + remainingTeams.length + '</strong><br>' +
         'Your Cash: <strong>$' + money[playerTeam] + '</strong>';
 
@@ -537,7 +541,7 @@
       document.getElementById('challengeStatus').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
         'Leg ' + legNum + ' · ' + legDest.name + '<br>' +
-        'Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
+        'Stop ' + (currentStop + 1) + ' of ' + totalStopsThisLeg + '<br>' +
         'Cash: $' + money[playerTeam] + ' · Time: ' + formatDuration(raceTime);
 
       document.getElementById('challengeInfo').innerHTML =
@@ -558,7 +562,7 @@
       document.getElementById('raceStatus').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
         'Leg ' + legNum + ' · ' + legDest.name + '<br>' +
-        'Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
+        'Stop ' + (currentStop + 1) + ' of ' + totalStopsThisLeg + '<br>' +
         'Cash: $' + money[playerTeam] + '<br>' +
         'Time elapsed: ' + formatDuration(raceTime);
 
@@ -586,7 +590,7 @@
       money[playerTeam] = money[playerTeam] - opt.cost;
       raceTime = raceTime + opt.time;
       currentStop = currentStop + 1;
-      if (currentStop >= TOTAL_STOPS) {
+      if (currentStop >= totalStopsThisLeg) {
         showLegResults();
       } else {
         showChallenge();
