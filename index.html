@@ -237,8 +237,8 @@
       { name: "Toronto",        lat: 43.6532,  lon: -79.3832 }
     ];
 
-    var STARTING_MONEY = 500;
-    var LEG_STIPEND = 400;
+    var STARTING_MONEY = 100;
+    var LEG_STIPEND = 75;
     var TOTAL_STOPS = 3;
     var NON_ELIM_CHANCE = 0.15;
     var MIN_TRANSPORT_OPTIONS = 2;
@@ -289,6 +289,23 @@
 
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function formatDuration(minutes) {
+      var rounded = Math.max(0, Math.round(minutes));
+
+      if (rounded < 60) {
+        return rounded + "m";
+      }
+
+      var hours = Math.floor(rounded / 60);
+      var mins = rounded % 60;
+
+      if (mins === 0) {
+        return hours + "h";
+      }
+
+      return hours + "h " + mins + "m";
     }
 
     function shuffledCopy(arr) {
@@ -458,8 +475,7 @@
       document.getElementById('legIntroTitle').textContent = 'Leg ' + legNum;
       document.getElementById('legIntroBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br><br>' +
-        'Starting City: <strong>' + legOrigin.name + '</strong><br>' +
-        'Destination: <strong>Unknown until you land</strong><br><br>' +
+        'Starting City: <strong>' + legOrigin.name + '</strong><br><br>' +
         'Teams Remaining: <strong>' + remainingTeams.length + '</strong><br>' +
         'Your Cash: <strong>$' + money[playerTeam] + '</strong>';
 
@@ -468,7 +484,7 @@
         'Leg ' + legNum + '<br><br>' +
         'Fly from <strong>' + legOrigin.name + '</strong><br>' +
         'to your next mystery destination.<br><br>' +
-        km.toLocaleString() + ' km · ~' + legFlightTime + ' min flight' +
+        km.toLocaleString() + ' km · ~' + formatDuration(legFlightTime) + ' flight' +
         (legHasConnection ? '<br><br>🔗 This leg has a connection. A long delay could make you miss it.' : '');
 
       flightBoarded = false;
@@ -497,15 +513,15 @@
       if (f.delay === 0) {
         msg = '✅ On time. No delay.';
       } else if (f.missed) {
-        msg = '❌ Delayed ' + f.delay + ' min, and you MISSED the connection. Rebooked at a cost of extra time.';
+        msg = '❌ Delayed ' + formatDuration(f.delay) + ', and you MISSED the connection. Rebooked at a cost of extra time.';
       } else {
-        msg = '⏱️ Delayed ' + f.delay + ' min.';
+        msg = '⏱️ Delayed ' + formatDuration(f.delay) + '.';
       }
 
       msg += '<br><br>📍 You have landed in <strong>' + legDest.name + '</strong>.';
 
       var res = document.getElementById('flightResult');
-      res.innerHTML = msg + '<br>Time so far: ' + raceTime + ' min';
+      res.innerHTML = msg + '<br>Time so far: ' + formatDuration(raceTime);
       res.style.display = 'block';
 
       flightBoarded = true;
@@ -522,13 +538,13 @@
         '<strong>' + playerTeam + '</strong><br>' +
         'Leg ' + legNum + ' · ' + legDest.name + '<br>' +
         'Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
-        'Cash: $' + money[playerTeam] + ' · Time: ' + raceTime + ' min';
+        'Cash: $' + money[playerTeam] + ' · Time: ' + formatDuration(raceTime);
 
       document.getElementById('challengeInfo').innerHTML =
         'Challenge type: <strong>' + stop.skill + '</strong><br>' +
-        'Base time: ' + stop.base + ' min<br>' +
+        'Base time: ' + formatDuration(stop.base) + '<br>' +
         'Your ' + stop.skill + ' level: ' + level + '<br>' +
-        'Adjusted time: <strong>' + adjusted + ' min</strong>';
+        'Adjusted time: <strong>' + formatDuration(adjusted) + '</strong>';
 
       showScreen('challenge');
     }
@@ -544,7 +560,7 @@
         'Leg ' + legNum + ' · ' + legDest.name + '<br>' +
         'Stop ' + (currentStop + 1) + ' of ' + TOTAL_STOPS + '<br>' +
         'Cash: $' + money[playerTeam] + '<br>' +
-        'Time elapsed: ' + raceTime + ' min';
+        'Time elapsed: ' + formatDuration(raceTime);
 
       if (!legTransportOptions[currentStop]) {
         legTransportOptions[currentStop] = makeTransportOptionsForSegment();
@@ -557,7 +573,7 @@
       optionsForThisSegment.forEach(function (opt) {
         var btn = document.createElement('button');
         btn.className = 'opt-btn';
-        btn.textContent = opt.method + ' - $' + opt.cost + ' · ' + opt.time + ' min';
+        btn.textContent = opt.method + ' - $' + opt.cost + ' · ' + formatDuration(opt.time);
         if (opt.cost > money[playerTeam]) { btn.disabled = true; }
         btn.onclick = function () { chooseTransport(opt); };
         list.appendChild(btn);
@@ -614,7 +630,7 @@
         var isYou = (r.team === playerTeam);
         var style = isYou ? ' style="color:#ffd166;font-weight:bold;"' : '';
         var tag = isYou ? ' ← YOU' : '';
-        rows += '<div' + style + '>' + (i + 1) + '. ' + r.team + ' - ' + r.time + ' min' + tag + '</div>';
+        rows += '<div' + style + '>' + (i + 1) + '. ' + r.team + ' - ' + formatDuration(r.time) + tag + '</div>';
       });
       return '<div class="standings">' + rows + '</div>';
     }
