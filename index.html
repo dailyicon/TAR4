@@ -379,6 +379,27 @@
       padding: 10px;
     }
 
+    .flight-route {
+      background: rgba(255, 209, 102, 0.1);
+      border: 1px solid rgba(255, 209, 102, 0.42);
+      border-radius: 14px;
+      padding: 11px;
+      margin-top: 12px;
+      text-align: left;
+    }
+
+    .flight-route-title {
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .flight-hop {
+      margin: 7px 0;
+      padding-left: 10px;
+      border-left: 3px solid rgba(255, 209, 102, 0.5);
+      overflow-wrap: anywhere;
+    }
+
     .chart {
       border-collapse: collapse;
       margin: 10px auto 0;
@@ -564,7 +585,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 2;
+    var SAVE_VERSION = 3;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
     var lastScreenBeforeMenu = "start";
@@ -634,458 +655,1420 @@
     ];
 
     var WORLD_CITIES = [
-      { name: "Atlanta", lat: 33.7627, lon: -84.4224 },
-      { name: "Des Moines", lat: 41.5725, lon: -93.6105 },
-      { name: "Sioux Falls", lat: 43.5397, lon: -96.732 },
-      { name: "Bogotá", lat: 4.6126, lon: -74.0705 },
-      { name: "London", lat: 51.5072, lon: -0.1275 },
-      { name: "Palma de Mallorca", lat: 39.5696, lon: 2.6502 },
-      { name: "Algiers", lat: 36.7764, lon: 3.0586 },
-      { name: "Kampala", lat: 0.3136, lon: 32.5811 },
-      { name: "Dubai", lat: 25.2697, lon: 55.3094 },
-      { name: "Ankara", lat: 39.93, lon: 32.85 },
-      { name: "Chiang Mai", lat: 18.7889, lon: 98.9833 },
-      { name: "Canberra", lat: -35.2931, lon: 149.1269 },
-      { name: "Dallas", lat: 32.7936, lon: -96.7662 },
-      { name: "Topeka", lat: 39.0346, lon: -95.6955 },
-      { name: "Anchorage", lat: 61.1508, lon: -149.1091 },
-      { name: "Buenos Aires", lat: -34.5997, lon: -58.3819 },
-      { name: "Istanbul", lat: 41.01, lon: 28.9603 },
-      { name: "Zürich", lat: 47.3786, lon: 8.54 },
-      { name: "Luanda", lat: -8.8383, lon: 13.2344 },
-      { name: "Lusaka", lat: -15.4167, lon: 28.2833 },
-      { name: "Tokyo", lat: 35.6897, lon: 139.6922 },
-      { name: "Ashgabat", lat: 37.95, lon: 58.3833 },
-      { name: "Đà Nẵng", lat: 16.0748, lon: 108.224 },
-      { name: "Suva", lat: -18.1333, lon: 178.4333 },
-      { name: "Denver", lat: 39.7621, lon: -104.8759 },
-      { name: "Frankfort", lat: 38.1924, lon: -84.8643 },
-      { name: "Cancún", lat: 21.1606, lon: -86.8475 },
-      { name: "La Paz", lat: -16.4942, lon: -68.1475 },
-      { name: "Paris", lat: 48.8566, lon: 2.3522 },
-      { name: "Manchester", lat: 53.4794, lon: -2.2453 },
-      { name: "Porto-Novo", lat: 6.4833, lon: 2.6167 },
-      { name: "Harare", lat: -17.8292, lon: 31.0522 },
-      { name: "New Delhi", lat: 28.7, lon: 77.2 },
-      { name: "Abu Dhabi", lat: 24.4781, lon: 54.3686 },
-      { name: "Nha Trang", lat: 12.25, lon: 109.1833 },
-      { name: "Tarawa", lat: 1.3382, lon: 173.0176 },
-      { name: "Chicago", lat: 41.8373, lon: -87.6862 },
-      { name: "Baton Rouge", lat: 30.4418, lon: -91.131 },
-      { name: "Vancouver", lat: 49.25, lon: -123.1 },
-      { name: "Brasília", lat: -15.7744, lon: -48.0773 },
-      { name: "Amsterdam", lat: 52.35, lon: 4.9166 },
-      { name: "Málaga", lat: 36.7167, lon: -4.4167 },
-      { name: "Gaborone", lat: -24.6569, lon: 25.9086 },
-      { name: "Mogadishu", lat: 2.0408, lon: 45.3425 },
-      { name: "Shanghai", lat: 31.1667, lon: 121.4667 },
-      { name: "Tashkent", lat: 41.3, lon: 69.2667 },
-      { name: "Phu Quoc", lat: 10.2899, lon: 103.984 },
-      { name: "Majuro", lat: 7.1167, lon: 171.3667 },
-      { name: "Los Angeles", lat: 34.1139, lon: -118.4068 },
-      { name: "Augusta", lat: 44.3341, lon: -69.7319 },
-      { name: "San Diego", lat: 32.8312, lon: -117.1225 },
-      { name: "Santiago", lat: -33.45, lon: -70.6667 },
-      { name: "Madrid", lat: 40.4189, lon: -3.6919 },
-      { name: "Saint Petersburg", lat: 59.95, lon: 30.3167 },
-      { name: "Ouagadougou", lat: 12.3572, lon: -1.5353 },
-      { name: "Johannesburg", lat: -26.2044, lon: 28.0416 },
-      { name: "Guangzhou", lat: 23.1288, lon: 113.259 },
-      { name: "Hanoi", lat: 21.0245, lon: 105.8412 },
-      { name: "Colombo", lat: 6.9167, lon: 79.8333 },
-      { name: "Palikir", lat: 6.9178, lon: 158.185 },
-      { name: "New York", lat: 40.6943, lon: -73.9249 },
-      { name: "Annapolis", lat: 38.9706, lon: -76.5047 },
-      { name: "Montréal", lat: 45.5089, lon: -73.5617 },
-      { name: "Quito", lat: -0.2186, lon: -78.5097 },
-      { name: "Frankfurt", lat: 50.1136, lon: 8.6797 },
-      { name: "Düsseldorf", lat: 51.2311, lon: 6.7724 },
-      { name: "Gitega", lat: -3.4264, lon: 29.9306 },
-      { name: "Casablanca", lat: 33.5992, lon: -7.62 },
-      { name: "Seoul", lat: 37.5833, lon: 127.0 },
-      { name: "Sanaa", lat: 15.35, lon: 44.2 },
-      { name: "Yaren", lat: -0.5477, lon: 166.9209 },
-      { name: "Charlotte", lat: 35.208, lon: -80.8304 },
-      { name: "Boston", lat: 42.3188, lon: -71.0846 },
-      { name: "Calgary", lat: 51.05, lon: -114.0667 },
-      { name: "Georgetown", lat: 6.7833, lon: -58.1667 },
-      { name: "Barcelona", lat: 41.3825, lon: 2.1769 },
-      { name: "Geneva", lat: 46.2, lon: 6.15 },
-      { name: "Praia", lat: 14.9177, lon: -23.5092 },
-      { name: "Hurghada", lat: 27.2579, lon: 33.8116 },
-      { name: "Singapore", lat: 1.3, lon: 103.8 },
-      { name: "Amman", lat: 31.95, lon: 35.9333 },
-      { name: "Wellington", lat: -41.2889, lon: 174.7772 },
-      { name: "Las Vegas", lat: 36.2333, lon: -115.2654 },
-      { name: "Lansing", lat: 42.7142, lon: -84.5601 },
-      { name: "Guadalajara", lat: 20.6767, lon: -103.3475 },
-      { name: "Asunción", lat: -25.3, lon: -57.6333 },
-      { name: "Rome", lat: 41.8931, lon: 12.4828 },
-      { name: "Porto", lat: 41.1495, lon: -8.6108 },
-      { name: "Yaoundé", lat: 3.8578, lon: 11.5181 },
-      { name: "Marrakech", lat: 31.6295, lon: -7.9811 },
-      { name: "Beijing", lat: 39.905, lon: 116.3914 },
-      { name: "Kunming", lat: 25.0433, lon: 102.7061 },
-      { name: "Ngerulmud", lat: 7.5006, lon: 134.6242 },
-      { name: "Orlando", lat: 28.4772, lon: -81.3369 },
-      { name: "Saint-Paul", lat: 45.9833, lon: -73.45 },
-      { name: "Portland", lat: 45.5372, lon: -122.65 },
-      { name: "Lima", lat: -12.05, lon: -77.0333 },
-      { name: "Jeddah", lat: 21.5428, lon: 39.1728 },
-      { name: "Edinburgh", lat: 55.953, lon: -3.189 },
-      { name: "Bangui", lat: 4.3732, lon: 18.5628 },
-      { name: "Sharm El-Sheikh", lat: 27.9158, lon: 34.33 },
-      { name: "Shenzhen", lat: 22.535, lon: 114.054 },
-      { name: "Ōsaka", lat: 34.6936, lon: 135.5019 },
-      { name: "Port Moresby", lat: -9.4789, lon: 147.1494 },
-      { name: "Miami", lat: 25.7839, lon: -80.2102 },
-      { name: "Jackson", lat: 32.3163, lon: -90.2124 },
-      { name: "St. Louis", lat: 38.6358, lon: -90.2451 },
-      { name: "Paramaribo", lat: 5.8667, lon: -55.1667 },
-      { name: "Tirana", lat: 41.33, lon: 19.82 },
-      { name: "Hamburg", lat: 53.55, lon: 10.0 },
-      { name: "N’Djamena", lat: 12.11, lon: 15.05 },
-      { name: "Lagos", lat: 6.45, lon: 3.4 },
-      { name: "Bangkok", lat: 13.75, lon: 100.5167 },
-      { name: "Xi’an", lat: 34.2667, lon: 108.9 },
-      { name: "Apia", lat: -13.8333, lon: -171.8333 },
-      { name: "Seattle", lat: 47.6211, lon: -122.3244 },
-      { name: "Jefferson City", lat: 38.5676, lon: -92.1759 },
-      { name: "Monterrey", lat: 25.6667, lon: -100.3 },
-      { name: "Montevideo", lat: -34.8667, lon: -56.1667 },
-      { name: "Andorra la Vella", lat: 42.5, lon: 1.5 },
-      { name: "Nice", lat: 43.7034, lon: 7.2663 },
-      { name: "Moroni", lat: -11.7036, lon: 43.2536 },
-      { name: "Durban", lat: -29.8583, lon: 31.025 },
-      { name: "Kuala Lumpur", lat: 3.1478, lon: 101.6953 },
-      { name: "Bangalore", lat: 12.9699, lon: 77.598 },
-      { name: "Honiara", lat: -9.4333, lon: 159.95 },
-      { name: "Phoenix", lat: 33.5722, lon: -112.0891 },
-      { name: "Helena", lat: 46.5965, lon: -112.0202 },
-      { name: "Tijuana", lat: 32.525, lon: -117.0333 },
-      { name: "Caracas", lat: 10.5, lon: -66.9333 },
-      { name: "Milan", lat: 45.4669, lon: 9.19 },
-      { name: "Birmingham", lat: 52.48, lon: -1.9025 },
-      { name: "Kinshasa", lat: -4.3317, lon: 15.3139 },
-      { name: "Agadir", lat: 30.4167, lon: -9.5833 },
-      { name: "Chengdu", lat: 30.6636, lon: 104.0667 },
-      { name: "Ho Chi Minh City", lat: 10.8167, lon: 106.6333 },
-      { name: "Nuku‘alofa", lat: -21.1347, lon: -175.2083 },
-      { name: "San Francisco", lat: 37.7562, lon: -122.443 },
-      { name: "Lincoln", lat: 40.809, lon: -96.6788 },
-      { name: "Kansas City", lat: 39.1239, lon: -94.5541 },
-      { name: "São Paulo", lat: -23.5504, lon: -46.6339 },
-      { name: "Vienna", lat: 48.2083, lon: 16.3731 },
-      { name: "Naples", lat: 40.8333, lon: 14.25 },
-      { name: "Brazzaville", lat: -4.2667, lon: 15.2833 },
-      { name: "Dar es Salaam", lat: -6.8, lon: 39.2833 },
-      { name: "Jakarta", lat: -6.2146, lon: 106.8451 },
-      { name: "Wuhan", lat: 30.5872, lon: 114.2881 },
-      { name: "Funafuti", lat: -8.5167, lon: 179.2167 },
-      { name: "Newark", lat: 40.7245, lon: -74.1725 },
-      { name: "Carson City", lat: 39.1512, lon: -119.7474 },
-      { name: "Punta Cana", lat: 18.5601, lon: -68.3725 },
-      { name: "Medellín", lat: 6.2447, lon: -75.5748 },
-      { name: "Minsk", lat: 53.9022, lon: 27.5618 },
-      { name: "Catania", lat: 37.5027, lon: 15.0873 },
-      { name: "Yamoussoukro", lat: 6.8161, lon: -5.2742 },
-      { name: "Abidjan", lat: 5.3364, lon: -4.0267 },
-      { name: "Mumbai", lat: 18.9667, lon: 72.8333 },
-      { name: "Changsha", lat: 28.1987, lon: 112.9709 },
-      { name: "Port-Vila", lat: -17.75, lon: 168.3 },
-      { name: "Houston", lat: 29.7863, lon: -95.3889 },
-      { name: "Concord", lat: 43.2305, lon: -71.5595 },
-      { name: "Montego Bay", lat: 18.4667, lon: -77.9167 },
-      { name: "Belo Horizonte", lat: -19.8917, lon: -43.9478 },
-      { name: "Brussels", lat: 50.8467, lon: 4.3517 },
-      { name: "Venice", lat: 45.4397, lon: 12.3319 },
-      { name: "Djibouti", lat: 11.595, lon: 43.1481 },
-      { name: "Tangier", lat: 35.7847, lon: -5.8125 },
-      { name: "Hong Kong", lat: 22.305, lon: 114.185 },
-      { name: "Nanjing", lat: 32.05, lon: 118.7667 },
-      { name: "Sydney", lat: -33.865, lon: 151.2094 },
-      { name: "Toronto", lat: 43.7417, lon: -79.3733 },
-      { name: "Trenton", lat: 40.2236, lon: -74.7641 },
-      { name: "Oranjestad", lat: 12.5186, lon: -70.0358 },
-      { name: "Campinas", lat: -22.9009, lon: -47.0573 },
-      { name: "Sarajevo", lat: 43.8667, lon: 18.4167 },
-      { name: "Marseille", lat: 43.2964, lon: 5.37 },
-      { name: "Cairo", lat: 30.0561, lon: 31.2394 },
-      { name: "Zanzibar", lat: -6.1659, lon: 39.2026 },
-      { name: "Doha", lat: 25.3, lon: 51.5333 },
-      { name: "Jeju City", lat: 33.5097, lon: 126.5219 },
-      { name: "Melbourne", lat: -37.8136, lon: 144.9631 },
-      { name: "Mexico City", lat: 19.4333, lon: -99.1333 },
-      { name: "Santa Fe", lat: 35.6619, lon: -105.9819 },
-      { name: "Wichita Falls", lat: 33.9072, lon: -98.5291 },
-      { name: "Recife", lat: -8.0539, lon: -34.8808 },
-      { name: "Sofia", lat: 42.6975, lon: 23.3241 },
-      { name: "Kraków", lat: 50.0614, lon: 19.9372 },
-      { name: "Malabo", lat: 3.7521, lon: 8.7737 },
-      { name: "Marsa Alam", lat: 25.0676, lon: 34.879 },
-      { name: "Manila", lat: 14.5958, lon: 120.9772 },
-      { name: "Zhengzhou", lat: 34.7492, lon: 113.6605 },
-      { name: "Brisbane", lat: -27.4678, lon: 153.0281 },
-      { name: "Saint John’s", lat: 17.1211, lon: -61.8447 },
-      { name: "Albany", lat: 42.6664, lon: -73.7987 },
-      { name: "Edmonton", lat: 53.5344, lon: -113.4903 },
-      { name: "Cali", lat: 3.44, lon: -76.5197 },
-      { name: "Zagreb", lat: 45.8, lon: 15.95 },
-      { name: "Valencia", lat: 39.4667, lon: -0.375 },
-      { name: "Asmara", lat: 15.3333, lon: 38.9167 },
-      { name: "Djerba", lat: 33.8076, lon: 10.8451 },
-      { name: "Chongqing", lat: 29.55, lon: 106.5069 },
-      { name: "Hyderābād", lat: 17.3667, lon: 78.4667 },
-      { name: "Auckland", lat: -36.85, lon: 174.7833 },
-      { name: "Nassau", lat: 25.0667, lon: -77.3333 },
-      { name: "Raleigh", lat: 35.8325, lon: -78.6435 },
-      { name: "Winnipeg", lat: 49.8844, lon: -97.1464 },
-      { name: "Cartagena", lat: 10.4236, lon: -75.5253 },
-      { name: "Moscow", lat: 55.7558, lon: 37.6178 },
-      { name: "Bologna", lat: 44.4939, lon: 11.3428 },
-      { name: "Mbabane", lat: -26.3167, lon: 31.1333 },
-      { name: "Borg El Arab", lat: 30.9177, lon: 29.6964 },
-      { name: "Kabul", lat: 34.5328, lon: 69.1658 },
-      { name: "Ürümqi", lat: 43.825, lon: 87.6 },
-      { name: "Perth", lat: -31.9522, lon: 115.8589 },
-      { name: "Bridgetown", lat: 13.0975, lon: -59.6167 },
-      { name: "Bismarck", lat: 46.8144, lon: -100.7694 },
-      { name: "Los Cabos", lat: 22.8905, lon: -109.9167 },
-      { name: "Porto Alegre", lat: -30.0328, lon: -51.23 },
-      { name: "Prague", lat: 50.0833, lon: 14.4167 },
-      { name: "Charleroi", lat: 50.4167, lon: 4.4442 },
-      { name: "Addis Ababa", lat: 9.0272, lon: 38.7369 },
-      { name: "Alexandria", lat: 31.2, lon: 29.9167 },
-      { name: "Yerevan", lat: 40.1814, lon: 44.5144 },
-      { name: "Fukuoka", lat: 33.5903, lon: 130.4019 },
-      { name: "Adelaide", lat: -34.9289, lon: 138.6011 },
-      { name: "Belmopan", lat: 17.25, lon: -88.7675 },
-      { name: "Columbus", lat: 39.9862, lon: -82.985 },
-      { name: "Puerto Vallarta", lat: 20.6667, lon: -105.2667 },
-      { name: "Salvador", lat: -12.9708, lon: -38.5108 },
-      { name: "Copenhagen", lat: 55.6786, lon: 12.5635 },
-      { name: "Lyon", lat: 45.76, lon: 4.84 },
-      { name: "Libreville", lat: 0.3901, lon: 9.4544 },
-      { name: "Kilimanjaro", lat: -3.4297, lon: 37.0745 },
-      { name: "Baku", lat: 40.3667, lon: 49.8352 },
-      { name: "Haikou", lat: 20.02, lon: 110.32 },
-      { name: "Christchurch", lat: -43.5309, lon: 172.6365 },
-      { name: "Ottawa", lat: 45.4247, lon: -75.695 },
-      { name: "Oklahoma City", lat: 35.4676, lon: -97.5136 },
-      { name: "Felipe Ángeles", lat: 19.7425, lon: -99.0157 },
-      { name: "Fortaleza", lat: -3.7275, lon: -38.5275 },
-      { name: "Tallinn", lat: 59.4372, lon: 24.745 },
-      { name: "Bristol", lat: 51.45, lon: -2.5833 },
-      { name: "Banjul", lat: 13.4531, lon: -16.5775 },
-      { name: "Manama", lat: 26.2167, lon: 50.5831 },
-      { name: "Qingdao", lat: 36.1167, lon: 120.4 },
-      { name: "Gold Coast", lat: -28.0167, lon: 153.4 },
-      { name: "San José", lat: 9.9333, lon: -84.0833 },
-      { name: "Salem", lat: 44.9231, lon: -123.0246 },
-      { name: "Baltimore", lat: 39.3051, lon: -76.6144 },
-      { name: "Curitiba", lat: -25.4297, lon: -49.2719 },
-      { name: "Helsinki", lat: 60.1756, lon: 24.9342 },
-      { name: "Cologne", lat: 50.9422, lon: 6.9578 },
-      { name: "Accra", lat: 5.6037, lon: -0.187 },
-      { name: "Dhaka", lat: 23.7161, lon: 90.3961 },
-      { name: "Denpasar", lat: -8.6667, lon: 115.2167 },
-      { name: "Cairns", lat: -16.9303, lon: 145.7703 },
-      { name: "Havana", lat: 23.1367, lon: -82.3589 },
-      { name: "Harrisburg", lat: 40.2752, lon: -76.8843 },
-      { name: "Philadelphia", lat: 40.0077, lon: -75.1339 },
-      { name: "Florianópolis", lat: -27.5933, lon: -48.553 },
-      { name: "Berlin", lat: 52.5167, lon: 13.3833 },
-      { name: "Ibiza", lat: 38.9089, lon: 1.4328 },
-      { name: "Conakry", lat: 9.5092, lon: -13.7122 },
-      { name: "Thimphu", lat: 27.4833, lon: 89.6333 },
-      { name: "Harbin", lat: 45.75, lon: 126.6333 },
-      { name: "Hagåtña", lat: 13.4745, lon: 144.7504 },
-      { name: "Roseau", lat: 15.3, lon: -61.3833 },
-      { name: "Providence", lat: 41.823, lon: -71.4187 },
-      { name: "San Juan", lat: 18.4037, lon: -66.0636 },
-      { name: "Belém", lat: -1.4558, lon: -48.5039 },
-      { name: "Athens", lat: 37.9794, lon: 23.7161 },
-      { name: "Palermo", lat: 38.1157, lon: 13.3613 },
-      { name: "Bissau", lat: 11.8592, lon: -15.5956 },
-      { name: "Bandar Seri Begawan", lat: 4.9167, lon: 114.9167 },
-      { name: "Shenyang", lat: 41.8039, lon: 123.4258 },
-      { name: "Kona", lat: 19.64, lon: -155.9969 },
-      { name: "Santo Domingo", lat: 18.4764, lon: -69.8933 },
-      { name: "Columbia", lat: 34.0376, lon: -80.9037 },
-      { name: "San Antonio", lat: 29.4658, lon: -98.5253 },
-      { name: "Goiânia", lat: -16.6789, lon: -49.2539 },
-      { name: "Budapest", lat: 47.4983, lon: 19.0408 },
-      { name: "Toulouse", lat: 43.6045, lon: 1.444 },
-      { name: "Monrovia", lat: 6.3106, lon: -10.8047 },
-      { name: "Nicosia", lat: 35.1725, lon: 33.365 },
-      { name: "Telavi", lat: 41.9167, lon: 45.4833 },
-      { name: "Nadi", lat: -17.8, lon: 177.4167 },
-      { name: "Guatemala City", lat: 14.6099, lon: -90.5252 },
-      { name: "Austin", lat: 30.3004, lon: -97.7522 },
-      { name: "Oakland", lat: 37.7903, lon: -122.2165 },
-      { name: "Córdoba", lat: -31.4167, lon: -64.1833 },
-      { name: "Pristina", lat: 42.6667, lon: 21.1667 },
-      { name: "Bergen", lat: 60.3925, lon: 5.3233 },
-      { name: "Tripoli", lat: 32.8752, lon: 13.1875 },
-      { name: "Tbilisi", lat: 41.7225, lon: 44.7925 },
-      { name: "Dammam", lat: 26.4282, lon: 50.0997 },
-      { name: "Queenstown", lat: -45.0312, lon: 168.6626 },
-      { name: "Port-au-Prince", lat: 18.5425, lon: -72.3386 },
-      { name: "Salt Lake City", lat: 40.7777, lon: -111.9306 },
-      { name: "Cincinnati", lat: 39.1413, lon: -84.5061 },
-      { name: "Mendoza", lat: -32.8833, lon: -68.8333 },
-      { name: "Riga", lat: 56.9475, lon: 24.1069 },
-      { name: "Dubrovnik", lat: 42.6403, lon: 18.1083 },
-      { name: "Antananarivo", lat: -18.9386, lon: 47.5214 },
-      { name: "Kuwait City", lat: 29.375, lon: 47.98 },
-      { name: "İzmir", lat: 38.4127, lon: 27.1384 },
-      { name: "Darwin", lat: -12.4381, lon: 130.8411 },
-      { name: "Tegucigalpa", lat: 14.0942, lon: -87.2067 },
-      { name: "Montpelier", lat: 44.2658, lon: -72.5717 },
-      { name: "Kahului", lat: 20.8715, lon: -156.4603 },
-      { name: "Santa Marta", lat: 11.2361, lon: -74.2017 },
-      { name: "Vaduz", lat: 47.1415, lon: 9.5215 },
-      { name: "Mulhouse", lat: 47.75, lon: 7.34 },
-      { name: "Lilongwe", lat: -13.9833, lon: 33.7833 },
-      { name: "Bishkek", lat: 42.8667, lon: 74.5667 },
-      { name: "Medina", lat: 24.4667, lon: 39.6 },
-      { name: "Kingston", lat: 17.9714, lon: -76.7931 },
-      { name: "Richmond", lat: 37.5295, lon: -77.4756 },
-      { name: "Milwaukee", lat: 43.0642, lon: -87.9673 },
-      { name: "Barranquilla", lat: 10.96, lon: -74.8 },
-      { name: "Vilnius", lat: 54.6833, lon: 25.2833 },
-      { name: "Bordeaux", lat: 44.84, lon: -0.58 },
-      { name: "Bamako", lat: 12.6458, lon: -7.9922 },
-      { name: "Tehran", lat: 35.7, lon: 51.4167 },
-      { name: "Muharraq", lat: 26.2572, lon: 50.6119 },
-      { name: "Managua", lat: 12.15, lon: -86.2667 },
-      { name: "Olympia", lat: 47.0417, lon: -122.8959 },
-      { name: "Albuquerque", lat: 35.1053, lon: -106.6464 },
-      { name: "Pereira", lat: 4.8104, lon: -75.68 },
-      { name: "Luxembourg", lat: 49.6106, lon: 6.1328 },
-      { name: "Nantes", lat: 47.2181, lon: -1.5528 },
-      { name: "Nouakchott", lat: 18.0783, lon: -15.9744 },
-      { name: "Baghdad", lat: 33.35, lon: 44.4167 },
-      { name: "Larnaca", lat: 34.9233, lon: 33.6305 },
-      { name: "Panama City", lat: 9.0, lon: -79.5 },
-      { name: "Charleston", lat: 38.3484, lon: -81.6323 },
-      { name: "Memphis", lat: 35.1046, lon: -89.9773 },
-      { name: "Arequipa", lat: -16.3988, lon: -71.5369 },
-      { name: "Valletta", lat: 35.8978, lon: 14.5125 },
-      { name: "Stuttgart", lat: 48.7761, lon: 9.1775 },
-      { name: "Port Louis", lat: -20.1667, lon: 57.5 },
-      { name: "Jerusalem", lat: 31.7833, lon: 35.2167 },
-      { name: "Mashhad", lat: 36.3069, lon: 59.6042 },
-      { name: "Basseterre", lat: 17.2983, lon: -62.7342 },
-      { name: "Madison", lat: 43.0826, lon: -89.3931 },
-      { name: "Reno", lat: 39.5497, lon: -119.8483 },
-      { name: "Chisinau", lat: 47.0056, lon: 28.8575 },
-      { name: "Heraklion", lat: 35.3387, lon: 25.1442 },
-      { name: "Rabat", lat: 34.0253, lon: -6.8361 },
-      { name: "Vientiane", lat: 17.9667, lon: 102.6 },
-      { name: "Dalaman", lat: 36.7656, lon: 28.798 },
-      { name: "Castries", lat: 14.0167, lon: -60.9833 },
-      { name: "Cheyenne", lat: 41.1351, lon: -104.79 },
-      { name: "Burbank", lat: 34.1879, lon: -118.3235 },
-      { name: "Monaco", lat: 43.7396, lon: 7.4069 },
-      { name: "Cork", lat: 51.9, lon: -8.4731 },
-      { name: "Maputo", lat: -25.9153, lon: 32.5764 },
-      { name: "Beirut", lat: 33.8869, lon: 35.5131 },
-      { name: "Chennai", lat: 13.0825, lon: 80.275 },
-      { name: "Kingstown", lat: 13.1667, lon: -61.2333 },
-      { name: "Tampa", lat: 27.9942, lon: -82.4451 },
-      { name: "Podgorica", lat: 42.4397, lon: 19.2661 },
-      { name: "Gdańsk", lat: 54.3667, lon: 18.6333 },
-      { name: "Windhoek", lat: -22.57, lon: 17.0836 },
-      { name: "Male", lat: 4.175, lon: 73.5083 },
-      { name: "Kolkāta", lat: 22.5411, lon: 88.3378 },
-      { name: "Port of Spain", lat: 10.6667, lon: -61.5167 },
-      { name: "Fort Lauderdale", lat: 26.1412, lon: -80.1464 },
-      { name: "Skopje", lat: 41.9833, lon: 21.4333 },
-      { name: "Katowice", lat: 50.25, lon: 19.0 },
-      { name: "Niamey", lat: 13.5086, lon: 2.1111 },
-      { name: "Ulaanbaatar", lat: 47.9203, lon: 106.9172 },
-      { name: "Ahmadābād", lat: 23.03, lon: 72.58 },
-      { name: "Washington", lat: 38.9047, lon: -77.0163 },
-      { name: "Destin", lat: 30.3935, lon: -86.4958 },
-      { name: "Oslo", lat: 59.9111, lon: 10.7528 },
-      { name: "Faro", lat: 37.0167, lon: -7.9333 },
-      { name: "Abuja", lat: 9.0556, lon: 7.4914 },
-      { name: "Naypyidaw", lat: 19.7475, lon: 96.115 },
-      { name: "Kochi", lat: 9.9667, lon: 76.2833 },
-      { name: "Montgomery", lat: 32.3473, lon: -86.2666 },
-      { name: "Jacksonville", lat: 30.3322, lon: -81.6749 },
-      { name: "Warsaw", lat: 52.2167, lon: 21.0333 },
-      { name: "Alicante", lat: 38.3453, lon: -0.4831 },
-      { name: "Kigali", lat: -1.9536, lon: 30.0606 },
-      { name: "Kathmandu", lat: 27.7167, lon: 85.3667 },
-      { name: "Pune", lat: 18.5196, lon: 73.8553 },
-      { name: "Juneau", lat: 58.4546, lon: -134.1739 },
-      { name: "Savannah", lat: 32.0281, lon: -81.1784 },
-      { name: "Lisbon", lat: 38.7452, lon: -9.1604 },
-      { name: "Gran Canaria", lat: 28.1235, lon: -15.4363 },
-      { name: "São Tomé", lat: 0.3333, lon: 6.7333 },
-      { name: "Pyongyang", lat: 39.03, lon: 125.73 },
-      { name: "Surabaya", lat: -7.2458, lon: 112.7378 },
-      { name: "Little Rock", lat: 34.7256, lon: -92.3576 },
-      { name: "Durham", lat: 35.9794, lon: -78.9031 },
-      { name: "Bucharest", lat: 44.4, lon: 26.0833 },
-      { name: "Tenerife", lat: 28.4636, lon: -16.2518 },
-      { name: "Dakar", lat: 14.7319, lon: -17.4572 },
-      { name: "Muscat", lat: 23.6139, lon: 58.5922 },
-      { name: "Medan", lat: 3.6667, lon: 98.6667 },
-      { name: "Sacramento", lat: 38.5667, lon: -121.4683 },
-      { name: "Pittsburgh", lat: 40.4396, lon: -79.9762 },
-      { name: "San Marino", lat: 34.1224, lon: -118.1132 },
-      { name: "Basel", lat: 47.5606, lon: 7.5906 },
-      { name: "Victoria", lat: -4.6236, lon: 55.4544 },
-      { name: "Islamabad", lat: 33.6989, lon: 73.0369 },
-      { name: "Sapporo", lat: 43.0621, lon: 141.3544 },
-      { name: "Hartford", lat: 41.7661, lon: -72.6834 },
-      { name: "Erie", lat: 42.1168, lon: -80.0733 },
-      { name: "Belgrade", lat: 44.8167, lon: 20.4667 },
-      { name: "Glasgow", lat: 55.8609, lon: -4.2514 },
-      { name: "Freetown", lat: 8.4833, lon: -13.2331 },
-      { name: "Makassar", lat: -5.1331, lon: 119.4136 },
-      { name: "Naha", lat: 26.2122, lon: 127.6789 },
-      { name: "Dover", lat: 39.161, lon: -75.5203 },
-      { name: "Buffalo", lat: 42.9016, lon: -78.8487 },
-      { name: "Bratislava", lat: 48.1447, lon: 17.1128 },
-      { name: "Belfast", lat: 54.5964, lon: -5.93 },
-      { name: "Cape Town", lat: -33.925, lon: 18.425 },
-      { name: "Riyadh", lat: 24.65, lon: 46.71 },
-      { name: "Nur-Sultan", lat: 51.1801, lon: 71.446 },
-      { name: "Tallahassee", lat: 30.4551, lon: -84.2526 },
-      { name: "Cleveland", lat: 41.4767, lon: -81.6804 },
-      { name: "Ljubljana", lat: 46.05, lon: 14.5167 },
-      { name: "Juba", lat: 4.85, lon: 31.6 },
-      { name: "Sri Jayawardenepura", lat: 6.9023, lon: 79.8607 },
-      { name: "Karachi", lat: 24.86, lon: 67.01 },
-      { name: "Honolulu", lat: 21.3294, lon: -157.846 },
-      { name: "Toledo", lat: 41.6639, lon: -83.5822 },
-      { name: "Stockholm", lat: 59.3294, lon: 18.0686 },
-      { name: "Khartoum", lat: 15.6031, lon: 32.5265 },
-      { name: "Damascus", lat: 33.5131, lon: 36.2919 },
-      { name: "Lahore", lat: 31.5497, lon: 74.3436 },
-      { name: "Boise", lat: 43.6007, lon: -116.2312 },
-      { name: "Louisville", lat: 38.1663, lon: -85.6485 },
-      { name: "Bern", lat: 46.948, lon: 7.4474 },
-      { name: "Dodoma", lat: -6.25, lon: 35.75 },
-      { name: "Taipei", lat: 25.0478, lon: 121.5319 },
-      { name: "Cebu", lat: 10.3157, lon: 123.8854 },
-      { name: "Springfield", lat: 39.771, lon: -89.6538 },
-      { name: "Lexington", lat: 38.0423, lon: -84.4587 },
-      { name: "Kyiv", lat: 50.45, lon: 30.5236 },
-      { name: "Lomé", lat: 6.1319, lon: 1.2228 },
-      { name: "Dushanbe", lat: 38.5731, lon: 68.7864 },
-      { name: "Busan", lat: 35.1, lon: 129.0403 },
-      { name: "Indianapolis", lat: 39.7771, lon: -86.1458 },
-      { name: "Minneapolis", lat: 44.9635, lon: -93.2678 },
-      { name: "Vatican City", lat: 41.9, lon: 12.4478 },
-      { name: "Tunis", lat: 36.8008, lon: 10.18 },
-      { name: "Dili", lat: -8.5586, lon: 125.5736 },
-      { name: "Phuket", lat: 7.8881, lon: 98.3975 }
-    ];
+      {
+            "name": "ATLANTA"
+      },
+      {
+            "name": "DES MOINES"
+      },
+      {
+            "name": "SIOUX FALLS"
+      },
+      {
+            "name": "BOGOTA"
+      },
+      {
+            "name": "LONDON"
+      },
+      {
+            "name": "PALMA DE MALLORCA"
+      },
+      {
+            "name": "ALGIERS"
+      },
+      {
+            "name": "KAMPALA"
+      },
+      {
+            "name": "DUBAI"
+      },
+      {
+            "name": "ANKARA"
+      },
+      {
+            "name": "CHIANG MAI"
+      },
+      {
+            "name": "CANBERRA"
+      },
+      {
+            "name": "DALLAS"
+      },
+      {
+            "name": "TOPEKA"
+      },
+      {
+            "name": "ANCHORAGE"
+      },
+      {
+            "name": "BUENOS AIRES"
+      },
+      {
+            "name": "ISTANBUL"
+      },
+      {
+            "name": "ZURICH"
+      },
+      {
+            "name": "LUANDA"
+      },
+      {
+            "name": "LUSAKA"
+      },
+      {
+            "name": "TOKYO"
+      },
+      {
+            "name": "ASHGABAT"
+      },
+      {
+            "name": "DA NANG"
+      },
+      {
+            "name": "SUVA"
+      },
+      {
+            "name": "DENVER"
+      },
+      {
+            "name": "FRANKFORT"
+      },
+      {
+            "name": "CANCUN"
+      },
+      {
+            "name": "LA PAZ"
+      },
+      {
+            "name": "PARIS"
+      },
+      {
+            "name": "MANCHESTER"
+      },
+      {
+            "name": "PORTO-NOVO"
+      },
+      {
+            "name": "HARARE"
+      },
+      {
+            "name": "NEW DELHI"
+      },
+      {
+            "name": "ABU DHABI"
+      },
+      {
+            "name": "NHA TRANG"
+      },
+      {
+            "name": "TARAWA"
+      },
+      {
+            "name": "CHICAGO"
+      },
+      {
+            "name": "BATON ROUGE"
+      },
+      {
+            "name": "VANCOUVER"
+      },
+      {
+            "name": "BRASILIA"
+      },
+      {
+            "name": "AMSTERDAM"
+      },
+      {
+            "name": "MALAGA"
+      },
+      {
+            "name": "GABORONE"
+      },
+      {
+            "name": "MOGADISHU"
+      },
+      {
+            "name": "SHANGHAI"
+      },
+      {
+            "name": "TSHKENT"
+      },
+      {
+            "name": "PHU QUOC"
+      },
+      {
+            "name": "MAJURO"
+      },
+      {
+            "name": "LOS ANGELES"
+      },
+      {
+            "name": "AUGUSTA"
+      },
+      {
+            "name": "SAN DIEGO"
+      },
+      {
+            "name": "SANTIAGO"
+      },
+      {
+            "name": "MADRID"
+      },
+      {
+            "name": "SAINT PETERSBURG"
+      },
+      {
+            "name": "OUAGADOUGOU"
+      },
+      {
+            "name": "JOHANNESBURG"
+      },
+      {
+            "name": "GUANGZHOU"
+      },
+      {
+            "name": "HANOI"
+      },
+      {
+            "name": "COLOMBO"
+      },
+      {
+            "name": "PALIKIR"
+      },
+      {
+            "name": "NEW YORK"
+      },
+      {
+            "name": "ANNAPOLIS"
+      },
+      {
+            "name": "MONTREAL"
+      },
+      {
+            "name": "QUITO"
+      },
+      {
+            "name": "FRANKFURT"
+      },
+      {
+            "name": "DUSSELDORF"
+      },
+      {
+            "name": "GITEGA"
+      },
+      {
+            "name": "CASABLANCA"
+      },
+      {
+            "name": "SEOUL"
+      },
+      {
+            "name": "SANA'A"
+      },
+      {
+            "name": "YAREN"
+      },
+      {
+            "name": "CHARLOTTE"
+      },
+      {
+            "name": "BOSTON"
+      },
+      {
+            "name": "CALGARY"
+      },
+      {
+            "name": "GEORGETOWN"
+      },
+      {
+            "name": "BARCELONA"
+      },
+      {
+            "name": "GENEVA"
+      },
+      {
+            "name": "PRAIA"
+      },
+      {
+            "name": "HURGHADA"
+      },
+      {
+            "name": "SINGAPORE"
+      },
+      {
+            "name": "AMMAN"
+      },
+      {
+            "name": "WELLINGTON"
+      },
+      {
+            "name": "LAS VEGAS"
+      },
+      {
+            "name": "LANSING"
+      },
+      {
+            "name": "GUADALAJARA"
+      },
+      {
+            "name": "ASUNCION"
+      },
+      {
+            "name": "ROME"
+      },
+      {
+            "name": "PORTO"
+      },
+      {
+            "name": "YAOUNDE"
+      },
+      {
+            "name": "MARRAKECH"
+      },
+      {
+            "name": "BEIJING"
+      },
+      {
+            "name": "KUNMING"
+      },
+      {
+            "name": "NGERULMUD"
+      },
+      {
+            "name": "ORLANDO"
+      },
+      {
+            "name": "SAINT PAUL"
+      },
+      {
+            "name": "PORTLAND"
+      },
+      {
+            "name": "LIMA"
+      },
+      {
+            "name": "JEDDAH"
+      },
+      {
+            "name": "EDINBURGH"
+      },
+      {
+            "name": "BANGUI"
+      },
+      {
+            "name": "SHAREM EL-SHEIKH"
+      },
+      {
+            "name": "SHENZHEN"
+      },
+      {
+            "name": "OSAKA"
+      },
+      {
+            "name": "PORT MORESBY"
+      },
+      {
+            "name": "MIAMI"
+      },
+      {
+            "name": "JACKSON"
+      },
+      {
+            "name": "ST LOUIS"
+      },
+      {
+            "name": "PARAMARIBO"
+      },
+      {
+            "name": "TIRANA"
+      },
+      {
+            "name": "HAMBURG"
+      },
+      {
+            "name": "N'JAMENA"
+      },
+      {
+            "name": "LAGOS"
+      },
+      {
+            "name": "BANGKOK"
+      },
+      {
+            "name": "XI'AN"
+      },
+      {
+            "name": "APIA"
+      },
+      {
+            "name": "SEATTLE"
+      },
+      {
+            "name": "JEFFERSON CITY"
+      },
+      {
+            "name": "MONTERREY"
+      },
+      {
+            "name": "MONTEVIDEO"
+      },
+      {
+            "name": "ANDORRA LA VELLA"
+      },
+      {
+            "name": "NICE"
+      },
+      {
+            "name": "MORONI"
+      },
+      {
+            "name": "DURBAN"
+      },
+      {
+            "name": "KUALA LUMPUR"
+      },
+      {
+            "name": "BANGALORE"
+      },
+      {
+            "name": "HONIARA"
+      },
+      {
+            "name": "PHOENIX"
+      },
+      {
+            "name": "HELENA"
+      },
+      {
+            "name": "TIJUANA"
+      },
+      {
+            "name": "CARACAS"
+      },
+      {
+            "name": "MILAN"
+      },
+      {
+            "name": "BIRMINGHAM"
+      },
+      {
+            "name": "KINSHASA"
+      },
+      {
+            "name": "AGADIR"
+      },
+      {
+            "name": "CHENGDU"
+      },
+      {
+            "name": "HO CHI MINH CITY"
+      },
+      {
+            "name": "NUKU'ALOFA"
+      },
+      {
+            "name": "SAN FRANCISCO"
+      },
+      {
+            "name": "LINCOLN"
+      },
+      {
+            "name": "KANSAS CITY"
+      },
+      {
+            "name": "SAO PAULO"
+      },
+      {
+            "name": "VIENNA"
+      },
+      {
+            "name": "NAPLES"
+      },
+      {
+            "name": "BRAZZAVILLE"
+      },
+      {
+            "name": "DAR ES SALAAM"
+      },
+      {
+            "name": "JAKARTA"
+      },
+      {
+            "name": "WUHAN"
+      },
+      {
+            "name": "FUNAFUTI"
+      },
+      {
+            "name": "NEWARK"
+      },
+      {
+            "name": "CARSON CITY"
+      },
+      {
+            "name": "PUNTA CANA"
+      },
+      {
+            "name": "MEDELLIN"
+      },
+      {
+            "name": "MINSK"
+      },
+      {
+            "name": "CATANIA"
+      },
+      {
+            "name": "YAMOUSSOUKRO"
+      },
+      {
+            "name": "ABIDJAN"
+      },
+      {
+            "name": "MUMBAI"
+      },
+      {
+            "name": "CHANGSHA"
+      },
+      {
+            "name": "PORT VILA"
+      },
+      {
+            "name": "HOUSTON"
+      },
+      {
+            "name": "CONCORD"
+      },
+      {
+            "name": "MONTEGO BAY"
+      },
+      {
+            "name": "BELO HORIZONTE"
+      },
+      {
+            "name": "BRUSSLES"
+      },
+      {
+            "name": "VENICE"
+      },
+      {
+            "name": "DJIBOUTI"
+      },
+      {
+            "name": "TANGIER"
+      },
+      {
+            "name": "HONG KONG"
+      },
+      {
+            "name": "NANJING"
+      },
+      {
+            "name": "SYDNEY"
+      },
+      {
+            "name": "TORONTO"
+      },
+      {
+            "name": "TRENTON"
+      },
+      {
+            "name": "ORANJESTAD"
+      },
+      {
+            "name": "CAMPINAS"
+      },
+      {
+            "name": "SARAJEVO"
+      },
+      {
+            "name": "MARSEILLE"
+      },
+      {
+            "name": "CAIRO"
+      },
+      {
+            "name": "ZANZIBAR"
+      },
+      {
+            "name": "DOHA"
+      },
+      {
+            "name": "JEJU CITY"
+      },
+      {
+            "name": "MELBOURNE"
+      },
+      {
+            "name": "MEXICO CITY"
+      },
+      {
+            "name": "SANTA FE"
+      },
+      {
+            "name": "WICHITA FALLS"
+      },
+      {
+            "name": "RECIFE"
+      },
+      {
+            "name": "SOFIA"
+      },
+      {
+            "name": "KRAKOW"
+      },
+      {
+            "name": "MALABO"
+      },
+      {
+            "name": "MARSA ALAM"
+      },
+      {
+            "name": "MANILA"
+      },
+      {
+            "name": "ZHENGZHOU"
+      },
+      {
+            "name": "BRISBANE"
+      },
+      {
+            "name": "SAINT JOHN'S"
+      },
+      {
+            "name": "ALBANY"
+      },
+      {
+            "name": "EDMONTON"
+      },
+      {
+            "name": "CALI"
+      },
+      {
+            "name": "ZAGREB"
+      },
+      {
+            "name": "VALENCIA"
+      },
+      {
+            "name": "ASMARA"
+      },
+      {
+            "name": "DJERBA"
+      },
+      {
+            "name": "CHONGQING"
+      },
+      {
+            "name": "HYDERABAD"
+      },
+      {
+            "name": "AUCKLAND"
+      },
+      {
+            "name": "NASSAU"
+      },
+      {
+            "name": "RALEIGH"
+      },
+      {
+            "name": "WINNIPEG"
+      },
+      {
+            "name": "CARTAGENA"
+      },
+      {
+            "name": "MOSCOW"
+      },
+      {
+            "name": "BOLOGNA"
+      },
+      {
+            "name": "MBABANE"
+      },
+      {
+            "name": "BORG EL ARAB"
+      },
+      {
+            "name": "KABUL"
+      },
+      {
+            "name": "URUMQI"
+      },
+      {
+            "name": "PERTH"
+      },
+      {
+            "name": "BRIDGETOWN"
+      },
+      {
+            "name": "BISMARCK"
+      },
+      {
+            "name": "LOS CABOS"
+      },
+      {
+            "name": "PORTO ALEGRE"
+      },
+      {
+            "name": "PRAGUE"
+      },
+      {
+            "name": "CHARLEROI"
+      },
+      {
+            "name": "ADDIS ABABA"
+      },
+      {
+            "name": "ALEXANDRIA"
+      },
+      {
+            "name": "YEREVAN"
+      },
+      {
+            "name": "FUKUOKA"
+      },
+      {
+            "name": "ADELAIDE"
+      },
+      {
+            "name": "BELMOPON"
+      },
+      {
+            "name": "COLUMBUS"
+      },
+      {
+            "name": "PUERTO VALLARTA"
+      },
+      {
+            "name": "SALVADOR"
+      },
+      {
+            "name": "COPENHAGEN"
+      },
+      {
+            "name": "LYON"
+      },
+      {
+            "name": "LIBREVILLE"
+      },
+      {
+            "name": "KILIMANJARO"
+      },
+      {
+            "name": "BAKU"
+      },
+      {
+            "name": "HAIKOU"
+      },
+      {
+            "name": "CHRISTCHURCH"
+      },
+      {
+            "name": "OTTAWA"
+      },
+      {
+            "name": "OKLAHOMA CITY"
+      },
+      {
+            "name": "FELIPE ANGELES"
+      },
+      {
+            "name": "FORTALEZA"
+      },
+      {
+            "name": "TALLINN"
+      },
+      {
+            "name": "BRISTOL"
+      },
+      {
+            "name": "BANJUL"
+      },
+      {
+            "name": "MANAMA"
+      },
+      {
+            "name": "QINGDAO"
+      },
+      {
+            "name": "GOLD COAST"
+      },
+      {
+            "name": "SAN JOSE"
+      },
+      {
+            "name": "SALEM"
+      },
+      {
+            "name": "BALTIMORE"
+      },
+      {
+            "name": "CURITIBA"
+      },
+      {
+            "name": "HELSINKI"
+      },
+      {
+            "name": "COLOGNE"
+      },
+      {
+            "name": "ACCRA"
+      },
+      {
+            "name": "DHAKA"
+      },
+      {
+            "name": "DENPASAR"
+      },
+      {
+            "name": "CAIRNS"
+      },
+      {
+            "name": "HAVANA"
+      },
+      {
+            "name": "HARRISBURG"
+      },
+      {
+            "name": "PHILADELPHIA"
+      },
+      {
+            "name": "FLORIANOPOLIS"
+      },
+      {
+            "name": "BERLIN"
+      },
+      {
+            "name": "IBIZA"
+      },
+      {
+            "name": "CONAKRY"
+      },
+      {
+            "name": "THIMPHU"
+      },
+      {
+            "name": "HARBIN"
+      },
+      {
+            "name": "HAGATNA"
+      },
+      {
+            "name": "ROSEAU"
+      },
+      {
+            "name": "PROVIDENCE"
+      },
+      {
+            "name": "SAN JUAN"
+      },
+      {
+            "name": "BELEM"
+      },
+      {
+            "name": "ATHENS"
+      },
+      {
+            "name": "PALERMO"
+      },
+      {
+            "name": "BISSAU"
+      },
+      {
+            "name": "BANDAR SERI BEGAWAN"
+      },
+      {
+            "name": "SHENYANG"
+      },
+      {
+            "name": "KONA"
+      },
+      {
+            "name": "SANTO DOMINGO"
+      },
+      {
+            "name": "COLUMBIA"
+      },
+      {
+            "name": "SAN ANTONIO"
+      },
+      {
+            "name": "GOIANIA"
+      },
+      {
+            "name": "BUDAPEST"
+      },
+      {
+            "name": "TOULOUSE"
+      },
+      {
+            "name": "NAIROBI"
+      },
+      {
+            "name": "PHNOM PENH"
+      },
+      {
+            "name": "INCHEON"
+      },
+      {
+            "name": "LIHUE"
+      },
+      {
+            "name": "SAN SALVADOR"
+      },
+      {
+            "name": "PIERRE"
+      },
+      {
+            "name": "FORT MYERS"
+      },
+      {
+            "name": "GUAYAQUIL"
+      },
+      {
+            "name": "REYKJAVIK"
+      },
+      {
+            "name": "THESSALONIKI"
+      },
+      {
+            "name": "MASERU"
+      },
+      {
+            "name": "ASTANA"
+      },
+      {
+            "name": "SHARJAH"
+      },
+      {
+            "name": "HOBART"
+      },
+      {
+            "name": "SAINT GEORGE'S"
+      },
+      {
+            "name": "NASHVILLE"
+      },
+      {
+            "name": "SANTA ANA"
+      },
+      {
+            "name": "CUSCO"
+      },
+      {
+            "name": "DUBLIN"
+      },
+      {
+            "name": "SEVILLE"
+      },
+      {
+            "name": "MONROVIO"
+      },
+      {
+            "name": "NICOSIA"
+      },
+      {
+            "name": "TEL AVIV"
+      },
+      {
+            "name": "NADI"
+      },
+      {
+            "name": "GUATEMALA CITY"
+      },
+      {
+            "name": "AUSTIN"
+      },
+      {
+            "name": "OAKLAND"
+      },
+      {
+            "name": "CORDOBA"
+      },
+      {
+            "name": "PRISTINA"
+      },
+      {
+            "name": "BERGEN"
+      },
+      {
+            "name": "TRIPOLI"
+      },
+      {
+            "name": "TBILISI"
+      },
+      {
+            "name": "DAMMAM"
+      },
+      {
+            "name": "QUEENSTOWN"
+      },
+      {
+            "name": "PORT-AU-PRINCE"
+      },
+      {
+            "name": "SALT LAKE CITY"
+      },
+      {
+            "name": "CINCINNATI"
+      },
+      {
+            "name": "MENDOZA"
+      },
+      {
+            "name": "RIGA"
+      },
+      {
+            "name": "DUBROVNIK"
+      },
+      {
+            "name": "ANTANANARIVO"
+      },
+      {
+            "name": "KUWAIT CITY"
+      },
+      {
+            "name": "IZMIR"
+      },
+      {
+            "name": "DARWIN"
+      },
+      {
+            "name": "TEGUCIGALPA"
+      },
+      {
+            "name": "MONTPELIER"
+      },
+      {
+            "name": "KAHULUI"
+      },
+      {
+            "name": "SANTA MARTA"
+      },
+      {
+            "name": "VADUZ"
+      },
+      {
+            "name": "MULHOUSE"
+      },
+      {
+            "name": "LILONGWE"
+      },
+      {
+            "name": "BISKEKH"
+      },
+      {
+            "name": "MEDINA"
+      },
+      {
+            "name": "KINGSTON"
+      },
+      {
+            "name": "RICHMOND"
+      },
+      {
+            "name": "MILWUAKEE"
+      },
+      {
+            "name": "BARRANQUILLA"
+      },
+      {
+            "name": "VILNIUS"
+      },
+      {
+            "name": "BORDEAUX"
+      },
+      {
+            "name": "BAMAKO"
+      },
+      {
+            "name": "TEHRAN"
+      },
+      {
+            "name": "MUHARRAQ"
+      },
+      {
+            "name": "MANAGUA"
+      },
+      {
+            "name": "OLYMPIA"
+      },
+      {
+            "name": "ALBUQUERQUE"
+      },
+      {
+            "name": "PEREIRA"
+      },
+      {
+            "name": "LUXEMBOURG"
+      },
+      {
+            "name": "NANTES"
+      },
+      {
+            "name": "NOUAKCHOTT"
+      },
+      {
+            "name": "BAGHDAD"
+      },
+      {
+            "name": "LARNACA"
+      },
+      {
+            "name": "PANAMA CITY"
+      },
+      {
+            "name": "CHARLESTON"
+      },
+      {
+            "name": "MEMPHIS"
+      },
+      {
+            "name": "AREQUIPA"
+      },
+      {
+            "name": "VALLETTA"
+      },
+      {
+            "name": "STUTTGART"
+      },
+      {
+            "name": "PORT LOUIS"
+      },
+      {
+            "name": "JERUSALEM"
+      },
+      {
+            "name": "MASHHAD"
+      },
+      {
+            "name": "BASSETERRE"
+      },
+      {
+            "name": "MADISON"
+      },
+      {
+            "name": "RENO"
+      },
+      {
+            "name": "CHISINAU"
+      },
+      {
+            "name": "HERAKLION"
+      },
+      {
+            "name": "RABAT"
+      },
+      {
+            "name": "VIENTIANE"
+      },
+      {
+            "name": "DALAMAN"
+      },
+      {
+            "name": "CASTRIES"
+      },
+      {
+            "name": "CHEYENNE"
+      },
+      {
+            "name": "BURBANK"
+      },
+      {
+            "name": "MONACO"
+      },
+      {
+            "name": "CORK"
+      },
+      {
+            "name": "MAPUTO"
+      },
+      {
+            "name": "BEIRUT"
+      },
+      {
+            "name": "CHENNAI"
+      },
+      {
+            "name": "KINGSTOWN"
+      },
+      {
+            "name": "TAMPA"
+      },
+      {
+            "name": "PODGORICA"
+      },
+      {
+            "name": "GDANSK"
+      },
+      {
+            "name": "WINDHOEK"
+      },
+      {
+            "name": "MALE"
+      },
+      {
+            "name": "KOLKATA"
+      },
+      {
+            "name": "PORT OF SPAIN"
+      },
+      {
+            "name": "PORT LAUDERDALE"
+      },
+      {
+            "name": "SKOPJE"
+      },
+      {
+            "name": "KATOWICE"
+      },
+      {
+            "name": "NIAMEY"
+      },
+      {
+            "name": "ULAANBAATAR"
+      },
+      {
+            "name": "AHMEDABAD"
+      },
+      {
+            "name": "WASHINGTON DC"
+      },
+      {
+            "name": "DESTIN"
+      },
+      {
+            "name": "OSLO"
+      },
+      {
+            "name": "FARO"
+      },
+      {
+            "name": "ABUJA"
+      },
+      {
+            "name": "NAYPYIDAW"
+      },
+      {
+            "name": "KOCHI"
+      },
+      {
+            "name": "MONTGOMERY"
+      },
+      {
+            "name": "JACKSONVILLE"
+      },
+      {
+            "name": "WARSAW"
+      },
+      {
+            "name": "ALICANTE"
+      },
+      {
+            "name": "KIGALI"
+      },
+      {
+            "name": "KATHMANDU"
+      },
+      {
+            "name": "PUNE"
+      },
+      {
+            "name": "JUNAEU"
+      },
+      {
+            "name": "SAVANNAH"
+      },
+      {
+            "name": "LISBON"
+      },
+      {
+            "name": "GRAN CANARIA"
+      },
+      {
+            "name": "SAO TOME"
+      },
+      {
+            "name": "PYONGYANG"
+      },
+      {
+            "name": "SURABAYA"
+      },
+      {
+            "name": "LITTLE ROCK"
+      },
+      {
+            "name": "DURHAM"
+      },
+      {
+            "name": "BUCHAREST"
+      },
+      {
+            "name": "TENERIFE"
+      },
+      {
+            "name": "DAKAR"
+      },
+      {
+            "name": "MUSCAT"
+      },
+      {
+            "name": "MEDAN"
+      },
+      {
+            "name": "SACRAMENTO"
+      },
+      {
+            "name": "PITTSBURGH"
+      },
+      {
+            "name": "SAN MARINO"
+      },
+      {
+            "name": "BASEL"
+      },
+      {
+            "name": "VICTORIA"
+      },
+      {
+            "name": "ISLAMABAD"
+      },
+      {
+            "name": "SAPPORO"
+      },
+      {
+            "name": "HARTFORD"
+      },
+      {
+            "name": "ERIE"
+      },
+      {
+            "name": "BELGRADE"
+      },
+      {
+            "name": "GLASGOW"
+      },
+      {
+            "name": "FREETOWN"
+      },
+      {
+            "name": "MAKASSAR"
+      },
+      {
+            "name": "NAHA"
+      },
+      {
+            "name": "DOVER"
+      },
+      {
+            "name": "BUFFALO"
+      },
+      {
+            "name": "BRATISLAVA"
+      },
+      {
+            "name": "BELFAST"
+      },
+      {
+            "name": "CAPE TOWN"
+      },
+      {
+            "name": "RIYADH"
+      },
+      {
+            "name": "NUR-SULTAN"
+      },
+      {
+            "name": "TALLAHASSEE"
+      },
+      {
+            "name": "CLEVELAND"
+      },
+      {
+            "name": "LJUBLJANA"
+      },
+      {
+            "name": "JUBA"
+      },
+      {
+            "name": "SRI JAYAWARDENEPURA"
+      },
+      {
+            "name": "KARACHI"
+      },
+      {
+            "name": "HONOLULU"
+      },
+      {
+            "name": "TOLEDO"
+      },
+      {
+            "name": "STOCKHOLM"
+      },
+      {
+            "name": "KHARTOUM"
+      },
+      {
+            "name": "DAMASCUS"
+      },
+      {
+            "name": "LAHORE"
+      },
+      {
+            "name": "BOISE"
+      },
+      {
+            "name": "LOUISVILLE"
+      },
+      {
+            "name": "BERN"
+      },
+      {
+            "name": "DODOMA"
+      },
+      {
+            "name": "TAIPEI"
+      },
+      {
+            "name": "CEBU"
+      },
+      {
+            "name": "SPRINGFIELD"
+      },
+      {
+            "name": "LEXINGTON"
+      },
+      {
+            "name": "KYIV"
+      },
+      {
+            "name": "LOME"
+      },
+      {
+            "name": "DUSHANBE"
+      },
+      {
+            "name": "BUSAN"
+      },
+      {
+            "name": "INDIANAPOLIS"
+      },
+      {
+            "name": "MINNEAPOLIS"
+      },
+      {
+            "name": "VATICAN CITY"
+      },
+      {
+            "name": "TUNIS"
+      },
+      {
+            "name": "DILI"
+      },
+      {
+            "name": "PHUKET"
+      }
+];
 
     var STARTING_MONEY = 1500;
     var LEG_STIPEND = 1000;
@@ -1104,6 +2087,17 @@
     var START_PRESENCE_WINDOW = 0;
     var AIRPORT_EXIT_PRESENCE_WINDOW = 5;
     var PITSTOP_PRESENCE_WINDOW = 240;
+
+    var FLIGHT_OUT_DEGREE = 12;
+    var FLIGHT_IN_DEGREE = 12;
+    var FLIGHT_DEPARTURE_INTERVAL = 5;
+    var FLIGHT_DURATION_MINUTES = 180;
+    var FLIGHT_CONNECTION_MINUTES = 1;
+    var MAX_FLIGHT_HOPS = 6;
+
+    var FLIGHT_GRAPH_CACHE = null;
+    var SCHEDULE_CACHE = {};
+    var SCHEDULE_INDEX_CACHE = {};
 
     var playerTeam = null;
     var skills = {};
@@ -1132,9 +2126,7 @@
     var currentCity = null;
     var legOrigin = null;
     var legDest = null;
-    var legFlightTime = 0;
-    var legHasConnection = false;
-    var legFlightDepartureMinute = 0;
+    var activeFlightRoute = null;
     var flightResolved = false;
     var legIsNonElim = false;
 
@@ -1439,20 +2431,6 @@
       return html;
     }
 
-    function formatFlightMinute(minute) {
-      return ":" + pad2(minute);
-    }
-
-    function waitForHourlyDeparture(clockMinutes, departureMinute) {
-      var minuteOfHour = Math.round(clockMinutes) % 60;
-
-      if (minuteOfHour <= departureMinute) {
-        return departureMinute - minuteOfHour;
-      }
-
-      return 60 - minuteOfHour + departureMinute;
-    }
-
     function formatRaceDateTime(minutes) {
       var rounded = Math.max(0, Math.round(minutes));
       var monthNames = [
@@ -1577,6 +2555,386 @@
       return pick;
     }
 
+    function cityNames() {
+      return WORLD_CITIES.map(function (city) {
+        return city.name;
+      });
+    }
+
+    function stableHash(str) {
+      var h = 2166136261;
+
+      for (var i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+
+      return h >>> 0;
+    }
+
+    function seededRandom(seed) {
+      var s = seed >>> 0;
+
+      return function () {
+        s = Math.imul(1664525, s) + 1013904223;
+        return (s >>> 0) / 4294967296;
+      };
+    }
+
+    function shuffleWithSeed(arr, seedText) {
+      var copy = arr.slice();
+      var rnd = seededRandom(stableHash(seedText));
+
+      for (var i = copy.length - 1; i > 0; i--) {
+        var j = Math.floor(rnd() * (i + 1));
+        var temp = copy[i];
+        copy[i] = copy[j];
+        copy[j] = temp;
+      }
+
+      return copy;
+    }
+
+    function addGraphEdge(graph, from, to) {
+      if (from === to) {
+        return;
+      }
+
+      if (!graph[from]) {
+        graph[from] = [];
+      }
+
+      if (graph[from].indexOf(to) === -1) {
+        graph[from].push(to);
+      }
+    }
+
+    function buildFlightGraph() {
+      if (FLIGHT_GRAPH_CACHE) {
+        return FLIGHT_GRAPH_CACHE;
+      }
+
+      var names = cityNames();
+      var graph = {};
+      var inboundCount = {};
+
+      names.forEach(function (name) {
+        graph[name] = [];
+        inboundCount[name] = 0;
+      });
+
+      names.forEach(function (name) {
+        var choices = names.filter(function (other) {
+          return other !== name;
+        });
+
+        choices = shuffleWithSeed(choices, name + "|outbound-flight-network-v3");
+
+        choices.slice(0, Math.min(FLIGHT_OUT_DEGREE, choices.length)).forEach(function (dest) {
+          if (graph[name].indexOf(dest) === -1) {
+            graph[name].push(dest);
+            inboundCount[dest] += 1;
+          }
+        });
+      });
+
+      names.forEach(function (target) {
+        if (inboundCount[target] >= FLIGHT_IN_DEGREE) {
+          return;
+        }
+
+        var sources = names.filter(function (source) {
+          return source !== target && graph[source].indexOf(target) === -1;
+        });
+
+        sources = shuffleWithSeed(sources, target + "|inbound-flight-network-v3");
+
+        for (var i = 0; i < sources.length && inboundCount[target] < FLIGHT_IN_DEGREE; i++) {
+          addGraphEdge(graph, sources[i], target);
+          inboundCount[target] += 1;
+        }
+      });
+
+      FLIGHT_GRAPH_CACHE = graph;
+      return graph;
+    }
+
+    function getOutboundFlightCities(originName) {
+      var graph = buildFlightGraph();
+      return graph[originName] ? graph[originName].slice() : [];
+    }
+
+    function getDailySchedule(originName) {
+      if (SCHEDULE_CACHE[originName]) {
+        return SCHEDULE_CACHE[originName];
+      }
+
+      var outbound = getOutboundFlightCities(originName);
+      var schedule = [];
+
+      if (outbound.length === 0) {
+        SCHEDULE_CACHE[originName] = schedule;
+        return schedule;
+      }
+
+      var slotCount = Math.floor(MINUTES_PER_DAY / FLIGHT_DEPARTURE_INTERVAL);
+      var shuffledOutbound = shuffleWithSeed(outbound, originName + "|daily-flight-coverage-v3");
+      var rnd = seededRandom(stableHash(originName + "|daily-flight-schedule-v3"));
+
+      for (var slot = 0; slot < slotCount; slot++) {
+        var minute = slot * FLIGHT_DEPARTURE_INTERVAL;
+        var dest;
+
+        if (slot < shuffledOutbound.length) {
+          dest = shuffledOutbound[slot];
+        } else {
+          dest = outbound[Math.floor(rnd() * outbound.length)];
+        }
+
+        schedule.push({
+          to: dest,
+          minute: minute
+        });
+      }
+
+      schedule.sort(function (a, b) {
+        if (a.minute !== b.minute) {
+          return a.minute - b.minute;
+        }
+
+        return a.to.localeCompare(b.to);
+      });
+
+      SCHEDULE_CACHE[originName] = schedule;
+      return schedule;
+    }
+
+    function getDailyScheduleIndex(originName) {
+      if (SCHEDULE_INDEX_CACHE[originName]) {
+        return SCHEDULE_INDEX_CACHE[originName];
+      }
+
+      var index = {};
+      var schedule = getDailySchedule(originName);
+
+      schedule.forEach(function (item) {
+        if (!index[item.to]) {
+          index[item.to] = [];
+        }
+
+        index[item.to].push(item.minute);
+      });
+
+      SCHEDULE_INDEX_CACHE[originName] = index;
+      return index;
+    }
+
+    function getScheduledDestinations(originName) {
+      return Object.keys(getDailyScheduleIndex(originName));
+    }
+
+    function nextMinuteFromList(minutes, minuteNow) {
+      for (var i = 0; i < minutes.length; i++) {
+        if (minutes[i] >= minuteNow) {
+          return minutes[i];
+        }
+      }
+
+      return null;
+    }
+
+    function nextDepartureBoundary(earliestClock) {
+      var rounded = Math.ceil(earliestClock);
+      var remainder = rounded % FLIGHT_DEPARTURE_INTERVAL;
+
+      if (remainder === 0) {
+        return rounded;
+      }
+
+      return rounded + (FLIGHT_DEPARTURE_INTERVAL - remainder);
+    }
+
+    function getNextDepartureForEdge(originName, destName, earliestClock) {
+      var index = getDailyScheduleIndex(originName);
+      var minutes = index[destName];
+
+      if (!minutes || minutes.length === 0) {
+        return null;
+      }
+
+      var roundedEarliest = Math.ceil(earliestClock);
+      var dayStart = Math.floor(roundedEarliest / MINUTES_PER_DAY) * MINUTES_PER_DAY;
+      var minuteNow = roundedEarliest - dayStart;
+      var minuteToday = nextMinuteFromList(minutes, minuteNow);
+
+      if (minuteToday != null) {
+        return dayStart + minuteToday;
+      }
+
+      return dayStart + MINUTES_PER_DAY + minutes[0];
+    }
+
+    function buildFlightHop(fromName, toName, departClock) {
+      return {
+        from: fromName,
+        to: toName,
+        departClock: departClock,
+        arriveClock: departClock + FLIGHT_DURATION_MINUTES,
+        duration: FLIGHT_DURATION_MINUTES
+      };
+    }
+
+    function findEarliestArrivalPath(originName, targetName, earliestClock, maxHops) {
+      if (originName === targetName) {
+        return [];
+      }
+
+      var queue = [{
+        city: originName,
+        time: earliestClock,
+        hops: 0
+      }];
+
+      var bestArrival = {};
+      var previous = {};
+
+      bestArrival[originName] = earliestClock;
+
+      while (queue.length > 0) {
+        queue.sort(function (a, b) {
+          return a.time - b.time;
+        });
+
+        var item = queue.shift();
+
+        if (bestArrival[item.city] != null && item.time > bestArrival[item.city]) {
+          continue;
+        }
+
+        if (item.city === targetName) {
+          var path = [];
+          var cur = targetName;
+
+          while (cur !== originName) {
+            var prev = previous[cur];
+
+            if (!prev) {
+              break;
+            }
+
+            path.push(buildFlightHop(prev.from, cur, prev.departClock));
+            cur = prev.from;
+          }
+
+          path.reverse();
+          return path;
+        }
+
+        if (item.hops >= maxHops) {
+          continue;
+        }
+
+        var earliestBoard = item.time + FLIGHT_CONNECTION_MINUTES;
+        var neighbors = getScheduledDestinations(item.city);
+
+        neighbors.forEach(function (neighbor) {
+          if (neighbor === item.city) {
+            return;
+          }
+
+          var departClock = getNextDepartureForEdge(item.city, neighbor, earliestBoard);
+
+          if (departClock == null) {
+            return;
+          }
+
+          var arriveClock = departClock + FLIGHT_DURATION_MINUTES;
+
+          if (bestArrival[neighbor] == null || arriveClock < bestArrival[neighbor]) {
+            bestArrival[neighbor] = arriveClock;
+            previous[neighbor] = {
+              from: item.city,
+              departClock: departClock
+            };
+
+            queue.push({
+              city: neighbor,
+              time: arriveClock,
+              hops: item.hops + 1
+            });
+          }
+        });
+      }
+
+      return null;
+    }
+
+    function buildFallbackFlightRoute(originName, targetName, earliestBoardClock) {
+      var departClock = nextDepartureBoundary(earliestBoardClock);
+      return [buildFlightHop(originName, targetName, departClock)];
+    }
+
+    function planFlightRoute(originCity, destinationCity, airportArrivalClock) {
+      var originName = originCity.name;
+      var targetName = destinationCity.name;
+      var earliestBoardClock = airportArrivalClock + FLIGHT_CONNECTION_MINUTES;
+      var hops = findEarliestArrivalPath(originName, targetName, earliestBoardClock, MAX_FLIGHT_HOPS);
+
+      if (!hops || hops.length === 0 || hops[hops.length - 1].to !== targetName) {
+        hops = buildFallbackFlightRoute(originName, targetName, earliestBoardClock);
+      }
+
+      var firstDepartClock = hops[0].departClock;
+      var finalArrivalClock = hops[hops.length - 1].arriveClock;
+
+      return {
+        hops: hops,
+        firstDepartClock: firstDepartClock,
+        finalArrivalClock: finalArrivalClock,
+        totalFromAirportArrival: finalArrivalClock - airportArrivalClock,
+        totalFromFirstDeparture: finalArrivalClock - firstDepartClock,
+        connections: Math.max(0, hops.length - 1)
+      };
+    }
+
+    function flightRoutePathText(route) {
+      if (!route || !route.hops || route.hops.length === 0) {
+        return "No route";
+      }
+
+      var names = [route.hops[0].from];
+
+      route.hops.forEach(function (hop) {
+        names.push(hop.to);
+      });
+
+      return names.join(" → ");
+    }
+
+    function flightRouteHtml(route) {
+      if (!route || !route.hops || route.hops.length === 0) {
+        return '<div class="flight-route">No flight route found.</div>';
+      }
+
+      var html = '<div class="flight-route">';
+      html += '<div class="flight-route-title">Flight Route</div>';
+      html += '<strong>' + escapeHtml(flightRoutePathText(route)) + '</strong><br>';
+      html += 'Connections: <strong>' + route.connections + '</strong><br>';
+      html += 'Total routing time: <strong>' + formatDuration(route.totalFromAirportArrival) + '</strong>';
+
+      route.hops.forEach(function (hop) {
+        html += '<div class="flight-hop">';
+        html += escapeHtml(hop.from) + ' → ' + escapeHtml(hop.to) + '<br>';
+        html += 'Depart: <strong>' + formatRaceDateTime(hop.departClock) + '</strong><br>';
+        html += 'Arrive: <strong>' + formatRaceDateTime(hop.arriveClock) + '</strong><br>';
+        html += 'Flight time: <strong>' + formatDuration(hop.duration) + '</strong>';
+        html += '</div>';
+      });
+
+      html += '</div>';
+      return html;
+    }
+
     function buildRivalLegRecords() {
       teamLegRecords = {};
       teamCashSpentThisLeg = {};
@@ -1624,8 +2982,8 @@
       addEvent("Travel to origin airport by " + toAirportPick.method, toAirportPick.time);
 
       var originAirportArrivalClock = currentClockForTeam();
-      var flightWait = waitForHourlyDeparture(originAirportArrivalClock, legFlightDepartureMinute);
-      var originAirportDepartureClock = originAirportArrivalClock + flightWait;
+      var rivalRoute = planFlightRoute(legOrigin, legDest, originAirportArrivalClock);
+      var originAirportDepartureClock = rivalRoute.firstDepartClock;
 
       addPresenceSegment(
         presenceSegments,
@@ -1635,12 +2993,10 @@
         "Origin Airport"
       );
 
-      if (flightWait > 0) {
-        addEvent("Wait for flight departure", flightWait);
-      }
-
-      var flight = rollFlight();
-      addEvent("Flight to destination airport", flight.total);
+      addEvent(
+        "Flight route " + flightRoutePathText(rivalRoute),
+        rivalRoute.totalFromAirportArrival
+      );
 
       var destinationAirportArrivalClock = currentClockForTeam();
 
@@ -1752,67 +3108,6 @@
       return 1.6 - 0.1 * level;
     }
 
-    function haversineKm(a, b) {
-      var R = 6371;
-      var toRad = function (d) { return d * Math.PI / 180; };
-      var dLat = toRad(b.lat - a.lat);
-      var dLon = toRad(b.lon - a.lon);
-      var lat1 = toRad(a.lat);
-      var lat2 = toRad(b.lat);
-
-      var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-              Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-      return Math.round(2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)));
-    }
-
-    function flightMinutes(km) {
-      return Math.round(km / 200) + 10;
-    }
-
-    function rollDelayMinutes() {
-      if (Math.random() >= 0.2) {
-        return 0;
-      }
-
-      var r = Math.random();
-      var lo;
-      var hi;
-
-      if (r < 0.50) {
-        lo = 1;
-        hi = 5;
-      } else if (r < 0.80) {
-        lo = 6;
-        hi = 10;
-      } else if (r < 0.95) {
-        lo = 11;
-        hi = 20;
-      } else {
-        lo = 21;
-        hi = 30;
-      }
-
-      return randomInt(lo, hi);
-    }
-
-    function rollFlight() {
-      var delay = rollDelayMinutes();
-      var total = legFlightTime + delay;
-      var missed = false;
-
-      if (legHasConnection && delay >= 15) {
-        missed = true;
-        total += randomInt(20, 45);
-      }
-
-      return {
-        total: total,
-        delay: delay,
-        missed: missed
-      };
-    }
-
     function startSeason() {
       remainingTeams = teams.slice();
       legNum = 1;
@@ -1830,6 +3125,7 @@
       winnerCheckInClock = 0;
       currentResultAction = null;
       restoredFlightResultHtml = "";
+      activeFlightRoute = null;
       skills = {};
 
       teams.forEach(function (name) {
@@ -1890,11 +3186,7 @@
 
       legOrigin = currentCity;
       legDest = dest;
-
-      var km = haversineKm(legOrigin, legDest);
-      legFlightTime = flightMinutes(km);
-      legHasConnection = Math.random() < 0.35;
-      legFlightDepartureMinute = randomInt(0, 59);
+      activeFlightRoute = null;
 
       legStops = [];
 
@@ -1943,9 +3235,11 @@
         currentLegLabel() + "<br><br>" +
         "Departing from <strong>" + escapeHtml(cityAirportName(legOrigin)) + "</strong><br>" +
         "Flying to <strong>" + escapeHtml(cityAirportName(legDest)) + "</strong>.<br><br>" +
-        "Flight Schedule: <strong>Every " + formatFlightMinute(legFlightDepartureMinute) + "</strong><br>" +
-        formatDuration(legFlightTime) + " flight" +
-        (legHasConnection ? "<br><br>🔗 This leg has a connection. A long delay could make you miss it." : "");
+        "Flight Routing: <strong>Scheduled airport network</strong><br>" +
+        "Departures: <strong>Every " + FLIGHT_DEPARTURE_INTERVAL + "m</strong><br>" +
+        "Connection minimum: <strong>" + FLIGHT_CONNECTION_MINUTES + "m</strong><br>" +
+        "Each flight segment: <strong>" + formatDuration(FLIGHT_DURATION_MINUTES) + "</strong><br><br>" +
+        "Your exact route will be calculated when you reach the airport.";
     }
 
     function renderSpecialTransportOptions(options) {
@@ -2026,32 +3320,19 @@
       }
 
       var airportArrivalClock = raceClock;
-      var wait = waitForHourlyDeparture(raceClock, legFlightDepartureMinute);
+      var route = planFlightRoute(legOrigin, legDest, airportArrivalClock);
+      activeFlightRoute = route;
 
-      if (wait > 0) {
-        addRaceMinutes(wait);
-      }
-
-      var departureClock = raceClock;
-      var f = rollFlight();
-
-      addRaceMinutes(f.total);
+      addRaceMinutes(route.totalFromAirportArrival);
 
       var msg = "";
 
-      msg += presenceReportHtml(originAirportLocationKey(), airportArrivalClock, departureClock);
+      msg += presenceReportHtml(originAirportLocationKey(), airportArrivalClock, route.firstDepartClock);
       msg += "<br>Airport Arrival: <strong>" + formatRaceDateTime(airportArrivalClock) + "</strong>";
-      msg += "<br>Flight Departure: <strong>" + formatRaceDateTime(departureClock) + "</strong><br><br>";
-
-      if (f.delay === 0) {
-        msg += "✅ On time. No delay.";
-      } else if (f.missed) {
-        msg += "❌ Delayed " + formatDuration(f.delay) + ", and you MISSED the connection. Rebooked at a cost of extra time.";
-      } else {
-        msg += "⏱️ Delayed " + formatDuration(f.delay) + ".";
-      }
-
-      msg += "<br><br>Destination City: <strong>" + escapeHtml(legDest.name) + "</strong>.";
+      msg += "<br>First Flight Departure: <strong>" + formatRaceDateTime(route.firstDepartClock) + "</strong>";
+      msg += "<br>Final Flight Arrival: <strong>" + formatRaceDateTime(route.finalArrivalClock) + "</strong><br>";
+      msg += flightRouteHtml(route);
+      msg += "<br>Destination City: <strong>" + escapeHtml(legDest.name) + "</strong>.";
 
       var res = document.getElementById("flightResult");
       res.innerHTML =
@@ -2186,7 +3467,7 @@
     }
 
     function lastPlacement(name) {
-      var h = placementHistory[name];
+      var h = placementHistory[name] || [];
 
       for (var i = h.length - 1; i >= 0; i--) {
         if (h[i] != null) {
@@ -2204,7 +3485,8 @@
     }
 
     function placementChartHtml() {
-      var numLegs = placementHistory[teams[0]].length;
+      var firstTeam = teams[0];
+      var numLegs = placementHistory[firstTeam] ? placementHistory[firstTeam].length : 0;
 
       if (numLegs === 0) {
         return "";
@@ -2461,9 +3743,7 @@
         currentCity: currentCity,
         legOrigin: legOrigin,
         legDest: legDest,
-        legFlightTime: legFlightTime,
-        legHasConnection: legHasConnection,
-        legFlightDepartureMinute: legFlightDepartureMinute,
+        activeFlightRoute: activeFlightRoute,
         flightResolved: flightResolved,
         legIsNonElim: legIsNonElim,
 
@@ -2510,9 +3790,7 @@
       currentCity = state.currentCity || null;
       legOrigin = state.legOrigin || null;
       legDest = state.legDest || null;
-      legFlightTime = state.legFlightTime || 0;
-      legHasConnection = !!state.legHasConnection;
-      legFlightDepartureMinute = state.legFlightDepartureMinute || 0;
+      activeFlightRoute = state.activeFlightRoute || null;
       flightResolved = !!state.flightResolved;
       legIsNonElim = !!state.legIsNonElim;
 
