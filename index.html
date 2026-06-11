@@ -141,7 +141,14 @@
   <div id="legIntro" class="screen">
     <h1 id="legIntroTitle"></h1>
     <div class="status" id="legIntroBody"></div>
-    <button onclick="showFlightScreen()">Begin Leg</button>
+    <button onclick="showAirportStartScreen()">Head to Airport</button>
+  </div>
+
+  <!-- Airport Start -->
+  <div id="airportStart" class="screen">
+    <h1>🛫 Airport Start</h1>
+    <div class="status" id="airportStartBody"></div>
+    <button onclick="showFlightScreen()">Continue to Flight</button>
   </div>
 
   <!-- Flight -->
@@ -150,6 +157,13 @@
     <div class="status" id="flightBody"></div>
     <div class="status" id="flightResult" style="display:none;"></div>
     <button id="flightBtn" onclick="flightButton()">Board flight</button>
+  </div>
+
+  <!-- Airport End -->
+  <div id="airportEnd" class="screen">
+    <h1>🛬 Destination Airport</h1>
+    <div class="status" id="airportEndBody"></div>
+    <button onclick="showChallenge()">Leave Airport</button>
   </div>
 
   <!-- Challenge -->
@@ -308,6 +322,14 @@
       }
 
       return hours + "h " + mins + "m";
+    }
+
+    function cityAirportName(city) {
+      if (!city || !city.name) {
+        return "Unknown Airport";
+      }
+
+      return city.name + " Airport";
     }
 
     function shuffledCopy(arr) {
@@ -479,15 +501,22 @@
       document.getElementById('legIntroBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br><br>' +
         'Starting City: <strong>' + legOrigin.name + '</strong><br><br>' +
+        'Leg Flow:<br>' +
+        '<strong>Start City → Airport → Mystery Flight → Destination Airport → Stops</strong><br><br>' +
         'Leg Stops: <strong>' + totalStopsThisLeg + '</strong><br>' +
         'Teams Remaining: <strong>' + remainingTeams.length + '</strong><br>' +
         'Your Cash: <strong>$' + money[playerTeam] + '</strong>';
 
+      document.getElementById('airportStartBody').innerHTML =
+        '<strong>' + playerTeam + '</strong><br><br>' +
+        'You have reached <strong>' + cityAirportName(legOrigin) + '</strong>.<br><br>' +
+        'Prepare to board a flight from <strong>' + legOrigin.name + '</strong> to your next mystery destination.';
+
       document.getElementById('flightBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
         'Leg ' + legNum + '<br><br>' +
-        'Fly from <strong>' + legOrigin.name + '</strong><br>' +
-        'to your next mystery destination.<br><br>' +
+        'Departing from <strong>' + cityAirportName(legOrigin) + '</strong><br>' +
+        'Flying to your next mystery airport.<br><br>' +
         km.toLocaleString() + ' km · ~' + formatDuration(legFlightTime) + ' flight' +
         (legHasConnection ? '<br><br>🔗 This leg has a connection. A long delay could make you miss it.' : '');
 
@@ -497,15 +526,30 @@
       showScreen('legIntro');
     }
 
+    function showAirportStartScreen() {
+      showScreen('airportStart');
+    }
+
     function showFlightScreen() {
       showScreen('flight');
+    }
+
+    function showAirportEndScreen() {
+      document.getElementById('airportEndBody').innerHTML =
+        '<strong>' + playerTeam + '</strong><br><br>' +
+        'You have arrived at <strong>' + cityAirportName(legDest) + '</strong>.<br><br>' +
+        'Destination City: <strong>' + legDest.name + '</strong><br>' +
+        'Stops Ahead: <strong>' + totalStopsThisLeg + '</strong><br><br>' +
+        'Leave the airport to begin the leg tasks.';
+
+      showScreen('airportEnd');
     }
 
     function flightButton() {
       if (!flightBoarded) {
         boardFlight();
       } else {
-        showChallenge();
+        showAirportEndScreen();
       }
     }
 
@@ -522,14 +566,15 @@
         msg = '⏱️ Delayed ' + formatDuration(f.delay) + '.';
       }
 
-      msg += '<br><br>📍 You have landed in <strong>' + legDest.name + '</strong>.';
+      msg += '<br><br>📍 You have landed at <strong>' + cityAirportName(legDest) + '</strong>.';
+      msg += '<br>Destination City: <strong>' + legDest.name + '</strong>.';
 
       var res = document.getElementById('flightResult');
       res.innerHTML = msg + '<br>Time so far: ' + formatDuration(raceTime);
       res.style.display = 'block';
 
       flightBoarded = true;
-      document.getElementById('flightBtn').textContent = 'Continue in ' + legDest.name;
+      document.getElementById('flightBtn').textContent = 'Continue to Destination Airport';
     }
 
     function showChallenge() {
@@ -699,7 +744,6 @@
 
       updateRouteHistoryForCompletedLeg();
 
-      // Record this leg's placements for the chart
       var placeOf = {};
       results.forEach(function (r, i) { placeOf[r.team] = i + 1; });
       teams.forEach(function (name) {
