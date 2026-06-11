@@ -515,7 +515,9 @@
       line-height: 1.45;
     }
 
-    .team-editor-card {
+    .team-editor-card,
+    .skill-editor-card,
+    .custom-skill-editor-card {
       margin-top: 14px;
       background: rgba(43, 13, 20, 0.42);
       border: 1px solid rgba(255, 209, 102, 0.32);
@@ -524,7 +526,8 @@
       text-align: left;
     }
 
-    .team-editor-header {
+    .team-editor-header,
+    .skill-editor-header {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
@@ -532,7 +535,8 @@
       margin-bottom: 10px;
     }
 
-    .team-editor-header strong {
+    .team-editor-header strong,
+    .skill-editor-header strong {
       color: var(--gold);
       font-size: 1.02em;
     }
@@ -596,6 +600,128 @@
       margin-top: 9px;
     }
 
+
+    .skill-name-editor {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      max-height: 300px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .skill-name-row {
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .skill-name-row span {
+      color: var(--muted);
+      font-size: 0.9em;
+      white-space: nowrap;
+    }
+
+    .skill-name-row input,
+    .team-skill-setter input,
+    .custom-skill-row input {
+      width: 100%;
+      font-family: 'Chakra Petch', Arial, sans-serif;
+      font-weight: 700;
+      font-size: 1em;
+      color: var(--text);
+      background: rgba(74, 24, 34, 0.98);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 11px;
+      outline: none;
+    }
+
+    .skill-name-row input:focus,
+    .team-skill-setter input:focus,
+    .custom-skill-row input:focus {
+      border-color: var(--gold);
+    }
+
+    .skill-note,
+    .custom-skill-note {
+      color: var(--muted);
+      font-size: 0.86em;
+      line-height: 1.35;
+      margin-top: 9px;
+    }
+
+    .custom-skill-editor {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      max-height: 520px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .skill-team-card {
+      background: rgba(74, 24, 34, 0.66);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .skill-team-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .skill-team-header strong {
+      color: var(--gold);
+      overflow-wrap: anywhere;
+    }
+
+    .team-skill-setter {
+      display: grid;
+      grid-template-columns: 72px auto;
+      gap: 7px;
+      align-items: center;
+      min-width: 150px;
+    }
+
+    .team-skill-setter input {
+      padding: 8px 9px;
+      text-align: center;
+    }
+
+    .custom-skill-grid {
+      display: grid;
+      grid-template-columns: 1fr 76px;
+      gap: 7px 9px;
+      align-items: center;
+    }
+
+    .custom-skill-row-label {
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    .custom-skill-row input {
+      padding: 8px 9px;
+      text-align: center;
+    }
+
+    .skill-mode-pill {
+      display: inline-block;
+      margin-top: 8px;
+      color: var(--gold);
+      background: rgba(255, 209, 102, 0.1);
+      border: 1px solid rgba(255, 209, 102, 0.35);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 0.86em;
+    }
+
     @media (max-width: 560px) {
       body { padding: 28px 12px 52px; }
       .skills { grid-template-columns: 1fr; }
@@ -629,7 +755,8 @@
         white-space: normal;
       }
 
-      .team-editor-header {
+      .team-editor-header,
+    .skill-editor-header {
         flex-direction: column;
       }
 
@@ -637,7 +764,10 @@
         width: 100%;
       }
 
-      .team-name-row {
+      .team-name-row,
+      .skill-name-row,
+      .custom-skill-grid,
+      .team-skill-setter {
         grid-template-columns: 1fr;
         gap: 4px;
       }
@@ -733,6 +863,29 @@
           </select>
           <div class="setting-help">Controls delay odds and delay size. Flight routing still uses the realistic coordinate network.</div>
         </div>
+
+
+        <div class="setting-card">
+          <label for="settingSkillMode">Skill Setup</label>
+          <select id="settingSkillMode">
+            <option value="random">Default - every team randomized</option>
+            <option value="player_all">Set your team - rivals randomized</option>
+            <option value="custom_all">Custom - edit every team</option>
+          </select>
+          <div class="setting-help">Choose whether skills are fully random, only your chosen team is customized, or every team is manually edited.</div>
+        </div>
+
+        <div class="setting-card" id="playerSkillLevelCard">
+          <label for="settingPlayerAllSkillLevel">Your Team: Set All Skills To</label>
+          <input id="settingPlayerAllSkillLevel" type="number" min="1" max="11" step="1">
+          <div class="setting-help">Whichever team you pick later will get this level for every skill. Other teams stay randomized.</div>
+        </div>
+
+        <div class="setting-card">
+          <label for="settingSkillCount">Number of Skills</label>
+          <input id="settingSkillCount" type="number" min="1" max="30" step="1">
+          <div class="setting-help">Controls how many skills exist this season. Skill names can be edited below.</div>
+        </div>
       </div>
 
       <div class="setting-summary" id="customizationSummary"></div>
@@ -748,6 +901,31 @@
         <div id="teamNameEditor" class="team-name-editor"></div>
         <div id="teamNameNote" class="team-name-note"></div>
       </div>
+
+
+      <div class="skill-editor-card">
+        <div class="skill-editor-header">
+          <div>
+            <strong>Skill Names</strong>
+            <div class="setting-help">Edit the skill list for this season. Blank names will turn into Skill 1, Skill 2, etc.</div>
+          </div>
+          <button class="mini-btn" type="button" onclick="resetSkillNamesToDefault()">Reset Skill Names</button>
+        </div>
+        <div id="skillNameEditor" class="skill-name-editor"></div>
+        <div id="skillNameNote" class="skill-note"></div>
+      </div>
+
+      <div class="custom-skill-editor-card" id="customSkillGridCard">
+        <div class="skill-editor-header">
+          <div>
+            <strong>Custom Team Skills</strong>
+            <div class="setting-help">Edit every team manually. Use Set All for quick profiles, or adjust each skill one by one.</div>
+          </div>
+          <button class="mini-btn" type="button" onclick="resetCustomSkillGridToLevel(5)">Set Every Team to 5</button>
+        </div>
+        <div id="customSkillEditor" class="custom-skill-editor"></div>
+        <div id="customSkillNote" class="custom-skill-note"></div>
+      </div>
     </div>
 
     <button onclick="confirmCustomization()">Continue to Team Select</button>
@@ -761,7 +939,7 @@
     <span class="screen-label">Setup</span>
     <h1>Choose Your Team</h1>
     <div class="status">
-      Pick the team you want to control. Their skills will be rolled after selection.
+      Pick the team you want to control. Their skills will follow your setup rules.
     </div>
     <div id="teamList"></div>
     <button class="secondary-btn" onclick="openCustomization()">Back</button>
@@ -830,7 +1008,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 7;
+    var SAVE_VERSION = 8;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -846,6 +1024,16 @@
       "Memory", "Translation", "Navigation", "Communication", "Dexterity",
       "Calculation", "Mobility", "Agility", "Negotiation", "Calibration"
     ];
+
+    var DEFAULT_SKILL_TYPES = SKILL_TYPES.slice();
+    var MIN_SKILL_LEVEL = 1;
+    var MAX_SKILL_LEVEL = 11;
+    var DEFAULT_PLAYER_ALL_SKILL_LEVEL = 5;
+    var SKILL_SETUP_MODES = {
+      random: "Default Random",
+      player_all: "Your Team Set All",
+      custom_all: "Full Custom"
+    };
 
     var STANDARD_TRANSPORT = [
       { method: "🛩️   Jet", cost: 1000, time: 1 },
@@ -5206,7 +5394,12 @@
       finalMinStopsPerLeg: 5,
       finalMaxStopsPerLeg: 7,
       nonElimChance: 0.15,
-      flightChaos: "normal"
+      flightChaos: "normal",
+      skillMode: "random",
+      playerAllSkillLevel: DEFAULT_PLAYER_ALL_SKILL_LEVEL,
+      skillCount: DEFAULT_SKILL_TYPES.length,
+      skillTypes: DEFAULT_SKILL_TYPES.slice(),
+      customTeamSkills: {}
     };
     var raceSettings = null;
     var FLIGHT_CHAOS_PROFILES = {
@@ -5395,6 +5588,9 @@
           updateTeamNameNote();
           renderCustomizationSummary();
         });
+        input.addEventListener("change", function () {
+          renderCustomTeamSkillEditor(readCustomTeamSkillEditor());
+        });
 
         row.appendChild(label);
         row.appendChild(input);
@@ -5442,6 +5638,433 @@
       }
 
       note.textContent = parts.join(" ");
+    }
+
+
+    function makeDefaultSkillNames(count) {
+      var safeCount = clampNumber(parseInt(count, 10) || DEFAULT_SKILL_TYPES.length, 1, 30);
+      var generated = [];
+
+      for (var i = 0; i < safeCount; i++) {
+        generated.push(DEFAULT_SKILL_TYPES[i] || ("Skill " + (i + 1)));
+      }
+
+      return generated;
+    }
+
+    function cleanSkillName(value, index) {
+      var cleaned = String(value == null ? "" : value)
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!cleaned) {
+        cleaned = "Skill " + (index + 1);
+      }
+
+      if (cleaned.length > 40) {
+        cleaned = cleaned.slice(0, 40).trim();
+      }
+
+      return cleaned || ("Skill " + (index + 1));
+    }
+
+    function sanitizeSkillNames(names, count) {
+      var source = Array.isArray(names) ? names : [];
+      var safeCount = clampNumber(parseInt(count, 10) || source.length || DEFAULT_SKILL_TYPES.length, 1, 30);
+      var used = {};
+      var result = [];
+
+      for (var i = 0; i < safeCount; i++) {
+        var fallback = source[i] != null ? source[i] : (DEFAULT_SKILL_TYPES[i] || ("Skill " + (i + 1)));
+        var base = cleanSkillName(fallback, i);
+        var candidate = base;
+        var suffix = 2;
+
+        while (used[candidate.toLowerCase()]) {
+          candidate = base + " " + suffix;
+          suffix += 1;
+        }
+
+        used[candidate.toLowerCase()] = true;
+        result.push(candidate);
+      }
+
+      return result;
+    }
+
+    function levelFromValue(value, fallback) {
+      var parsed = parseInt(value, 10);
+      var safeFallback = fallback == null ? DEFAULT_PLAYER_ALL_SKILL_LEVEL : fallback;
+
+      if (isNaN(parsed)) {
+        parsed = safeFallback;
+      }
+
+      return clampNumber(parsed, MIN_SKILL_LEVEL, MAX_SKILL_LEVEL);
+    }
+
+    function skillProfileSetAll(level, skillNames) {
+      var lvl = levelFromValue(level, DEFAULT_PLAYER_ALL_SKILL_LEVEL);
+      var profile = {};
+      var names = sanitizeSkillNames(skillNames || SKILL_TYPES, (skillNames || SKILL_TYPES).length);
+
+      names.forEach(function (skill) {
+        profile[skill] = lvl;
+      });
+
+      return profile;
+    }
+
+    function normalizeSkillProfile(source, skillNames, fallbackLevel) {
+      var profile = {};
+      var names = sanitizeSkillNames(skillNames || SKILL_TYPES, (skillNames || SKILL_TYPES).length);
+
+      names.forEach(function (skill) {
+        var fallback = fallbackLevel == null ? randomLevel() : fallbackLevel;
+        profile[skill] = levelFromValue(source && source[skill], fallback);
+      });
+
+      return profile;
+    }
+
+    function cloneCustomTeamSkills(source) {
+      var result = {};
+      var input = source || {};
+
+      Object.keys(input).forEach(function (team) {
+        result[team] = {};
+        Object.keys(input[team] || {}).forEach(function (skill) {
+          result[team][skill] = levelFromValue(input[team][skill], DEFAULT_PLAYER_ALL_SKILL_LEVEL);
+        });
+      });
+
+      return result;
+    }
+
+    function sanitizeCustomSkillMatrix(source, teamNames, skillNames) {
+      var teamsForGrid = Array.isArray(teamNames) && teamNames.length ? teamNames : teams.slice();
+      var skillsForGrid = sanitizeSkillNames(skillNames || SKILL_TYPES, (skillNames || SKILL_TYPES).length);
+      var raw = source || {};
+      var result = {};
+
+      teamsForGrid.forEach(function (team) {
+        result[team] = {};
+        skillsForGrid.forEach(function (skill) {
+          result[team][skill] = levelFromValue(raw[team] && raw[team][skill], DEFAULT_PLAYER_ALL_SKILL_LEVEL);
+        });
+      });
+
+      return result;
+    }
+
+    function readRawSkillNamesFromEditor() {
+      var editor = document.getElementById("skillNameEditor");
+
+      if (!editor) {
+        return (raceSettings && raceSettings.skillTypes) ? raceSettings.skillTypes.slice() : DEFAULT_SKILL_TYPES.slice();
+      }
+
+      var inputs = editor.querySelectorAll(".skill-name-input");
+      return Array.prototype.map.call(inputs, function (input) {
+        return input.value;
+      });
+    }
+
+    function currentSkillCountDraft() {
+      var value = settingValue("settingSkillCount", (raceSettings && raceSettings.skillCount) || DEFAULT_SKILL_TYPES.length);
+      return clampNumber(parseInt(value, 10) || DEFAULT_SKILL_TYPES.length, 1, 30);
+    }
+
+    function currentSkillModeDraft() {
+      var mode = settingValue("settingSkillMode", (raceSettings && raceSettings.skillMode) || DEFAULT_RACE_SETTINGS.skillMode);
+      return SKILL_SETUP_MODES[mode] ? mode : DEFAULT_RACE_SETTINGS.skillMode;
+    }
+
+    function currentTeamNamesDraft() {
+      return sanitizeTeamNames(readRawTeamNamesFromEditor(), currentTeamCountDraft());
+    }
+
+    function currentSkillNamesDraft() {
+      return sanitizeSkillNames(readRawSkillNamesFromEditor(), currentSkillCountDraft());
+    }
+
+    function renderSkillNameEditor(seedNames) {
+      var editor = document.getElementById("skillNameEditor");
+      var note = document.getElementById("skillNameNote");
+
+      if (!editor) {
+        return;
+      }
+
+      var count = currentSkillCountDraft();
+      var source = Array.isArray(seedNames) ? seedNames.slice() : readRawSkillNamesFromEditor();
+
+      if (source.length === 0) {
+        source = (raceSettings && raceSettings.skillTypes) ? raceSettings.skillTypes.slice() : makeDefaultSkillNames(count);
+      }
+
+      var existingCustom = readCustomTeamSkillEditor();
+      editor.innerHTML = "";
+
+      for (var i = 0; i < count; i++) {
+        var row = document.createElement("div");
+        row.className = "skill-name-row";
+
+        var label = document.createElement("span");
+        label.textContent = "Skill " + (i + 1);
+
+        var input = document.createElement("input");
+        input.className = "skill-name-input";
+        input.type = "text";
+        input.maxLength = 40;
+        input.value = source[i] != null ? source[i] : (DEFAULT_SKILL_TYPES[i] || ("Skill " + (i + 1)));
+        input.setAttribute("aria-label", "Skill " + (i + 1) + " name");
+        input.addEventListener("input", function () {
+          updateSkillNameNote();
+          renderCustomizationSummary();
+        });
+        input.addEventListener("change", function () {
+          renderCustomTeamSkillEditor(existingCustom);
+        });
+
+        row.appendChild(label);
+        row.appendChild(input);
+        editor.appendChild(row);
+      }
+
+      updateSkillNameNote();
+      renderCustomTeamSkillEditor(existingCustom);
+      renderCustomizationSummary();
+    }
+
+    function resetSkillNamesToDefault() {
+      var count = currentSkillCountDraft();
+      renderSkillNameEditor(makeDefaultSkillNames(count));
+    }
+
+    function updateSkillNameNote() {
+      var note = document.getElementById("skillNameNote");
+
+      if (!note) {
+        return;
+      }
+
+      var count = currentSkillCountDraft();
+      var raw = readRawSkillNamesFromEditor();
+      var sanitized = sanitizeSkillNames(raw, count);
+      var blanks = 0;
+      var changedDuplicates = 0;
+
+      for (var i = 0; i < count; i++) {
+        if (!String(raw[i] == null ? "" : raw[i]).trim()) {
+          blanks += 1;
+        } else if (cleanSkillName(raw[i], i) !== sanitized[i]) {
+          changedDuplicates += 1;
+        }
+      }
+
+      var parts = ["Skill list: " + count + " skills."];
+
+      if (blanks > 0) {
+        parts.push(blanks + " blank skill name" + (blanks === 1 ? "" : "s") + " will use Skill # names.");
+      }
+
+      if (changedDuplicates > 0) {
+        parts.push("Duplicate skill names will receive a number so every skill stays unique.");
+      }
+
+      note.textContent = parts.join(" ");
+    }
+
+    function readCustomTeamSkillEditor(teamNamesOverride, skillNamesOverride) {
+      var editor = document.getElementById("customSkillEditor");
+      var teamNames = teamNamesOverride || currentTeamNamesDraft();
+      var skillNames = skillNamesOverride || currentSkillNamesDraft();
+      var result = {};
+
+      teamNames.forEach(function (team) {
+        result[team] = {};
+        skillNames.forEach(function (skill) {
+          result[team][skill] = DEFAULT_PLAYER_ALL_SKILL_LEVEL;
+        });
+      });
+
+      if (!editor) {
+        return result;
+      }
+
+      var inputs = editor.querySelectorAll(".custom-skill-input");
+      Array.prototype.forEach.call(inputs, function (input) {
+        var teamIndex = parseInt(input.dataset.teamIndex, 10);
+        var skillIndex = parseInt(input.dataset.skillIndex, 10);
+        var team = teamNames[teamIndex];
+        var skill = skillNames[skillIndex];
+
+        if (team && skill) {
+          result[team][skill] = levelFromValue(input.value, DEFAULT_PLAYER_ALL_SKILL_LEVEL);
+        }
+      });
+
+      return result;
+    }
+
+    function renderCustomTeamSkillEditor(seedCustom) {
+      var card = document.getElementById("customSkillGridCard");
+      var editor = document.getElementById("customSkillEditor");
+      var note = document.getElementById("customSkillNote");
+
+      if (!card || !editor) {
+        return;
+      }
+
+      var mode = currentSkillModeDraft();
+      card.style.display = mode === "custom_all" ? "block" : "none";
+
+      if (mode !== "custom_all") {
+        return;
+      }
+
+      var teamNames = currentTeamNamesDraft();
+      var skillNames = currentSkillNamesDraft();
+      var source = seedCustom || (raceSettings && raceSettings.customTeamSkills) || {};
+      var matrix = sanitizeCustomSkillMatrix(source, teamNames, skillNames);
+
+      editor.innerHTML = "";
+
+      teamNames.forEach(function (team, teamIndex) {
+        var cardEl = document.createElement("div");
+        cardEl.className = "skill-team-card";
+
+        var header = document.createElement("div");
+        header.className = "skill-team-header";
+
+        var title = document.createElement("strong");
+        title.textContent = team;
+
+        var setter = document.createElement("div");
+        setter.className = "team-skill-setter";
+
+        var setInput = document.createElement("input");
+        setInput.type = "number";
+        setInput.min = MIN_SKILL_LEVEL;
+        setInput.max = MAX_SKILL_LEVEL;
+        setInput.step = 1;
+        setInput.value = DEFAULT_PLAYER_ALL_SKILL_LEVEL;
+        setInput.className = "team-set-all-input";
+        setInput.dataset.teamIndex = teamIndex;
+        setInput.setAttribute("aria-label", "Set all skills for " + team);
+
+        var setButton = document.createElement("button");
+        setButton.type = "button";
+        setButton.className = "mini-btn";
+        setButton.textContent = "Set All";
+        setButton.onclick = function () {
+          setAllSkillsForTeam(teamIndex);
+        };
+
+        setter.appendChild(setInput);
+        setter.appendChild(setButton);
+
+        header.appendChild(title);
+        header.appendChild(setter);
+        cardEl.appendChild(header);
+
+        var grid = document.createElement("div");
+        grid.className = "custom-skill-grid";
+
+        skillNames.forEach(function (skill, skillIndex) {
+          var label = document.createElement("div");
+          label.className = "custom-skill-row-label";
+          label.textContent = skill;
+
+          var inputWrap = document.createElement("div");
+          inputWrap.className = "custom-skill-row";
+
+          var input = document.createElement("input");
+          input.type = "number";
+          input.min = MIN_SKILL_LEVEL;
+          input.max = MAX_SKILL_LEVEL;
+          input.step = 1;
+          input.value = matrix[team][skill];
+          input.className = "custom-skill-input";
+          input.dataset.teamIndex = teamIndex;
+          input.dataset.skillIndex = skillIndex;
+          input.setAttribute("aria-label", team + " " + skill + " level");
+          input.addEventListener("input", renderCustomizationSummary);
+
+          inputWrap.appendChild(input);
+          grid.appendChild(label);
+          grid.appendChild(inputWrap);
+        });
+
+        cardEl.appendChild(grid);
+        editor.appendChild(cardEl);
+      });
+
+      if (note) {
+        note.textContent = "Custom grid: " + teamNames.length + " teams × " + skillNames.length + " skills. Levels are capped from 1 to 11.";
+      }
+    }
+
+    function setAllSkillsForTeam(teamIndex) {
+      var editor = document.getElementById("customSkillEditor");
+
+      if (!editor) {
+        return;
+      }
+
+      var setInput = editor.querySelector('.team-set-all-input[data-team-index="' + teamIndex + '"]');
+      var level = levelFromValue(setInput ? setInput.value : DEFAULT_PLAYER_ALL_SKILL_LEVEL, DEFAULT_PLAYER_ALL_SKILL_LEVEL);
+      var inputs = editor.querySelectorAll('.custom-skill-input[data-team-index="' + teamIndex + '"]');
+
+      Array.prototype.forEach.call(inputs, function (input) {
+        input.value = level;
+      });
+
+      renderCustomizationSummary();
+    }
+
+    function resetCustomSkillGridToLevel(level) {
+      var editor = document.getElementById("customSkillEditor");
+      var lvl = levelFromValue(level, DEFAULT_PLAYER_ALL_SKILL_LEVEL);
+
+      if (!editor) {
+        return;
+      }
+
+      var inputs = editor.querySelectorAll(".custom-skill-input, .team-set-all-input");
+      Array.prototype.forEach.call(inputs, function (input) {
+        input.value = lvl;
+      });
+
+      renderCustomizationSummary();
+    }
+
+    function updateSkillModePanels() {
+      var mode = currentSkillModeDraft();
+      var playerCard = document.getElementById("playerSkillLevelCard");
+
+      if (playerCard) {
+        playerCard.style.display = mode === "player_all" ? "block" : "none";
+      }
+
+      renderCustomTeamSkillEditor(readCustomTeamSkillEditor());
+      renderCustomizationSummary();
+    }
+
+    function makeStartingSkillProfile(teamName, isPlayer) {
+      var settings = sanitizeRaceSettings(raceSettings || DEFAULT_RACE_SETTINGS);
+      var skillNames = settings.skillTypes.slice();
+
+      if (settings.skillMode === "player_all" && isPlayer) {
+        return skillProfileSetAll(settings.playerAllSkillLevel, skillNames);
+      }
+
+      if (settings.skillMode === "custom_all") {
+        return normalizeSkillProfile(settings.customTeamSkills && settings.customTeamSkills[teamName], skillNames, DEFAULT_PLAYER_ALL_SKILL_LEVEL);
+      }
+
+      return rollSkills();
     }
 
     function buildTeamButtons() {
@@ -5851,6 +6474,8 @@
 
     function cloneRaceSettings(source) {
       var base = source || DEFAULT_RACE_SETTINGS;
+      var baseSkillTypes = Array.isArray(base.skillTypes) ? base.skillTypes.slice() : DEFAULT_SKILL_TYPES.slice();
+
       return {
         teamCount: parseInt(base.teamCount, 10),
         startingMoney: parseInt(base.startingMoney, 10),
@@ -5860,7 +6485,12 @@
         finalMinStopsPerLeg: parseInt(base.finalMinStopsPerLeg, 10),
         finalMaxStopsPerLeg: parseInt(base.finalMaxStopsPerLeg, 10),
         nonElimChance: Number(base.nonElimChance),
-        flightChaos: base.flightChaos || "normal"
+        flightChaos: base.flightChaos || "normal",
+        skillMode: base.skillMode || "random",
+        playerAllSkillLevel: parseInt(base.playerAllSkillLevel, 10),
+        skillCount: parseInt(base.skillCount != null ? base.skillCount : baseSkillTypes.length, 10),
+        skillTypes: baseSkillTypes,
+        customTeamSkills: cloneCustomTeamSkills(base.customTeamSkills || {})
       };
     }
 
@@ -5888,6 +6518,16 @@
         settings.flightChaos = DEFAULT_RACE_SETTINGS.flightChaos;
       }
 
+      if (!SKILL_SETUP_MODES[settings.skillMode]) {
+        settings.skillMode = DEFAULT_RACE_SETTINGS.skillMode;
+      }
+
+      settings.playerAllSkillLevel = levelFromValue(settings.playerAllSkillLevel, DEFAULT_PLAYER_ALL_SKILL_LEVEL);
+      settings.skillCount = clampNumber(isNaN(settings.skillCount) ? (settings.skillTypes && settings.skillTypes.length) || DEFAULT_SKILL_TYPES.length : settings.skillCount, 1, 30);
+      settings.skillTypes = sanitizeSkillNames(settings.skillTypes, settings.skillCount);
+      settings.skillCount = settings.skillTypes.length;
+      settings.customTeamSkills = cloneCustomTeamSkills(settings.customTeamSkills || {});
+
       return settings;
     }
 
@@ -5900,6 +6540,7 @@
       FINAL_MIN_STOPS_PER_LEG = raceSettings.finalMinStopsPerLeg;
       FINAL_MAX_STOPS_PER_LEG = raceSettings.finalMaxStopsPerLeg;
       NON_ELIM_CHANCE = raceSettings.nonElimChance;
+      SKILL_TYPES = raceSettings.skillTypes.slice();
     }
 
     function currentFlightChaosProfile() {
@@ -5935,11 +6576,17 @@
         finalMinStopsPerLeg: settingValue("settingFinalMinStops", DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg),
         finalMaxStopsPerLeg: settingValue("settingFinalMaxStops", DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg),
         nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
-        flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos)
+        flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
+        skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
+        playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
+        skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
+        skillTypes: readRawSkillNamesFromEditor(),
+        customTeamSkills: readCustomTeamSkillEditor()
       });
       var chaos = FLIGHT_CHAOS_PROFILES[preview.flightChaos] || FLIGHT_CHAOS_PROFILES.normal;
       var teamPreviewNames = sanitizeTeamNames(readRawTeamNamesFromEditor(), preview.teamCount);
       var previewList = teamPreviewNames.slice(0, 4).map(escapeHtml).join(", ");
+      var modeLabel = SKILL_SETUP_MODES[preview.skillMode] || SKILL_SETUP_MODES.random;
 
       if (teamPreviewNames.length > 4) {
         previewList += ", +" + (teamPreviewNames.length - 4) + " more";
@@ -5953,7 +6600,9 @@
         "<strong>" + Math.round(preview.nonElimChance * 100) + "%</strong> non-elim · " +
         "Normal legs <strong>" + preview.minStopsPerLeg + "-" + preview.maxStopsPerLeg + "</strong> challenges · " +
         "Final leg <strong>" + preview.finalMinStopsPerLeg + "-" + preview.finalMaxStopsPerLeg + "</strong> challenges · " +
-        "Flight chaos: <strong>" + escapeHtml(chaos.label) + "</strong>";
+        "Flight chaos: <strong>" + escapeHtml(chaos.label) + "</strong> · " +
+        "Skills: <strong>" + escapeHtml(modeLabel) + "</strong> / <strong>" + preview.skillTypes.length + "</strong> skills" +
+        (preview.skillMode === "player_all" ? " / Your team all <strong>" + preview.playerAllSkillLevel + "</strong>" : "");
     }
 
     function fillCustomizationForm(settings) {
@@ -5967,6 +6616,11 @@
       setSettingValue("settingFinalMinStops", s.finalMinStopsPerLeg);
       setSettingValue("settingFinalMaxStops", s.finalMaxStopsPerLeg);
       setSettingValue("settingFlightChaos", s.flightChaos);
+      setSettingValue("settingSkillMode", s.skillMode);
+      setSettingValue("settingPlayerAllSkillLevel", s.playerAllSkillLevel);
+      setSettingValue("settingSkillCount", s.skillCount);
+      renderSkillNameEditor(s.skillTypes);
+      updateSkillModePanels();
       renderCustomizationSummary();
     }
 
@@ -5974,7 +6628,8 @@
       [
         "settingTeamCount", "settingStartingMoney", "settingLegStipend", "settingNonElimChance",
         "settingMinStops", "settingMaxStops", "settingFinalMinStops",
-        "settingFinalMaxStops", "settingFlightChaos"
+        "settingFinalMaxStops", "settingFlightChaos", "settingSkillMode",
+        "settingPlayerAllSkillLevel", "settingSkillCount"
       ].forEach(function (id) {
         var el = document.getElementById(id);
         if (el && !el.dataset.boundCustomization) {
@@ -5987,11 +6642,32 @@
       var teamCountEl = document.getElementById("settingTeamCount");
       if (teamCountEl && !teamCountEl.dataset.boundTeamNameEditor) {
         var syncTeamEditor = function () {
+          var customDraft = readCustomTeamSkillEditor();
           renderTeamNameEditor(readRawTeamNamesFromEditor());
+          renderCustomTeamSkillEditor(customDraft);
         };
         teamCountEl.addEventListener("input", syncTeamEditor);
         teamCountEl.addEventListener("change", syncTeamEditor);
         teamCountEl.dataset.boundTeamNameEditor = "1";
+      }
+
+      var skillCountEl = document.getElementById("settingSkillCount");
+      if (skillCountEl && !skillCountEl.dataset.boundSkillNameEditor) {
+        var syncSkillEditor = function () {
+          var customDraft = readCustomTeamSkillEditor();
+          renderSkillNameEditor(readRawSkillNamesFromEditor());
+          renderCustomTeamSkillEditor(customDraft);
+        };
+        skillCountEl.addEventListener("input", syncSkillEditor);
+        skillCountEl.addEventListener("change", syncSkillEditor);
+        skillCountEl.dataset.boundSkillNameEditor = "1";
+      }
+
+      var skillModeEl = document.getElementById("settingSkillMode");
+      if (skillModeEl && !skillModeEl.dataset.boundSkillModePanels) {
+        skillModeEl.addEventListener("input", updateSkillModePanels);
+        skillModeEl.addEventListener("change", updateSkillModePanels);
+        skillModeEl.dataset.boundSkillModePanels = "1";
       }
     }
 
@@ -6005,7 +6681,12 @@
         finalMinStopsPerLeg: settingValue("settingFinalMinStops", DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg),
         finalMaxStopsPerLeg: settingValue("settingFinalMaxStops", DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg),
         nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
-        flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos)
+        flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
+        skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
+        playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
+        skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
+        skillTypes: readRawSkillNamesFromEditor(),
+        customTeamSkills: readCustomTeamSkillEditor()
       });
     }
 
@@ -6017,6 +6698,8 @@
       bindCustomizationFormEvents();
       fillCustomizationForm(raceSettings);
       renderTeamNameEditor(teams && teams.length ? teams : makeDefaultTeamNames(raceSettings.teamCount));
+      renderSkillNameEditor(raceSettings.skillTypes);
+      updateSkillModePanels();
       showScreen("customize");
     }
 
@@ -6024,6 +6707,9 @@
       raceSettings = readCustomizationForm();
       teams = sanitizeTeamNames(readRawTeamNamesFromEditor(), raceSettings.teamCount);
       raceSettings.teamCount = teams.length;
+      raceSettings.skillTypes = sanitizeSkillNames(readRawSkillNamesFromEditor(), raceSettings.skillCount);
+      raceSettings.skillCount = raceSettings.skillTypes.length;
+      raceSettings.customTeamSkills = sanitizeCustomSkillMatrix(readCustomTeamSkillEditor(teams, raceSettings.skillTypes), teams, raceSettings.skillTypes);
       applyRaceSettingsToGlobals();
       playerTeam = null;
       skills = {};
@@ -6036,6 +6722,8 @@
       teams = makeDefaultTeamNames(raceSettings.teamCount);
       fillCustomizationForm(raceSettings);
       renderTeamNameEditor(teams);
+      renderSkillNameEditor(raceSettings.skillTypes);
+      updateSkillModePanels();
     }
 
     function normalizeWithinRange(value, min, max, invert) {
@@ -7216,8 +7904,9 @@
     }
 
     function selectTeam(name) {
+      applyRaceSettingsToGlobals();
       playerTeam = name;
-      skills[name] = rollSkills();
+      skills[name] = makeStartingSkillProfile(name, true);
       showRoster();
     }
 
@@ -7244,7 +7933,8 @@
 
     function startSeason() {
       applyRaceSettingsToGlobals();
-      var playerRolledSkills = skills[playerTeam] || rollSkills();
+      var playerRolledSkills = skills[playerTeam] || makeStartingSkillProfile(playerTeam, true);
+      playerRolledSkills = normalizeSkillProfile(playerRolledSkills, SKILL_TYPES);
 
       remainingTeams = teams.slice();
       legNum = 1;
@@ -7271,7 +7961,7 @@
         money[name] = STARTING_MONEY;
         placementHistory[name] = [];
         nextLegStartClocks[name] = 0;
-        skills[name] = name === playerTeam ? playerRolledSkills : rollSkills();
+        skills[name] = name === playerTeam ? playerRolledSkills : makeStartingSkillProfile(name, false);
       });
 
       currentCity = ensureCityCoords(WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)]);
@@ -7946,6 +8636,10 @@
       }
 
       raceSettings.teamCount = teams.length;
+      raceSettings.skillTypes = sanitizeSkillNames(raceSettings.skillTypes, raceSettings.skillCount);
+      raceSettings.skillCount = raceSettings.skillTypes.length;
+      raceSettings.customTeamSkills = sanitizeCustomSkillMatrix(raceSettings.customTeamSkills, teams, raceSettings.skillTypes);
+      applyRaceSettingsToGlobals();
 
       playerTeam = state.playerTeam;
       skills = state.skills || {};
@@ -7995,12 +8689,16 @@
       restoredFlightResultHtml = state.restoredFlightResultHtml || "";
 
       if (!skills[playerTeam]) {
-        skills[playerTeam] = rollSkills();
+        skills[playerTeam] = makeStartingSkillProfile(playerTeam, true);
+      } else {
+        skills[playerTeam] = normalizeSkillProfile(skills[playerTeam], SKILL_TYPES);
       }
 
       remainingTeams.forEach(function (name) {
         if (!skills[name]) {
-          skills[name] = rollSkills();
+          skills[name] = makeStartingSkillProfile(name, name === playerTeam);
+        } else {
+          skills[name] = normalizeSkillProfile(skills[name], SKILL_TYPES);
         }
         if (money[name] == null) {
           money[name] = STARTING_MONEY;
