@@ -586,6 +586,7 @@
 
   <script>
     var SAVE_VERSION = 4;
+    var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
     var lastScreenBeforeMenu = "start";
@@ -2070,6 +2071,2882 @@
       }
 ];
 
+    var AIRPORT_COORDS = {
+          "ATLANTA": {
+                "lat": 33.7627,
+                "lon": -84.4224,
+                "population": 5449398,
+                "match_name": "Atlanta"
+          },
+          "DES MOINES": {
+                "lat": 41.5725,
+                "lon": -93.6105,
+                "population": 473957,
+                "match_name": "Des Moines"
+          },
+          "SIOUX FALLS": {
+                "lat": 43.5397,
+                "lon": -96.732,
+                "population": 187239,
+                "match_name": "Sioux Falls"
+          },
+          "BOGOTA": {
+                "lat": 4.6126,
+                "lon": -74.0705,
+                "population": 9464000,
+                "match_name": "Bogota"
+          },
+          "LONDON": {
+                "lat": 51.5072,
+                "lon": -0.1275,
+                "population": 10979000,
+                "match_name": "London"
+          },
+          "PALMA DE MALLORCA": {
+                "lat": 39.5696,
+                "lon": 2.6502,
+                "population": 402949,
+                "match_name": "Palma de Mallorca"
+          },
+          "ALGIERS": {
+                "lat": 36.7764,
+                "lon": 3.0586,
+                "population": 3415811,
+                "match_name": "Algiers"
+          },
+          "KAMPALA": {
+                "lat": 0.3136,
+                "lon": 32.5811,
+                "population": 1659600,
+                "match_name": "Kampala"
+          },
+          "DUBAI": {
+                "lat": 25.2697,
+                "lon": 55.3094,
+                "population": 2502715,
+                "match_name": "Dubai"
+          },
+          "ANKARA": {
+                "lat": 39.93,
+                "lon": 32.85,
+                "population": 5503985,
+                "match_name": "Ankara"
+          },
+          "CHIANG MAI": {
+                "lat": 18.7889,
+                "lon": 98.9833,
+                "population": 132634,
+                "match_name": "Chiang Mai"
+          },
+          "CANBERRA": {
+                "lat": -35.2931,
+                "lon": 149.1269,
+                "population": 426704,
+                "match_name": "Canberra"
+          },
+          "DALLAS": {
+                "lat": 32.7936,
+                "lon": -96.7662,
+                "population": 5743938,
+                "match_name": "Dallas"
+          },
+          "TOPEKA": {
+                "lat": 39.0346,
+                "lon": -95.6955,
+                "population": 147458,
+                "match_name": "Topeka"
+          },
+          "ANCHORAGE": {
+                "lat": 61.1508,
+                "lon": -149.1091,
+                "population": 247949,
+                "match_name": "Anchorage"
+          },
+          "BUENOS AIRES": {
+                "lat": -34.5997,
+                "lon": -58.3819,
+                "population": 16157000,
+                "match_name": "Buenos Aires"
+          },
+          "ISTANBUL": {
+                "lat": 41.01,
+                "lon": 28.9603,
+                "population": 15154000,
+                "match_name": "Istanbul"
+          },
+          "ZURICH": {
+                "lat": 47.3786,
+                "lon": 8.54,
+                "population": 434008,
+                "match_name": "Zurich"
+          },
+          "LUANDA": {
+                "lat": -8.8383,
+                "lon": 13.2344,
+                "population": 8417000,
+                "match_name": "Luanda"
+          },
+          "LUSAKA": {
+                "lat": -15.4167,
+                "lon": 28.2833,
+                "population": 1742979,
+                "match_name": "Lusaka"
+          },
+          "TOKYO": {
+                "lat": 35.6897,
+                "lon": 139.6922,
+                "population": 37977000,
+                "match_name": "Tokyo"
+          },
+          "ASHGABAT": {
+                "lat": 37.95,
+                "lon": 58.3833,
+                "population": 1031992,
+                "match_name": "Ashgabat"
+          },
+          "DA NANG": {
+                "lat": 16.0544,
+                "lon": 108.2022,
+                "population": 1134310,
+                "match_name": "Da Nang"
+          },
+          "SUVA": {
+                "lat": -18.1333,
+                "lon": 178.4333,
+                "population": 88271,
+                "match_name": "Suva"
+          },
+          "DENVER": {
+                "lat": 39.7621,
+                "lon": -104.8759,
+                "population": 2876625,
+                "match_name": "Denver"
+          },
+          "FRANKFORT": {
+                "lat": 38.1924,
+                "lon": -84.8643,
+                "population": 38852,
+                "match_name": "Frankfort"
+          },
+          "CANCUN": {
+                "lat": 21.1606,
+                "lon": -86.8475,
+                "population": 743626,
+                "match_name": "Cancun"
+          },
+          "LA PAZ": {
+                "lat": -16.4942,
+                "lon": -68.1475,
+                "population": 2867504,
+                "match_name": "La Paz"
+          },
+          "PARIS": {
+                "lat": 48.8566,
+                "lon": 2.3522,
+                "population": 11020000,
+                "match_name": "Paris"
+          },
+          "MANCHESTER": {
+                "lat": 53.4794,
+                "lon": -2.2453,
+                "population": 2705000,
+                "match_name": "Manchester"
+          },
+          "PORTO-NOVO": {
+                "lat": 6.4833,
+                "lon": 2.6167,
+                "population": 300000,
+                "match_name": "Porto-Novo"
+          },
+          "HARARE": {
+                "lat": -17.8292,
+                "lon": 31.0522,
+                "population": 1606000,
+                "match_name": "Harare"
+          },
+          "NEW DELHI": {
+                "lat": 28.7,
+                "lon": 77.2,
+                "population": 142004,
+                "match_name": "New Delhi"
+          },
+          "ABU DHABI": {
+                "lat": 24.4781,
+                "lon": 54.3686,
+                "population": 1000000,
+                "match_name": "Abu Dhabi"
+          },
+          "NHA TRANG": {
+                "lat": 12.2388,
+                "lon": 109.1967,
+                "population": 392279,
+                "match_name": "Nha Trang"
+          },
+          "TARAWA": {
+                "lat": 1.3382,
+                "lon": 173.0176,
+                "population": 28802,
+                "match_name": "Tarawa"
+          },
+          "CHICAGO": {
+                "lat": 41.8373,
+                "lon": -87.6862,
+                "population": 8604203,
+                "match_name": "Chicago"
+          },
+          "BATON ROUGE": {
+                "lat": 30.4418,
+                "lon": -91.131,
+                "population": 570308,
+                "match_name": "Baton Rouge"
+          },
+          "VANCOUVER": {
+                "lat": 49.25,
+                "lon": -123.1,
+                "population": 2264823,
+                "match_name": "Vancouver"
+          },
+          "BRASILIA": {
+                "lat": -15.7744,
+                "lon": -48.0773,
+                "population": 3015268,
+                "match_name": "Brasilia"
+          },
+          "AMSTERDAM": {
+                "lat": 52.35,
+                "lon": 4.9166,
+                "population": 1031000,
+                "match_name": "Amsterdam"
+          },
+          "MALAGA": {
+                "lat": 36.7167,
+                "lon": -4.4167,
+                "population": 574654,
+                "match_name": "Malaga"
+          },
+          "GABORONE": {
+                "lat": -24.6569,
+                "lon": 25.9086,
+                "population": 231626,
+                "match_name": "Gaborone"
+          },
+          "MOGADISHU": {
+                "lat": 2.0408,
+                "lon": 45.3425,
+                "population": 2120000,
+                "match_name": "Mogadishu"
+          },
+          "SHANGHAI": {
+                "lat": 31.1667,
+                "lon": 121.4667,
+                "population": 22120000,
+                "match_name": "Shanghai"
+          },
+          "TSHKENT": {
+                "lat": 41.3,
+                "lon": 69.2667,
+                "population": 2424100,
+                "match_name": "Tashkent"
+          },
+          "PHU QUOC": {
+                "lat": 10.2899,
+                "lon": 103.984,
+                "population": 179480,
+                "match_name": "Phu Quoc"
+          },
+          "MAJURO": {
+                "lat": 7.1167,
+                "lon": 171.3667,
+                "population": 25400,
+                "match_name": "Majuro"
+          },
+          "LOS ANGELES": {
+                "lat": 34.1139,
+                "lon": -118.4068,
+                "population": 12750807,
+                "match_name": "Los Angeles"
+          },
+          "AUGUSTA": {
+                "lat": 33.3645,
+                "lon": -82.0708,
+                "population": 390809,
+                "match_name": "Augusta"
+          },
+          "SAN DIEGO": {
+                "lat": 32.8312,
+                "lon": -117.1225,
+                "population": 3220118,
+                "match_name": "San Diego"
+          },
+          "SANTIAGO": {
+                "lat": -33.45,
+                "lon": -70.6667,
+                "population": 7007000,
+                "match_name": "Santiago"
+          },
+          "MADRID": {
+                "lat": 40.4189,
+                "lon": -3.6919,
+                "population": 3266126,
+                "match_name": "Madrid"
+          },
+          "SAINT PETERSBURG": {
+                "lat": 59.95,
+                "lon": 30.3167,
+                "population": 5351935,
+                "match_name": "Saint Petersburg"
+          },
+          "OUAGADOUGOU": {
+                "lat": 12.3572,
+                "lon": -1.5353,
+                "population": 1626950,
+                "match_name": "Ouagadougou"
+          },
+          "JOHANNESBURG": {
+                "lat": -26.2044,
+                "lon": 28.0416,
+                "population": 4434827,
+                "match_name": "Johannesburg"
+          },
+          "GUANGZHOU": {
+                "lat": 23.1288,
+                "lon": 113.259,
+                "population": 20902000,
+                "match_name": "Guangzhou"
+          },
+          "HANOI": {
+                "lat": 21.0245,
+                "lon": 105.8412,
+                "population": 7785000,
+                "match_name": "Hanoi"
+          },
+          "COLOMBO": {
+                "lat": 6.9167,
+                "lon": 79.8333,
+                "population": 752993,
+                "match_name": "Colombo"
+          },
+          "PALIKIR": {
+                "lat": 6.9248,
+                "lon": 158.1611,
+                "population": 0,
+                "match_name": "Palikir"
+          },
+          "NEW YORK": {
+                "lat": 40.6943,
+                "lon": -73.9249,
+                "population": 18713220,
+                "match_name": "New York"
+          },
+          "ANNAPOLIS": {
+                "lat": 38.9706,
+                "lon": -76.5047,
+                "population": 39223,
+                "match_name": "Annapolis"
+          },
+          "MONTREAL": {
+                "lat": 45.5089,
+                "lon": -73.5617,
+                "population": 3519595,
+                "match_name": "Montreal"
+          },
+          "QUITO": {
+                "lat": -0.2186,
+                "lon": -78.5097,
+                "population": 2011388,
+                "match_name": "Quito"
+          },
+          "FRANKFURT": {
+                "lat": 50.1136,
+                "lon": 8.6797,
+                "population": 753056,
+                "match_name": "Frankfurt"
+          },
+          "DUSSELDORF": {
+                "lat": 51.2311,
+                "lon": 6.7724,
+                "population": 619294,
+                "match_name": "Dusseldorf"
+          },
+          "GITEGA": {
+                "lat": -3.4264,
+                "lon": 29.9306,
+                "population": 41944,
+                "match_name": "Gitega"
+          },
+          "CASABLANCA": {
+                "lat": 33.5992,
+                "lon": -7.62,
+                "population": 4370000,
+                "match_name": "Casablanca"
+          },
+          "SEOUL": {
+                "lat": 37.5833,
+                "lon": 127.0,
+                "population": 21794000,
+                "match_name": "Seoul"
+          },
+          "SANA'A": {
+                "lat": 15.35,
+                "lon": 44.2,
+                "population": 2957000,
+                "match_name": "Sanaa"
+          },
+          "YAREN": {
+                "lat": -0.5477,
+                "lon": 166.9209,
+                "population": 747,
+                "match_name": "Yaren"
+          },
+          "CHARLOTTE": {
+                "lat": 35.208,
+                "lon": -80.8304,
+                "population": 1512923,
+                "match_name": "Charlotte"
+          },
+          "BOSTON": {
+                "lat": 42.3188,
+                "lon": -71.0846,
+                "population": 4688346,
+                "match_name": "Boston"
+          },
+          "CALGARY": {
+                "lat": 51.05,
+                "lon": -114.0667,
+                "population": 1239220,
+                "match_name": "Calgary"
+          },
+          "GEORGETOWN": {
+                "lat": 6.7833,
+                "lon": -58.1667,
+                "population": 200500,
+                "match_name": "Georgetown"
+          },
+          "BARCELONA": {
+                "lat": 41.3825,
+                "lon": 2.1769,
+                "population": 4588000,
+                "match_name": "Barcelona"
+          },
+          "GENEVA": {
+                "lat": 46.2,
+                "lon": 6.15,
+                "population": 201818,
+                "match_name": "Geneva"
+          },
+          "PRAIA": {
+                "lat": 14.9177,
+                "lon": -23.5092,
+                "population": 127832,
+                "match_name": "Praia"
+          },
+          "HURGHADA": {
+                "lat": 27.2579,
+                "lon": 33.8116,
+                "population": 261714,
+                "match_name": "Hurghada"
+          },
+          "SINGAPORE": {
+                "lat": 1.3,
+                "lon": 103.8,
+                "population": 5745000,
+                "match_name": "Singapore"
+          },
+          "AMMAN": {
+                "lat": 31.95,
+                "lon": 35.9333,
+                "population": 4007526,
+                "match_name": "Amman"
+          },
+          "WELLINGTON": {
+                "lat": -41.2889,
+                "lon": 174.7772,
+                "population": 418500,
+                "match_name": "Wellington"
+          },
+          "LAS VEGAS": {
+                "lat": 36.2333,
+                "lon": -115.2654,
+                "population": 2104198,
+                "match_name": "Las Vegas"
+          },
+          "LANSING": {
+                "lat": 42.7142,
+                "lon": -84.5601,
+                "population": 324286,
+                "match_name": "Lansing"
+          },
+          "GUADALAJARA": {
+                "lat": 20.6767,
+                "lon": -103.3475,
+                "population": 5253000,
+                "match_name": "Guadalajara"
+          },
+          "ASUNCION": {
+                "lat": -25.3,
+                "lon": -57.6333,
+                "population": 1870000,
+                "match_name": "Asuncion"
+          },
+          "ROME": {
+                "lat": 41.8931,
+                "lon": 12.4828,
+                "population": 2872800,
+                "match_name": "Rome"
+          },
+          "PORTO": {
+                "lat": 41.1495,
+                "lon": -8.6108,
+                "population": 237591,
+                "match_name": "Porto"
+          },
+          "YAOUNDE": {
+                "lat": 3.8578,
+                "lon": 11.5181,
+                "population": 2440462,
+                "match_name": "Yaounde"
+          },
+          "MARRAKECH": {
+                "lat": 31.6295,
+                "lon": -7.9811,
+                "population": 928850,
+                "match_name": "Marrakech"
+          },
+          "BEIJING": {
+                "lat": 39.905,
+                "lon": 116.3914,
+                "population": 19433000,
+                "match_name": "Beijing"
+          },
+          "KUNMING": {
+                "lat": 25.0433,
+                "lon": 102.7061,
+                "population": 6250000,
+                "match_name": "Kunming"
+          },
+          "NGERULMUD": {
+                "lat": 7.5006,
+                "lon": 134.6242,
+                "population": 271,
+                "match_name": "Ngerulmud"
+          },
+          "ORLANDO": {
+                "lat": 28.4772,
+                "lon": -81.3369,
+                "population": 1822394,
+                "match_name": "Orlando"
+          },
+          "SAINT PAUL": {
+                "lat": 44.9478,
+                "lon": -93.1039,
+                "population": 311527,
+                "match_name": "Saint Paul"
+          },
+          "PORTLAND": {
+                "lat": 45.5372,
+                "lon": -122.65,
+                "population": 2074775,
+                "match_name": "Portland"
+          },
+          "LIMA": {
+                "lat": -12.05,
+                "lon": -77.0333,
+                "population": 9848000,
+                "match_name": "Lima"
+          },
+          "JEDDAH": {
+                "lat": 21.5428,
+                "lon": 39.1728,
+                "population": 3976000,
+                "match_name": "Jeddah"
+          },
+          "EDINBURGH": {
+                "lat": 55.953,
+                "lon": -3.189,
+                "population": 488050,
+                "match_name": "Edinburgh"
+          },
+          "BANGUI": {
+                "lat": 4.3732,
+                "lon": 18.5628,
+                "population": 734350,
+                "match_name": "Bangui"
+          },
+          "SHAREM EL-SHEIKH": {
+                "lat": 27.9158,
+                "lon": 34.3299,
+                "population": 73000,
+                "match_name": "Sharm el-Sheikh"
+          },
+          "SHENZHEN": {
+                "lat": 22.535,
+                "lon": 114.054,
+                "population": 15929000,
+                "match_name": "Shenzhen"
+          },
+          "OSAKA": {
+                "lat": 34.6936,
+                "lon": 135.5019,
+                "population": 14977000,
+                "match_name": "Osaka"
+          },
+          "PORT MORESBY": {
+                "lat": -9.4789,
+                "lon": 147.1494,
+                "population": 364125,
+                "match_name": "Port Moresby"
+          },
+          "MIAMI": {
+                "lat": 25.7839,
+                "lon": -80.2102,
+                "population": 6445545,
+                "match_name": "Miami"
+          },
+          "JACKSON": {
+                "lat": 32.3163,
+                "lon": -90.2124,
+                "population": 325350,
+                "match_name": "Jackson"
+          },
+          "ST LOUIS": {
+                "lat": 38.6358,
+                "lon": -90.2451,
+                "population": 2024074,
+                "match_name": "St. Louis"
+          },
+          "PARAMARIBO": {
+                "lat": 5.8667,
+                "lon": -55.1667,
+                "population": 223757,
+                "match_name": "Paramaribo"
+          },
+          "TIRANA": {
+                "lat": 41.33,
+                "lon": 19.82,
+                "population": 418495,
+                "match_name": "Tirana"
+          },
+          "HAMBURG": {
+                "lat": 53.55,
+                "lon": 10.0,
+                "population": 1841179,
+                "match_name": "Hamburg"
+          },
+          "N'JAMENA": {
+                "lat": 12.1348,
+                "lon": 15.0557,
+                "population": 1092066,
+                "match_name": "N'Djamena"
+          },
+          "LAGOS": {
+                "lat": 6.45,
+                "lon": 3.4,
+                "population": 15279000,
+                "match_name": "Lagos"
+          },
+          "BANGKOK": {
+                "lat": 13.75,
+                "lon": 100.5167,
+                "population": 17066000,
+                "match_name": "Bangkok"
+          },
+          "XI'AN": {
+                "lat": 34.2667,
+                "lon": 108.9,
+                "population": 7135000,
+                "match_name": "Xi'an"
+          },
+          "APIA": {
+                "lat": -13.8333,
+                "lon": -171.8333,
+                "population": 37708,
+                "match_name": "Apia"
+          },
+          "SEATTLE": {
+                "lat": 47.6211,
+                "lon": -122.3244,
+                "population": 3789215,
+                "match_name": "Seattle"
+          },
+          "JEFFERSON CITY": {
+                "lat": 38.5676,
+                "lon": -92.1759,
+                "population": 58025,
+                "match_name": "Jefferson City"
+          },
+          "MONTERREY": {
+                "lat": 25.6667,
+                "lon": -100.3,
+                "population": 4295000,
+                "match_name": "Monterrey"
+          },
+          "MONTEVIDEO": {
+                "lat": -34.8667,
+                "lon": -56.1667,
+                "population": 1319108,
+                "match_name": "Montevideo"
+          },
+          "ANDORRA LA VELLA": {
+                "lat": 42.5,
+                "lon": 1.5,
+                "population": 22151,
+                "match_name": "Andorra la Vella"
+          },
+          "NICE": {
+                "lat": 43.7034,
+                "lon": 7.2663,
+                "population": 1006402,
+                "match_name": "Nice"
+          },
+          "MORONI": {
+                "lat": -11.7036,
+                "lon": 43.2536,
+                "population": 111329,
+                "match_name": "Moroni"
+          },
+          "DURBAN": {
+                "lat": -29.8583,
+                "lon": 31.025,
+                "population": 595061,
+                "match_name": "Durban"
+          },
+          "KUALA LUMPUR": {
+                "lat": 3.1478,
+                "lon": 101.6953,
+                "population": 8285000,
+                "match_name": "Kuala Lumpur"
+          },
+          "BANGALORE": {
+                "lat": 12.9699,
+                "lon": 77.598,
+                "population": 13707000,
+                "match_name": "Bangalore"
+          },
+          "HONIARA": {
+                "lat": -9.4333,
+                "lon": 159.95,
+                "population": 84520,
+                "match_name": "Honiara"
+          },
+          "PHOENIX": {
+                "lat": 33.5722,
+                "lon": -112.0891,
+                "population": 4219697,
+                "match_name": "Phoenix"
+          },
+          "HELENA": {
+                "lat": 46.5965,
+                "lon": -112.0202,
+                "population": 52936,
+                "match_name": "Helena"
+          },
+          "TIJUANA": {
+                "lat": 32.525,
+                "lon": -117.0333,
+                "population": 2384609,
+                "match_name": "Tijuana"
+          },
+          "CARACAS": {
+                "lat": 10.5,
+                "lon": -66.9333,
+                "population": 1943901,
+                "match_name": "Caracas"
+          },
+          "MILAN": {
+                "lat": 45.4669,
+                "lon": 9.19,
+                "population": 1351562,
+                "match_name": "Milan"
+          },
+          "BIRMINGHAM": {
+                "lat": 52.48,
+                "lon": -1.9025,
+                "population": 2897303,
+                "match_name": "Birmingham"
+          },
+          "KINSHASA": {
+                "lat": -4.3317,
+                "lon": 15.3139,
+                "population": 13528000,
+                "match_name": "Kinshasa"
+          },
+          "AGADIR": {
+                "lat": 30.4167,
+                "lon": -9.5833,
+                "population": 421844,
+                "match_name": "Agadir"
+          },
+          "CHENGDU": {
+                "lat": 30.6636,
+                "lon": 104.0667,
+                "population": 11309000,
+                "match_name": "Chengdu"
+          },
+          "HO CHI MINH CITY": {
+                "lat": 10.8167,
+                "lon": 106.6333,
+                "population": 13312000,
+                "match_name": "Ho Chi Minh City"
+          },
+          "NUKU'ALOFA": {
+                "lat": -21.1394,
+                "lon": -175.2049,
+                "population": 24571,
+                "match_name": "Nuku'alofa"
+          },
+          "SAN FRANCISCO": {
+                "lat": 37.7562,
+                "lon": -122.443,
+                "population": 3592294,
+                "match_name": "San Francisco"
+          },
+          "LINCOLN": {
+                "lat": 40.809,
+                "lon": -96.6788,
+                "population": 289490,
+                "match_name": "Lincoln"
+          },
+          "KANSAS CITY": {
+                "lat": 39.1239,
+                "lon": -94.5541,
+                "population": 1636715,
+                "match_name": "Kansas City"
+          },
+          "SAO PAULO": {
+                "lat": -23.5504,
+                "lon": -46.6339,
+                "population": 22046000,
+                "match_name": "Sao Paulo"
+          },
+          "VIENNA": {
+                "lat": 48.2083,
+                "lon": 16.3731,
+                "population": 1840573,
+                "match_name": "Vienna"
+          },
+          "NAPLES": {
+                "lat": 40.8333,
+                "lon": 14.25,
+                "population": 972212,
+                "match_name": "Naples"
+          },
+          "BRAZZAVILLE": {
+                "lat": -4.2667,
+                "lon": 15.2833,
+                "population": 1827000,
+                "match_name": "Brazzaville"
+          },
+          "DAR ES SALAAM": {
+                "lat": -6.8,
+                "lon": 39.2833,
+                "population": 6698000,
+                "match_name": "Dar es Salaam"
+          },
+          "JAKARTA": {
+                "lat": -6.2146,
+                "lon": 106.8451,
+                "population": 34540000,
+                "match_name": "Jakarta"
+          },
+          "WUHAN": {
+                "lat": 30.5872,
+                "lon": 114.2881,
+                "population": 8962000,
+                "match_name": "Wuhan"
+          },
+          "FUNAFUTI": {
+                "lat": -8.5167,
+                "lon": 179.2167,
+                "population": 6025,
+                "match_name": "Funafuti"
+          },
+          "NEWARK": {
+                "lat": 40.7245,
+                "lon": -74.1725,
+                "population": 282011,
+                "match_name": "Newark"
+          },
+          "CARSON CITY": {
+                "lat": 39.1512,
+                "lon": -119.7474,
+                "population": 58756,
+                "match_name": "Carson City"
+          },
+          "PUNTA CANA": {
+                "lat": 18.5601,
+                "lon": -68.3725,
+                "population": 100023,
+                "match_name": "Punta Cana"
+          },
+          "MEDELLIN": {
+                "lat": 6.2447,
+                "lon": -75.5748,
+                "population": 2529403,
+                "match_name": "Medellin"
+          },
+          "MINSK": {
+                "lat": 53.9022,
+                "lon": 27.5618,
+                "population": 2020600,
+                "match_name": "Minsk"
+          },
+          "CATANIA": {
+                "lat": 37.5027,
+                "lon": 15.0873,
+                "population": 311584,
+                "match_name": "Catania"
+          },
+          "YAMOUSSOUKRO": {
+                "lat": 6.8161,
+                "lon": -5.2742,
+                "population": 355573,
+                "match_name": "Yamoussoukro"
+          },
+          "ABIDJAN": {
+                "lat": 5.3364,
+                "lon": -4.0267,
+                "population": 4980000,
+                "match_name": "Abidjan"
+          },
+          "MUMBAI": {
+                "lat": 18.9667,
+                "lon": 72.8333,
+                "population": 23355000,
+                "match_name": "Mumbai"
+          },
+          "CHANGSHA": {
+                "lat": 28.1987,
+                "lon": 112.9709,
+                "population": 7044118,
+                "match_name": "Changsha"
+          },
+          "PORT VILA": {
+                "lat": -17.7333,
+                "lon": 168.3167,
+                "population": 51437,
+                "match_name": "Port Vila"
+          },
+          "HOUSTON": {
+                "lat": 29.7863,
+                "lon": -95.3889,
+                "population": 5464251,
+                "match_name": "Houston"
+          },
+          "CONCORD": {
+                "lat": 43.2305,
+                "lon": -71.5595,
+                "population": 43542,
+                "match_name": "Concord"
+          },
+          "MONTEGO BAY": {
+                "lat": 18.4667,
+                "lon": -77.9167,
+                "population": 110115,
+                "match_name": "Montego Bay"
+          },
+          "BELO HORIZONTE": {
+                "lat": -19.8917,
+                "lon": -43.9478,
+                "population": 5159000,
+                "match_name": "Belo Horizonte"
+          },
+          "BRUSSLES": {
+                "lat": 50.8467,
+                "lon": 4.3517,
+                "population": 185103,
+                "match_name": "Brussels"
+          },
+          "VENICE": {
+                "lat": 45.4397,
+                "lon": 12.3319,
+                "population": 261905,
+                "match_name": "Venice"
+          },
+          "DJIBOUTI": {
+                "lat": 11.595,
+                "lon": 43.1481,
+                "population": 562000,
+                "match_name": "Djibouti"
+          },
+          "TANGIER": {
+                "lat": 35.7847,
+                "lon": -5.8125,
+                "population": 947952,
+                "match_name": "Tangier"
+          },
+          "HONG KONG": {
+                "lat": 22.305,
+                "lon": 114.185,
+                "population": 7347000,
+                "match_name": "Hong Kong"
+          },
+          "NANJING": {
+                "lat": 32.05,
+                "lon": 118.7667,
+                "population": 7496000,
+                "match_name": "Nanjing"
+          },
+          "SYDNEY": {
+                "lat": -33.865,
+                "lon": 151.2094,
+                "population": 5312163,
+                "match_name": "Sydney"
+          },
+          "TORONTO": {
+                "lat": 43.7417,
+                "lon": -79.3733,
+                "population": 5429524,
+                "match_name": "Toronto"
+          },
+          "TRENTON": {
+                "lat": 40.2236,
+                "lon": -74.7641,
+                "population": 290716,
+                "match_name": "Trenton"
+          },
+          "ORANJESTAD": {
+                "lat": 12.5186,
+                "lon": -70.0358,
+                "population": 34980,
+                "match_name": "Oranjestad"
+          },
+          "CAMPINAS": {
+                "lat": -22.9009,
+                "lon": -47.0573,
+                "population": 1164098,
+                "match_name": "Campinas"
+          },
+          "SARAJEVO": {
+                "lat": 43.8667,
+                "lon": 18.4167,
+                "population": 275524,
+                "match_name": "Sarajevo"
+          },
+          "MARSEILLE": {
+                "lat": 43.2964,
+                "lon": 5.37,
+                "population": 870018,
+                "match_name": "Marseille"
+          },
+          "CAIRO": {
+                "lat": 30.0561,
+                "lon": 31.2394,
+                "population": 19372000,
+                "match_name": "Cairo"
+          },
+          "ZANZIBAR": {
+                "lat": -6.1667,
+                "lon": 39.2,
+                "population": 205870,
+                "match_name": "Zanzibar"
+          },
+          "DOHA": {
+                "lat": 25.3,
+                "lon": 51.5333,
+                "population": 1312947,
+                "match_name": "Doha"
+          },
+          "JEJU CITY": {
+                "lat": 33.4996,
+                "lon": 126.5312,
+                "population": 486306,
+                "match_name": "Jeju City"
+          },
+          "MELBOURNE": {
+                "lat": -37.8136,
+                "lon": 144.9631,
+                "population": 5078193,
+                "match_name": "Melbourne"
+          },
+          "MEXICO CITY": {
+                "lat": 19.4333,
+                "lon": -99.1333,
+                "population": 20996000,
+                "match_name": "Mexico City"
+          },
+          "SANTA FE": {
+                "lat": 35.6619,
+                "lon": -105.9819,
+                "population": 111269,
+                "match_name": "Santa Fe"
+          },
+          "WICHITA FALLS": {
+                "lat": 33.9072,
+                "lon": -98.5291,
+                "population": 99557,
+                "match_name": "Wichita Falls"
+          },
+          "RECIFE": {
+                "lat": -8.0539,
+                "lon": -34.8808,
+                "population": 1555039,
+                "match_name": "Recife"
+          },
+          "SOFIA": {
+                "lat": 42.6975,
+                "lon": 23.3241,
+                "population": 1355142,
+                "match_name": "Sofia"
+          },
+          "KRAKOW": {
+                "lat": 50.0614,
+                "lon": 19.9372,
+                "population": 766739,
+                "match_name": "Krakow"
+          },
+          "MALABO": {
+                "lat": 3.7521,
+                "lon": 8.7737,
+                "population": 187302,
+                "match_name": "Malabo"
+          },
+          "MARSA ALAM": {
+                "lat": 25.0676,
+                "lon": 34.878,
+                "population": 10000,
+                "match_name": "Marsa Alam"
+          },
+          "MANILA": {
+                "lat": 14.5958,
+                "lon": 120.9772,
+                "population": 23088000,
+                "match_name": "Manila"
+          },
+          "ZHENGZHOU": {
+                "lat": 34.7492,
+                "lon": 113.6605,
+                "population": 7005000,
+                "match_name": "Zhengzhou"
+          },
+          "BRISBANE": {
+                "lat": -27.4678,
+                "lon": 153.0281,
+                "population": 2514184,
+                "match_name": "Brisbane"
+          },
+          "SAINT JOHN'S": {
+                "lat": 17.1185,
+                "lon": -61.8449,
+                "population": 22219,
+                "match_name": "Saint John's"
+          },
+          "ALBANY": {
+                "lat": 42.6664,
+                "lon": -73.7987,
+                "population": 586383,
+                "match_name": "Albany"
+          },
+          "EDMONTON": {
+                "lat": 53.5344,
+                "lon": -113.4903,
+                "population": 1062643,
+                "match_name": "Edmonton"
+          },
+          "CALI": {
+                "lat": 3.44,
+                "lon": -76.5197,
+                "population": 2471474,
+                "match_name": "Cali"
+          },
+          "ZAGREB": {
+                "lat": 45.8,
+                "lon": 15.95,
+                "population": 790017,
+                "match_name": "Zagreb"
+          },
+          "VALENCIA": {
+                "lat": 39.4667,
+                "lon": -0.375,
+                "population": 794288,
+                "match_name": "Valencia"
+          },
+          "ASMARA": {
+                "lat": 15.3333,
+                "lon": 38.9167,
+                "population": 963000,
+                "match_name": "Asmara"
+          },
+          "DJERBA": {
+                "lat": 33.8076,
+                "lon": 10.8451,
+                "population": 163726,
+                "match_name": "Djerba"
+          },
+          "CHONGQING": {
+                "lat": 29.55,
+                "lon": 106.5069,
+                "population": 7739000,
+                "match_name": "Chongqing"
+          },
+          "HYDERABAD": {
+                "lat": 17.3667,
+                "lon": 78.4667,
+                "population": 9746000,
+                "match_name": "Hyderabad"
+          },
+          "AUCKLAND": {
+                "lat": -36.85,
+                "lon": 174.7833,
+                "population": 1467800,
+                "match_name": "Auckland"
+          },
+          "NASSAU": {
+                "lat": 25.0667,
+                "lon": -77.3333,
+                "population": 274400,
+                "match_name": "Nassau"
+          },
+          "RALEIGH": {
+                "lat": 35.8325,
+                "lon": -78.6435,
+                "population": 1038738,
+                "match_name": "Raleigh"
+          },
+          "WINNIPEG": {
+                "lat": 49.8844,
+                "lon": -97.1464,
+                "population": 705244,
+                "match_name": "Winnipeg"
+          },
+          "CARTAGENA": {
+                "lat": 10.4236,
+                "lon": -75.5253,
+                "population": 1036412,
+                "match_name": "Cartagena"
+          },
+          "MOSCOW": {
+                "lat": 55.7558,
+                "lon": 37.6178,
+                "population": 17125000,
+                "match_name": "Moscow"
+          },
+          "BOLOGNA": {
+                "lat": 44.4939,
+                "lon": 11.3428,
+                "population": 388367,
+                "match_name": "Bologna"
+          },
+          "MBABANE": {
+                "lat": -26.3167,
+                "lon": 31.1333,
+                "population": 90138,
+                "match_name": "Mbabane"
+          },
+          "BORG EL ARAB": {
+                "lat": 30.9177,
+                "lon": 29.6964,
+                "population": 0,
+                "match_name": "Borg El Arab"
+          },
+          "KABUL": {
+                "lat": 34.5328,
+                "lon": 69.1658,
+                "population": 3678034,
+                "match_name": "Kabul"
+          },
+          "URUMQI": {
+                "lat": 43.825,
+                "lon": 87.6,
+                "population": 3112559,
+                "match_name": "Urumqi"
+          },
+          "PERTH": {
+                "lat": -31.9522,
+                "lon": 115.8589,
+                "population": 2059484,
+                "match_name": "Perth"
+          },
+          "BRIDGETOWN": {
+                "lat": 13.0975,
+                "lon": -59.6167,
+                "population": 110000,
+                "match_name": "Bridgetown"
+          },
+          "BISMARCK": {
+                "lat": 46.8144,
+                "lon": -100.7694,
+                "population": 98345,
+                "match_name": "Bismarck"
+          },
+          "LOS CABOS": {
+                "lat": 22.8905,
+                "lon": -109.9167,
+                "population": 351111,
+                "match_name": "Los Cabos"
+          },
+          "PORTO ALEGRE": {
+                "lat": -30.0328,
+                "lon": -51.23,
+                "population": 1484941,
+                "match_name": "Porto Alegre"
+          },
+          "PRAGUE": {
+                "lat": 50.0833,
+                "lon": 14.4167,
+                "population": 1324277,
+                "match_name": "Prague"
+          },
+          "CHARLEROI": {
+                "lat": 50.4167,
+                "lon": 4.4442,
+                "population": 201816,
+                "match_name": "Charleroi"
+          },
+          "ADDIS ABABA": {
+                "lat": 9.0272,
+                "lon": 38.7369,
+                "population": 3041002,
+                "match_name": "Addis Ababa"
+          },
+          "ALEXANDRIA": {
+                "lat": 31.2,
+                "lon": 29.9167,
+                "population": 4870000,
+                "match_name": "Alexandria"
+          },
+          "YEREVAN": {
+                "lat": 40.1814,
+                "lon": 44.5144,
+                "population": 1075800,
+                "match_name": "Yerevan"
+          },
+          "FUKUOKA": {
+                "lat": 33.5903,
+                "lon": 130.4019,
+                "population": 2128000,
+                "match_name": "Fukuoka"
+          },
+          "ADELAIDE": {
+                "lat": -34.9289,
+                "lon": 138.6011,
+                "population": 1345777,
+                "match_name": "Adelaide"
+          },
+          "BELMOPON": {
+                "lat": 17.25,
+                "lon": -88.7675,
+                "population": 17222,
+                "match_name": "Belmopan"
+          },
+          "COLUMBUS": {
+                "lat": 39.9862,
+                "lon": -82.985,
+                "population": 1562009,
+                "match_name": "Columbus"
+          },
+          "PUERTO VALLARTA": {
+                "lat": 20.6667,
+                "lon": -105.2667,
+                "population": 221200,
+                "match_name": "Puerto Vallarta"
+          },
+          "SALVADOR": {
+                "lat": -12.9708,
+                "lon": -38.5108,
+                "population": 2921087,
+                "match_name": "Salvador"
+          },
+          "COPENHAGEN": {
+                "lat": 55.6786,
+                "lon": 12.5635,
+                "population": 1085000,
+                "match_name": "Copenhagen"
+          },
+          "LYON": {
+                "lat": 45.76,
+                "lon": 4.84,
+                "population": 516092,
+                "match_name": "Lyon"
+          },
+          "LIBREVILLE": {
+                "lat": 0.3901,
+                "lon": 9.4544,
+                "population": 797003,
+                "match_name": "Libreville"
+          },
+          "KILIMANJARO": {
+                "lat": -3.0674,
+                "lon": 37.3556,
+                "population": 0,
+                "match_name": "Kilimanjaro"
+          },
+          "BAKU": {
+                "lat": 40.3667,
+                "lon": 49.8352,
+                "population": 2181800,
+                "match_name": "Baku"
+          },
+          "HAIKOU": {
+                "lat": 20.02,
+                "lon": 110.32,
+                "population": 2046189,
+                "match_name": "Haikou"
+          },
+          "CHRISTCHURCH": {
+                "lat": -43.5309,
+                "lon": 172.6365,
+                "population": 377200,
+                "match_name": "Christchurch"
+          },
+          "OTTAWA": {
+                "lat": 45.4247,
+                "lon": -75.695,
+                "population": 989567,
+                "match_name": "Ottawa"
+          },
+          "OKLAHOMA CITY": {
+                "lat": 35.4676,
+                "lon": -97.5136,
+                "population": 972943,
+                "match_name": "Oklahoma City"
+          },
+          "FELIPE ANGELES": {
+                "lat": 19.7425,
+                "lon": -99.0147,
+                "population": 0,
+                "match_name": "Felipe Angeles International Airport"
+          },
+          "FORTALEZA": {
+                "lat": -3.7275,
+                "lon": -38.5275,
+                "population": 2452185,
+                "match_name": "Fortaleza"
+          },
+          "TALLINN": {
+                "lat": 59.4372,
+                "lon": 24.745,
+                "population": 434562,
+                "match_name": "Tallinn"
+          },
+          "BRISTOL": {
+                "lat": 51.45,
+                "lon": -2.5833,
+                "population": 724000,
+                "match_name": "Bristol"
+          },
+          "BANJUL": {
+                "lat": 13.4531,
+                "lon": -16.5775,
+                "population": 31356,
+                "match_name": "Banjul"
+          },
+          "MANAMA": {
+                "lat": 26.2167,
+                "lon": 50.5831,
+                "population": 157474,
+                "match_name": "Manama"
+          },
+          "QINGDAO": {
+                "lat": 36.1167,
+                "lon": 120.4,
+                "population": 5775000,
+                "match_name": "Qingdao"
+          },
+          "GOLD COAST": {
+                "lat": -28.0167,
+                "lon": 153.4,
+                "population": 679127,
+                "match_name": "Gold Coast"
+          },
+          "SAN JOSE": {
+                "lat": 9.9333,
+                "lon": -84.0833,
+                "population": 288054,
+                "match_name": "San Jose"
+          },
+          "SALEM": {
+                "lat": 44.9231,
+                "lon": -123.0246,
+                "population": 266804,
+                "match_name": "Salem"
+          },
+          "BALTIMORE": {
+                "lat": 39.3051,
+                "lon": -76.6144,
+                "population": 2106068,
+                "match_name": "Baltimore"
+          },
+          "CURITIBA": {
+                "lat": -25.4297,
+                "lon": -49.2719,
+                "population": 1879355,
+                "match_name": "Curitiba"
+          },
+          "HELSINKI": {
+                "lat": 60.1756,
+                "lon": 24.9342,
+                "population": 642045,
+                "match_name": "Helsinki"
+          },
+          "COLOGNE": {
+                "lat": 50.9422,
+                "lon": 6.9578,
+                "population": 1085664,
+                "match_name": "Cologne"
+          },
+          "ACCRA": {
+                "lat": 5.6037,
+                "lon": -0.187,
+                "population": 2291352,
+                "match_name": "Accra"
+          },
+          "DHAKA": {
+                "lat": 23.7161,
+                "lon": 90.3961,
+                "population": 15443000,
+                "match_name": "Dhaka"
+          },
+          "DENPASAR": {
+                "lat": -8.6667,
+                "lon": 115.2167,
+                "population": 834881,
+                "match_name": "Denpasar"
+          },
+          "CAIRNS": {
+                "lat": -16.9303,
+                "lon": 145.7703,
+                "population": 152729,
+                "match_name": "Cairns"
+          },
+          "HAVANA": {
+                "lat": 23.1367,
+                "lon": -82.3589,
+                "population": 2141652,
+                "match_name": "Havana"
+          },
+          "HARRISBURG": {
+                "lat": 40.2752,
+                "lon": -76.8843,
+                "population": 442289,
+                "match_name": "Harrisburg"
+          },
+          "PHILADELPHIA": {
+                "lat": 40.0077,
+                "lon": -75.1339,
+                "population": 5649300,
+                "match_name": "Philadelphia"
+          },
+          "FLORIANOPOLIS": {
+                "lat": -27.5933,
+                "lon": -48.553,
+                "population": 477798,
+                "match_name": "Florianopolis"
+          },
+          "BERLIN": {
+                "lat": 52.5167,
+                "lon": 13.3833,
+                "population": 3644826,
+                "match_name": "Berlin"
+          },
+          "IBIZA": {
+                "lat": 38.9067,
+                "lon": 1.4206,
+                "population": 49549,
+                "match_name": "Ibiza"
+          },
+          "CONAKRY": {
+                "lat": 9.5092,
+                "lon": -13.7122,
+                "population": 1667864,
+                "match_name": "Conakry"
+          },
+          "THIMPHU": {
+                "lat": 27.4833,
+                "lon": 89.6333,
+                "population": 104000,
+                "match_name": "Thimphu"
+          },
+          "HARBIN": {
+                "lat": 45.75,
+                "lon": 126.6333,
+                "population": 4458000,
+                "match_name": "Harbin"
+          },
+          "HAGATNA": {
+                "lat": 13.4757,
+                "lon": 144.7489,
+                "population": 1051,
+                "match_name": "Hagåtña"
+          },
+          "ROSEAU": {
+                "lat": 15.3,
+                "lon": -61.3833,
+                "population": 16582,
+                "match_name": "Roseau"
+          },
+          "PROVIDENCE": {
+                "lat": 41.823,
+                "lon": -71.4187,
+                "population": 1203230,
+                "match_name": "Providence"
+          },
+          "SAN JUAN": {
+                "lat": -31.5375,
+                "lon": -68.5364,
+                "population": 471389,
+                "match_name": "San Juan"
+          },
+          "BELEM": {
+                "lat": -1.4558,
+                "lon": -48.5039,
+                "population": 1393399,
+                "match_name": "Belem"
+          },
+          "ATHENS": {
+                "lat": 37.9794,
+                "lon": 23.7161,
+                "population": 664046,
+                "match_name": "Athens"
+          },
+          "PALERMO": {
+                "lat": 38.1157,
+                "lon": 13.3613,
+                "population": 674435,
+                "match_name": "Palermo"
+          },
+          "BISSAU": {
+                "lat": 11.8592,
+                "lon": -15.5956,
+                "population": 395954,
+                "match_name": "Bissau"
+          },
+          "BANDAR SERI BEGAWAN": {
+                "lat": 4.9167,
+                "lon": 114.9167,
+                "population": 50000,
+                "match_name": "Bandar Seri Begawan"
+          },
+          "SHENYANG": {
+                "lat": 41.8039,
+                "lon": 123.4258,
+                "population": 7105000,
+                "match_name": "Shenyang"
+          },
+          "KONA": {
+                "lat": 19.6397,
+                "lon": -155.9969,
+                "population": 19919,
+                "match_name": "Kailua-Kona"
+          },
+          "SANTO DOMINGO": {
+                "lat": 18.4764,
+                "lon": -69.8933,
+                "population": 2581827,
+                "match_name": "Santo Domingo"
+          },
+          "COLUMBIA": {
+                "lat": 34.0376,
+                "lon": -80.9037,
+                "population": 560041,
+                "match_name": "Columbia"
+          },
+          "SAN ANTONIO": {
+                "lat": 29.4658,
+                "lon": -98.5253,
+                "population": 2049293,
+                "match_name": "San Antonio"
+          },
+          "GOIANIA": {
+                "lat": -16.6789,
+                "lon": -49.2539,
+                "population": 1393575,
+                "match_name": "Goiania"
+          },
+          "BUDAPEST": {
+                "lat": 47.4983,
+                "lon": 19.0408,
+                "population": 1752286,
+                "match_name": "Budapest"
+          },
+          "TOULOUSE": {
+                "lat": 43.6045,
+                "lon": 1.444,
+                "population": 968638,
+                "match_name": "Toulouse"
+          },
+          "NAIROBI": {
+                "lat": -1.2864,
+                "lon": 36.8172,
+                "population": 5545000,
+                "match_name": "Nairobi"
+          },
+          "PHNOM PENH": {
+                "lat": 11.5696,
+                "lon": 104.921,
+                "population": 2129371,
+                "match_name": "Phnom Penh"
+          },
+          "INCHEON": {
+                "lat": 37.4639,
+                "lon": 126.6486,
+                "population": 2913024,
+                "match_name": "Incheon"
+          },
+          "LIHUE": {
+                "lat": 21.9728,
+                "lon": -159.3541,
+                "population": 7381,
+                "match_name": "Lihue"
+          },
+          "SAN SALVADOR": {
+                "lat": 13.6989,
+                "lon": -89.1914,
+                "population": 567698,
+                "match_name": "San Salvador"
+          },
+          "PIERRE": {
+                "lat": 44.3748,
+                "lon": -100.3205,
+                "population": 14659,
+                "match_name": "Pierre"
+          },
+          "FORT MYERS": {
+                "lat": 26.6195,
+                "lon": -81.8303,
+                "population": 87103,
+                "match_name": "Fort Myers"
+          },
+          "GUAYAQUIL": {
+                "lat": -2.1833,
+                "lon": -79.8833,
+                "population": 2723665,
+                "match_name": "Guayaquil"
+          },
+          "REYKJAVIK": {
+                "lat": 64.1475,
+                "lon": -21.935,
+                "population": 128793,
+                "match_name": "Reykjavik"
+          },
+          "THESSALONIKI": {
+                "lat": 40.6333,
+                "lon": 22.95,
+                "population": 315196,
+                "match_name": "Thessaloniki"
+          },
+          "MASERU": {
+                "lat": -29.31,
+                "lon": 27.48,
+                "population": 330790,
+                "match_name": "Maseru"
+          },
+          "ASTANA": {
+                "lat": 51.1694,
+                "lon": 71.4491,
+                "population": 1078362,
+                "match_name": "Astana"
+          },
+          "SHARJAH": {
+                "lat": 25.3575,
+                "lon": 55.3919,
+                "population": 1400000,
+                "match_name": "Sharjah"
+          },
+          "HOBART": {
+                "lat": -42.8806,
+                "lon": 147.325,
+                "population": 240342,
+                "match_name": "Hobart"
+          },
+          "SAINT GEORGE'S": {
+                "lat": 12.0561,
+                "lon": -61.7488,
+                "population": 33734,
+                "match_name": "Saint George's"
+          },
+          "NASHVILLE": {
+                "lat": 36.1715,
+                "lon": -86.7843,
+                "population": 1081903,
+                "match_name": "Nashville"
+          },
+          "SANTA ANA": {
+                "lat": 33.7366,
+                "lon": -117.8819,
+                "population": 332318,
+                "match_name": "Santa Ana"
+          },
+          "CUSCO": {
+                "lat": -13.5183,
+                "lon": -71.9781,
+                "population": 428450,
+                "match_name": "Cusco"
+          },
+          "DUBLIN": {
+                "lat": 53.3425,
+                "lon": -6.2658,
+                "population": 1173179,
+                "match_name": "Dublin"
+          },
+          "SEVILLE": {
+                "lat": 41.0208,
+                "lon": -81.8671,
+                "population": 7812,
+                "match_name": "Seville"
+          },
+          "MONROVIO": {
+                "lat": 6.3106,
+                "lon": -10.8047,
+                "population": 1021762,
+                "match_name": "Monrovia"
+          },
+          "NICOSIA": {
+                "lat": 35.1725,
+                "lon": 33.365,
+                "population": 330000,
+                "match_name": "Nicosia"
+          },
+          "TEL AVIV": {
+                "lat": 32.0853,
+                "lon": 34.7818,
+                "population": 460613,
+                "match_name": "Tel Aviv"
+          },
+          "NADI": {
+                "lat": -17.8,
+                "lon": 177.4167,
+                "population": 42284,
+                "match_name": "Nadi"
+          },
+          "GUATEMALA CITY": {
+                "lat": 14.6099,
+                "lon": -90.5252,
+                "population": 2450212,
+                "match_name": "Guatemala City"
+          },
+          "AUSTIN": {
+                "lat": 30.3004,
+                "lon": -97.7522,
+                "population": 1687311,
+                "match_name": "Austin"
+          },
+          "OAKLAND": {
+                "lat": 37.7903,
+                "lon": -122.2165,
+                "population": 433031,
+                "match_name": "Oakland"
+          },
+          "CORDOBA": {
+                "lat": -31.4167,
+                "lon": -64.1833,
+                "population": 1329604,
+                "match_name": "Cordoba"
+          },
+          "PRISTINA": {
+                "lat": 42.6667,
+                "lon": 21.1667,
+                "population": 204725,
+                "match_name": "Pristina"
+          },
+          "BERGEN": {
+                "lat": 60.3925,
+                "lon": 5.3233,
+                "population": 257087,
+                "match_name": "Bergen"
+          },
+          "TRIPOLI": {
+                "lat": 32.8752,
+                "lon": 13.1875,
+                "population": 1126000,
+                "match_name": "Tripoli"
+          },
+          "TBILISI": {
+                "lat": 41.7225,
+                "lon": 44.7925,
+                "population": 1118035,
+                "match_name": "Tbilisi"
+          },
+          "DAMMAM": {
+                "lat": 26.4207,
+                "lon": 50.0888,
+                "population": 1252523,
+                "match_name": "Dammam"
+          },
+          "QUEENSTOWN": {
+                "lat": -31.9,
+                "lon": 26.8833,
+                "population": 105309,
+                "match_name": "Queenstown"
+          },
+          "PORT-AU-PRINCE": {
+                "lat": 18.5425,
+                "lon": -72.3386,
+                "population": 987310,
+                "match_name": "Port-au-Prince"
+          },
+          "SALT LAKE CITY": {
+                "lat": 40.7777,
+                "lon": -111.9306,
+                "population": 1098526,
+                "match_name": "Salt Lake City"
+          },
+          "CINCINNATI": {
+                "lat": 39.1413,
+                "lon": -84.5061,
+                "population": 1662691,
+                "match_name": "Cincinnati"
+          },
+          "MENDOZA": {
+                "lat": -32.8833,
+                "lon": -68.8333,
+                "population": 114822,
+                "match_name": "Mendoza"
+          },
+          "RIGA": {
+                "lat": 56.9475,
+                "lon": 24.1069,
+                "population": 698529,
+                "match_name": "Riga"
+          },
+          "DUBROVNIK": {
+                "lat": 42.6403,
+                "lon": 18.1083,
+                "population": 42615,
+                "match_name": "Dubrovnik"
+          },
+          "ANTANANARIVO": {
+                "lat": -18.9386,
+                "lon": 47.5214,
+                "population": 2610000,
+                "match_name": "Antananarivo"
+          },
+          "KUWAIT CITY": {
+                "lat": 29.375,
+                "lon": 47.98,
+                "population": 637411,
+                "match_name": "Kuwait City"
+          },
+          "IZMIR": {
+                "lat": 38.4127,
+                "lon": 27.1384,
+                "population": 4320519,
+                "match_name": "Izmir"
+          },
+          "DARWIN": {
+                "lat": -12.4381,
+                "lon": 130.8411,
+                "population": 136828,
+                "match_name": "Darwin"
+          },
+          "TEGUCIGALPA": {
+                "lat": 14.0942,
+                "lon": -87.2067,
+                "population": 1126534,
+                "match_name": "Tegucigalpa"
+          },
+          "MONTPELIER": {
+                "lat": 44.2658,
+                "lon": -72.5717,
+                "population": 7372,
+                "match_name": "Montpelier"
+          },
+          "KAHULUI": {
+                "lat": 20.8715,
+                "lon": -156.4603,
+                "population": 32312,
+                "match_name": "Kahului"
+          },
+          "SANTA MARTA": {
+                "lat": 11.2361,
+                "lon": -74.2017,
+                "population": 515556,
+                "match_name": "Santa Marta"
+          },
+          "VADUZ": {
+                "lat": 47.1415,
+                "lon": 9.5215,
+                "population": 36281,
+                "match_name": "Vaduz"
+          },
+          "MULHOUSE": {
+                "lat": 47.75,
+                "lon": 7.34,
+                "population": 285121,
+                "match_name": "Mulhouse"
+          },
+          "LILONGWE": {
+                "lat": -13.9833,
+                "lon": 33.7833,
+                "population": 781538,
+                "match_name": "Lilongwe"
+          },
+          "BISKEKH": {
+                "lat": 42.8667,
+                "lon": 74.5667,
+                "population": 1027200,
+                "match_name": "Bishkek"
+          },
+          "MEDINA": {
+                "lat": 24.4667,
+                "lon": 39.6,
+                "population": 1180770,
+                "match_name": "Medina"
+          },
+          "KINGSTON": {
+                "lat": 17.9714,
+                "lon": -76.7931,
+                "population": 580000,
+                "match_name": "Kingston"
+          },
+          "RICHMOND": {
+                "lat": 37.5295,
+                "lon": -77.4756,
+                "population": 1075798,
+                "match_name": "Richmond"
+          },
+          "MILWUAKEE": {
+                "lat": 43.0642,
+                "lon": -87.9673,
+                "population": 1365787,
+                "match_name": "Milwaukee"
+          },
+          "BARRANQUILLA": {
+                "lat": 10.96,
+                "lon": -74.8,
+                "population": 1798000,
+                "match_name": "Barranquilla"
+          },
+          "VILNIUS": {
+                "lat": 54.6833,
+                "lon": 25.2833,
+                "population": 574147,
+                "match_name": "Vilnius"
+          },
+          "BORDEAUX": {
+                "lat": 44.84,
+                "lon": -0.58,
+                "population": 257804,
+                "match_name": "Bordeaux"
+          },
+          "BAMAKO": {
+                "lat": 12.6458,
+                "lon": -7.9922,
+                "population": 2009109,
+                "match_name": "Bamako"
+          },
+          "TEHRAN": {
+                "lat": 35.7,
+                "lon": 51.4167,
+                "population": 13633000,
+                "match_name": "Tehran"
+          },
+          "MUHARRAQ": {
+                "lat": 26.2572,
+                "lon": 50.6119,
+                "population": 176583,
+                "match_name": "Muharraq"
+          },
+          "MANAGUA": {
+                "lat": 12.15,
+                "lon": -86.2667,
+                "population": 1028808,
+                "match_name": "Managua"
+          },
+          "OLYMPIA": {
+                "lat": 47.0417,
+                "lon": -122.8959,
+                "population": 200915,
+                "match_name": "Olympia"
+          },
+          "ALBUQUERQUE": {
+                "lat": 35.1053,
+                "lon": -106.6464,
+                "population": 761195,
+                "match_name": "Albuquerque"
+          },
+          "PEREIRA": {
+                "lat": 4.8104,
+                "lon": -75.68,
+                "population": 568750,
+                "match_name": "Pereira"
+          },
+          "LUXEMBOURG": {
+                "lat": 49.6106,
+                "lon": 6.1328,
+                "population": 122273,
+                "match_name": "Luxembourg"
+          },
+          "NANTES": {
+                "lat": 47.2181,
+                "lon": -1.5528,
+                "population": 633690,
+                "match_name": "Nantes"
+          },
+          "NOUAKCHOTT": {
+                "lat": 18.0783,
+                "lon": -15.9744,
+                "population": 1077169,
+                "match_name": "Nouakchott"
+          },
+          "BAGHDAD": {
+                "lat": 33.35,
+                "lon": 44.4167,
+                "population": 5796000,
+                "match_name": "Baghdad"
+          },
+          "LARNACA": {
+                "lat": 34.9233,
+                "lon": 33.6305,
+                "population": 48947,
+                "match_name": "Larnaca"
+          },
+          "PANAMA CITY": {
+                "lat": 9.0,
+                "lon": -79.5,
+                "population": 880691,
+                "match_name": "Panama City"
+          },
+          "CHARLESTON": {
+                "lat": 32.8153,
+                "lon": -79.9628,
+                "population": 628377,
+                "match_name": "Charleston"
+          },
+          "MEMPHIS": {
+                "lat": 35.1046,
+                "lon": -89.9773,
+                "population": 1066967,
+                "match_name": "Memphis"
+          },
+          "AREQUIPA": {
+                "lat": -16.3988,
+                "lon": -71.5369,
+                "population": 1008290,
+                "match_name": "Arequipa"
+          },
+          "VALLETTA": {
+                "lat": 35.8978,
+                "lon": 14.5125,
+                "population": 6444,
+                "match_name": "Valletta"
+          },
+          "STUTTGART": {
+                "lat": 48.7761,
+                "lon": 9.1775,
+                "population": 634830,
+                "match_name": "Stuttgart"
+          },
+          "PORT LOUIS": {
+                "lat": -20.1667,
+                "lon": 57.5,
+                "population": 149194,
+                "match_name": "Port Louis"
+          },
+          "JERUSALEM": {
+                "lat": 31.7833,
+                "lon": 35.2167,
+                "population": 919438,
+                "match_name": "Jerusalem"
+          },
+          "MASHHAD": {
+                "lat": 36.3069,
+                "lon": 59.6042,
+                "population": 3001184,
+                "match_name": "Mashhad"
+          },
+          "BASSETERRE": {
+                "lat": 17.2983,
+                "lon": -62.7342,
+                "population": 13220,
+                "match_name": "Basseterre"
+          },
+          "MADISON": {
+                "lat": 43.0826,
+                "lon": -89.3931,
+                "population": 447245,
+                "match_name": "Madison"
+          },
+          "RENO": {
+                "lat": 39.5497,
+                "lon": -119.8483,
+                "population": 445020,
+                "match_name": "Reno"
+          },
+          "CHISINAU": {
+                "lat": 47.0056,
+                "lon": 28.8575,
+                "population": 685900,
+                "match_name": "Chisinau"
+          },
+          "HERAKLION": {
+                "lat": 35.3387,
+                "lon": 25.1442,
+                "population": 211370,
+                "match_name": "Heraklion"
+          },
+          "RABAT": {
+                "lat": 34.0253,
+                "lon": -6.8361,
+                "population": 1628000,
+                "match_name": "Rabat"
+          },
+          "VIENTIANE": {
+                "lat": 17.9667,
+                "lon": 102.6,
+                "population": 760000,
+                "match_name": "Vientiane"
+          },
+          "DALAMAN": {
+                "lat": 36.7659,
+                "lon": 28.8028,
+                "population": 43036,
+                "match_name": "Dalaman"
+          },
+          "CASTRIES": {
+                "lat": 14.0167,
+                "lon": -60.9833,
+                "population": 70000,
+                "match_name": "Castries"
+          },
+          "CHEYENNE": {
+                "lat": 41.1351,
+                "lon": -104.79,
+                "population": 79484,
+                "match_name": "Cheyenne"
+          },
+          "BURBANK": {
+                "lat": 34.1879,
+                "lon": -118.3235,
+                "population": 102511,
+                "match_name": "Burbank"
+          },
+          "MONACO": {
+                "lat": 43.7396,
+                "lon": 7.4069,
+                "population": 36371,
+                "match_name": "Monaco"
+          },
+          "CORK": {
+                "lat": 51.9,
+                "lon": -8.4731,
+                "population": 208669,
+                "match_name": "Cork"
+          },
+          "MAPUTO": {
+                "lat": -25.9153,
+                "lon": 32.5764,
+                "population": 1191613,
+                "match_name": "Maputo"
+          },
+          "BEIRUT": {
+                "lat": 33.8869,
+                "lon": 35.5131,
+                "population": 361366,
+                "match_name": "Beirut"
+          },
+          "CHENNAI": {
+                "lat": 13.0825,
+                "lon": 80.275,
+                "population": 11324000,
+                "match_name": "Chennai"
+          },
+          "KINGSTOWN": {
+                "lat": 13.1667,
+                "lon": -61.2333,
+                "population": 25418,
+                "match_name": "Kingstown"
+          },
+          "TAMPA": {
+                "lat": 27.9942,
+                "lon": -82.4451,
+                "population": 2908063,
+                "match_name": "Tampa"
+          },
+          "PODGORICA": {
+                "lat": 42.4397,
+                "lon": 19.2661,
+                "population": 174515,
+                "match_name": "Podgorica"
+          },
+          "GDANSK": {
+                "lat": 54.3667,
+                "lon": 18.6333,
+                "population": 464254,
+                "match_name": "Gdansk"
+          },
+          "WINDHOEK": {
+                "lat": -22.57,
+                "lon": 17.0836,
+                "population": 322500,
+                "match_name": "Windhoek"
+          },
+          "MALE": {
+                "lat": 4.175,
+                "lon": 73.5083,
+                "population": 133019,
+                "match_name": "Male"
+          },
+          "KOLKATA": {
+                "lat": 22.5411,
+                "lon": 88.3378,
+                "population": 17560000,
+                "match_name": "Kolkata"
+          },
+          "PORT OF SPAIN": {
+                "lat": 10.6667,
+                "lon": -61.5167,
+                "population": 37074,
+                "match_name": "Port of Spain"
+          },
+          "PORT LAUDERDALE": {
+                "lat": 26.1412,
+                "lon": -80.1464,
+                "population": 182760,
+                "match_name": "Fort Lauderdale"
+          },
+          "SKOPJE": {
+                "lat": 41.9833,
+                "lon": 21.4333,
+                "population": 640000,
+                "match_name": "Skopje"
+          },
+          "KATOWICE": {
+                "lat": 50.25,
+                "lon": 19.0,
+                "population": 276499,
+                "match_name": "Katowice"
+          },
+          "NIAMEY": {
+                "lat": 13.5086,
+                "lon": 2.1111,
+                "population": 1026848,
+                "match_name": "Niamey"
+          },
+          "ULAANBAATAR": {
+                "lat": 47.9203,
+                "lon": 106.9172,
+                "population": 1396288,
+                "match_name": "Ulaanbaatar"
+          },
+          "AHMEDABAD": {
+                "lat": 23.0225,
+                "lon": 72.5714,
+                "population": 7410000,
+                "match_name": "Ahmedabad"
+          },
+          "WASHINGTON DC": {
+                "lat": 38.9047,
+                "lon": -77.0163,
+                "population": 5379184,
+                "match_name": "Washington"
+          },
+          "DESTIN": {
+                "lat": 30.395,
+                "lon": -86.4701,
+                "population": 14247,
+                "match_name": "Destin"
+          },
+          "OSLO": {
+                "lat": 59.9111,
+                "lon": 10.7528,
+                "population": 693494,
+                "match_name": "Oslo"
+          },
+          "FARO": {
+                "lat": 37.0167,
+                "lon": -7.9333,
+                "population": 64560,
+                "match_name": "Faro"
+          },
+          "ABUJA": {
+                "lat": 9.0556,
+                "lon": 7.4914,
+                "population": 1235880,
+                "match_name": "Abuja"
+          },
+          "NAYPYIDAW": {
+                "lat": 19.7633,
+                "lon": 96.0785,
+                "population": 925000,
+                "match_name": "Naypyidaw"
+          },
+          "KOCHI": {
+                "lat": 9.9667,
+                "lon": 76.2833,
+                "population": 677381,
+                "match_name": "Kochi"
+          },
+          "MONTGOMERY": {
+                "lat": 32.3473,
+                "lon": -86.2666,
+                "population": 254634,
+                "match_name": "Montgomery"
+          },
+          "JACKSONVILLE": {
+                "lat": 30.3322,
+                "lon": -81.6749,
+                "population": 1181496,
+                "match_name": "Jacksonville"
+          },
+          "WARSAW": {
+                "lat": 52.2167,
+                "lon": 21.0333,
+                "population": 1790658,
+                "match_name": "Warsaw"
+          },
+          "ALICANTE": {
+                "lat": 38.3453,
+                "lon": -0.4831,
+                "population": 334887,
+                "match_name": "Alicante"
+          },
+          "KIGALI": {
+                "lat": -1.9536,
+                "lon": 30.0606,
+                "population": 745261,
+                "match_name": "Kigali"
+          },
+          "KATHMANDU": {
+                "lat": 27.7167,
+                "lon": 85.3667,
+                "population": 975453,
+                "match_name": "Kathmandu"
+          },
+          "PUNE": {
+                "lat": 18.5196,
+                "lon": 73.8553,
+                "population": 7764000,
+                "match_name": "Pune"
+          },
+          "JUNAEU": {
+                "lat": 58.4546,
+                "lon": -134.1739,
+                "population": 25085,
+                "match_name": "Juneau"
+          },
+          "SAVANNAH": {
+                "lat": 32.0281,
+                "lon": -81.1784,
+                "population": 276295,
+                "match_name": "Savannah"
+          },
+          "LISBON": {
+                "lat": 38.7452,
+                "lon": -9.1604,
+                "population": 506654,
+                "match_name": "Lisbon"
+          },
+          "GRAN CANARIA": {
+                "lat": 27.9202,
+                "lon": -15.5474,
+                "population": 0,
+                "match_name": "Gran Canaria"
+          },
+          "SAO TOME": {
+                "lat": 0.3333,
+                "lon": 6.7333,
+                "population": 56166,
+                "match_name": "Sao Tome"
+          },
+          "PYONGYANG": {
+                "lat": 39.03,
+                "lon": 125.73,
+                "population": 2863000,
+                "match_name": "Pyongyang"
+          },
+          "SURABAYA": {
+                "lat": -7.2458,
+                "lon": 112.7378,
+                "population": 4975000,
+                "match_name": "Surabaya"
+          },
+          "LITTLE ROCK": {
+                "lat": 34.7256,
+                "lon": -92.3576,
+                "population": 439815,
+                "match_name": "Little Rock"
+          },
+          "DURHAM": {
+                "lat": 35.9794,
+                "lon": -78.9031,
+                "population": 424700,
+                "match_name": "Durham"
+          },
+          "BUCHAREST": {
+                "lat": 44.4,
+                "lon": 26.0833,
+                "population": 1883425,
+                "match_name": "Bucharest"
+          },
+          "TENERIFE": {
+                "lat": 28.2916,
+                "lon": -16.6291,
+                "population": 0,
+                "match_name": "Tenerife"
+          },
+          "DAKAR": {
+                "lat": 14.7319,
+                "lon": -17.4572,
+                "population": 1146053,
+                "match_name": "Dakar"
+          },
+          "MUSCAT": {
+                "lat": 23.6139,
+                "lon": 58.5922,
+                "population": 1421409,
+                "match_name": "Muscat"
+          },
+          "MEDAN": {
+                "lat": 3.6667,
+                "lon": 98.6667,
+                "population": 2210625,
+                "match_name": "Medan"
+          },
+          "SACRAMENTO": {
+                "lat": 38.5667,
+                "lon": -121.4683,
+                "population": 1898019,
+                "match_name": "Sacramento"
+          },
+          "PITTSBURGH": {
+                "lat": 40.4396,
+                "lon": -79.9762,
+                "population": 1703266,
+                "match_name": "Pittsburgh"
+          },
+          "SAN MARINO": {
+                "lat": 34.1224,
+                "lon": -118.1132,
+                "population": 13048,
+                "match_name": "San Marino"
+          },
+          "BASEL": {
+                "lat": 47.5606,
+                "lon": 7.5906,
+                "population": 177595,
+                "match_name": "Basel"
+          },
+          "VICTORIA": {
+                "lat": -4.6236,
+                "lon": 55.4544,
+                "population": 26450,
+                "match_name": "Victoria"
+          },
+          "ISLAMABAD": {
+                "lat": 33.6989,
+                "lon": 73.0369,
+                "population": 1365000,
+                "match_name": "Islamabad"
+          },
+          "SAPPORO": {
+                "lat": 43.0621,
+                "lon": 141.3544,
+                "population": 1958756,
+                "match_name": "Sapporo"
+          },
+          "HARTFORD": {
+                "lat": 41.7661,
+                "lon": -72.6834,
+                "population": 905152,
+                "match_name": "Hartford"
+          },
+          "ERIE": {
+                "lat": 42.1168,
+                "lon": -80.0733,
+                "population": 184484,
+                "match_name": "Erie"
+          },
+          "BELGRADE": {
+                "lat": 44.8167,
+                "lon": 20.4667,
+                "population": 1378682,
+                "match_name": "Belgrade"
+          },
+          "GLASGOW": {
+                "lat": 55.8609,
+                "lon": -4.2514,
+                "population": 985290,
+                "match_name": "Glasgow"
+          },
+          "FREETOWN": {
+                "lat": 8.4833,
+                "lon": -13.2331,
+                "population": 951000,
+                "match_name": "Freetown"
+          },
+          "MAKASSAR": {
+                "lat": -5.1331,
+                "lon": 119.4136,
+                "population": 1651146,
+                "match_name": "Makassar"
+          },
+          "NAHA": {
+                "lat": 26.2122,
+                "lon": 127.6789,
+                "population": 317606,
+                "match_name": "Naha"
+          },
+          "DOVER": {
+                "lat": 39.161,
+                "lon": -75.5203,
+                "population": 117282,
+                "match_name": "Dover"
+          },
+          "BUFFALO": {
+                "lat": 42.9016,
+                "lon": -78.8487,
+                "population": 914341,
+                "match_name": "Buffalo"
+          },
+          "BRATISLAVA": {
+                "lat": 48.1447,
+                "lon": 17.1128,
+                "population": 429564,
+                "match_name": "Bratislava"
+          },
+          "BELFAST": {
+                "lat": 54.5964,
+                "lon": -5.93,
+                "population": 333871,
+                "match_name": "Belfast"
+          },
+          "CAPE TOWN": {
+                "lat": -33.925,
+                "lon": 18.425,
+                "population": 433688,
+                "match_name": "Cape Town"
+          },
+          "RIYADH": {
+                "lat": 24.65,
+                "lon": 46.71,
+                "population": 6881000,
+                "match_name": "Riyadh"
+          },
+          "NUR-SULTAN": {
+                "lat": 51.1694,
+                "lon": 71.4491,
+                "population": 1078362,
+                "match_name": "Astana"
+          },
+          "TALLAHASSEE": {
+                "lat": 30.4551,
+                "lon": -84.2526,
+                "population": 257601,
+                "match_name": "Tallahassee"
+          },
+          "CLEVELAND": {
+                "lat": 41.4767,
+                "lon": -81.6804,
+                "population": 1710093,
+                "match_name": "Cleveland"
+          },
+          "LJUBLJANA": {
+                "lat": 46.05,
+                "lon": 14.5167,
+                "population": 284355,
+                "match_name": "Ljubljana"
+          },
+          "JUBA": {
+                "lat": 4.85,
+                "lon": 31.6,
+                "population": 372410,
+                "match_name": "Juba"
+          },
+          "SRI JAYAWARDENEPURA": {
+                "lat": 6.8941,
+                "lon": 79.9025,
+                "population": 115826,
+                "match_name": "Sri Jayawardenepura Kotte"
+          },
+          "KARACHI": {
+                "lat": 24.86,
+                "lon": 67.01,
+                "population": 14835000,
+                "match_name": "Karachi"
+          },
+          "HONOLULU": {
+                "lat": 21.3294,
+                "lon": -157.846,
+                "population": 820987,
+                "match_name": "Honolulu"
+          },
+          "TOLEDO": {
+                "lat": 41.6639,
+                "lon": -83.5822,
+                "population": 482111,
+                "match_name": "Toledo"
+          },
+          "STOCKHOLM": {
+                "lat": 59.3294,
+                "lon": 18.0686,
+                "population": 972647,
+                "match_name": "Stockholm"
+          },
+          "KHARTOUM": {
+                "lat": 15.6031,
+                "lon": 32.5265,
+                "population": 7282000,
+                "match_name": "Khartoum"
+          },
+          "DAMASCUS": {
+                "lat": 33.5131,
+                "lon": 36.2919,
+                "population": 1754000,
+                "match_name": "Damascus"
+          },
+          "LAHORE": {
+                "lat": 31.5497,
+                "lon": 74.3436,
+                "population": 11021000,
+                "match_name": "Lahore"
+          },
+          "BOISE": {
+                "lat": 43.6007,
+                "lon": -116.2312,
+                "population": 389280,
+                "match_name": "Boise"
+          },
+          "LOUISVILLE": {
+                "lat": 38.1663,
+                "lon": -85.6485,
+                "population": 1005654,
+                "match_name": "Louisville"
+          },
+          "BERN": {
+                "lat": 46.948,
+                "lon": 7.4474,
+                "population": 133798,
+                "match_name": "Bern"
+          },
+          "DODOMA": {
+                "lat": -6.25,
+                "lon": 35.75,
+                "population": 410956,
+                "match_name": "Dodoma"
+          },
+          "TAIPEI": {
+                "lat": 25.0478,
+                "lon": 121.5319,
+                "population": 2684567,
+                "match_name": "Taipei"
+          },
+          "CEBU": {
+                "lat": 10.3157,
+                "lon": 123.8854,
+                "population": 964169,
+                "match_name": "Cebu City"
+          },
+          "SPRINGFIELD": {
+                "lat": 39.771,
+                "lon": -89.6538,
+                "population": 158509,
+                "match_name": "Springfield"
+          },
+          "LEXINGTON": {
+                "lat": 38.0423,
+                "lon": -84.4587,
+                "population": 317110,
+                "match_name": "Lexington"
+          },
+          "KYIV": {
+                "lat": 50.45,
+                "lon": 30.5236,
+                "population": 2967000,
+                "match_name": "Kyiv"
+          },
+          "LOME": {
+                "lat": 6.1319,
+                "lon": 1.2228,
+                "population": 837437,
+                "match_name": "Lome"
+          },
+          "DUSHANBE": {
+                "lat": 38.5731,
+                "lon": 68.7864,
+                "population": 780000,
+                "match_name": "Dushanbe"
+          },
+          "BUSAN": {
+                "lat": 35.1,
+                "lon": 129.0403,
+                "population": 3440484,
+                "match_name": "Busan"
+          },
+          "INDIANAPOLIS": {
+                "lat": 39.7771,
+                "lon": -86.1458,
+                "population": 1588961,
+                "match_name": "Indianapolis"
+          },
+          "MINNEAPOLIS": {
+                "lat": 44.9635,
+                "lon": -93.2678,
+                "population": 2977172,
+                "match_name": "Minneapolis"
+          },
+          "VATICAN CITY": {
+                "lat": 41.9029,
+                "lon": 12.4534,
+                "population": 825,
+                "match_name": "Vatican City"
+          },
+          "TUNIS": {
+                "lat": 36.8008,
+                "lon": 10.18,
+                "population": 1200000,
+                "match_name": "Tunis"
+          },
+          "DILI": {
+                "lat": -8.5586,
+                "lon": 125.5736,
+                "population": 222323,
+                "match_name": "Dili"
+          },
+          "PHUKET": {
+                "lat": 7.8881,
+                "lon": 98.3975,
+                "population": 77610,
+                "match_name": "Phuket"
+          }
+    };
+
+    var MAJOR_HUB_CITIES = [
+      "ATLANTA",
+      "CHICAGO",
+      "DALLAS",
+      "DENVER",
+      "LOS ANGELES",
+      "NEW YORK",
+      "SAN FRANCISCO",
+      "SEATTLE",
+      "MIAMI",
+      "HOUSTON",
+      "TORONTO",
+      "VANCOUVER",
+      "MEXICO CITY",
+      "LONDON",
+      "PARIS",
+      "FRANKFURT",
+      "AMSTERDAM",
+      "MADRID",
+      "ISTANBUL",
+      "DUBAI",
+      "DOHA",
+      "ABU DHABI",
+      "SINGAPORE",
+      "TOKYO",
+      "SEOUL",
+      "HONG KONG",
+      "SHANGHAI",
+      "BEIJING",
+      "BANGKOK",
+      "KUALA LUMPUR",
+      "NEW DELHI",
+      "MUMBAI",
+      "SYDNEY",
+      "MELBOURNE",
+      "JOHANNESBURG",
+      "CAIRO",
+      "ADDIS ABABA",
+      "NAIROBI",
+      "CASABLANCA",
+      "SAO PAULO",
+      "BUENOS AIRES",
+      "BOGOTA",
+      "LIMA",
+      "SANTIAGO",
+    ];
+
     var STARTING_MONEY = 1500;
     var LEG_STIPEND = 1000;
     var MIN_STOPS_PER_LEG = 2;
@@ -2107,6 +4984,9 @@
     var SCHEDULE_INDEX_CACHE = {};
     var FLIGHT_DURATION_CACHE = {};
     var FLIGHT_DELAY_MAP = {};
+    var FLIGHT_ROUTE_PLAN_CACHE = {};
+    var FAST_DIRECT_WAIT_LIMIT = 90;
+    var FAST_CONNECTION_CANDIDATE_LIMIT = 80;
 
     var playerTeam = null;
     var skills = {};
@@ -2579,6 +5459,28 @@
       return null;
     }
 
+
+
+    function resolveCityObject(value) {
+      if (!value) {
+        return null;
+      }
+
+      var name = typeof value === "string" ? value : value.name;
+
+      if (!name) {
+        return null;
+      }
+
+      var found = cityByName(name);
+
+      if (found) {
+        return ensureCityCoords(found);
+      }
+
+      return ensureCityCoords({ name: name });
+    }
+
     function stableHash(str) {
       var h = 2166136261;
 
@@ -2630,9 +5532,20 @@
         return city;
       }
 
+      var real = AIRPORT_COORDS[city.name];
+
+      if (real && typeof real.lat === "number" && typeof real.lon === "number") {
+        city.lat = real.lat;
+        city.lon = real.lon;
+        city.population = real.population || 0;
+        city.matchName = real.match_name || city.name;
+        return city;
+      }
+
       var fallback = deterministicFallbackCoords(city.name || "Unknown");
       city.lat = fallback.lat;
       city.lon = fallback.lon;
+      city.population = 0;
       return city;
     }
 
@@ -2710,18 +5623,29 @@
           return candidate !== origin;
         });
 
-        candidates = shuffleWithSeed(candidates, origin + "|balanced-connectivity-v1");
+        candidates = shuffleWithSeed(candidates, origin + "|balanced-connectivity-v2-real-coords");
+
+        if (targetOutDegree >= candidates.length) {
+          connectivity[origin] = candidates;
+          return;
+        }
 
         var filtered = candidates.filter(function (candidate) {
           return isReasonableFlightLeg(origin, candidate);
         });
 
         if (filtered.length < targetOutDegree) {
+          var seen = {};
+          filtered.forEach(function (candidate) {
+            seen[candidate] = true;
+          });
+
           candidates.forEach(function (candidate) {
             if (filtered.length >= targetOutDegree) {
               return;
             }
-            if (filtered.indexOf(candidate) === -1) {
+            if (!seen[candidate]) {
+              seen[candidate] = true;
               filtered.push(candidate);
             }
           });
@@ -2739,15 +5663,84 @@
       return connectivity[originName] ? connectivity[originName].slice() : [];
     }
 
+
+
+    function majorHubSet() {
+      var set = {};
+      MAJOR_HUB_CITIES.forEach(function (name) {
+        set[name] = true;
+      });
+      return set;
+    }
+
+    var MAJOR_HUB_SET = majorHubSet();
+
+    function airportScheduleWeight(cityName) {
+      var info = AIRPORT_COORDS[cityName] || {};
+      var population = info.population || 0;
+      var weight = 1;
+
+      if (population >= 12000000) {
+        weight += 7;
+      } else if (population >= 6000000) {
+        weight += 5;
+      } else if (population >= 2500000) {
+        weight += 3;
+      } else if (population >= 1000000) {
+        weight += 1.5;
+      }
+
+      if (MAJOR_HUB_SET[cityName]) {
+        weight += 9;
+      }
+
+      return weight;
+    }
+
+    function makeWeightedDestinationPicker(dests) {
+      var cumulative = [];
+      var total = 0;
+
+      dests.forEach(function (dest) {
+        total += airportScheduleWeight(dest);
+        cumulative.push({
+          dest: dest,
+          total: total
+        });
+      });
+
+      return function (rnd) {
+        if (total <= 0 || cumulative.length === 0) {
+          return dests[Math.floor(rnd() * dests.length)];
+        }
+
+        var roll = rnd() * total;
+        var lo = 0;
+        var hi = cumulative.length - 1;
+
+        while (lo < hi) {
+          var mid = Math.floor((lo + hi) / 2);
+          if (roll <= cumulative[mid].total) {
+            hi = mid;
+          } else {
+            lo = mid + 1;
+          }
+        }
+
+        return cumulative[lo].dest;
+      };
+    }
+
     function getDailySchedule(originName) {
       if (SCHEDULE_CACHE[originName]) {
         return SCHEDULE_CACHE[originName];
       }
 
-      var rnd = seededRandom(stableHash(originName + "|daily-schedule-v2"));
+      var rnd = seededRandom(stableHash(originName + "|daily-schedule-v3-real-coords"));
       var dests = getOutboundFlightCities(originName);
       var allMinutes = [];
       var schedule = [];
+      var usedMinutes = {};
 
       for (var minute = 0; minute < MINUTES_PER_DAY; minute += SCHEDULE_GRAN) {
         allMinutes.push(minute);
@@ -2758,22 +5751,29 @@
         return schedule;
       }
 
-      if (dests.length >= allMinutes.length) {
-        var shuffledDests = shuffleWithSeed(dests, originName + "|daily-schedule-sample-v2");
-        allMinutes.forEach(function (minute, index) {
-          schedule.push({
-            to: shuffledDests[index],
-            minute: minute
-          });
+      var pickWeightedDestination = makeWeightedDestinationPicker(dests);
+      var shuffledMinutes = shuffleWithSeed(allMinutes, originName + "|guaranteed-minutes-v3");
+      var shuffledDests = shuffleWithSeed(dests, originName + "|guaranteed-dests-v3");
+      var guaranteedCount = Math.min(shuffledDests.length, shuffledMinutes.length);
+
+      for (var g = 0; g < guaranteedCount; g++) {
+        schedule.push({
+          to: shuffledDests[g],
+          minute: shuffledMinutes[g]
         });
-      } else {
-        allMinutes.forEach(function (minute) {
-          schedule.push({
-            to: dests[Math.floor(rnd() * dests.length)],
-            minute: minute
-          });
-        });
+        usedMinutes[shuffledMinutes[g]] = true;
       }
+
+      allMinutes.forEach(function (minute) {
+        if (usedMinutes[minute]) {
+          return;
+        }
+
+        schedule.push({
+          to: pickWeightedDestination(rnd),
+          minute: minute
+        });
+      });
 
       schedule.sort(function (a, b) {
         if (a.minute !== b.minute) {
@@ -3059,24 +6059,132 @@
       return processed;
     }
 
+
+
+    function flightPathFinalArrival(path) {
+      if (!path || path.length === 0) {
+        return Infinity;
+      }
+      return path[path.length - 1].scheduledArriveClock;
+    }
+
+    function buildDirectScheduledPath(originName, targetName, earliestBoardClock) {
+      var departClock = getNextDepartureForEdge(originName, targetName, earliestBoardClock);
+
+      if (departClock == null) {
+        return null;
+      }
+
+      return [buildScheduledFlightHop(originName, targetName, departClock)];
+    }
+
+    function connectionCandidateCities(originName, targetName) {
+      var scheduled = getScheduledDestinations(originName).filter(function (name) {
+        return name !== originName && name !== targetName;
+      });
+
+      var seen = {};
+      var candidates = [];
+
+      function add(name) {
+        if (!name || seen[name] || name === originName || name === targetName) {
+          return;
+        }
+        if (scheduled.indexOf(name) === -1) {
+          return;
+        }
+        seen[name] = true;
+        candidates.push(name);
+      }
+
+      MAJOR_HUB_CITIES.forEach(add);
+
+      var target = ensureCityCoords(cityByName(targetName));
+
+      scheduled.sort(function (a, b) {
+        var ca = ensureCityCoords(cityByName(a));
+        var cb = ensureCityCoords(cityByName(b));
+        var da = ca && target ? haversineKmByCoords(ca.lat, ca.lon, target.lat, target.lon) : 999999;
+        var db = cb && target ? haversineKmByCoords(cb.lat, cb.lon, target.lat, target.lon) : 999999;
+        return da - db;
+      });
+
+      scheduled.slice(0, FAST_CONNECTION_CANDIDATE_LIMIT).forEach(add);
+      return candidates.slice(0, FAST_CONNECTION_CANDIDATE_LIMIT);
+    }
+
+    function findFastAirportPath(originName, targetName, earliestBoardClock, maxHops) {
+      var directPath = buildDirectScheduledPath(originName, targetName, earliestBoardClock);
+
+      if (directPath && directPath[0].scheduledDepartClock - earliestBoardClock <= FAST_DIRECT_WAIT_LIMIT) {
+        return directPath;
+      }
+
+      if (maxHops < 2) {
+        return directPath;
+      }
+
+      var bestPath = directPath;
+      var candidates = connectionCandidateCities(originName, targetName);
+
+      candidates.forEach(function (hubName) {
+        var firstDepart = getNextDepartureForEdge(originName, hubName, earliestBoardClock);
+
+        if (firstDepart == null) {
+          return;
+        }
+
+        var firstHop = buildScheduledFlightHop(originName, hubName, firstDepart);
+        var secondDepart = getNextDepartureForEdge(hubName, targetName, firstHop.scheduledArriveClock + CONN_MINUTES);
+
+        if (secondDepart == null) {
+          return;
+        }
+
+        var secondHop = buildScheduledFlightHop(hubName, targetName, secondDepart);
+        var path = [firstHop, secondHop];
+
+        if (!bestPath || flightPathFinalArrival(path) < flightPathFinalArrival(bestPath)) {
+          bestPath = path;
+        }
+      });
+
+      return bestPath;
+    }
+
     function planFlightRoute(originCity, destinationCity, airportArrivalClock) {
+      originCity = resolveCityObject(originCity);
+      destinationCity = resolveCityObject(destinationCity);
+
       var originName = originCity.name;
       var targetName = destinationCity.name;
       var earliestBoardClock = airportArrivalClock + CONN_MINUTES;
-      var plannedHops = findEarliestArrivalPath(originName, targetName, earliestBoardClock, MAX_FLIGHT_HOPS);
+      var planCacheKey = originName + "|" + targetName + "|" + Math.ceil(earliestBoardClock);
+      var plannedHops = FLIGHT_ROUTE_PLAN_CACHE[planCacheKey];
 
-      if (!plannedHops || plannedHops.length === 0 || plannedHops[plannedHops.length - 1].to !== targetName) {
-        plannedHops = buildFallbackFlightRoute(originName, targetName, earliestBoardClock);
-      }
+      if (!plannedHops) {
+        plannedHops = findFastAirportPath(originName, targetName, earliestBoardClock, MAX_FLIGHT_HOPS);
 
-      if (plannedHops[plannedHops.length - 1].to !== targetName) {
-        var repairStart = plannedHops[plannedHops.length - 1].arriveClock + CONN_MINUTES;
-        var repair = findEarliestArrivalPath(plannedHops[plannedHops.length - 1].to, targetName, repairStart, MAX_FLIGHT_HOPS);
-        if (repair && repair.length > 0) {
-          plannedHops = plannedHops.concat(repair);
-        } else {
+        if (!plannedHops || plannedHops.length === 0 || plannedHops[plannedHops.length - 1].to !== targetName) {
+          plannedHops = findEarliestArrivalPath(originName, targetName, earliestBoardClock, MAX_FLIGHT_HOPS);
+        }
+
+        if (!plannedHops || plannedHops.length === 0 || plannedHops[plannedHops.length - 1].to !== targetName) {
           plannedHops = buildFallbackFlightRoute(originName, targetName, earliestBoardClock);
         }
+
+        if (plannedHops[plannedHops.length - 1].to !== targetName) {
+          var repairStart = plannedHops[plannedHops.length - 1].arriveClock + CONN_MINUTES;
+          var repair = findFastAirportPath(plannedHops[plannedHops.length - 1].to, targetName, repairStart, MAX_FLIGHT_HOPS) ||
+            findEarliestArrivalPath(plannedHops[plannedHops.length - 1].to, targetName, repairStart, MAX_FLIGHT_HOPS);
+          if (repair && repair.length > 0) {
+            plannedHops = plannedHops.concat(repair);
+          } else {
+            plannedHops = buildFallbackFlightRoute(originName, targetName, earliestBoardClock);
+          }
+        }
+
+        FLIGHT_ROUTE_PLAN_CACHE[planCacheKey] = plannedHops;
       }
 
       var processedHops = processFlightRouteWithDelays(plannedHops, targetName);
@@ -3323,6 +6431,8 @@
     }
 
     function startSeason() {
+      var playerRolledSkills = skills[playerTeam] || rollSkills();
+
       remainingTeams = teams.slice();
       legNum = 1;
       money = {};
@@ -3340,16 +6450,18 @@
       currentResultAction = null;
       restoredFlightResultHtml = "";
       activeFlightRoute = null;
+      flightResolved = false;
+      FLIGHT_DELAY_MAP = {};
       skills = {};
 
       teams.forEach(function (name) {
         money[name] = STARTING_MONEY;
         placementHistory[name] = [];
         nextLegStartClocks[name] = 0;
-        skills[name] = rollSkills();
+        skills[name] = name === playerTeam ? playerRolledSkills : rollSkills();
       });
 
-      currentCity = WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)];
+      currentCity = ensureCityCoords(WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)]);
       routeHistory.push(currentCity.name);
       startLeg();
     }
@@ -3392,10 +6504,12 @@
 
       legIsNonElim = !isFinalLeg() && Math.random() < NON_ELIM_CHANCE;
 
+      currentCity = resolveCityObject(currentCity) || ensureCityCoords(WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)]);
+
       var dest;
 
       do {
-        dest = WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)];
+        dest = ensureCityCoords(WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)]);
       } while (dest.name === currentCity.name);
 
       legOrigin = currentCity;
@@ -3450,7 +6564,7 @@
         currentLegLabel() + "<br><br>" +
         "Departing from <strong>" + escapeHtml(cityAirportName(legOrigin)) + "</strong><br>" +
         "Flying to <strong>" + escapeHtml(cityAirportName(legDest)) + "</strong>.<br><br>" +
-        "Flight Routing: <strong>Daily scheduled airport network</strong><br>" +
+        "Flight Routing: <strong>Real-coordinate, hub-weighted daily airport network</strong><br>" +
         "Flights per day per airport: <strong>" + Math.ceil(MINUTES_PER_DAY / SCHEDULE_GRAN) + "</strong><br>" +
         "Schedule granularity: <strong>" + SCHEDULE_GRAN + "m</strong><br>" +
         "Outbound degree: <strong>" + Math.min(OUT_DEGREE, Math.max(0, cityNames().length - 1)) + "</strong><br>" +
@@ -3975,8 +7089,27 @@
       };
     }
 
+
+
+    function saveVersionNumber(state) {
+      if (!state || typeof state.version !== "number") {
+        return 1;
+      }
+      return state.version;
+    }
+
+    function isSaveStateSupported(state) {
+      var version = saveVersionNumber(state);
+      return version >= MIN_SUPPORTED_SAVE_VERSION && version <= SAVE_VERSION;
+    }
+
+    function unsupportedSaveMessage(state) {
+      var version = state && state.version != null ? state.version : "unknown";
+      return "This save is from version " + version + ". This page supports save versions " + MIN_SUPPORTED_SAVE_VERSION + " through " + SAVE_VERSION + ".";
+    }
+
     function applyGameState(state) {
-      if (!state || state.version !== SAVE_VERSION) {
+      if (!state || !isSaveStateSupported(state)) {
         return false;
       }
 
@@ -4004,19 +7137,50 @@
       teamLegRecords = state.teamLegRecords || {};
       teamCashSpentThisLeg = state.teamCashSpentThisLeg || {};
 
-      currentCity = state.currentCity || null;
-      legOrigin = state.legOrigin || null;
-      legDest = state.legDest || null;
+      currentCity = resolveCityObject(state.currentCity);
+      legOrigin = resolveCityObject(state.legOrigin);
+      legDest = resolveCityObject(state.legDest);
+
+      if (!currentCity && legOrigin) {
+        currentCity = legOrigin;
+      }
+
+      if (!legOrigin && currentCity) {
+        legOrigin = currentCity;
+      }
+
       activeFlightRoute = state.activeFlightRoute || null;
       flightResolved = !!state.flightResolved;
       legIsNonElim = !!state.legIsNonElim;
 
-      airportStartTransportOptions = state.airportStartTransportOptions || [];
-      airportEndTransportOptions = state.airportEndTransportOptions || [];
+      airportStartTransportOptions = state.airportStartTransportOptions || makeTransportOptionsForSegment();
+      airportEndTransportOptions = state.airportEndTransportOptions || makeTransportOptionsForSegment();
       specialTransportMode = state.specialTransportMode || null;
 
       currentResultAction = state.currentResultAction || null;
       restoredFlightResultHtml = state.restoredFlightResultHtml || "";
+
+      if (!skills[playerTeam]) {
+        skills[playerTeam] = rollSkills();
+      }
+
+      remainingTeams.forEach(function (name) {
+        if (!skills[name]) {
+          skills[name] = rollSkills();
+        }
+        if (money[name] == null) {
+          money[name] = STARTING_MONEY;
+        }
+        if (!placementHistory[name]) {
+          placementHistory[name] = [];
+        }
+        if (nextLegStartClocks[name] == null) {
+          nextLegStartClocks[name] = raceClock;
+        }
+        if (currentLegStartClocks[name] == null) {
+          currentLegStartClocks[name] = legStartClock || raceClock;
+        }
+      });
 
       renderRestoredScreen(state);
       updateStartLoadButton();
@@ -4073,7 +7237,11 @@
         return;
       }
 
-      applyGameState(state);
+      var ok = applyGameState(state);
+
+      if (!ok) {
+        document.getElementById("menuStatus").innerHTML = escapeHtml(unsupportedSaveMessage(state));
+      }
     }
 
     function latestSaveState() {
@@ -4107,10 +7275,15 @@
       var state = latestSaveState();
 
       if (!state) {
+        alert("No saved race found in this browser.");
         return;
       }
 
-      applyGameState(state);
+      var ok = applyGameState(state);
+
+      if (!ok) {
+        alert(unsupportedSaveMessage(state));
+      }
     }
 
     function clearAllSaves() {
