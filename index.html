@@ -585,7 +585,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 4;
+    var SAVE_VERSION = 5;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -4987,6 +4987,10 @@
     var FLIGHT_ROUTE_PLAN_CACHE = {};
     var FAST_DIRECT_WAIT_LIMIT = 90;
     var FAST_CONNECTION_CANDIDATE_LIMIT = 80;
+    var REALISTIC_OUTBOUND_LIMIT = 96;
+    var REALISTIC_NEARBY_DESTINATION_TARGET = 44;
+    var REALISTIC_POPULAR_DESTINATION_TARGET = 32;
+    var REALISTIC_HUB_DESTINATION_TARGET = 32;
 
     var playerTeam = null;
     var skills = {};
@@ -5424,22 +5428,241 @@
       teamCashSpentThisLeg[name] += amount;
     }
 
-    function chooseTeamTransport(name, options) {
-      var preparedOptions = optionsWithEmergencyWalkForTeam(options, name);
-      var affordable = preparedOptions.filter(function (o) {
-        return o.cost <= money[name];
-      });
+    function clampNumber(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
 
-      var pick;
-
-      if (affordable.length > 0) {
-        pick = affordable[Math.floor(Math.random() * affordable.length)];
-      } else {
-        pick = preparedOptions.reduce(function (cheapest, opt) {
-          return opt.cost < cheapest.cost ? opt : cheapest;
-        }, preparedOptions[0]);
+    function normalizeWithinRange(value, min, max, invert) {
+      if (max === min) {
+        return 0.65;
       }
 
+      var normalized = (value - min) / (max - min);
+      normalized = clampNumber(normalized, 0, 1);
+      return invert ? 1 - normalized : normalized;
+    }
+
+    function lastKnownPlacement(name) {
+      var history = placementHistory[name] || [];
+
+      for (var i = history.length - 1; i >= 0; i--) {
+        if (history[i] != null) {
+          return history[i];
+        }
+      }
+
+      return null;
+    }
+
+    function averageKnownPlacement(name) {
+      var history = placementHistory[name] || [];
+      var total = 0;
+      var count = 0;
+
+      history.forEach(function (place) {
+        if (place != null) {
+          total += place;
+          count += 1;
+        }
+      });
+
+      if (count === 0) {
+        return null;
+      }
+
+      return total / count;
+    }
+
+    function teamAiProfile(name) {
+      var h = stableHash((name || "Unknown") + "|transport-ai-profile-v2");
+
+      return {
+        speedBias: (((h & 255) / 255) - 0.5) * 0.22,
+        thriftBias: ((((h >>> 8) & 255) / 255) - 0.5) * 0.22,
+        riskBias: ((((h >>> 16) & 255) / 255) - 0.5) * 0.18
+      };
+    }
+
+    function currentStartGapPressure(name) {
+      if (!currentLegStartClocks || !remainingTeams || remainingTeams.length === 0) {
+        return 0;
+      }
+
+      var earliest = null;
+      remainingTeams.forEach(function (team) {
+        var clock = currentLegStartClocks[team];
+        if (clock == null) {
+          return;
+        }
+        if (earliest == null || clock < earliest) {
+          earliest = clock;
+        }
+      });
+
+      var ownClock = currentLegStartClocks[name];
+
+      if (earliest == null || ownClock == null || ownClock <= earliest) {
+        return 0;
+      }
+
+      return clampNumber((ownClock - earliest) / 180, 0, 1);
+    }
+
+    function teamEliminationPressure(name) {
+      var activeCount = Math.max(remainingTeams.length || teams.length || 1, 1);
+      var lastPlace = lastKnownPlacement(name);
+      var avgPlace = averageKnownPlacement(name);
+      var pressure = 0.35;
+
+      if (lastPlace != null && activeCount > 1) {
+        pressure = (lastPlace - 1) / (activeCount - 1);
+      }
+
+      if (avgPlace != null && activeCount > 1) {
+        var avgPressure = (avgPlace - 1) / (activeCount - 1);
+        pressure = pressure * 0.72 + avgPressure * 0.28;
+      }
+
+      pressure = pressure * 0.78 + currentStartGapPressure(name) * 0.22;
+
+      if (isFinalLeg()) {
+        pressure = Math.max(pressure, 0.84);
+      } else if (activeCount <= 4) {
+        pressure = Math.max(pressure, 0.72);
+      } else if (activeCount <= 6) {
+        pressure = Math.max(pressure, 0.58);
+      }
+
+      return clampNumber(pressure, 0, 1);
+    }
+
+    function expectedTransportTime(opt) {
+      return Math.max(0, Number(opt.time) || 0);
+    }
+
+    function transportValueScore(opt, fastestTime, slowestTime, cheapestCost) {
+      var savedMinutes = Math.max(0, slowestTime - expectedTransportTime(opt));
+      var extraCost = Math.max(1, opt.cost - cheapestCost);
+
+      if (opt.cost === cheapestCost) {
+        return savedMinutes > 0 ? 0.72 : 0.55;
+      }
+
+      return savedMinutes / extraCost;
+    }
+
+    function weightedTransportPick(candidates, scores) {
+      var total = scores.reduce(function (sum, score) {
+        return sum + Math.max(0.001, score);
+      }, 0);
+
+      var roll = Math.random() * total;
+      var running = 0;
+
+      for (var i = 0; i < candidates.length; i++) {
+        running += Math.max(0.001, scores[i]);
+        if (roll <= running) {
+          return candidates[i];
+        }
+      }
+
+      return candidates[candidates.length - 1];
+    }
+
+    function chooseTeamTransport(name, options) {
+      var preparedOptions = optionsWithEmergencyWalkForTeam(options, name);
+      var budget = money[name] != null ? money[name] : 0;
+      var affordable = preparedOptions.filter(function (o) {
+        return o.cost <= budget;
+      });
+
+      var candidatePool = affordable.length > 0 ? affordable : preparedOptions.slice();
+
+      if (candidatePool.length === 0) {
+        return { method: "🚶   Walk", cost: 0, time: 48 };
+      }
+
+      if (affordable.length === 0) {
+        var forced = candidatePool.reduce(function (cheapest, opt) {
+          return opt.cost < cheapest.cost ? opt : cheapest;
+        }, candidatePool[0]);
+
+        spendTeamMoney(name, forced.cost);
+        return forced;
+      }
+
+      var costs = candidatePool.map(function (o) { return Number(o.cost) || 0; });
+      var times = candidatePool.map(expectedTransportTime);
+      var minCost = Math.min.apply(null, costs);
+      var maxCost = Math.max.apply(null, costs);
+      var minTime = Math.min.apply(null, times);
+      var maxTime = Math.max.apply(null, times);
+      var values = candidatePool.map(function (opt) {
+        return transportValueScore(opt, minTime, maxTime, minCost);
+      });
+      var minValue = Math.min.apply(null, values);
+      var maxValue = Math.max.apply(null, values);
+
+      var profile = teamAiProfile(name);
+      var pressure = clampNumber(teamEliminationPressure(name) + profile.riskBias, 0, 1);
+      var budgetComfort = clampNumber(budget / Math.max(STARTING_MONEY, 1), 0, 1.35);
+      var lowCashPressure = clampNumber(1 - budget / Math.max(LEG_STIPEND * 1.25, 1), 0, 1);
+
+      var speedWeight = clampNumber(0.24 + pressure * 0.56 + profile.speedBias - lowCashPressure * 0.12, 0.16, 0.78);
+      var costWeight = clampNumber(0.46 - pressure * 0.24 + profile.thriftBias + lowCashPressure * 0.25, 0.12, 0.72);
+      var reserveWeight = clampNumber(0.20 - pressure * 0.10 + lowCashPressure * 0.20, 0.04, 0.42);
+      var valueWeight = clampNumber(0.18 + pressure * 0.08 - Math.abs(profile.thriftBias) * 0.20, 0.08, 0.28);
+
+      if (budgetComfort > 1.05 && pressure > 0.65) {
+        speedWeight += 0.10;
+        costWeight -= 0.06;
+      }
+
+      if (lastKnownPlacement(name) === 1 && !isFinalLeg()) {
+        costWeight += 0.10;
+        reserveWeight += 0.05;
+        speedWeight -= 0.08;
+      }
+
+      var weightTotal = speedWeight + costWeight + reserveWeight + valueWeight;
+      speedWeight /= weightTotal;
+      costWeight /= weightTotal;
+      reserveWeight /= weightTotal;
+      valueWeight /= weightTotal;
+
+      var reserveTarget = LEG_STIPEND * (1.1 + (1 - pressure) * 1.35);
+      var scores = candidatePool.map(function (opt, index) {
+        var cost = Number(opt.cost) || 0;
+        var time = expectedTransportTime(opt);
+        var speedScore = normalizeWithinRange(time, minTime, maxTime, true);
+        var costScore = normalizeWithinRange(cost, minCost, maxCost, true);
+        var reserveScore = clampNumber((budget - cost) / Math.max(reserveTarget, 1), 0, 1);
+        var valueScore = normalizeWithinRange(values[index], minValue, maxValue, false);
+        var baseScore =
+          speedScore * speedWeight +
+          costScore * costWeight +
+          reserveScore * reserveWeight +
+          valueScore * valueWeight;
+
+        var noise = (Math.random() - 0.5) * (0.12 + pressure * 0.18);
+        var score = clampNumber(baseScore + noise, 0.02, 1.25);
+
+        if (cost > budget * 0.72 && pressure < 0.55) {
+          score *= 0.72;
+        }
+
+        if (time === minTime && pressure > 0.75) {
+          score *= 1.18;
+        }
+
+        if (cost === minCost && lowCashPressure > 0.55) {
+          score *= 1.20;
+        }
+
+        return Math.pow(score, 1.15 + pressure * 0.90);
+      });
+
+      var pick = weightedTransportPick(candidatePool, scores);
       spendTeamMoney(name, pick.cost);
       return pick;
     }
@@ -5609,58 +5832,114 @@
       return computeFlightDurationMinutes(cityA, cityB) <= MAX_FLIGHT_MINUTES;
     }
 
+    function effectiveOutboundLimit() {
+      return Math.min(OUT_DEGREE, REALISTIC_OUTBOUND_LIMIT, Math.max(0, cityNames().length - 1));
+    }
+
     function buildConnectivity() {
-      if (CONNECTIVITY_CACHE) {
-        return CONNECTIVITY_CACHE;
+      if (!CONNECTIVITY_CACHE) {
+        CONNECTIVITY_CACHE = {};
+      }
+
+      return CONNECTIVITY_CACHE;
+    }
+
+    function buildConnectivityForOrigin(originName) {
+      var connectivity = buildConnectivity();
+
+      if (connectivity[originName]) {
+        return connectivity[originName];
       }
 
       var names = cityNames();
-      var targetOutDegree = Math.min(OUT_DEGREE, Math.max(0, names.length - 1));
-      var connectivity = {};
+      var originCity = ensureCityCoords(cityByName(originName));
+      var targetOutDegree = effectiveOutboundLimit();
+      var seen = {};
+      var selected = [];
 
-      names.forEach(function (origin) {
-        var candidates = names.filter(function (candidate) {
-          return candidate !== origin;
-        });
-
-        candidates = shuffleWithSeed(candidates, origin + "|balanced-connectivity-v2-real-coords");
-
-        if (targetOutDegree >= candidates.length) {
-          connectivity[origin] = candidates;
+      function add(name) {
+        if (!name || name === originName || seen[name] || selected.length >= targetOutDegree) {
           return;
         }
 
-        var filtered = candidates.filter(function (candidate) {
-          return isReasonableFlightLeg(origin, candidate);
-        });
+        seen[name] = true;
+        selected.push(name);
+      }
 
-        if (filtered.length < targetOutDegree) {
-          var seen = {};
-          filtered.forEach(function (candidate) {
-            seen[candidate] = true;
-          });
-
-          candidates.forEach(function (candidate) {
-            if (filtered.length >= targetOutDegree) {
-              return;
-            }
-            if (!seen[candidate]) {
-              seen[candidate] = true;
-              filtered.push(candidate);
-            }
-          });
-        }
-
-        connectivity[origin] = filtered.slice(0, targetOutDegree);
+      var candidates = names.filter(function (candidate) {
+        return candidate !== originName;
+      }).map(function (candidate) {
+        var destCity = ensureCityCoords(cityByName(candidate));
+        var distance = originCity && destCity ? haversineKmByCoords(originCity.lat, originCity.lon, destCity.lat, destCity.lon) : 999999;
+        return {
+          name: candidate,
+          distance: distance,
+          population: (AIRPORT_COORDS[candidate] && AIRPORT_COORDS[candidate].population) || 0,
+          hub: !!MAJOR_HUB_SET[candidate],
+          reasonable: isReasonableFlightLeg(originName, candidate)
+        };
       });
 
-      CONNECTIVITY_CACHE = connectivity;
-      return connectivity;
+      var reasonable = candidates.filter(function (item) {
+        return item.reasonable;
+      });
+
+      reasonable
+        .filter(function (item) { return item.hub; })
+        .sort(function (a, b) {
+          if (b.population !== a.population) {
+            return b.population - a.population;
+          }
+          return a.distance - b.distance;
+        })
+        .slice(0, REALISTIC_HUB_DESTINATION_TARGET)
+        .forEach(function (item) { add(item.name); });
+
+      reasonable
+        .slice()
+        .sort(function (a, b) {
+          if (b.population !== a.population) {
+            return b.population - a.population;
+          }
+          return a.distance - b.distance;
+        })
+        .slice(0, REALISTIC_POPULAR_DESTINATION_TARGET)
+        .forEach(function (item) { add(item.name); });
+
+      reasonable
+        .slice()
+        .sort(function (a, b) {
+          return a.distance - b.distance;
+        })
+        .slice(0, REALISTIC_NEARBY_DESTINATION_TARGET)
+        .forEach(function (item) { add(item.name); });
+
+      if (selected.length < targetOutDegree) {
+        shuffleWithSeed(reasonable.map(function (item) { return item.name; }), originName + "|realistic-fill-v2")
+          .forEach(add);
+      }
+
+      if (selected.length < targetOutDegree) {
+        candidates
+          .slice()
+          .sort(function (a, b) {
+            if (a.hub !== b.hub) {
+              return a.hub ? -1 : 1;
+            }
+            if (b.population !== a.population) {
+              return b.population - a.population;
+            }
+            return a.distance - b.distance;
+          })
+          .forEach(add);
+      }
+
+      connectivity[originName] = selected.slice(0, targetOutDegree);
+      return connectivity[originName];
     }
 
     function getOutboundFlightCities(originName) {
-      var connectivity = buildConnectivity();
-      return connectivity[originName] ? connectivity[originName].slice() : [];
+      return buildConnectivityForOrigin(originName).slice();
     }
 
 
@@ -5697,38 +5976,28 @@
       return weight;
     }
 
-    function makeWeightedDestinationPicker(dests) {
-      var cumulative = [];
+    function weightedDestinationChoice(dests, rnd) {
       var total = 0;
-
-      dests.forEach(function (dest) {
-        total += airportScheduleWeight(dest);
-        cumulative.push({
-          dest: dest,
-          total: total
-        });
+      var weights = dests.map(function (dest) {
+        var weight = airportScheduleWeight(dest);
+        total += weight;
+        return weight;
       });
 
-      return function (rnd) {
-        if (total <= 0 || cumulative.length === 0) {
-          return dests[Math.floor(rnd() * dests.length)];
+      if (total <= 0) {
+        return dests[Math.floor(rnd() * dests.length)];
+      }
+
+      var roll = rnd() * total;
+
+      for (var i = 0; i < dests.length; i++) {
+        roll -= weights[i];
+        if (roll <= 0) {
+          return dests[i];
         }
+      }
 
-        var roll = rnd() * total;
-        var lo = 0;
-        var hi = cumulative.length - 1;
-
-        while (lo < hi) {
-          var mid = Math.floor((lo + hi) / 2);
-          if (roll <= cumulative[mid].total) {
-            hi = mid;
-          } else {
-            lo = mid + 1;
-          }
-        }
-
-        return cumulative[lo].dest;
-      };
+      return dests[dests.length - 1];
     }
 
     function getDailySchedule(originName) {
@@ -5751,7 +6020,6 @@
         return schedule;
       }
 
-      var pickWeightedDestination = makeWeightedDestinationPicker(dests);
       var shuffledMinutes = shuffleWithSeed(allMinutes, originName + "|guaranteed-minutes-v3");
       var shuffledDests = shuffleWithSeed(dests, originName + "|guaranteed-dests-v3");
       var guaranteedCount = Math.min(shuffledDests.length, shuffledMinutes.length);
@@ -5770,7 +6038,7 @@
         }
 
         schedule.push({
-          to: pickWeightedDestination(rnd),
+          to: weightedDestinationChoice(dests, rnd),
           minute: minute
         });
       });
@@ -6567,7 +6835,7 @@
         "Flight Routing: <strong>Real-coordinate, hub-weighted daily airport network</strong><br>" +
         "Flights per day per airport: <strong>" + Math.ceil(MINUTES_PER_DAY / SCHEDULE_GRAN) + "</strong><br>" +
         "Schedule granularity: <strong>" + SCHEDULE_GRAN + "m</strong><br>" +
-        "Outbound degree: <strong>" + Math.min(OUT_DEGREE, Math.max(0, cityNames().length - 1)) + "</strong><br>" +
+        "Scheduled destination pool per airport: <strong>" + effectiveOutboundLimit() + "</strong><br>" +
         "Connection minimum: <strong>" + CONN_MINUTES + "m</strong><br>" +
         "Flight times are based on route distance and cruise speed.<br><br>" +
         "Your exact route will be calculated when you reach the airport.";
