@@ -585,7 +585,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 3;
+    var SAVE_VERSION = 4;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
     var lastScreenBeforeMenu = "start";
@@ -2088,16 +2088,25 @@
     var AIRPORT_EXIT_PRESENCE_WINDOW = 5;
     var PITSTOP_PRESENCE_WINDOW = 240;
 
-    var FLIGHT_OUT_DEGREE = 12;
-    var FLIGHT_IN_DEGREE = 12;
-    var FLIGHT_DEPARTURE_INTERVAL = 5;
-    var FLIGHT_DURATION_MINUTES = 180;
-    var FLIGHT_CONNECTION_MINUTES = 1;
+    var OUT_DEGREE = 25000;
+    var CONN_MINUTES = 1;
+    var SCHEDULE_GRAN = 1;
+    var MAX_FLIGHT_MINUTES = 30;
     var MAX_FLIGHT_HOPS = 6;
 
-    var FLIGHT_GRAPH_CACHE = null;
+    var CRUISE_SPEED_SHORT = 35000.0;
+    var CRUISE_SPEED_REGIONAL = 50000.0;
+    var CRUISE_SPEED_MED = 70000.0;
+    var CRUISE_SPEED_LONG = 85000.0;
+    var CRUISE_SPEED_VLONG = 90000.0;
+    var BLOCK_TIME_MIN = 1;
+    var EARTH_RADIUS_KM = 6371.0;
+
+    var CONNECTIVITY_CACHE = null;
     var SCHEDULE_CACHE = {};
     var SCHEDULE_INDEX_CACHE = {};
+    var FLIGHT_DURATION_CACHE = {};
+    var FLIGHT_DELAY_MAP = {};
 
     var playerTeam = null;
     var skills = {};
@@ -2561,6 +2570,15 @@
       });
     }
 
+    function cityByName(name) {
+      for (var i = 0; i < WORLD_CITIES.length; i++) {
+        if (WORLD_CITIES[i].name === name) {
+          return WORLD_CITIES[i];
+        }
+      }
+      return null;
+    }
+
     function stableHash(str) {
       var h = 2166136261;
 
@@ -2595,73 +2613,130 @@
       return copy;
     }
 
-    function addGraphEdge(graph, from, to) {
-      if (from === to) {
-        return;
-      }
-
-      if (!graph[from]) {
-        graph[from] = [];
-      }
-
-      if (graph[from].indexOf(to) === -1) {
-        graph[from].push(to);
-      }
+    function deterministicFallbackCoords(cityName) {
+      var rnd = seededRandom(stableHash(cityName + "|deterministic-coords-v1"));
+      return {
+        lat: -60 + rnd() * 120,
+        lon: -180 + rnd() * 360
+      };
     }
 
-    function buildFlightGraph() {
-      if (FLIGHT_GRAPH_CACHE) {
-        return FLIGHT_GRAPH_CACHE;
+    function ensureCityCoords(city) {
+      if (!city) {
+        return { lat: 0, lon: 0 };
+      }
+
+      if (typeof city.lat === "number" && typeof city.lon === "number") {
+        return city;
+      }
+
+      var fallback = deterministicFallbackCoords(city.name || "Unknown");
+      city.lat = fallback.lat;
+      city.lon = fallback.lon;
+      return city;
+    }
+
+    function haversineKmByCoords(lat1, lon1, lat2, lon2) {
+      var phi1 = lat1 * Math.PI / 180;
+      var phi2 = lat2 * Math.PI / 180;
+      var dphi = (lat2 - lat1) * Math.PI / 180;
+      var dlambda = (lon2 - lon1) * Math.PI / 180;
+      var a = Math.sin(dphi / 2) * Math.sin(dphi / 2) +
+              Math.cos(phi1) * Math.cos(phi2) * Math.sin(dlambda / 2) * Math.sin(dlambda / 2);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return EARTH_RADIUS_KM * c;
+    }
+
+    function distanceKmBetweenCities(cityFromName, cityToName) {
+      var a = ensureCityCoords(cityByName(cityFromName));
+      var b = ensureCityCoords(cityByName(cityToName));
+
+      if (!a || !b) {
+        return 1000;
+      }
+
+      return haversineKmByCoords(a.lat, a.lon, b.lat, b.lon);
+    }
+
+    function flightTimeMinutesBetweenDistance(distanceKm) {
+      var cruise;
+
+      if (distanceKm < 15001) {
+        cruise = CRUISE_SPEED_SHORT;
+      } else if (distanceKm < 15002) {
+        cruise = CRUISE_SPEED_REGIONAL;
+      } else if (distanceKm < 15003) {
+        cruise = CRUISE_SPEED_MED;
+      } else if (distanceKm < 15004) {
+        cruise = CRUISE_SPEED_LONG;
+      } else {
+        cruise = CRUISE_SPEED_VLONG;
+      }
+
+      var airborneMin = (distanceKm / cruise) * 60.0;
+      var extraBlock = Math.floor(distanceKm / 1500) * 5;
+      var minutes = Math.round(airborneMin + BLOCK_TIME_MIN + extraBlock);
+      return Math.max(5, minutes);
+    }
+
+    function computeFlightDurationMinutes(cityFromName, cityToName) {
+      var key = cityFromName + "→" + cityToName;
+
+      if (FLIGHT_DURATION_CACHE[key] != null) {
+        return FLIGHT_DURATION_CACHE[key];
+      }
+
+      var distanceKm = distanceKmBetweenCities(cityFromName, cityToName);
+      var minutes = flightTimeMinutesBetweenDistance(distanceKm);
+      FLIGHT_DURATION_CACHE[key] = minutes;
+      return minutes;
+    }
+
+    function isReasonableFlightLeg(cityA, cityB) {
+      return computeFlightDurationMinutes(cityA, cityB) <= MAX_FLIGHT_MINUTES;
+    }
+
+    function buildConnectivity() {
+      if (CONNECTIVITY_CACHE) {
+        return CONNECTIVITY_CACHE;
       }
 
       var names = cityNames();
-      var graph = {};
-      var inboundCount = {};
+      var targetOutDegree = Math.min(OUT_DEGREE, Math.max(0, names.length - 1));
+      var connectivity = {};
 
-      names.forEach(function (name) {
-        graph[name] = [];
-        inboundCount[name] = 0;
-      });
-
-      names.forEach(function (name) {
-        var choices = names.filter(function (other) {
-          return other !== name;
+      names.forEach(function (origin) {
+        var candidates = names.filter(function (candidate) {
+          return candidate !== origin;
         });
 
-        choices = shuffleWithSeed(choices, name + "|outbound-flight-network-v3");
+        candidates = shuffleWithSeed(candidates, origin + "|balanced-connectivity-v1");
 
-        choices.slice(0, Math.min(FLIGHT_OUT_DEGREE, choices.length)).forEach(function (dest) {
-          if (graph[name].indexOf(dest) === -1) {
-            graph[name].push(dest);
-            inboundCount[dest] += 1;
-          }
+        var filtered = candidates.filter(function (candidate) {
+          return isReasonableFlightLeg(origin, candidate);
         });
-      });
 
-      names.forEach(function (target) {
-        if (inboundCount[target] >= FLIGHT_IN_DEGREE) {
-          return;
+        if (filtered.length < targetOutDegree) {
+          candidates.forEach(function (candidate) {
+            if (filtered.length >= targetOutDegree) {
+              return;
+            }
+            if (filtered.indexOf(candidate) === -1) {
+              filtered.push(candidate);
+            }
+          });
         }
 
-        var sources = names.filter(function (source) {
-          return source !== target && graph[source].indexOf(target) === -1;
-        });
-
-        sources = shuffleWithSeed(sources, target + "|inbound-flight-network-v3");
-
-        for (var i = 0; i < sources.length && inboundCount[target] < FLIGHT_IN_DEGREE; i++) {
-          addGraphEdge(graph, sources[i], target);
-          inboundCount[target] += 1;
-        }
+        connectivity[origin] = filtered.slice(0, targetOutDegree);
       });
 
-      FLIGHT_GRAPH_CACHE = graph;
-      return graph;
+      CONNECTIVITY_CACHE = connectivity;
+      return connectivity;
     }
 
     function getOutboundFlightCities(originName) {
-      var graph = buildFlightGraph();
-      return graph[originName] ? graph[originName].slice() : [];
+      var connectivity = buildConnectivity();
+      return connectivity[originName] ? connectivity[originName].slice() : [];
     }
 
     function getDailySchedule(originName) {
@@ -2669,31 +2744,34 @@
         return SCHEDULE_CACHE[originName];
       }
 
-      var outbound = getOutboundFlightCities(originName);
+      var rnd = seededRandom(stableHash(originName + "|daily-schedule-v2"));
+      var dests = getOutboundFlightCities(originName);
+      var allMinutes = [];
       var schedule = [];
 
-      if (outbound.length === 0) {
+      for (var minute = 0; minute < MINUTES_PER_DAY; minute += SCHEDULE_GRAN) {
+        allMinutes.push(minute);
+      }
+
+      if (dests.length === 0) {
         SCHEDULE_CACHE[originName] = schedule;
         return schedule;
       }
 
-      var slotCount = Math.floor(MINUTES_PER_DAY / FLIGHT_DEPARTURE_INTERVAL);
-      var shuffledOutbound = shuffleWithSeed(outbound, originName + "|daily-flight-coverage-v3");
-      var rnd = seededRandom(stableHash(originName + "|daily-flight-schedule-v3"));
-
-      for (var slot = 0; slot < slotCount; slot++) {
-        var minute = slot * FLIGHT_DEPARTURE_INTERVAL;
-        var dest;
-
-        if (slot < shuffledOutbound.length) {
-          dest = shuffledOutbound[slot];
-        } else {
-          dest = outbound[Math.floor(rnd() * outbound.length)];
-        }
-
-        schedule.push({
-          to: dest,
-          minute: minute
+      if (dests.length >= allMinutes.length) {
+        var shuffledDests = shuffleWithSeed(dests, originName + "|daily-schedule-sample-v2");
+        allMinutes.forEach(function (minute, index) {
+          schedule.push({
+            to: shuffledDests[index],
+            minute: minute
+          });
+        });
+      } else {
+        allMinutes.forEach(function (minute) {
+          schedule.push({
+            to: dests[Math.floor(rnd() * dests.length)],
+            minute: minute
+          });
         });
       }
 
@@ -2701,7 +2779,6 @@
         if (a.minute !== b.minute) {
           return a.minute - b.minute;
         }
-
         return a.to.localeCompare(b.to);
       });
 
@@ -2721,7 +2798,6 @@
         if (!index[item.to]) {
           index[item.to] = [];
         }
-
         index[item.to].push(item.minute);
       });
 
@@ -2739,19 +2815,7 @@
           return minutes[i];
         }
       }
-
       return null;
-    }
-
-    function nextDepartureBoundary(earliestClock) {
-      var rounded = Math.ceil(earliestClock);
-      var remainder = rounded % FLIGHT_DEPARTURE_INTERVAL;
-
-      if (remainder === 0) {
-        return rounded;
-      }
-
-      return rounded + (FLIGHT_DEPARTURE_INTERVAL - remainder);
     }
 
     function getNextDepartureForEdge(originName, destName, earliestClock) {
@@ -2774,13 +2838,27 @@
       return dayStart + MINUTES_PER_DAY + minutes[0];
     }
 
-    function buildFlightHop(fromName, toName, departClock) {
+    function getDirectDepartureForAirportLeg(originName, destName, earliestClock) {
+      var direct = getNextDepartureForEdge(originName, destName, earliestClock);
+      if (direct == null) {
+        return Math.ceil(earliestClock);
+      }
+      return Math.max(direct, Math.ceil(earliestClock));
+    }
+
+    function buildScheduledFlightHop(fromName, toName, departClock) {
+      var duration = computeFlightDurationMinutes(fromName, toName);
       return {
         from: fromName,
         to: toName,
+        scheduledDepartClock: departClock,
+        scheduledArriveClock: departClock + duration,
         departClock: departClock,
-        arriveClock: departClock + FLIGHT_DURATION_MINUTES,
-        duration: FLIGHT_DURATION_MINUTES
+        arriveClock: departClock + duration,
+        duration: duration,
+        delay: 0,
+        missedConnection: false,
+        rebooked: false
       };
     }
 
@@ -2789,12 +2867,16 @@
         return [];
       }
 
-      var queue = [{
-        city: originName,
-        time: earliestClock,
-        hops: 0
-      }];
+      var target = ensureCityCoords(cityByName(targetName));
+      var origin = ensureCityCoords(cityByName(originName));
+      var originTargetDist = 0;
 
+      if (origin && target) {
+        originTargetDist = haversineKmByCoords(origin.lat, origin.lon, target.lat, target.lon);
+      }
+
+      var backtrackToleranceKm = Math.max(300, originTargetDist ? originTargetDist * 0.05 : 300);
+      var queue = [{ city: originName, time: earliestClock, hops: 0 }];
       var bestArrival = {};
       var previous = {};
 
@@ -2817,12 +2899,10 @@
 
           while (cur !== originName) {
             var prev = previous[cur];
-
             if (!prev) {
               break;
             }
-
-            path.push(buildFlightHop(prev.from, cur, prev.departClock));
+            path.push(buildScheduledFlightHop(prev.from, cur, prev.departClock));
             cur = prev.from;
           }
 
@@ -2834,7 +2914,7 @@
           continue;
         }
 
-        var earliestBoard = item.time + FLIGHT_CONNECTION_MINUTES;
+        var earliestBoard = item.time + CONN_MINUTES;
         var neighbors = getScheduledDestinations(item.city);
 
         neighbors.forEach(function (neighbor) {
@@ -2842,13 +2922,27 @@
             return;
           }
 
-          var departClock = getNextDepartureForEdge(item.city, neighbor, earliestBoard);
+          if (!isReasonableFlightLeg(item.city, neighbor)) {
+            return;
+          }
 
+          if (originTargetDist) {
+            var neighborCity = ensureCityCoords(cityByName(neighbor));
+            if (neighborCity && target) {
+              var neighborToTargetDist = haversineKmByCoords(neighborCity.lat, neighborCity.lon, target.lat, target.lon);
+              if (neighborToTargetDist > originTargetDist + backtrackToleranceKm) {
+                return;
+              }
+            }
+          }
+
+          var departClock = getNextDepartureForEdge(item.city, neighbor, earliestBoard);
           if (departClock == null) {
             return;
           }
 
-          var arriveClock = departClock + FLIGHT_DURATION_MINUTES;
+          var duration = computeFlightDurationMinutes(item.city, neighbor);
+          var arriveClock = departClock + duration;
 
           if (bestArrival[neighbor] == null || arriveClock < bestArrival[neighbor]) {
             bestArrival[neighbor] = arriveClock;
@@ -2856,12 +2950,7 @@
               from: item.city,
               departClock: departClock
             };
-
-            queue.push({
-              city: neighbor,
-              time: arriveClock,
-              hops: item.hops + 1
-            });
+            queue.push({ city: neighbor, time: arriveClock, hops: item.hops + 1 });
           }
         });
       }
@@ -2870,30 +2959,143 @@
     }
 
     function buildFallbackFlightRoute(originName, targetName, earliestBoardClock) {
-      var departClock = nextDepartureBoundary(earliestBoardClock);
-      return [buildFlightHop(originName, targetName, departClock)];
+      var departClock = getDirectDepartureForAirportLeg(originName, targetName, earliestBoardClock);
+
+      if (departClock < earliestBoardClock) {
+        departClock = Math.ceil(earliestBoardClock);
+      }
+
+      return [buildScheduledFlightHop(originName, targetName, departClock)];
+    }
+
+    function rollDelayMinutes() {
+      if (Math.random() >= 0.2) {
+        return 0;
+      }
+
+      var r = Math.random();
+
+      if (r < 0.50) {
+        return randomInt(1, 5);
+      } else if (r < 0.80) {
+        return randomInt(6, 10);
+      } else if (r < 0.95) {
+        return randomInt(11, 20);
+      }
+
+      return randomInt(21, 30);
+    }
+
+    function flightDelayForHop(hop) {
+      var key = hop.from + "→" + hop.to + "@" + Math.round(hop.scheduledDepartClock);
+
+      if (!FLIGHT_DELAY_MAP[key]) {
+        var delay = rollDelayMinutes();
+        FLIGHT_DELAY_MAP[key] = {
+          delay: delay,
+          departClock: hop.scheduledDepartClock + delay,
+          arriveClock: hop.scheduledArriveClock + delay
+        };
+      }
+
+      return FLIGHT_DELAY_MAP[key];
+    }
+
+    function processFlightRouteWithDelays(plannedHops, finalDestinationName) {
+      var processed = [];
+      var route = plannedHops.slice();
+      var i = 0;
+      var safety = 0;
+
+      while (i < route.length && safety < 40) {
+        safety += 1;
+        var hop = route[i];
+        var delayInfo = flightDelayForHop(hop);
+        var processedHop = {
+          from: hop.from,
+          to: hop.to,
+          scheduledDepartClock: hop.scheduledDepartClock,
+          scheduledArriveClock: hop.scheduledArriveClock,
+          departClock: delayInfo.departClock,
+          arriveClock: delayInfo.arriveClock,
+          duration: hop.duration,
+          delay: delayInfo.delay,
+          missedConnection: false,
+          rebooked: hop.rebooked || false
+        };
+
+        processed.push(processedHop);
+
+        if (i + 1 < route.length) {
+          var nextHop = route[i + 1];
+          var nextDelayInfo = flightDelayForHop(nextHop);
+          var minConn = CONN_MINUTES;
+
+          if (processedHop.arriveClock + minConn > nextDelayInfo.departClock) {
+            processedHop.missedConnection = true;
+            var earliestRebookBoard = processedHop.arriveClock + minConn;
+
+            if (processedHop.to === finalDestinationName) {
+              route = route.slice(0, i + 1);
+            } else {
+              var newPath = findEarliestArrivalPath(processedHop.to, finalDestinationName, earliestRebookBoard, MAX_FLIGHT_HOPS);
+
+              if (!newPath || newPath.length === 0) {
+                newPath = buildFallbackFlightRoute(processedHop.to, finalDestinationName, earliestRebookBoard);
+              }
+
+              newPath.forEach(function (newHop) {
+                newHop.rebooked = true;
+              });
+
+              route = route.slice(0, i + 1).concat(newPath);
+            }
+          }
+        }
+
+        i += 1;
+      }
+
+      return processed;
     }
 
     function planFlightRoute(originCity, destinationCity, airportArrivalClock) {
       var originName = originCity.name;
       var targetName = destinationCity.name;
-      var earliestBoardClock = airportArrivalClock + FLIGHT_CONNECTION_MINUTES;
-      var hops = findEarliestArrivalPath(originName, targetName, earliestBoardClock, MAX_FLIGHT_HOPS);
+      var earliestBoardClock = airportArrivalClock + CONN_MINUTES;
+      var plannedHops = findEarliestArrivalPath(originName, targetName, earliestBoardClock, MAX_FLIGHT_HOPS);
 
-      if (!hops || hops.length === 0 || hops[hops.length - 1].to !== targetName) {
-        hops = buildFallbackFlightRoute(originName, targetName, earliestBoardClock);
+      if (!plannedHops || plannedHops.length === 0 || plannedHops[plannedHops.length - 1].to !== targetName) {
+        plannedHops = buildFallbackFlightRoute(originName, targetName, earliestBoardClock);
       }
 
-      var firstDepartClock = hops[0].departClock;
-      var finalArrivalClock = hops[hops.length - 1].arriveClock;
+      if (plannedHops[plannedHops.length - 1].to !== targetName) {
+        var repairStart = plannedHops[plannedHops.length - 1].arriveClock + CONN_MINUTES;
+        var repair = findEarliestArrivalPath(plannedHops[plannedHops.length - 1].to, targetName, repairStart, MAX_FLIGHT_HOPS);
+        if (repair && repair.length > 0) {
+          plannedHops = plannedHops.concat(repair);
+        } else {
+          plannedHops = buildFallbackFlightRoute(originName, targetName, earliestBoardClock);
+        }
+      }
+
+      var processedHops = processFlightRouteWithDelays(plannedHops, targetName);
+
+      if (!processedHops || processedHops.length === 0) {
+        processedHops = processFlightRouteWithDelays(buildFallbackFlightRoute(originName, targetName, earliestBoardClock), targetName);
+      }
+
+      var firstDepartClock = processedHops[0].departClock;
+      var finalArrivalClock = processedHops[processedHops.length - 1].arriveClock;
 
       return {
-        hops: hops,
+        hops: processedHops,
         firstDepartClock: firstDepartClock,
         finalArrivalClock: finalArrivalClock,
         totalFromAirportArrival: finalArrivalClock - airportArrivalClock,
         totalFromFirstDeparture: finalArrivalClock - firstDepartClock,
-        connections: Math.max(0, hops.length - 1)
+        connections: Math.max(0, processedHops.length - 1),
+        scheduledConnections: Math.max(0, plannedHops.length - 1)
       };
     }
 
@@ -2903,11 +3105,9 @@
       }
 
       var names = [route.hops[0].from];
-
       route.hops.forEach(function (hop) {
         names.push(hop.to);
       });
-
       return names.join(" → ");
     }
 
@@ -2925,9 +3125,23 @@
       route.hops.forEach(function (hop) {
         html += '<div class="flight-hop">';
         html += escapeHtml(hop.from) + ' → ' + escapeHtml(hop.to) + '<br>';
-        html += 'Depart: <strong>' + formatRaceDateTime(hop.departClock) + '</strong><br>';
+        html += 'Scheduled Depart: <strong>' + formatRaceDateTime(hop.scheduledDepartClock) + '</strong><br>';
+
+        if (hop.delay > 0) {
+          html += 'Actual Depart: <strong>' + formatRaceDateTime(hop.departClock) + '</strong> · Delayed <strong>' + formatDuration(hop.delay) + '</strong><br>';
+        } else {
+          html += 'Actual Depart: <strong>' + formatRaceDateTime(hop.departClock) + '</strong> · On time<br>';
+        }
+
         html += 'Arrive: <strong>' + formatRaceDateTime(hop.arriveClock) + '</strong><br>';
         html += 'Flight time: <strong>' + formatDuration(hop.duration) + '</strong>';
+
+        if (hop.missedConnection) {
+          html += '<br><strong>Missed connection. Rebooked onward.</strong>';
+        } else if (hop.rebooked) {
+          html += '<br><strong>Rebooked flight.</strong>';
+        }
+
         html += '</div>';
       });
 
@@ -3187,6 +3401,7 @@
       legOrigin = currentCity;
       legDest = dest;
       activeFlightRoute = null;
+      FLIGHT_DELAY_MAP = {};
 
       legStops = [];
 
@@ -3235,10 +3450,12 @@
         currentLegLabel() + "<br><br>" +
         "Departing from <strong>" + escapeHtml(cityAirportName(legOrigin)) + "</strong><br>" +
         "Flying to <strong>" + escapeHtml(cityAirportName(legDest)) + "</strong>.<br><br>" +
-        "Flight Routing: <strong>Scheduled airport network</strong><br>" +
-        "Departures: <strong>Every " + FLIGHT_DEPARTURE_INTERVAL + "m</strong><br>" +
-        "Connection minimum: <strong>" + FLIGHT_CONNECTION_MINUTES + "m</strong><br>" +
-        "Each flight segment: <strong>" + formatDuration(FLIGHT_DURATION_MINUTES) + "</strong><br><br>" +
+        "Flight Routing: <strong>Daily scheduled airport network</strong><br>" +
+        "Flights per day per airport: <strong>" + Math.ceil(MINUTES_PER_DAY / SCHEDULE_GRAN) + "</strong><br>" +
+        "Schedule granularity: <strong>" + SCHEDULE_GRAN + "m</strong><br>" +
+        "Outbound degree: <strong>" + Math.min(OUT_DEGREE, Math.max(0, cityNames().length - 1)) + "</strong><br>" +
+        "Connection minimum: <strong>" + CONN_MINUTES + "m</strong><br>" +
+        "Flight times are based on route distance and cruise speed.<br><br>" +
         "Your exact route will be calculated when you reach the airport.";
     }
 
