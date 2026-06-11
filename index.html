@@ -190,6 +190,13 @@
     <div id="transportList"></div>
   </div>
 
+  <!-- Pit Stop -->
+  <div id="pitstop" class="screen">
+    <h1>🏁 Pit Stop</h1>
+    <div class="status" id="pitstopBody"></div>
+    <button onclick="checkInAtPitStop()">Check In</button>
+  </div>
+
   <!-- Results -->
   <div id="results" class="screen">
     <h1 id="resultsTitle"></h1>
@@ -718,10 +725,25 @@
       raceTime = raceTime + opt.time;
       currentStop = currentStop + 1;
       if (currentStop >= totalStopsThisLeg) {
-        showLegResults();
+        showPitStopScreen();
       } else {
         showChallenge();
       }
+    }
+
+    function showPitStopScreen() {
+      document.getElementById('pitstopBody').innerHTML =
+        '<strong>' + playerTeam + '</strong><br><br>' +
+        'You have reached the Pit Stop in <strong>' + legDest.name + '</strong>.<br><br>' +
+        'Time: <strong>' + formatDuration(raceTime) + '</strong><br>' +
+        'Cash: <strong>$' + money[playerTeam] + '</strong><br><br>' +
+        'Check in to see the leg results.';
+
+      showScreen('pitstop');
+    }
+
+    function checkInAtPitStop() {
+      showLegResults();
     }
 
     function simulateRivalLeg(name) {
