@@ -932,12 +932,21 @@
 
     function standingsHtml(results) {
       var rows = '';
+
       results.forEach(function (r, i) {
         var isYou = (r.team === playerTeam);
         var style = isYou ? ' style="color:#ffd166;font-weight:bold;"' : '';
         var tag = isYou ? ' ← YOU' : '';
-        rows += '<div' + style + '>' + (i + 1) + '. ' + r.team + ' - ' + formatDuration(r.time) + tag + '</div>';
+        var checkInClock = legStartClock + r.time;
+
+        rows += '<div' + style + '>' +
+          (i + 1) + '. ' + r.team +
+          ' - ' + formatDuration(r.time) +
+          ' · checked in ' + formatRaceDateTime(checkInClock) +
+          tag +
+          '</div>';
       });
+
       return '<div class="standings">' + rows + '</div>';
     }
 
