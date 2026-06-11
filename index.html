@@ -455,6 +455,66 @@
       margin-top: 8px;
     }
 
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 12px;
+      text-align: left;
+    }
+
+    .setting-card {
+      background: rgba(43, 13, 20, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 16px;
+      padding: 13px;
+    }
+
+    .setting-card label {
+      display: block;
+      color: var(--gold);
+      font-size: 0.96em;
+      margin-bottom: 6px;
+    }
+
+    .setting-card input,
+    .setting-card select {
+      width: 100%;
+      font-family: 'Chakra Petch', Arial, sans-serif;
+      font-weight: 700;
+      font-size: 1em;
+      color: var(--text);
+      background: rgba(74, 24, 34, 0.98);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      outline: none;
+    }
+
+    .setting-card input:focus,
+    .setting-card select:focus {
+      border-color: var(--gold);
+    }
+
+    .setting-help {
+      color: var(--muted);
+      font-size: 0.86em;
+      line-height: 1.35;
+      margin-top: 6px;
+    }
+
+    .range-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .setting-summary {
+      margin-top: 12px;
+      color: var(--gold);
+      line-height: 1.45;
+    }
+
     @media (max-width: 560px) {
       body { padding: 28px 12px 52px; }
       .skills { grid-template-columns: 1fr; }
@@ -499,7 +559,7 @@
       <div class="logo-badge">🌎</div>
       <h1>The Amazing Race</h1>
       <p>Race around the world, manage your cash, choose your transport, and survive each leg.</p>
-      <button onclick="showScreen('teams')">New Race</button>
+      <button onclick="openCustomization()">New Race</button>
       <br>
       <button id="startLoadBtn" class="secondary-btn" onclick="loadLatestGame()">Load Saved Race</button>
     </div>
@@ -510,6 +570,79 @@
     <h1>Menu</h1>
     <div class="status" id="menuStatus"></div>
     <div class="menu-grid" id="menuButtons"></div>
+  </div>
+
+
+  <div id="customize" class="screen">
+    <span class="screen-label">Race Setup</span>
+    <h1>Customize Race</h1>
+    <div class="status">
+      Tune the season before choosing your team. Team name customization can be added later without disturbing these settings.
+    </div>
+    <div class="panel-card">
+      <div class="settings-grid">
+        <div class="setting-card">
+          <label for="settingStartingMoney">Starting Money</label>
+          <input id="settingStartingMoney" type="number" min="0" max="999999" step="50">
+          <div class="setting-help">Cash every team starts with on Leg 1.</div>
+        </div>
+
+        <div class="setting-card">
+          <label for="settingLegStipend">Leg Stipend</label>
+          <input id="settingLegStipend" type="number" min="0" max="999999" step="50">
+          <div class="setting-help">Cash added to each remaining team at the start of every leg after Leg 1.</div>
+        </div>
+
+        <div class="setting-card">
+          <label for="settingNonElimChance">Non-Elimination Chance</label>
+          <select id="settingNonElimChance">
+            <option value="0">None - 0%</option>
+            <option value="0.10">Rare - 10%</option>
+            <option value="0.15">Normal - 15%</option>
+            <option value="0.25">Frequent - 25%</option>
+            <option value="0.35">Wild - 35%</option>
+          </select>
+          <div class="setting-help">Chance that a non-final leg saves the last-place team.</div>
+        </div>
+
+        <div class="setting-card">
+          <label>Challenges Per Normal Leg</label>
+          <div class="range-pair">
+            <input id="settingMinStops" type="number" min="1" max="20" step="1" aria-label="Minimum normal leg challenges">
+            <input id="settingMaxStops" type="number" min="1" max="20" step="1" aria-label="Maximum normal leg challenges">
+          </div>
+          <div class="setting-help">Minimum and maximum challenge stops before the pit stop.</div>
+        </div>
+
+        <div class="setting-card">
+          <label>Challenges Per Final Leg</label>
+          <div class="range-pair">
+            <input id="settingFinalMinStops" type="number" min="1" max="25" step="1" aria-label="Minimum final leg challenges">
+            <input id="settingFinalMaxStops" type="number" min="1" max="25" step="1" aria-label="Maximum final leg challenges">
+          </div>
+          <div class="setting-help">Final leg can stay bigger and more dramatic than regular legs.</div>
+        </div>
+
+        <div class="setting-card">
+          <label for="settingFlightChaos">Flight Chaos</label>
+          <select id="settingFlightChaos">
+            <option value="calm">Calm - fewer/smaller delays</option>
+            <option value="normal">Normal - current delay feel</option>
+            <option value="chaotic">Chaotic - more delays</option>
+            <option value="nightmare">Airport Nightmare - delay goblin mode</option>
+          </select>
+          <div class="setting-help">Controls delay odds and delay size. Flight routing still uses the realistic coordinate network.</div>
+        </div>
+      </div>
+
+      <div class="setting-summary" id="customizationSummary"></div>
+    </div>
+
+    <button onclick="confirmCustomization()">Continue to Team Select</button>
+    <br>
+    <button class="secondary-btn" onclick="resetCustomizationDefaults()">Reset Defaults</button>
+    <br>
+    <button class="secondary-btn" onclick="openCustomization()">Back</button>
   </div>
 
   <div id="teams" class="screen">
@@ -585,7 +718,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 5;
+    var SAVE_VERSION = 6;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -4954,6 +5087,23 @@
     var FINAL_MIN_STOPS_PER_LEG = 5;
     var FINAL_MAX_STOPS_PER_LEG = 7;
     var NON_ELIM_CHANCE = 0.15;
+    var DEFAULT_RACE_SETTINGS = {
+      startingMoney: 1500,
+      legStipend: 1000,
+      minStopsPerLeg: 2,
+      maxStopsPerLeg: 5,
+      finalMinStopsPerLeg: 5,
+      finalMaxStopsPerLeg: 7,
+      nonElimChance: 0.15,
+      flightChaos: "normal"
+    };
+    var raceSettings = null;
+    var FLIGHT_CHAOS_PROFILES = {
+      calm: { label: "Calm", delayChance: 0.10, delayScale: 0.65 },
+      normal: { label: "Normal", delayChance: 0.20, delayScale: 1.00 },
+      chaotic: { label: "Chaotic", delayChance: 0.35, delayScale: 1.25 },
+      nightmare: { label: "Airport Nightmare", delayChance: 0.50, delayScale: 1.60 }
+    };
     var MIN_TRANSPORT_OPTIONS = 2;
     var MAX_TRANSPORT_OPTIONS = 5;
 
@@ -4987,10 +5137,6 @@
     var FLIGHT_ROUTE_PLAN_CACHE = {};
     var FAST_DIRECT_WAIT_LIMIT = 90;
     var FAST_CONNECTION_CANDIDATE_LIMIT = 80;
-    var REALISTIC_OUTBOUND_LIMIT = 96;
-    var REALISTIC_NEARBY_DESTINATION_TARGET = 44;
-    var REALISTIC_POPULAR_DESTINATION_TARGET = 32;
-    var REALISTIC_HUB_DESTINATION_TARGET = 32;
 
     var playerTeam = null;
     var skills = {};
@@ -5432,6 +5578,164 @@
       return Math.max(min, Math.min(max, value));
     }
 
+    function cloneRaceSettings(source) {
+      var base = source || DEFAULT_RACE_SETTINGS;
+      return {
+        startingMoney: parseInt(base.startingMoney, 10),
+        legStipend: parseInt(base.legStipend, 10),
+        minStopsPerLeg: parseInt(base.minStopsPerLeg, 10),
+        maxStopsPerLeg: parseInt(base.maxStopsPerLeg, 10),
+        finalMinStopsPerLeg: parseInt(base.finalMinStopsPerLeg, 10),
+        finalMaxStopsPerLeg: parseInt(base.finalMaxStopsPerLeg, 10),
+        nonElimChance: Number(base.nonElimChance),
+        flightChaos: base.flightChaos || "normal"
+      };
+    }
+
+    function sanitizeRaceSettings(source) {
+      var settings = cloneRaceSettings(source || DEFAULT_RACE_SETTINGS);
+
+      settings.startingMoney = clampNumber(isNaN(settings.startingMoney) ? DEFAULT_RACE_SETTINGS.startingMoney : settings.startingMoney, 0, 999999);
+      settings.legStipend = clampNumber(isNaN(settings.legStipend) ? DEFAULT_RACE_SETTINGS.legStipend : settings.legStipend, 0, 999999);
+      settings.minStopsPerLeg = clampNumber(isNaN(settings.minStopsPerLeg) ? DEFAULT_RACE_SETTINGS.minStopsPerLeg : settings.minStopsPerLeg, 1, 20);
+      settings.maxStopsPerLeg = clampNumber(isNaN(settings.maxStopsPerLeg) ? DEFAULT_RACE_SETTINGS.maxStopsPerLeg : settings.maxStopsPerLeg, 1, 20);
+      settings.finalMinStopsPerLeg = clampNumber(isNaN(settings.finalMinStopsPerLeg) ? DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg : settings.finalMinStopsPerLeg, 1, 25);
+      settings.finalMaxStopsPerLeg = clampNumber(isNaN(settings.finalMaxStopsPerLeg) ? DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg : settings.finalMaxStopsPerLeg, 1, 25);
+      settings.nonElimChance = clampNumber(isNaN(settings.nonElimChance) ? DEFAULT_RACE_SETTINGS.nonElimChance : settings.nonElimChance, 0, 1);
+
+      if (settings.maxStopsPerLeg < settings.minStopsPerLeg) {
+        settings.maxStopsPerLeg = settings.minStopsPerLeg;
+      }
+
+      if (settings.finalMaxStopsPerLeg < settings.finalMinStopsPerLeg) {
+        settings.finalMaxStopsPerLeg = settings.finalMinStopsPerLeg;
+      }
+
+      if (!FLIGHT_CHAOS_PROFILES[settings.flightChaos]) {
+        settings.flightChaos = DEFAULT_RACE_SETTINGS.flightChaos;
+      }
+
+      return settings;
+    }
+
+    function applyRaceSettingsToGlobals() {
+      raceSettings = sanitizeRaceSettings(raceSettings || DEFAULT_RACE_SETTINGS);
+      STARTING_MONEY = raceSettings.startingMoney;
+      LEG_STIPEND = raceSettings.legStipend;
+      MIN_STOPS_PER_LEG = raceSettings.minStopsPerLeg;
+      MAX_STOPS_PER_LEG = raceSettings.maxStopsPerLeg;
+      FINAL_MIN_STOPS_PER_LEG = raceSettings.finalMinStopsPerLeg;
+      FINAL_MAX_STOPS_PER_LEG = raceSettings.finalMaxStopsPerLeg;
+      NON_ELIM_CHANCE = raceSettings.nonElimChance;
+    }
+
+    function currentFlightChaosProfile() {
+      raceSettings = sanitizeRaceSettings(raceSettings || DEFAULT_RACE_SETTINGS);
+      return FLIGHT_CHAOS_PROFILES[raceSettings.flightChaos] || FLIGHT_CHAOS_PROFILES.normal;
+    }
+
+    function settingValue(id, fallback) {
+      var el = document.getElementById(id);
+      return el ? el.value : fallback;
+    }
+
+    function setSettingValue(id, value) {
+      var el = document.getElementById(id);
+      if (el) {
+        el.value = value;
+      }
+    }
+
+    function renderCustomizationSummary() {
+      var box = document.getElementById("customizationSummary");
+
+      if (!box) {
+        return;
+      }
+
+      var preview = sanitizeRaceSettings({
+        startingMoney: settingValue("settingStartingMoney", DEFAULT_RACE_SETTINGS.startingMoney),
+        legStipend: settingValue("settingLegStipend", DEFAULT_RACE_SETTINGS.legStipend),
+        minStopsPerLeg: settingValue("settingMinStops", DEFAULT_RACE_SETTINGS.minStopsPerLeg),
+        maxStopsPerLeg: settingValue("settingMaxStops", DEFAULT_RACE_SETTINGS.maxStopsPerLeg),
+        finalMinStopsPerLeg: settingValue("settingFinalMinStops", DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg),
+        finalMaxStopsPerLeg: settingValue("settingFinalMaxStops", DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg),
+        nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
+        flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos)
+      });
+      var chaos = FLIGHT_CHAOS_PROFILES[preview.flightChaos] || FLIGHT_CHAOS_PROFILES.normal;
+
+      box.innerHTML =
+        "Season Settings: <strong>$" + preview.startingMoney + "</strong> start · " +
+        "<strong>$" + preview.legStipend + "</strong> stipend · " +
+        "<strong>" + Math.round(preview.nonElimChance * 100) + "%</strong> non-elim · " +
+        "Normal legs <strong>" + preview.minStopsPerLeg + "-" + preview.maxStopsPerLeg + "</strong> challenges · " +
+        "Final leg <strong>" + preview.finalMinStopsPerLeg + "-" + preview.finalMaxStopsPerLeg + "</strong> challenges · " +
+        "Flight chaos: <strong>" + escapeHtml(chaos.label) + "</strong>";
+    }
+
+    function fillCustomizationForm(settings) {
+      var s = sanitizeRaceSettings(settings || raceSettings || DEFAULT_RACE_SETTINGS);
+      setSettingValue("settingStartingMoney", s.startingMoney);
+      setSettingValue("settingLegStipend", s.legStipend);
+      setSettingValue("settingNonElimChance", s.nonElimChance);
+      setSettingValue("settingMinStops", s.minStopsPerLeg);
+      setSettingValue("settingMaxStops", s.maxStopsPerLeg);
+      setSettingValue("settingFinalMinStops", s.finalMinStopsPerLeg);
+      setSettingValue("settingFinalMaxStops", s.finalMaxStopsPerLeg);
+      setSettingValue("settingFlightChaos", s.flightChaos);
+      renderCustomizationSummary();
+    }
+
+    function bindCustomizationFormEvents() {
+      [
+        "settingStartingMoney", "settingLegStipend", "settingNonElimChance",
+        "settingMinStops", "settingMaxStops", "settingFinalMinStops",
+        "settingFinalMaxStops", "settingFlightChaos"
+      ].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el && !el.dataset.boundCustomization) {
+          el.addEventListener("input", renderCustomizationSummary);
+          el.addEventListener("change", renderCustomizationSummary);
+          el.dataset.boundCustomization = "1";
+        }
+      });
+    }
+
+    function readCustomizationForm() {
+      return sanitizeRaceSettings({
+        startingMoney: settingValue("settingStartingMoney", DEFAULT_RACE_SETTINGS.startingMoney),
+        legStipend: settingValue("settingLegStipend", DEFAULT_RACE_SETTINGS.legStipend),
+        minStopsPerLeg: settingValue("settingMinStops", DEFAULT_RACE_SETTINGS.minStopsPerLeg),
+        maxStopsPerLeg: settingValue("settingMaxStops", DEFAULT_RACE_SETTINGS.maxStopsPerLeg),
+        finalMinStopsPerLeg: settingValue("settingFinalMinStops", DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg),
+        finalMaxStopsPerLeg: settingValue("settingFinalMaxStops", DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg),
+        nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
+        flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos)
+      });
+    }
+
+    function openCustomization() {
+      if (!raceSettings) {
+        raceSettings = cloneRaceSettings(DEFAULT_RACE_SETTINGS);
+      }
+
+      bindCustomizationFormEvents();
+      fillCustomizationForm(raceSettings);
+      showScreen("customize");
+    }
+
+    function confirmCustomization() {
+      raceSettings = readCustomizationForm();
+      applyRaceSettingsToGlobals();
+      showScreen("teams");
+    }
+
+    function resetCustomizationDefaults() {
+      raceSettings = cloneRaceSettings(DEFAULT_RACE_SETTINGS);
+      fillCustomizationForm(raceSettings);
+    }
+
     function normalizeWithinRange(value, min, max, invert) {
       if (max === min) {
         return 0.65;
@@ -5832,114 +6136,47 @@
       return computeFlightDurationMinutes(cityA, cityB) <= MAX_FLIGHT_MINUTES;
     }
 
-    function effectiveOutboundLimit() {
-      return Math.min(OUT_DEGREE, REALISTIC_OUTBOUND_LIMIT, Math.max(0, cityNames().length - 1));
-    }
-
     function buildConnectivity() {
-      if (!CONNECTIVITY_CACHE) {
-        CONNECTIVITY_CACHE = {};
-      }
-
-      return CONNECTIVITY_CACHE;
-    }
-
-    function buildConnectivityForOrigin(originName) {
-      var connectivity = buildConnectivity();
-
-      if (connectivity[originName]) {
-        return connectivity[originName];
+      if (CONNECTIVITY_CACHE) {
+        return CONNECTIVITY_CACHE;
       }
 
       var names = cityNames();
-      var originCity = ensureCityCoords(cityByName(originName));
-      var targetOutDegree = effectiveOutboundLimit();
-      var seen = {};
-      var selected = [];
+      var targetOutDegree = Math.min(OUT_DEGREE, Math.max(0, names.length - 1));
+      var connectivity = {};
 
-      function add(name) {
-        if (!name || name === originName || seen[name] || selected.length >= targetOutDegree) {
-          return;
+      names.forEach(function (origin) {
+        var candidates = names.filter(function (candidate) {
+          return candidate !== origin;
+        });
+
+        candidates = shuffleWithSeed(candidates, origin + "|balanced-connectivity-v1");
+
+        var filtered = candidates.filter(function (candidate) {
+          return isReasonableFlightLeg(origin, candidate);
+        });
+
+        if (filtered.length < targetOutDegree) {
+          candidates.forEach(function (candidate) {
+            if (filtered.length >= targetOutDegree) {
+              return;
+            }
+            if (filtered.indexOf(candidate) === -1) {
+              filtered.push(candidate);
+            }
+          });
         }
 
-        seen[name] = true;
-        selected.push(name);
-      }
-
-      var candidates = names.filter(function (candidate) {
-        return candidate !== originName;
-      }).map(function (candidate) {
-        var destCity = ensureCityCoords(cityByName(candidate));
-        var distance = originCity && destCity ? haversineKmByCoords(originCity.lat, originCity.lon, destCity.lat, destCity.lon) : 999999;
-        return {
-          name: candidate,
-          distance: distance,
-          population: (AIRPORT_COORDS[candidate] && AIRPORT_COORDS[candidate].population) || 0,
-          hub: !!MAJOR_HUB_SET[candidate],
-          reasonable: isReasonableFlightLeg(originName, candidate)
-        };
+        connectivity[origin] = filtered.slice(0, targetOutDegree);
       });
 
-      var reasonable = candidates.filter(function (item) {
-        return item.reasonable;
-      });
-
-      reasonable
-        .filter(function (item) { return item.hub; })
-        .sort(function (a, b) {
-          if (b.population !== a.population) {
-            return b.population - a.population;
-          }
-          return a.distance - b.distance;
-        })
-        .slice(0, REALISTIC_HUB_DESTINATION_TARGET)
-        .forEach(function (item) { add(item.name); });
-
-      reasonable
-        .slice()
-        .sort(function (a, b) {
-          if (b.population !== a.population) {
-            return b.population - a.population;
-          }
-          return a.distance - b.distance;
-        })
-        .slice(0, REALISTIC_POPULAR_DESTINATION_TARGET)
-        .forEach(function (item) { add(item.name); });
-
-      reasonable
-        .slice()
-        .sort(function (a, b) {
-          return a.distance - b.distance;
-        })
-        .slice(0, REALISTIC_NEARBY_DESTINATION_TARGET)
-        .forEach(function (item) { add(item.name); });
-
-      if (selected.length < targetOutDegree) {
-        shuffleWithSeed(reasonable.map(function (item) { return item.name; }), originName + "|realistic-fill-v2")
-          .forEach(add);
-      }
-
-      if (selected.length < targetOutDegree) {
-        candidates
-          .slice()
-          .sort(function (a, b) {
-            if (a.hub !== b.hub) {
-              return a.hub ? -1 : 1;
-            }
-            if (b.population !== a.population) {
-              return b.population - a.population;
-            }
-            return a.distance - b.distance;
-          })
-          .forEach(add);
-      }
-
-      connectivity[originName] = selected.slice(0, targetOutDegree);
-      return connectivity[originName];
+      CONNECTIVITY_CACHE = connectivity;
+      return connectivity;
     }
 
     function getOutboundFlightCities(originName) {
-      return buildConnectivityForOrigin(originName).slice();
+      var connectivity = buildConnectivity();
+      return connectivity[originName] ? connectivity[originName].slice() : [];
     }
 
 
@@ -6237,21 +6474,26 @@
     }
 
     function rollDelayMinutes() {
-      if (Math.random() >= 0.2) {
+      var chaos = currentFlightChaosProfile();
+
+      if (Math.random() >= chaos.delayChance) {
         return 0;
       }
 
       var r = Math.random();
+      var rawDelay;
 
       if (r < 0.50) {
-        return randomInt(1, 5);
+        rawDelay = randomInt(1, 5);
       } else if (r < 0.80) {
-        return randomInt(6, 10);
+        rawDelay = randomInt(6, 10);
       } else if (r < 0.95) {
-        return randomInt(11, 20);
+        rawDelay = randomInt(11, 20);
+      } else {
+        rawDelay = randomInt(21, 30);
       }
 
-      return randomInt(21, 30);
+      return Math.max(1, Math.round(rawDelay * chaos.delayScale));
     }
 
     function flightDelayForHop(hop) {
@@ -6699,6 +6941,7 @@
     }
 
     function startSeason() {
+      applyRaceSettingsToGlobals();
       var playerRolledSkills = skills[playerTeam] || rollSkills();
 
       remainingTeams = teams.slice();
@@ -6835,9 +7078,10 @@
         "Flight Routing: <strong>Real-coordinate, hub-weighted daily airport network</strong><br>" +
         "Flights per day per airport: <strong>" + Math.ceil(MINUTES_PER_DAY / SCHEDULE_GRAN) + "</strong><br>" +
         "Schedule granularity: <strong>" + SCHEDULE_GRAN + "m</strong><br>" +
-        "Scheduled destination pool per airport: <strong>" + effectiveOutboundLimit() + "</strong><br>" +
+        "Outbound degree: <strong>" + Math.min(OUT_DEGREE, Math.max(0, cityNames().length - 1)) + "</strong><br>" +
         "Connection minimum: <strong>" + CONN_MINUTES + "m</strong><br>" +
-        "Flight times are based on route distance and cruise speed.<br><br>" +
+        "Flight times are based on route distance and cruise speed.<br>" +
+        "Flight Chaos: <strong>" + escapeHtml(currentFlightChaosProfile().label) + "</strong><br><br>" +
         "Your exact route will be calculated when you reach the airport.";
     }
 
@@ -7280,6 +7524,8 @@
     function resetToStart() {
       playerTeam = null;
       remainingTeams = [];
+      raceSettings = cloneRaceSettings(DEFAULT_RACE_SETTINGS);
+      applyRaceSettingsToGlobals();
       showScreen("start");
     }
 
@@ -7299,7 +7545,7 @@
 
       var screenId = screenOverride || getActiveScreenId();
 
-      if (screenId === "start" || screenId === "teams" || screenId === "roster" || screenId === "menu") {
+      if (screenId === "start" || screenId === "customize" || screenId === "teams" || screenId === "roster" || screenId === "menu") {
         return;
       }
 
@@ -7314,6 +7560,7 @@
         version: SAVE_VERSION,
         savedAt: Date.now(),
         activeScreen: activeScreen,
+        raceSettings: sanitizeRaceSettings(raceSettings || DEFAULT_RACE_SETTINGS),
 
         playerTeam: playerTeam,
         skills: skills,
@@ -7380,6 +7627,9 @@
       if (!state || !isSaveStateSupported(state)) {
         return false;
       }
+
+      raceSettings = sanitizeRaceSettings(state.raceSettings || DEFAULT_RACE_SETTINGS);
+      applyRaceSettingsToGlobals();
 
       playerTeam = state.playerTeam;
       skills = state.skills || {};
@@ -7755,7 +8005,7 @@
         return;
       }
 
-      var hideOn = ["start", "teams", "roster", "menu"];
+      var hideOn = ["start", "customize", "teams", "roster", "menu"];
 
       if (raceIsInProgress() && hideOn.indexOf(id) === -1) {
         btn.style.display = "block";
@@ -7777,6 +8027,8 @@
       }
     }
 
+    raceSettings = cloneRaceSettings(DEFAULT_RACE_SETTINGS);
+    applyRaceSettingsToGlobals();
     buildTeamButtons();
     updateStartLoadButton();
   </script>
