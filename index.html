@@ -192,7 +192,7 @@
 
   <!-- Pit Stop -->
   <div id="pitstop" class="screen">
-    <h1>🏁 Pit Stop</h1>
+    <h1 id="pitstopTitle">🏁 Pit Stop</h1>
     <div class="status" id="pitstopBody"></div>
     <button onclick="checkInAtPitStop()">Check In</button>
   </div>
@@ -270,6 +270,8 @@
     var LEG_STIPEND = 125;
     var MIN_STOPS_PER_LEG = 2;
     var MAX_STOPS_PER_LEG = 5;
+    var FINAL_MIN_STOPS_PER_LEG = 5;
+    var FINAL_MAX_STOPS_PER_LEG = 7;
     var NON_ELIM_CHANCE = 0.15;
     var MIN_TRANSPORT_OPTIONS = 2;
     var MAX_TRANSPORT_OPTIONS = 4;
@@ -341,6 +343,14 @@
       }
 
       return hours + "h " + mins + "m";
+    }
+
+    function isFinalLeg() {
+      return remainingTeams.length <= 3;
+    }
+
+    function currentLegLabel() {
+      return isFinalLeg() ? "Final Leg" : "Leg " + legNum;
     }
 
     function cityAirportName(city) {
@@ -515,13 +525,18 @@
       legTransportOptions = [];
       airportStartTransportOptions = makeTransportOptionsForSegment();
       airportEndTransportOptions = makeTransportOptionsForSegment();
-      totalStopsThisLeg = randomInt(MIN_STOPS_PER_LEG, MAX_STOPS_PER_LEG);
+
+      if (isFinalLeg()) {
+        totalStopsThisLeg = randomInt(FINAL_MIN_STOPS_PER_LEG, FINAL_MAX_STOPS_PER_LEG);
+      } else {
+        totalStopsThisLeg = randomInt(MIN_STOPS_PER_LEG, MAX_STOPS_PER_LEG);
+      }
 
       if (legNum > 1) {
         remainingTeams.forEach(function (name) { money[name] += LEG_STIPEND; });
       }
 
-      legIsNonElim = remainingTeams.length > 3 && Math.random() < NON_ELIM_CHANCE;
+      legIsNonElim = !isFinalLeg() && Math.random() < NON_ELIM_CHANCE;
 
       var dest;
       do {
@@ -540,9 +555,10 @@
         legStops.push({ skill: skill, base: base });
       }
 
-      document.getElementById('legIntroTitle').textContent = 'Leg ' + legNum;
+      document.getElementById('legIntroTitle').textContent = currentLegLabel();
       document.getElementById('legIntroBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br><br>' +
+        (isFinalLeg() ? '<strong>Three teams remain. First to the final mat wins.</strong><br><br>' : '') +
         'Starting City: <strong>' + legOrigin.name + '</strong><br><br>' +
         'Teams Remaining: <strong>' + remainingTeams.length + '</strong><br>' +
         'Your Cash: <strong>$' + money[playerTeam] + '</strong>';
@@ -554,7 +570,7 @@
 
       document.getElementById('flightBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
-        'Leg ' + legNum + '<br><br>' +
+        currentLegLabel() + '<br><br>' +
         'Departing from <strong>' + cityAirportName(legOrigin) + '</strong><br>' +
         'Flying to <strong>' + cityAirportName(legDest) + '</strong>.<br><br>' +
         '~' + formatDuration(legFlightTime) + ' flight' +
@@ -678,7 +694,7 @@
 
       document.getElementById('challengeStatus').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
-        'Leg ' + legNum + ' · ' + legDest.name + '<br>' +
+        currentLegLabel() + ' · ' + legDest.name + '<br>' +
         'Stop ' + (currentStop + 1) + '<br>' +
         'Cash: $' + money[playerTeam] + ' · Time: ' + formatDuration(raceTime);
 
@@ -698,7 +714,7 @@
     function showRace() {
       document.getElementById('raceStatus').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
-        'Leg ' + legNum + ' · ' + legDest.name + '<br>' +
+        currentLegLabel() + ' · ' + legDest.name + '<br>' +
         'Stop ' + (currentStop + 1) + '<br>' +
         'Cash: $' + money[playerTeam] + '<br>' +
         'Time elapsed: ' + formatDuration(raceTime);
@@ -735,12 +751,18 @@
     }
 
     function showPitStopScreen() {
+      var finalLeg = isFinalLeg();
+
+      document.getElementById('pitstopTitle').textContent = finalLeg ? '🏆 Finish Line' : '🏁 Pit Stop';
+
       document.getElementById('pitstopBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br><br>' +
-        'You have reached the Pit Stop in <strong>' + legDest.name + '</strong>.<br><br>' +
+        (finalLeg
+          ? 'You have reached the Finish Line in <strong>' + legDest.name + '</strong>.<br><br>'
+          : 'You have reached the Pit Stop in <strong>' + legDest.name + '</strong>.<br><br>') +
         'Time: <strong>' + formatDuration(raceTime) + '</strong><br>' +
         'Cash: <strong>$' + money[playerTeam] + '</strong><br><br>' +
-        'Check in to see the leg results.';
+        (finalLeg ? 'Check in to reveal the winner.' : 'Check in to see the leg results.');
 
       showScreen('pitstop');
     }
@@ -857,14 +879,16 @@
       var routeTrail = '<br><strong>Route History</strong>' + routeHistoryHtml();
       var chart = '<br><strong>Placement Chart</strong>' + placementChartHtml();
 
-      if (remainingTeams.length <= 3) {
+      if (isFinalLeg()) {
         var winner = results[0].team;
-        var body = route + standingsHtml(results) +
+        var finalBody = route + standingsHtml(results) +
           routeTrail +
-          '<br>🏆 <strong>' + winner + '</strong> wins The Amazing Race!' +
-          (winner === playerTeam ? ' That\'s you. You won the whole thing!' : '') +
+          '<br><br>🏆 <strong>' + winner + '</strong> has crossed the final mat and wins The Amazing Race!' +
+          (winner === playerTeam ? '<br><strong>That is you. You won the whole race!</strong>' : '') +
+          '<br><br>The race is complete.' +
           chart;
-        renderResults('Final Leg: ' + route, body, 'New Game', resetToStart);
+
+        renderResults('🏆 Final Leg: ' + route, finalBody, 'New Game', resetToStart);
         return;
       }
 
