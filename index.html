@@ -294,6 +294,8 @@
     var raceClock = 0;
     var legStartClock = 0;
     var nextLegDepartureGap = 0;
+    var nextLegStartClock = 0;
+    var winnerCheckInClock = 0;
     var currentChallenge = null;
     var placementHistory = {};
     var routeHistory = [];
@@ -303,6 +305,7 @@
     var legDest = null;
     var legFlightTime = 0;
     var legHasConnection = false;
+    var legFlightDepartureMinute = 0;
     var flightResolved = false;
     var legIsNonElim = false;
 
@@ -355,6 +358,20 @@
 
     function pad2(n) {
       return n < 10 ? "0" + n : "" + n;
+    }
+
+    function formatFlightMinute(minute) {
+      return ":" + pad2(minute);
+    }
+
+    function waitForHourlyDeparture(clockMinutes, departureMinute) {
+      var minuteOfHour = Math.round(clockMinutes) % 60;
+
+      if (minuteOfHour <= departureMinute) {
+        return departureMinute - minuteOfHour;
+      }
+
+      return 60 - minuteOfHour + departureMinute;
     }
 
     function formatRaceDateTime(minutes) {
@@ -568,6 +585,8 @@
       raceClock = 0;
       legStartClock = 0;
       nextLegDepartureGap = 0;
+      nextLegStartClock = 0;
+      winnerCheckInClock = 0;
 
       teams.forEach(function (name) {
         money[name] = STARTING_MONEY;
@@ -609,6 +628,7 @@
       var km = haversineKm(legOrigin, legDest);
       legFlightTime = flightMinutes(km);
       legHasConnection = Math.random() < 0.35;
+      legFlightDepartureMinute = randomInt(0, 59);
 
       legStops = [];
       for (var i = 0; i < totalStopsThisLeg; i++) {
@@ -631,6 +651,7 @@
         '<strong>' + playerTeam + '</strong><br><br>' +
         'You have reached <strong>' + cityAirportName(legOrigin) + '</strong>.<br><br>' +
         'Prepare to board a flight from <strong>' + legOrigin.name + '</strong> to <strong>' + legDest.name + '</strong>.<br><br>' +
+        'Flight Schedule: <strong>Every hour at ' + formatFlightMinute(legFlightDepartureMinute) + '</strong><br>' +
         'Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong>';
 
       document.getElementById('flightBody').innerHTML =
@@ -638,6 +659,7 @@
         currentLegLabel() + '<br><br>' +
         'Departing from <strong>' + cityAirportName(legOrigin) + '</strong><br>' +
         'Flying to <strong>' + cityAirportName(legDest) + '</strong>.<br><br>' +
+        'Flight Schedule: <strong>Every hour at ' + formatFlightMinute(legFlightDepartureMinute) + '</strong><br>' +
         '~' + formatDuration(legFlightTime) + ' flight' +
         (legHasConnection ? '<br><br>🔗 This leg has a connection. A long delay could make you miss it.' : '');
 
@@ -705,10 +727,14 @@
     }
 
     function showAirportStartScreen() {
+      var waitNow = waitForHourlyDeparture(raceClock, legFlightDepartureMinute);
+
       document.getElementById('airportStartBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br><br>' +
         'You have reached <strong>' + cityAirportName(legOrigin) + '</strong>.<br><br>' +
         'Prepare to board a flight from <strong>' + legOrigin.name + '</strong> to <strong>' + legDest.name + '</strong>.<br><br>' +
+        'Flight Schedule: <strong>Every hour at ' + formatFlightMinute(legFlightDepartureMinute) + '</strong><br>' +
+        'Wait Until Departure: <strong>' + formatDuration(waitNow) + '</strong><br>' +
         'Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong><br>' +
         'Leg Time: <strong>' + formatDuration(raceTime) + '</strong>';
 
@@ -741,16 +767,34 @@
         return;
       }
 
+      var airportArrivalClock = raceClock;
+      var wait = waitForHourlyDeparture(raceClock, legFlightDepartureMinute);
+
+      if (wait > 0) {
+        addRaceMinutes(wait);
+      }
+
+      var departureClock = raceClock;
       var f = rollFlight();
       addRaceMinutes(f.total);
 
-      var msg;
-      if (f.delay === 0) {
-        msg = '✅ On time. No delay.';
-      } else if (f.missed) {
-        msg = '❌ Delayed ' + formatDuration(f.delay) + ', and you MISSED the connection. Rebooked at a cost of extra time.';
+      var msg = '🕒 Flight Schedule: <strong>Every hour at ' + formatFlightMinute(legFlightDepartureMinute) + '</strong><br>';
+
+      if (wait === 0) {
+        msg += 'You made the current departure.';
       } else {
-        msg = '⏱️ Delayed ' + formatDuration(f.delay) + '.';
+        msg += 'You waited <strong>' + formatDuration(wait) + '</strong> for the next departure.';
+      }
+
+      msg += '<br>Airport Arrival: <strong>' + formatRaceDateTime(airportArrivalClock) + '</strong>';
+      msg += '<br>Flight Departure: <strong>' + formatRaceDateTime(departureClock) + '</strong><br><br>';
+
+      if (f.delay === 0) {
+        msg += '✅ On time. No delay.';
+      } else if (f.missed) {
+        msg += '❌ Delayed ' + formatDuration(f.delay) + ', and you MISSED the connection. Rebooked at a cost of extra time.';
+      } else {
+        msg += '⏱️ Delayed ' + formatDuration(f.delay) + '.';
       }
 
       msg += '<br><br>📍 You have landed at <strong>' + cityAirportName(legDest) + '</strong>.';
@@ -860,6 +904,10 @@
       var toAirportPick = chooseRivalTransport(name, airportStartTransportOptions);
       total += toAirportPick.time;
 
+      var rivalAirportArrivalClock = legStartClock + total;
+      var rivalFlightWait = waitForHourlyDeparture(rivalAirportArrivalClock, legFlightDepartureMinute);
+      total += rivalFlightWait;
+
       total += rollFlight().total;
 
       var fromAirportPick = chooseRivalTransport(name, airportEndTransportOptions);
@@ -954,8 +1002,11 @@
       var playerResult = results.find(function (r) {
         return r.team === playerTeam;
       });
+
       var winnerTime = results[0].time;
+      winnerCheckInClock = legStartClock + winnerTime;
       nextLegDepartureGap = playerResult ? Math.max(0, Math.round((playerResult.time - winnerTime) * DEPARTURE_GAP_COMPRESSION)) : 0;
+      nextLegStartClock = winnerCheckInClock + LEG_GAP_MINUTES + nextLegDepartureGap;
 
       updateRouteHistoryForCompletedLeg();
 
@@ -967,6 +1018,10 @@
 
       var routeTrail = '<br><strong>Route History</strong>' + routeHistoryHtml();
       var chart = '<br><strong>Placement Chart</strong>' + placementChartHtml();
+      var nextDepartureText =
+        '<br>First-place check-in: <strong>' + formatRaceDateTime(winnerCheckInClock) + '</strong>' +
+        '<br>Your next departure: <strong>' + formatRaceDateTime(nextLegStartClock) + '</strong>' +
+        (nextLegDepartureGap > 0 ? '<br>Compressed gap from first place: <strong>+' + formatDuration(nextLegDepartureGap) + '</strong>' : '');
 
       if (isFinalLeg()) {
         var winner = results[0].team;
@@ -990,8 +1045,7 @@
           '<br>No team has been eliminated.' +
           '<br>Teams left: ' + remainingTeams.length +
           ' · Your cash: $' + money[playerTeam] +
-          '<br>Next leg starts 7 days later' +
-          (nextLegDepartureGap > 0 ? ' with a compressed departure gap of +' + formatDuration(nextLegDepartureGap) + '.' : '.') +
+          nextDepartureText +
           chart;
 
         renderResults(legRouteTitle('Leg ' + legNum), nonElimBody, 'Next Leg', nextLeg);
@@ -1013,8 +1067,7 @@
         '<br><strong>' + lastPlaceTeam + '</strong> finished last and is eliminated.' +
         '<br>Teams left: ' + remainingTeams.length +
         ' · Your cash: $' + money[playerTeam] +
-        '<br>Next leg starts 7 days later' +
-        (nextLegDepartureGap > 0 ? ' with a compressed departure gap of +' + formatDuration(nextLegDepartureGap) + '.' : '.') +
+        nextDepartureText +
         chart;
       renderResults(legRouteTitle('Leg ' + legNum), body3, 'Next Leg', nextLeg);
     }
@@ -1022,7 +1075,7 @@
     function nextLeg() {
       currentCity = legDest;
       legNum = legNum + 1;
-      raceClock = legStartClock + LEG_GAP_MINUTES + nextLegDepartureGap;
+      raceClock = nextLegStartClock;
       startLeg();
     }
 
