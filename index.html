@@ -145,24 +145,22 @@
       text-align: left;
     }
 
-    .presence-title {
-      color: #ffd166;
-      text-align: center;
-      margin-bottom: 8px;
-      font-size: 1.05em;
-    }
-
     .presence-section {
-      margin-top: 9px;
+      margin-top: 8px;
     }
 
-    .presence-report ul {
-      margin: 4px 0 0 18px;
-      padding: 0;
+    .presence-section:first-child {
+      margin-top: 0;
     }
 
-    .presence-report li {
-      margin: 2px 0;
+    .presence-event {
+      margin-left: 0;
+    }
+
+    .challenge-summary {
+      color: #ffd166;
+      margin-top: 10px;
+      line-height: 1.5;
     }
 
     .chart { border-collapse: collapse; margin: 8px auto 0; font-size: 0.85em; font-weight: 700; }
@@ -256,13 +254,6 @@
     <div class="status" id="flightBody"></div>
     <div class="status" id="flightResult"></div>
     <button id="flightBtn" onclick="showTransportFromAirport()">Leave Airport</button>
-  </div>
-
-  <div id="challenge" class="screen">
-    <h1>Challenge</h1>
-    <div class="status" id="challengeStatus"></div>
-    <div class="status" id="challengeInfo"></div>
-    <button onclick="attemptChallenge()">Next</button>
   </div>
 
   <div id="race" class="screen">
@@ -533,11 +524,11 @@
     var specialTransportMode = null;
 
     function buildTeamButtons() {
-      var list = document.getElementById('teamList');
-      list.innerHTML = '';
+      var list = document.getElementById("teamList");
+      list.innerHTML = "";
       teams.forEach(function (name) {
-        var btn = document.createElement('button');
-        btn.className = 'team-btn';
+        var btn = document.createElement("button");
+        btn.className = "team-btn";
         btn.textContent = name;
         btn.onclick = function () { selectTeam(name); };
         list.appendChild(btn);
@@ -593,7 +584,7 @@
     }
 
     function raceClockHeader() {
-      return 'Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong>';
+      return "Race Clock: <strong>" + formatRaceDateTime(raceClock) + "</strong>";
     }
 
     function startLocationKey() {
@@ -624,8 +615,8 @@
       var start = Math.round(startClock);
       var end = Math.round(endClock);
 
-      if (end <= start) {
-        end = start + 1;
+      if (end < start) {
+        end = start;
       }
 
       list.push({
@@ -664,11 +655,12 @@
         return "None";
       }
 
-      var html = "<ul>";
+      var html = "";
       events.forEach(function (event) {
-        html += "<li>" + escapeHtml(event.team) + " " + verb + " " + formatRaceTimeOnly(event.clock) + "</li>";
+        html += '<div class="presence-event">' +
+          escapeHtml(event.team) + " " + verb + " " + formatRaceTimeOnly(event.clock) +
+          "</div>";
       });
-      html += "</ul>";
 
       return html;
     }
@@ -701,7 +693,7 @@
             return;
           }
 
-          if (segment.startClock <= arrivalClock && segment.endClock > arrivalClock) {
+          if (segment.startClock <= arrivalClock && segment.endClock >= arrivalClock) {
             presentAtArrival.push(name);
           }
 
@@ -746,31 +738,24 @@
       };
     }
 
-    function presenceReportHtml(locationKey, locationName, arrivalClock, departureClock) {
+    function presenceReportHtml(locationKey, arrivalClock, departureClock) {
       var details = locationPresenceDetails(locationKey, arrivalClock, departureClock);
-      var departureText = departureClock == null ? "Pending" : formatRaceDateTime(departureClock);
 
       var html = '<div class="presence-report">';
-      html += '<div class="presence-title">Teams in Sight</div>';
-      html += 'Player: <strong>' + escapeHtml(playerTeam || "Unknown") + '</strong><br>';
-      html += 'Location: <strong>' + escapeHtml(locationName || "Unknown") + '</strong><br>';
-      html += 'Arrival: <strong>' + formatRaceDateTime(arrivalClock) + '</strong><br>';
-      html += 'Departure: <strong>' + departureText + '</strong>';
-
       html += '<div class="presence-section">Teams Present at Arrival:<br>';
-      html += '<strong>' + teamNameListHtml(details.presentAtArrival) + '</strong></div>';
+      html += "<strong>" + teamNameListHtml(details.presentAtArrival) + "</strong></div>";
 
       if (departureClock != null) {
-        html += '<div class="presence-section">Teams Arrived:';
+        html += '<div class="presence-section">Teams Arrived:<br>';
         html += eventListHtml(details.arrivedDuring, "arrived");
-        html += '</div>';
+        html += "</div>";
 
-        html += '<div class="presence-section">Teams Departed:';
+        html += '<div class="presence-section">Teams Departed:<br>';
         html += eventListHtml(details.departedDuring, "departed");
-        html += '</div>';
+        html += "</div>";
       }
 
-      html += '</div>';
+      html += "</div>";
       return html;
     }
 
@@ -1186,6 +1171,7 @@
     function startLeg() {
       currentStop = 0;
       raceTime = 0;
+      currentChallenge = null;
 
       if (nextLegStartClocks[playerTeam] == null) {
         nextLegStartClocks[playerTeam] = raceClock;
@@ -1264,7 +1250,7 @@
 
       document.getElementById("legIntroBody").innerHTML =
         raceClockHeader() +
-        presenceReportHtml(startLocationKey(), "Pit Start", raceClock, null) +
+        presenceReportHtml(startLocationKey(), raceClock, null) +
         "<br>" +
         (isFinalLeg() ? "<strong>Three teams remain. First to the final mat wins.</strong><br><br>" : "") +
         "Starting City: <strong>" + escapeHtml(legOrigin.name) + "</strong><br>" +
@@ -1312,7 +1298,7 @@
       document.getElementById("specialTransportTitle").textContent = "Travel to Airport";
       document.getElementById("specialTransportStatus").innerHTML =
         raceClockHeader() +
-        presenceReportHtml(startLocationKey(), "Pit Start", raceClock, null) +
+        presenceReportHtml(startLocationKey(), raceClock, null) +
         "<br>" +
         "Travel from the Pit Start in <strong>" + escapeHtml(legOrigin.name) + "</strong><br>" +
         "to <strong>" + escapeHtml(cityAirportName(legOrigin)) + "</strong>.<br><br>" +
@@ -1328,7 +1314,7 @@
       document.getElementById("specialTransportTitle").textContent = "Leave Airport";
       document.getElementById("specialTransportStatus").innerHTML =
         raceClockHeader() +
-        presenceReportHtml(destinationAirportLocationKey(), cityAirportName(legDest), raceClock, null) +
+        presenceReportHtml(destinationAirportLocationKey(), raceClock, null) +
         "<br>" +
         "Travel from <strong>" + escapeHtml(cityAirportName(legDest)) + "</strong><br>" +
         "to your first location in <strong>" + escapeHtml(legDest.name) + "</strong>.<br><br>" +
@@ -1345,7 +1331,7 @@
       if (specialTransportMode === "toAirport") {
         showFlightScreen();
       } else if (specialTransportMode === "fromAirport") {
-        showChallenge();
+        autoCompleteChallengeAndShowTransport();
       }
     }
 
@@ -1374,7 +1360,8 @@
 
       var msg = "";
 
-      msg += "Airport Arrival: <strong>" + formatRaceDateTime(airportArrivalClock) + "</strong>";
+      msg += presenceReportHtml(originAirportLocationKey(), airportArrivalClock, departureClock);
+      msg += "<br>Airport Arrival: <strong>" + formatRaceDateTime(airportArrivalClock) + "</strong>";
       msg += "<br>Flight Departure: <strong>" + formatRaceDateTime(departureClock) + "</strong><br><br>";
 
       if (f.delay === 0) {
@@ -1390,14 +1377,13 @@
       var res = document.getElementById("flightResult");
       res.innerHTML =
         msg +
-        "<br><br>Race Clock: <strong>" + formatRaceDateTime(raceClock) + "</strong>" +
-        presenceReportHtml(destinationAirportLocationKey(), cityAirportName(legDest), raceClock, null);
+        "<br><br>Race Clock: <strong>" + formatRaceDateTime(raceClock) + "</strong>";
 
       restoredFlightResultHtml = res.innerHTML;
       flightResolved = true;
     }
 
-    function showChallenge() {
+    function autoCompleteChallengeAndShowTransport() {
       var stop = legStops[currentStop];
       var level = skills[playerTeam][stop.skill];
       var adjusted = Math.max(1, Math.round(stop.base * skillMultiplier(level)));
@@ -1406,39 +1392,38 @@
       var locationName = "Challenge " + stopLetter(currentStop);
 
       currentChallenge = {
+        stopIndex: currentStop,
+        skill: stop.skill,
+        level: level,
         adjusted: adjusted,
         arrivalClock: arrivalClock,
         departureClock: departureClock,
         locationName: locationName
       };
 
-      document.getElementById("challengeStatus").innerHTML =
-        raceClockHeader() +
-        presenceReportHtml(stopLocationKey(currentStop), locationName, arrivalClock, departureClock) +
-        "<br>" +
-        currentLegLabel() + " · " + escapeHtml(legDest.name) + "<br>" +
-        locationName + "<br>" +
-        "Cash: <strong>$" + money[playerTeam] + "</strong>";
-
-      document.getElementById("challengeInfo").innerHTML =
-        "Challenge type: <strong>" + stop.skill + "</strong><br>" +
-        "Challenge time: <strong>" + formatDuration(adjusted) + "</strong><br>" +
-        "Your " + stop.skill + " level: <strong>" + level + "</strong>";
-
-      showScreen("challenge");
-    }
-
-    function attemptChallenge() {
-      addRaceMinutes(currentChallenge.adjusted);
+      addRaceMinutes(adjusted);
       showRace();
     }
 
     function showRace() {
-      var locationName = "Challenge " + stopLetter(currentStop);
+      var locationName = currentChallenge ? currentChallenge.locationName : "Challenge " + stopLetter(currentStop);
+      var challengeHtml = "";
+
+      if (currentChallenge && currentChallenge.stopIndex === currentStop) {
+        challengeHtml =
+          '<div class="challenge-summary">' +
+          "Challenge Completed: <strong>" + escapeHtml(currentChallenge.skill) + "</strong><br>" +
+          "Challenge Time: <strong>" + formatDuration(currentChallenge.adjusted) + "</strong><br>" +
+          "Your " + escapeHtml(currentChallenge.skill) + " level: <strong>" + currentChallenge.level + "</strong>" +
+          "</div>";
+      }
 
       document.getElementById("raceStatus").innerHTML =
         raceClockHeader() +
-        presenceReportHtml(stopLocationKey(currentStop), locationName, raceClock, null) +
+        (currentChallenge && currentChallenge.stopIndex === currentStop
+          ? presenceReportHtml(stopLocationKey(currentStop), currentChallenge.arrivalClock, currentChallenge.departureClock)
+          : presenceReportHtml(stopLocationKey(currentStop), raceClock, null)) +
+        challengeHtml +
         "<br>" +
         currentLegLabel() + " · " + escapeHtml(legDest.name) + "<br>" +
         locationName + "<br>" +
@@ -1471,23 +1456,22 @@
       spendTeamMoney(playerTeam, opt.cost);
       addRaceMinutes(opt.time);
       currentStop = currentStop + 1;
+      currentChallenge = null;
 
       if (currentStop >= totalStopsThisLeg) {
         showPitStopScreen();
       } else {
-        showChallenge();
+        autoCompleteChallengeAndShowTransport();
       }
     }
 
     function showPitStopScreen() {
       var finalLeg = isFinalLeg();
-      var locationName = finalLeg ? "Finish Line" : "Pit Stop";
 
       document.getElementById("pitstopTitle").textContent = finalLeg ? "🏆 Finish Line" : "🏁 Pit Stop";
 
       document.getElementById("pitstopBody").innerHTML =
         raceClockHeader() +
-        presenceReportHtml(pitstopLocationKey(), locationName, raceClock, null) +
         "<br><br>" +
         (finalLeg
           ? "You have reached the Finish Line in <strong>" + escapeHtml(legDest.name) + "</strong>.<br><br>"
@@ -2090,7 +2074,7 @@
       }
 
       if (id === "challenge") {
-        showChallenge();
+        autoCompleteChallengeAndShowTransport();
         return;
       }
 
