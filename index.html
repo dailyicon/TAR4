@@ -162,13 +162,6 @@
     <div id="specialTransportList"></div>
   </div>
 
-  <!-- Airport Start -->
-  <div id="airportStart" class="screen">
-    <h1>🛫 Airport Start</h1>
-    <div class="status" id="airportStartBody"></div>
-    <button onclick="showFlightScreen()">Continue to Flight</button>
-  </div>
-
   <!-- Flight -->
   <div id="flight" class="screen">
     <h1>✈️ Flight</h1>
@@ -234,12 +227,54 @@
     ];
 
     var STANDARD_TRANSPORT = [
-      { method: "🚕 Taxi",  cost: 75, time: 10 },
-      { method: "🚂 Train", cost: 50, time: 20 },
-      { method: "🚌 Bus",   cost: 30, time: 30 },
-      { method: "🚲 Bike",  cost: 15, time: 40 },
-      { method: "🗺️ Map",   cost: 5,  time: 50 },
-      { method: "🚶 Walk",  cost: 0,  time: 60 }
+      { method: "🛩️   Jet", cost: 1000, time: 1 },
+      { method: "🚁   Helicopter", cost: 952, time: 2 },
+      { method: "🏎️   Racecar", cost: 906, time: 3 },
+      { method: "🚑   Ambulance", cost: 861, time: 4 },
+      { method: "🚕   Taxi", cost: 817, time: 5 },
+      { method: "🚝   Monorail", cost: 775, time: 6 },
+      { method: "🚗   Car", cost: 734, time: 7 },
+      { method: "🚄   Subway", cost: 694, time: 8 },
+      { method: "🚚   Truck", cost: 655, time: 9 },
+      { method: "🚂   Train", cost: 617, time: 10 },
+      { method: "🚛   Lorry", cost: 581, time: 11 },
+      { method: "🚃   Commuter", cost: 546, time: 12 },
+      { method: "🏍️   Motorcycle", cost: 512, time: 13 },
+      { method: "🚎   Trolley", cost: 480, time: 14 },
+      { method: "🚈   Light Rail", cost: 448, time: 15 },
+      { method: "🚐   Minivan", cost: 418, time: 16 },
+      { method: "🚌   Bus", cost: 389, time: 17 },
+      { method: "🚟   Suspension", cost: 361, time: 18 },
+      { method: "🚋   Tram", cost: 335, time: 19 },
+      { method: "🚤   Water Taxi", cost: 309, time: 20 },
+      { method: "🚠   Funicular", cost: 284, time: 21 },
+      { method: "🛥️   Jetski", cost: 261, time: 22 },
+      { method: "🚡   Cable Car", cost: 239, time: 23 },
+      { method: "⛴️   Ferry", cost: 218, time: 24 },
+      { method: "🛵   Vespa", cost: 198, time: 25 },
+      { method: "🏇   Horseback", cost: 179, time: 26 },
+      { method: "🛺   Tuktuk", cost: 161, time: 27 },
+      { method: "🚜   Tractor", cost: 144, time: 28 },
+      { method: "⛵   Sailboat", cost: 128, time: 29 },
+      { method: "🎠   Chariot", cost: 113, time: 30 },
+      { method: "🛶   Gondola", cost: 100, time: 31 },
+      { method: "🚲   Bike", cost: 87, time: 32 },
+      { method: "🦮   Dogsled", cost: 75, time: 33 },
+      { method: "🛴   Scooter", cost: 64, time: 34 },
+      { method: "🛹   Skateboard", cost: 54, time: 35 },
+      { method: "🛼   Skates", cost: 45, time: 36 },
+      { method: "🛷   Sled", cost: 37, time: 37 },
+      { method: "🪂   Parachute", cost: 30, time: 38 },
+      { method: "🎿   Ski", cost: 24, time: 39 },
+      { method: "🐫   Camel", cost: 18, time: 40 },
+      { method: "🦯   Cane", cost: 13, time: 41 },
+      { method: "🏃   Run", cost: 9, time: 42 },
+      { method: "🩼   Crutch", cost: 6, time: 43 },
+      { method: "🦽   Wheelchair", cost: 4, time: 44 },
+      { method: "🥾   Boots", cost: 3, time: 45 },
+      { method: "🧭   Compass", cost: 2, time: 46 },
+      { method: "🗺️   Map", cost: 1, time: 47 },
+      { method: "🚶   Walk", cost: 0, time: 48 }
     ];
 
     var WORLD_CITIES = [
@@ -269,8 +304,8 @@
       { name: "Toronto",        lat: 43.6532,  lon: -79.3832 }
     ];
 
-    var STARTING_MONEY = 150;
-    var LEG_STIPEND = 125;
+    var STARTING_MONEY = 1500;
+    var LEG_STIPEND = 1000;
     var MIN_STOPS_PER_LEG = 2;
     var MAX_STOPS_PER_LEG = 5;
     var FINAL_MIN_STOPS_PER_LEG = 5;
@@ -753,12 +788,6 @@
         '<br>Teams Remaining: <strong>' + remainingTeams.length + '</strong><br>' +
         'Your Cash: <strong>$' + money[playerTeam] + '</strong>';
 
-      document.getElementById('airportStartBody').innerHTML =
-        raceClockHeader() + '<br><br>' +
-        'You have reached <strong>' + cityAirportName(legOrigin) + '</strong>.<br><br>' +
-        'Prepare to board a flight from <strong>' + legOrigin.name + '</strong> to <strong>' + legDest.name + '</strong>.<br><br>' +
-        'Flight Schedule: <strong>Every ' + formatFlightMinute(legFlightDepartureMinute) + '</strong>';
-
       renderFlightBody();
 
       flightResolved = false;
@@ -825,23 +854,10 @@
       addRaceMinutes(opt.time);
 
       if (specialTransportMode === "toAirport") {
-        showAirportStartScreen();
+        showFlightScreen();
       } else if (specialTransportMode === "fromAirport") {
         showChallenge();
       }
-    }
-
-    function showAirportStartScreen() {
-      var waitNow = waitForHourlyDeparture(raceClock, legFlightDepartureMinute);
-
-      document.getElementById('airportStartBody').innerHTML =
-        raceClockHeader() + '<br><br>' +
-        'You have reached <strong>' + cityAirportName(legOrigin) + '</strong>.<br><br>' +
-        'Prepare to board a flight from <strong>' + legOrigin.name + '</strong> to <strong>' + legDest.name + '</strong>.<br><br>' +
-        'Flight Schedule: <strong>Every ' + formatFlightMinute(legFlightDepartureMinute) + '</strong><br>' +
-        'Wait Until Departure: <strong>' + formatDuration(waitNow) + '</strong>';
-
-      showScreen('airportStart');
     }
 
     function showFlightScreen() {
@@ -866,15 +882,9 @@
       var f = rollFlight();
       addRaceMinutes(f.total);
 
-      var msg = '🕒 Flight Schedule: <strong>Every ' + formatFlightMinute(legFlightDepartureMinute) + '</strong><br>';
+      var msg = '';
 
-      if (wait === 0) {
-        msg += 'You made the current departure.';
-      } else {
-        msg += 'You waited <strong>' + formatDuration(wait) + '</strong> for the next departure.';
-      }
-
-      msg += '<br>Airport Arrival: <strong>' + formatRaceDateTime(airportArrivalClock) + '</strong>';
+      msg += 'Airport Arrival: <strong>' + formatRaceDateTime(airportArrivalClock) + '</strong>';
       msg += '<br>Flight Departure: <strong>' + formatRaceDateTime(departureClock) + '</strong><br><br>';
 
       if (f.delay === 0) {
@@ -885,8 +895,7 @@
         msg += '⏱️ Delayed ' + formatDuration(f.delay) + '.';
       }
 
-      msg += '<br><br>📍 You have landed at <strong>' + cityAirportName(legDest) + '</strong>.';
-      msg += '<br>Destination City: <strong>' + legDest.name + '</strong>.';
+      msg += '<br><br>Destination City: <strong>' + legDest.name + '</strong>.';
 
       var res = document.getElementById('flightResult');
       res.innerHTML =
