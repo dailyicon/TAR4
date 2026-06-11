@@ -135,9 +135,34 @@
       font-weight: 700;
     }
 
-    .teams-here {
+    .presence-report {
+      background: #4a1822;
+      border: 1px solid #ffd166;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+      line-height: 1.5;
+      text-align: left;
+    }
+
+    .presence-title {
       color: #ffd166;
-      margin-top: 8px;
+      text-align: center;
+      margin-bottom: 8px;
+      font-size: 1.05em;
+    }
+
+    .presence-section {
+      margin-top: 9px;
+    }
+
+    .presence-report ul {
+      margin: 4px 0 0 18px;
+      padding: 0;
+    }
+
+    .presence-report li {
+      margin: 2px 0;
     }
 
     .chart { border-collapse: collapse; margin: 8px auto 0; font-size: 0.85em; font-weight: 700; }
@@ -466,7 +491,8 @@
     var LEG_GAP_DAYS = 7;
     var LEG_GAP_MINUTES = LEG_GAP_DAYS * MINUTES_PER_DAY;
     var DEPARTURE_GAP_COMPRESSION = 0.5;
-    var VISIBLE_PRESENCE_WINDOW = 5;
+    var START_PRESENCE_WINDOW = 5;
+    var AIRPORT_EXIT_PRESENCE_WINDOW = 5;
     var PITSTOP_PRESENCE_WINDOW = 240;
 
     var playerTeam = null;
@@ -530,6 +556,10 @@
 
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function stopLetter(index) {
+      return String.fromCharCode(65 + index);
     }
 
     function formatDuration(minutes) {
@@ -606,27 +636,55 @@
       });
     }
 
-    function formatVisibleTeamList(names) {
+    function formatRaceTimeOnly(minutes) {
+      var rounded = Math.max(0, Math.round(minutes));
+      var minuteOfDay = rounded % MINUTES_PER_DAY;
+      var hour24 = Math.floor(minuteOfDay / 60);
+      var mins = minuteOfDay % 60;
+      var ampm = hour24 >= 12 ? "PM" : "AM";
+      var hour12 = hour24 % 12;
+
+      if (hour12 === 0) {
+        hour12 = 12;
+      }
+
+      return hour12 + ":" + pad2(mins) + " " + ampm;
+    }
+
+    function teamNameListHtml(names) {
       if (!names || names.length === 0) {
         return "None";
       }
 
-      var maxVisible = 4;
-      var visible = names.slice(0, maxVisible).map(escapeHtml);
-
-      if (names.length > maxVisible) {
-        visible.push("+" + (names.length - maxVisible) + " more");
-      }
-
-      return visible.join(", ");
+      return names.map(escapeHtml).join(", ");
     }
 
-    function teamsAtLocation(locationKey) {
-      if (!locationKey || !remainingTeams || remainingTeams.length === 0) {
-        return [];
+    function eventListHtml(events, verb) {
+      if (!events || events.length === 0) {
+        return "None";
       }
 
-      var here = [];
+      var html = "<ul>";
+      events.forEach(function (event) {
+        html += "<li>" + escapeHtml(event.team) + " " + verb + " " + formatRaceTimeOnly(event.clock) + "</li>";
+      });
+      html += "</ul>";
+
+      return html;
+    }
+
+    function locationPresenceDetails(locationKey, arrivalClock, departureClock) {
+      var presentAtArrival = [];
+      var arrivedDuring = [];
+      var departedDuring = [];
+
+      if (!locationKey || !remainingTeams || remainingTeams.length === 0) {
+        return {
+          presentAtArrival: presentAtArrival,
+          arrivedDuring: arrivedDuring,
+          departedDuring: departedDuring
+        };
+      }
 
       remainingTeams.forEach(function (name) {
         if (name === playerTeam) {
@@ -638,23 +696,82 @@
           return;
         }
 
-        var present = record.presenceSegments.some(function (segment) {
-          return segment.locationKey === locationKey &&
-                 raceClock >= segment.startClock &&
-                 raceClock <= segment.endClock;
-        });
+        record.presenceSegments.forEach(function (segment) {
+          if (segment.locationKey !== locationKey) {
+            return;
+          }
 
-        if (present) {
-          here.push(name);
-        }
+          if (segment.startClock <= arrivalClock && segment.endClock > arrivalClock) {
+            presentAtArrival.push(name);
+          }
+
+          if (departureClock != null) {
+            if (segment.startClock > arrivalClock && segment.startClock <= departureClock) {
+              arrivedDuring.push({
+                team: name,
+                clock: segment.startClock
+              });
+            }
+
+            if (segment.endClock > arrivalClock && segment.endClock <= departureClock) {
+              departedDuring.push({
+                team: name,
+                clock: segment.endClock
+              });
+            }
+          }
+        });
       });
 
-      return here;
+      presentAtArrival = Array.from(new Set(presentAtArrival));
+
+      arrivedDuring.sort(function (a, b) {
+        if (a.clock !== b.clock) {
+          return a.clock - b.clock;
+        }
+        return a.team.localeCompare(b.team);
+      });
+
+      departedDuring.sort(function (a, b) {
+        if (a.clock !== b.clock) {
+          return a.clock - b.clock;
+        }
+        return a.team.localeCompare(b.team);
+      });
+
+      return {
+        presentAtArrival: presentAtArrival,
+        arrivedDuring: arrivedDuring,
+        departedDuring: departedDuring
+      };
     }
 
-    function teamsHereHtml(locationKey) {
-      var names = teamsAtLocation(locationKey);
-      return '<br><div class="teams-here">Teams in Sight: <strong>' + formatVisibleTeamList(names) + '</strong></div>';
+    function presenceReportHtml(locationKey, locationName, arrivalClock, departureClock) {
+      var details = locationPresenceDetails(locationKey, arrivalClock, departureClock);
+      var departureText = departureClock == null ? "Pending" : formatRaceDateTime(departureClock);
+
+      var html = '<div class="presence-report">';
+      html += '<div class="presence-title">Teams in Sight</div>';
+      html += 'Player: <strong>' + escapeHtml(playerTeam || "Unknown") + '</strong><br>';
+      html += 'Location: <strong>' + escapeHtml(locationName || "Unknown") + '</strong><br>';
+      html += 'Arrival: <strong>' + formatRaceDateTime(arrivalClock) + '</strong><br>';
+      html += 'Departure: <strong>' + departureText + '</strong>';
+
+      html += '<div class="presence-section">Teams Present at Arrival:<br>';
+      html += '<strong>' + teamNameListHtml(details.presentAtArrival) + '</strong></div>';
+
+      if (departureClock != null) {
+        html += '<div class="presence-section">Teams Arrived:';
+        html += eventListHtml(details.arrivedDuring, "arrived");
+        html += '</div>';
+
+        html += '<div class="presence-section">Teams Departed:';
+        html += eventListHtml(details.departedDuring, "departed");
+        html += '</div>';
+      }
+
+      html += '</div>';
+      return html;
     }
 
     function formatFlightMinute(minute) {
@@ -703,6 +820,7 @@
       var mins = minuteOfDay % 60;
       var ampm = hour24 >= 12 ? "PM" : "AM";
       var hour12 = hour24 % 12;
+
       if (hour12 === 0) {
         hour12 = 12;
       }
@@ -735,12 +853,14 @@
 
     function shuffledCopy(arr) {
       var copy = arr.slice();
+
       for (var i = copy.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = copy[i];
         copy[i] = copy[j];
         copy[j] = temp;
       }
+
       return copy;
     }
 
@@ -781,6 +901,7 @@
       });
 
       var pick;
+
       if (affordable.length > 0) {
         pick = affordable[Math.floor(Math.random() * affordable.length)];
       } else {
@@ -832,7 +953,7 @@
         presenceSegments,
         startLocationKey(),
         teamStartClock,
-        teamStartClock + VISIBLE_PRESENCE_WINDOW,
+        teamStartClock + START_PRESENCE_WINDOW,
         "Pit Start"
       );
 
@@ -841,11 +962,13 @@
 
       var originAirportArrivalClock = currentClockForTeam();
       var flightWait = waitForHourlyDeparture(originAirportArrivalClock, legFlightDepartureMinute);
+      var originAirportDepartureClock = originAirportArrivalClock + flightWait;
+
       addPresenceSegment(
         presenceSegments,
         originAirportLocationKey(),
         originAirportArrivalClock,
-        originAirportArrivalClock + Math.max(flightWait, VISIBLE_PRESENCE_WINDOW),
+        originAirportDepartureClock,
         "Origin Airport"
       );
 
@@ -857,11 +980,12 @@
       addEvent("Flight to destination airport", flight.total);
 
       var destinationAirportArrivalClock = currentClockForTeam();
+
       addPresenceSegment(
         presenceSegments,
         destinationAirportLocationKey(),
         destinationAirportArrivalClock,
-        destinationAirportArrivalClock + VISIBLE_PRESENCE_WINDOW,
+        destinationAirportArrivalClock + AIRPORT_EXIT_PRESENCE_WINDOW,
         "Destination Airport"
       );
 
@@ -872,13 +996,14 @@
         var stopArrivalClock = currentClockForTeam();
         var lvl = skills[name][stop.skill];
         var challengeTime = Math.max(1, Math.round(stop.base * skillMultiplier(lvl)));
+        var stopDepartureClock = stopArrivalClock + challengeTime;
 
         addPresenceSegment(
           presenceSegments,
           stopLocationKey(index),
           stopArrivalClock,
-          stopArrivalClock + challengeTime + VISIBLE_PRESENCE_WINDOW,
-          "Stop " + (index + 1)
+          stopDepartureClock,
+          "Challenge " + stopLetter(index)
         );
 
         addEvent("Complete " + stop.skill + " challenge", challengeTime);
@@ -888,6 +1013,7 @@
       });
 
       var pitstopArrivalClock = currentClockForTeam();
+
       addPresenceSegment(
         presenceSegments,
         pitstopLocationKey(),
@@ -918,6 +1044,7 @@
       }
 
       var lastCity = routeHistory[routeHistory.length - 1];
+
       if (lastCity !== legDest.name) {
         routeHistory.push(legDest.name);
       }
@@ -925,14 +1052,14 @@
 
     function routeHistoryHtml() {
       if (routeHistory.length === 0) {
-        return '';
+        return "";
       }
 
-      return '<div class="route-history">' + routeHistory.join(' → ') + '</div>';
+      return '<div class="route-history">' + routeHistory.join(" → ") + '</div>';
     }
 
     function legRouteTitle(prefix) {
-      return prefix + ': ' + legOrigin.name + ' → ' + legDest.name;
+      return prefix + ": " + legOrigin.name + " → " + legDest.name;
     }
 
     function selectTeam(name) {
@@ -942,17 +1069,20 @@
     }
 
     function showRoster() {
-      document.getElementById('rosterTeam').textContent = playerTeam;
-      document.getElementById('rosterCash').textContent = "Cash: $" + STARTING_MONEY;
-      var box = document.getElementById('skillList');
-      box.innerHTML = '';
+      document.getElementById("rosterTeam").textContent = playerTeam;
+      document.getElementById("rosterCash").textContent = "Cash: $" + STARTING_MONEY;
+
+      var box = document.getElementById("skillList");
+      box.innerHTML = "";
+
       SKILL_TYPES.forEach(function (skill) {
-        var item = document.createElement('div');
-        item.className = 'skill';
-        item.innerHTML = '<span>' + skill + '</span><span class="lvl">' + skills[playerTeam][skill] + '</span>';
+        var item = document.createElement("div");
+        item.className = "skill";
+        item.innerHTML = "<span>" + skill + "</span><span class=\"lvl\">" + skills[playerTeam][skill] + "</span>";
         box.appendChild(item);
       });
-      showScreen('roster');
+
+      showScreen("roster");
     }
 
     function skillMultiplier(level) {
@@ -966,8 +1096,10 @@
       var dLon = toRad(b.lon - a.lon);
       var lat1 = toRad(a.lat);
       var lat2 = toRad(b.lat);
+
       var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
               Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
       return Math.round(2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x)));
     }
 
@@ -976,13 +1108,28 @@
     }
 
     function rollDelayMinutes() {
-      if (Math.random() >= 0.2) return 0;
+      if (Math.random() >= 0.2) {
+        return 0;
+      }
+
       var r = Math.random();
-      var lo, hi;
-      if (r < 0.50) { lo = 1; hi = 5; }
-      else if (r < 0.80) { lo = 6; hi = 10; }
-      else if (r < 0.95) { lo = 11; hi = 20; }
-      else { lo = 21; hi = 30; }
+      var lo;
+      var hi;
+
+      if (r < 0.50) {
+        lo = 1;
+        hi = 5;
+      } else if (r < 0.80) {
+        lo = 6;
+        hi = 10;
+      } else if (r < 0.95) {
+        lo = 11;
+        hi = 20;
+      } else {
+        lo = 21;
+        hi = 30;
+      }
+
       return randomInt(lo, hi);
     }
 
@@ -990,11 +1137,17 @@
       var delay = rollDelayMinutes();
       var total = legFlightTime + delay;
       var missed = false;
+
       if (legHasConnection && delay >= 15) {
         missed = true;
         total += randomInt(20, 45);
       }
-      return { total: total, delay: delay, missed: missed };
+
+      return {
+        total: total,
+        delay: delay,
+        missed: missed
+      };
     }
 
     function startSeason() {
@@ -1019,7 +1172,10 @@
         money[name] = STARTING_MONEY;
         placementHistory[name] = [];
         nextLegStartClocks[name] = 0;
-        if (!skills[name]) { skills[name] = rollSkills(); }
+
+        if (!skills[name]) {
+          skills[name] = rollSkills();
+        }
       });
 
       currentCity = WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)];
@@ -1040,6 +1196,7 @@
 
       currentLegStartClocks = {};
       teamCashSpentThisLeg = {};
+
       remainingTeams.forEach(function (name) {
         currentLegStartClocks[name] = nextLegStartClocks[name] != null ? nextLegStartClocks[name] : raceClock;
         teamCashSpentThisLeg[name] = 0;
@@ -1056,12 +1213,15 @@
       }
 
       if (legNum > 1) {
-        remainingTeams.forEach(function (name) { money[name] += LEG_STIPEND; });
+        remainingTeams.forEach(function (name) {
+          money[name] += LEG_STIPEND;
+        });
       }
 
       legIsNonElim = !isFinalLeg() && Math.random() < NON_ELIM_CHANCE;
 
       var dest;
+
       do {
         dest = WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)];
       } while (dest.name === currentCity.name);
@@ -1075,57 +1235,73 @@
       legFlightDepartureMinute = randomInt(0, 59);
 
       legStops = [];
+
       for (var i = 0; i < totalStopsThisLeg; i++) {
         var skill = SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)];
         var base = randomInt(10, 40);
-        legStops.push({ skill: skill, base: base });
+
+        legStops.push({
+          skill: skill,
+          base: base
+        });
+
         legTransportOptions.push(makeTransportOptionsForSegment());
       }
 
       buildRivalLegRecords();
       renderLegIntroScreen();
+
       flightResolved = false;
       restoredFlightResultHtml = "";
-      document.getElementById('flightResult').innerHTML = '';
-      document.getElementById('flightBtn').textContent = 'Leave Airport';
-      showScreen('legIntro');
+      document.getElementById("flightResult").innerHTML = "";
+      document.getElementById("flightBtn").textContent = "Leave Airport";
+
+      showScreen("legIntro");
     }
 
     function renderLegIntroScreen() {
-      document.getElementById('legIntroTitle').textContent = currentLegLabel();
-      document.getElementById('legIntroBody').innerHTML =
+      document.getElementById("legIntroTitle").textContent = currentLegLabel();
+
+      document.getElementById("legIntroBody").innerHTML =
         raceClockHeader() +
-        teamsHereHtml(startLocationKey()) +
-        '<br><br>' +
-        (isFinalLeg() ? '<strong>Three teams remain. First to the final mat wins.</strong><br><br>' : '') +
-        'Starting City: <strong>' + legOrigin.name + '</strong><br>' +
-        '<br>Teams Remaining: <strong>' + remainingTeams.length + '</strong><br>' +
-        'Your Cash: <strong>$' + money[playerTeam] + '</strong>';
+        presenceReportHtml(startLocationKey(), "Pit Start", raceClock, null) +
+        "<br>" +
+        (isFinalLeg() ? "<strong>Three teams remain. First to the final mat wins.</strong><br><br>" : "") +
+        "Starting City: <strong>" + escapeHtml(legOrigin.name) + "</strong><br>" +
+        "<br>Teams Remaining: <strong>" + remainingTeams.length + "</strong><br>" +
+        "Your Cash: <strong>$" + money[playerTeam] + "</strong>";
 
       renderFlightBody();
     }
 
     function renderFlightBody() {
-      document.getElementById('flightBody').innerHTML =
-        raceClockHeader() + '<br>' +
-        currentLegLabel() + '<br><br>' +
-        'Departing from <strong>' + cityAirportName(legOrigin) + '</strong><br>' +
-        'Flying to <strong>' + cityAirportName(legDest) + '</strong>.<br><br>' +
-        'Flight Schedule: <strong>Every ' + formatFlightMinute(legFlightDepartureMinute) + '</strong><br>' +
-        formatDuration(legFlightTime) + ' flight' +
-        (legHasConnection ? '<br><br>🔗 This leg has a connection. A long delay could make you miss it.' : '');
+      document.getElementById("flightBody").innerHTML =
+        raceClockHeader() + "<br>" +
+        currentLegLabel() + "<br><br>" +
+        "Departing from <strong>" + escapeHtml(cityAirportName(legOrigin)) + "</strong><br>" +
+        "Flying to <strong>" + escapeHtml(cityAirportName(legDest)) + "</strong>.<br><br>" +
+        "Flight Schedule: <strong>Every " + formatFlightMinute(legFlightDepartureMinute) + "</strong><br>" +
+        formatDuration(legFlightTime) + " flight" +
+        (legHasConnection ? "<br><br>🔗 This leg has a connection. A long delay could make you miss it." : "");
     }
 
     function renderSpecialTransportOptions(options) {
-      var list = document.getElementById('specialTransportList');
-      list.innerHTML = '';
+      var list = document.getElementById("specialTransportList");
+      list.innerHTML = "";
 
       options.forEach(function (opt) {
-        var btn = document.createElement('button');
-        btn.className = 'opt-btn';
-        btn.textContent = opt.method + ' - $' + opt.cost + ' · ' + formatDuration(opt.time);
-        if (opt.cost > money[playerTeam]) { btn.disabled = true; }
-        btn.onclick = function () { chooseSpecialTransport(opt); };
+        var btn = document.createElement("button");
+        btn.className = "opt-btn";
+        btn.textContent = opt.method + " - $" + opt.cost + " · " + formatDuration(opt.time);
+
+        if (opt.cost > money[playerTeam]) {
+          btn.disabled = true;
+        }
+
+        btn.onclick = function () {
+          chooseSpecialTransport(opt);
+        };
+
         list.appendChild(btn);
       });
     }
@@ -1133,33 +1309,33 @@
     function showTransportToAirport() {
       specialTransportMode = "toAirport";
 
-      document.getElementById('specialTransportTitle').textContent = 'Travel to Airport';
-      document.getElementById('specialTransportStatus').innerHTML =
+      document.getElementById("specialTransportTitle").textContent = "Travel to Airport";
+      document.getElementById("specialTransportStatus").innerHTML =
         raceClockHeader() +
-        teamsHereHtml(startLocationKey()) +
-        '<br>' +
-        'Travel from the Pit Start in <strong>' + legOrigin.name + '</strong><br>' +
-        'to <strong>' + cityAirportName(legOrigin) + '</strong>.<br><br>' +
-        'Cash: <strong>$' + money[playerTeam] + '</strong>';
+        presenceReportHtml(startLocationKey(), "Pit Start", raceClock, null) +
+        "<br>" +
+        "Travel from the Pit Start in <strong>" + escapeHtml(legOrigin.name) + "</strong><br>" +
+        "to <strong>" + escapeHtml(cityAirportName(legOrigin)) + "</strong>.<br><br>" +
+        "Cash: <strong>$" + money[playerTeam] + "</strong>";
 
       renderSpecialTransportOptions(airportStartTransportOptions);
-      showScreen('specialTransport');
+      showScreen("specialTransport");
     }
 
     function showTransportFromAirport() {
       specialTransportMode = "fromAirport";
 
-      document.getElementById('specialTransportTitle').textContent = 'Leave Airport';
-      document.getElementById('specialTransportStatus').innerHTML =
+      document.getElementById("specialTransportTitle").textContent = "Leave Airport";
+      document.getElementById("specialTransportStatus").innerHTML =
         raceClockHeader() +
-        teamsHereHtml(destinationAirportLocationKey()) +
-        '<br>' +
-        'Travel from <strong>' + cityAirportName(legDest) + '</strong><br>' +
-        'to your first location in <strong>' + legDest.name + '</strong>.<br><br>' +
-        'Cash: <strong>$' + money[playerTeam] + '</strong>';
+        presenceReportHtml(destinationAirportLocationKey(), cityAirportName(legDest), raceClock, null) +
+        "<br>" +
+        "Travel from <strong>" + escapeHtml(cityAirportName(legDest)) + "</strong><br>" +
+        "to your first location in <strong>" + escapeHtml(legDest.name) + "</strong>.<br><br>" +
+        "Cash: <strong>$" + money[playerTeam] + "</strong>";
 
       renderSpecialTransportOptions(airportEndTransportOptions);
-      showScreen('specialTransport');
+      showScreen("specialTransport");
     }
 
     function chooseSpecialTransport(opt) {
@@ -1176,7 +1352,7 @@
     function showFlightScreen() {
       renderFlightBody();
       resolveFlightNow();
-      showScreen('flight');
+      showScreen("flight");
     }
 
     function resolveFlightNow() {
@@ -1193,28 +1369,29 @@
 
       var departureClock = raceClock;
       var f = rollFlight();
+
       addRaceMinutes(f.total);
 
-      var msg = '';
+      var msg = "";
 
-      msg += 'Airport Arrival: <strong>' + formatRaceDateTime(airportArrivalClock) + '</strong>';
-      msg += '<br>Flight Departure: <strong>' + formatRaceDateTime(departureClock) + '</strong><br><br>';
+      msg += "Airport Arrival: <strong>" + formatRaceDateTime(airportArrivalClock) + "</strong>";
+      msg += "<br>Flight Departure: <strong>" + formatRaceDateTime(departureClock) + "</strong><br><br>";
 
       if (f.delay === 0) {
-        msg += '✅ On time. No delay.';
+        msg += "✅ On time. No delay.";
       } else if (f.missed) {
-        msg += '❌ Delayed ' + formatDuration(f.delay) + ', and you MISSED the connection. Rebooked at a cost of extra time.';
+        msg += "❌ Delayed " + formatDuration(f.delay) + ", and you MISSED the connection. Rebooked at a cost of extra time.";
       } else {
-        msg += '⏱️ Delayed ' + formatDuration(f.delay) + '.';
+        msg += "⏱️ Delayed " + formatDuration(f.delay) + ".";
       }
 
-      msg += '<br><br>Destination City: <strong>' + legDest.name + '</strong>.';
+      msg += "<br><br>Destination City: <strong>" + escapeHtml(legDest.name) + "</strong>.";
 
-      var res = document.getElementById('flightResult');
+      var res = document.getElementById("flightResult");
       res.innerHTML =
         msg +
-        '<br><br>Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong>' +
-        teamsHereHtml(destinationAirportLocationKey());
+        "<br><br>Race Clock: <strong>" + formatRaceDateTime(raceClock) + "</strong>" +
+        presenceReportHtml(destinationAirportLocationKey(), cityAirportName(legDest), raceClock, null);
 
       restoredFlightResultHtml = res.innerHTML;
       flightResolved = true;
@@ -1224,22 +1401,31 @@
       var stop = legStops[currentStop];
       var level = skills[playerTeam][stop.skill];
       var adjusted = Math.max(1, Math.round(stop.base * skillMultiplier(level)));
-      currentChallenge = { adjusted: adjusted };
+      var arrivalClock = raceClock;
+      var departureClock = raceClock + adjusted;
+      var locationName = "Challenge " + stopLetter(currentStop);
 
-      document.getElementById('challengeStatus').innerHTML =
+      currentChallenge = {
+        adjusted: adjusted,
+        arrivalClock: arrivalClock,
+        departureClock: departureClock,
+        locationName: locationName
+      };
+
+      document.getElementById("challengeStatus").innerHTML =
         raceClockHeader() +
-        teamsHereHtml(stopLocationKey(currentStop)) +
-        '<br>' +
-        currentLegLabel() + ' · ' + legDest.name + '<br>' +
-        'Stop ' + (currentStop + 1) + '<br>' +
-        'Cash: <strong>$' + money[playerTeam] + '</strong>';
+        presenceReportHtml(stopLocationKey(currentStop), locationName, arrivalClock, departureClock) +
+        "<br>" +
+        currentLegLabel() + " · " + escapeHtml(legDest.name) + "<br>" +
+        locationName + "<br>" +
+        "Cash: <strong>$" + money[playerTeam] + "</strong>";
 
-      document.getElementById('challengeInfo').innerHTML =
-        'Challenge type: <strong>' + stop.skill + '</strong><br>' +
-        'Challenge time: <strong>' + formatDuration(adjusted) + '</strong><br>' +
-        'Your ' + stop.skill + ' level: <strong>' + level + '</strong>';
+      document.getElementById("challengeInfo").innerHTML =
+        "Challenge type: <strong>" + stop.skill + "</strong><br>" +
+        "Challenge time: <strong>" + formatDuration(adjusted) + "</strong><br>" +
+        "Your " + stop.skill + " level: <strong>" + level + "</strong>";
 
-      showScreen('challenge');
+      showScreen("challenge");
     }
 
     function attemptChallenge() {
@@ -1248,34 +1434,44 @@
     }
 
     function showRace() {
-      document.getElementById('raceStatus').innerHTML =
+      var locationName = "Challenge " + stopLetter(currentStop);
+
+      document.getElementById("raceStatus").innerHTML =
         raceClockHeader() +
-        teamsHereHtml(stopLocationKey(currentStop)) +
-        '<br>' +
-        currentLegLabel() + ' · ' + legDest.name + '<br>' +
-        'Stop ' + (currentStop + 1) + '<br>' +
-        'Cash: <strong>$' + money[playerTeam] + '</strong>';
+        presenceReportHtml(stopLocationKey(currentStop), locationName, raceClock, null) +
+        "<br>" +
+        currentLegLabel() + " · " + escapeHtml(legDest.name) + "<br>" +
+        locationName + "<br>" +
+        "Cash: <strong>$" + money[playerTeam] + "</strong>";
 
       var optionsForThisSegment = legTransportOptions[currentStop];
-      var list = document.getElementById('transportList');
-      list.innerHTML = '';
+      var list = document.getElementById("transportList");
+      list.innerHTML = "";
 
       optionsForThisSegment.forEach(function (opt) {
-        var btn = document.createElement('button');
-        btn.className = 'opt-btn';
-        btn.textContent = opt.method + ' - $' + opt.cost + ' · ' + formatDuration(opt.time);
-        if (opt.cost > money[playerTeam]) { btn.disabled = true; }
-        btn.onclick = function () { chooseTransport(opt); };
+        var btn = document.createElement("button");
+        btn.className = "opt-btn";
+        btn.textContent = opt.method + " - $" + opt.cost + " · " + formatDuration(opt.time);
+
+        if (opt.cost > money[playerTeam]) {
+          btn.disabled = true;
+        }
+
+        btn.onclick = function () {
+          chooseTransport(opt);
+        };
+
         list.appendChild(btn);
       });
 
-      showScreen('race');
+      showScreen("race");
     }
 
     function chooseTransport(opt) {
       spendTeamMoney(playerTeam, opt.cost);
       addRaceMinutes(opt.time);
       currentStop = currentStop + 1;
+
       if (currentStop >= totalStopsThisLeg) {
         showPitStopScreen();
       } else {
@@ -1285,20 +1481,21 @@
 
     function showPitStopScreen() {
       var finalLeg = isFinalLeg();
+      var locationName = finalLeg ? "Finish Line" : "Pit Stop";
 
-      document.getElementById('pitstopTitle').textContent = finalLeg ? '🏆 Finish Line' : '🏁 Pit Stop';
+      document.getElementById("pitstopTitle").textContent = finalLeg ? "🏆 Finish Line" : "🏁 Pit Stop";
 
-      document.getElementById('pitstopBody').innerHTML =
+      document.getElementById("pitstopBody").innerHTML =
         raceClockHeader() +
-        teamsHereHtml(pitstopLocationKey()) +
-        '<br><br>' +
+        presenceReportHtml(pitstopLocationKey(), locationName, raceClock, null) +
+        "<br><br>" +
         (finalLeg
-          ? 'You have reached the Finish Line in <strong>' + legDest.name + '</strong>.<br><br>'
-          : 'You have reached the Pit Stop in <strong>' + legDest.name + '</strong>.<br><br>') +
-        'Cash: <strong>$' + money[playerTeam] + '</strong><br><br>' +
-        (finalLeg ? 'Check in to reveal the winner.' : 'Check in to see the leg results.');
+          ? "You have reached the Finish Line in <strong>" + escapeHtml(legDest.name) + "</strong>.<br><br>"
+          : "You have reached the Pit Stop in <strong>" + escapeHtml(legDest.name) + "</strong>.<br><br>") +
+        "Cash: <strong>$" + money[playerTeam] + "</strong><br><br>" +
+        (finalLeg ? "Check in to reveal the winner." : "Check in to see the leg results.");
 
-      showScreen('pitstop');
+      showScreen("pitstop");
     }
 
     function checkInAtPitStop() {
@@ -1306,73 +1503,108 @@
     }
 
     function standingsHtml(results) {
-      var rows = '';
+      var rows = "";
 
       results.forEach(function (r, i) {
         var isYou = (r.team === playerTeam);
-        var style = isYou ? ' style="color:#ffd166;font-weight:bold;"' : '';
+        var style = isYou ? " style=\"color:#ffd166;font-weight:bold;\"" : "";
 
-        rows += '<div' + style + '>' +
-          (i + 1) + '. ' + escapeHtml(r.team) +
-          ' - ' + formatRaceDateTime(r.checkInClock) +
-          '</div>';
+        rows += "<div" + style + ">" +
+          (i + 1) + ". " + escapeHtml(r.team) +
+          " - " + formatRaceDateTime(r.checkInClock) +
+          "</div>";
       });
 
-      return '<div class="standings">' + rows + '</div>';
+      return '<div class="standings">' + rows + "</div>";
     }
 
     function truncateName(name, n) {
-      return name.length > n ? name.slice(0, n - 1) + '…' : name;
+      return name.length > n ? name.slice(0, n - 1) + "…" : name;
     }
 
     function lastPlacement(name) {
       var h = placementHistory[name];
+
       for (var i = h.length - 1; i >= 0; i--) {
-        if (h[i] != null) return { place: h[i], leg: i };
+        if (h[i] != null) {
+          return {
+            place: h[i],
+            leg: i
+          };
+        }
       }
-      return { place: 999, leg: -1 };
+
+      return {
+        place: 999,
+        leg: -1
+      };
     }
 
     function placementChartHtml() {
       var numLegs = placementHistory[teams[0]].length;
-      if (numLegs === 0) return '';
+
+      if (numLegs === 0) {
+        return "";
+      }
+
       var sorted = teams.slice().sort(function (a, b) {
-        var la = lastPlacement(a), lb = lastPlacement(b);
-        if (la.place !== lb.place) return la.place - lb.place;
+        var la = lastPlacement(a);
+        var lb = lastPlacement(b);
+
+        if (la.place !== lb.place) {
+          return la.place - lb.place;
+        }
+
         return lb.leg - la.leg;
       });
+
       var html = '<div style="overflow-x:auto;"><table class="chart"><thead><tr><th>Team</th>';
-      for (var l = 1; l <= numLegs; l++) { html += '<th>L' + l + '</th>'; }
-      html += '<th>Avg</th></tr></thead><tbody>';
+
+      for (var l = 1; l <= numLegs; l++) {
+        html += "<th>L" + l + "</th>";
+      }
+
+      html += "<th>Avg</th></tr></thead><tbody>";
+
       sorted.forEach(function (name) {
         var h = placementHistory[name];
         var nums = h.filter(function (x) { return x != null; });
-        var avg = nums.length ? (nums.reduce(function (s, x) { return s + x; }, 0) / nums.length).toFixed(1) : '';
+        var avg = nums.length ? (nums.reduce(function (s, x) { return s + x; }, 0) / nums.length).toFixed(1) : "";
         var isYou = (name === playerTeam);
-        var rowStyle = isYou ? ' style="color:#ffd166;font-weight:bold;"' : '';
-        html += '<tr' + rowStyle + '><td>' + escapeHtml(truncateName(name, 14)) + '</td>';
-        h.forEach(function (p) { html += '<td>' + (p == null ? '' : p) + '</td>'; });
-        html += '<td>' + avg + '</td></tr>';
+        var rowStyle = isYou ? " style=\"color:#ffd166;font-weight:bold;\"" : "";
+
+        html += "<tr" + rowStyle + "><td>" + escapeHtml(truncateName(name, 14)) + "</td>";
+
+        h.forEach(function (p) {
+          html += "<td>" + (p == null ? "" : p) + "</td>";
+        });
+
+        html += "<td>" + avg + "</td></tr>";
       });
-      html += '</tbody></table></div>';
+
+      html += "</tbody></table></div>";
+
       return html;
     }
 
     function renderResults(title, bodyHtml, buttonLabel, buttonAction, actionKey) {
-      document.getElementById('resultsTitle').textContent = title;
-      document.getElementById('resultsBody').innerHTML = bodyHtml;
-      var area = document.getElementById('resultsButtons');
-      area.innerHTML = '';
-      var btn = document.createElement('button');
+      document.getElementById("resultsTitle").textContent = title;
+      document.getElementById("resultsBody").innerHTML = bodyHtml;
+
+      var area = document.getElementById("resultsButtons");
+      area.innerHTML = "";
+
+      var btn = document.createElement("button");
       btn.textContent = buttonLabel;
       btn.onclick = buttonAction;
       area.appendChild(btn);
+
       currentResultAction = actionKey || null;
-      showScreen('results');
+      showScreen("results");
     }
 
     function showLegResults() {
-      var route = legOrigin.name + ' → ' + legDest.name;
+      var route = legOrigin.name + " → " + legDest.name;
       var results = [];
 
       remainingTeams.forEach(function (name) {
@@ -1403,12 +1635,13 @@
         if (a.checkInClock !== b.checkInClock) {
           return a.checkInClock - b.checkInClock;
         }
+
         return a.time - b.time;
       });
 
       winnerCheckInClock = results[0].checkInClock;
-
       nextLegStartClocks = {};
+
       results.forEach(function (r) {
         var compressedGap = Math.max(0, Math.round((r.checkInClock - winnerCheckInClock) * DEPARTURE_GAP_COMPRESSION));
         nextLegStartClocks[r.team] = winnerCheckInClock + LEG_GAP_MINUTES + compressedGap;
@@ -1422,27 +1655,30 @@
       updateRouteHistoryForCompletedLeg();
 
       var placeOf = {};
-      results.forEach(function (r, i) { placeOf[r.team] = i + 1; });
+      results.forEach(function (r, i) {
+        placeOf[r.team] = i + 1;
+      });
+
       teams.forEach(function (name) {
         placementHistory[name].push(placeOf[name] != null ? placeOf[name] : null);
       });
 
-      var routeTrail = '<br><strong>Route History</strong>' + routeHistoryHtml();
-      var chart = '<br><strong>Placement Chart</strong>' + placementChartHtml();
+      var routeTrail = "<br><strong>Route History</strong>" + routeHistoryHtml();
+      var chart = "<br><strong>Placement Chart</strong>" + placementChartHtml();
       var nextDepartureText =
-        '<br>First-place time: <strong>' + formatRaceDateTime(winnerCheckInClock) + '</strong>' +
-        '<br>Your next departure: <strong>' + formatRaceDateTime(nextLegStartClock) + '</strong>';
+        "<br>First-place time: <strong>" + formatRaceDateTime(winnerCheckInClock) + "</strong>" +
+        "<br>Your next departure: <strong>" + formatRaceDateTime(nextLegStartClock) + "</strong>";
 
       if (isFinalLeg()) {
         var winner = results[0].team;
         var finalBody = standingsHtml(results) +
           routeTrail +
-          '<br><br>🏆 <strong>' + escapeHtml(winner) + '</strong> has crossed the final mat and wins The Amazing Race!' +
-          (winner === playerTeam ? '<br><strong>That is you. You won the whole race!</strong>' : '') +
-          '<br><br>The race is complete.' +
+          "<br><br>🏆 <strong>" + escapeHtml(winner) + "</strong> has crossed the final mat and wins The Amazing Race!" +
+          (winner === playerTeam ? "<br><strong>That is you. You won the whole race!</strong>" : "") +
+          "<br><br>The race is complete." +
           chart;
 
-        renderResults('🏆 Final Leg: ' + route, finalBody, 'New Game', resetToStart, 'newGame');
+        renderResults("🏆 Final Leg: " + route, finalBody, "New Game", resetToStart, "newGame");
         return;
       }
 
@@ -1451,35 +1687,40 @@
       if (legIsNonElim) {
         var nonElimBody = standingsHtml(results) +
           routeTrail +
-          '<br><strong>' + escapeHtml(lastPlaceTeam) + '</strong> finished last, but this is a NON-ELIMINATION leg!' +
-          '<br>No team has been eliminated.' +
-          '<br>Teams left: ' + remainingTeams.length +
-          ' · Your cash: $' + money[playerTeam] +
+          "<br><strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last, but this is a NON-ELIMINATION leg!" +
+          "<br>No team has been eliminated." +
+          "<br>Teams left: " + remainingTeams.length +
+          " · Your cash: $" + money[playerTeam] +
           nextDepartureText +
           chart;
 
-        renderResults(legRouteTitle('Leg ' + legNum), nonElimBody, 'Next Leg', nextLeg, 'nextLeg');
+        renderResults(legRouteTitle("Leg " + legNum), nonElimBody, "Next Leg", nextLeg, "nextLeg");
         return;
       }
 
-      remainingTeams = remainingTeams.filter(function (n) { return n !== lastPlaceTeam; });
+      remainingTeams = remainingTeams.filter(function (n) {
+        return n !== lastPlaceTeam;
+      });
 
       if (lastPlaceTeam === playerTeam) {
         var body2 = standingsHtml(results) +
           routeTrail +
-          '<br>You finished last on Leg ' + legNum + ' and have been eliminated.' + chart;
-        renderResults('Eliminated: ' + route, body2, 'New Game', resetToStart, 'newGame');
+          "<br>You finished last on Leg " + legNum + " and have been eliminated." +
+          chart;
+
+        renderResults("Eliminated: " + route, body2, "New Game", resetToStart, "newGame");
         return;
       }
 
       var body3 = standingsHtml(results) +
         routeTrail +
-        '<br><strong>' + escapeHtml(lastPlaceTeam) + '</strong> finished last and is eliminated.' +
-        '<br>Teams left: ' + remainingTeams.length +
-        ' · Your cash: $' + money[playerTeam] +
+        "<br><strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last and is eliminated." +
+        "<br>Teams left: " + remainingTeams.length +
+        " · Your cash: $" + money[playerTeam] +
         nextDepartureText +
         chart;
-      renderResults(legRouteTitle('Leg ' + legNum), body3, 'Next Leg', nextLeg, 'nextLeg');
+
+      renderResults(legRouteTitle("Leg " + legNum), body3, "Next Leg", nextLeg, "nextLeg");
     }
 
     function nextLeg() {
@@ -1492,12 +1733,12 @@
     function resetToStart() {
       playerTeam = null;
       remainingTeams = [];
-      showScreen('start');
+      showScreen("start");
     }
 
     function getActiveScreenId() {
-      var active = document.querySelector('.screen.active');
-      return active ? active.id : 'start';
+      var active = document.querySelector(".screen.active");
+      return active ? active.id : "start";
     }
 
     function raceIsInProgress() {
@@ -1510,6 +1751,7 @@
       }
 
       var screenId = screenOverride || getActiveScreenId();
+
       if (screenId === "start" || screenId === "teams" || screenId === "roster" || screenId === "menu") {
         return;
       }
@@ -1564,9 +1806,9 @@
         specialTransportMode: specialTransportMode,
 
         currentResultAction: currentResultAction,
-        restoredFlightResultHtml: document.getElementById('flightResult') ? document.getElementById('flightResult').innerHTML : restoredFlightResultHtml,
-        resultsTitle: document.getElementById('resultsTitle') ? document.getElementById('resultsTitle').textContent : '',
-        resultsBody: document.getElementById('resultsBody') ? document.getElementById('resultsBody').innerHTML : ''
+        restoredFlightResultHtml: document.getElementById("flightResult") ? document.getElementById("flightResult").innerHTML : restoredFlightResultHtml,
+        resultsTitle: document.getElementById("resultsTitle") ? document.getElementById("resultsTitle").textContent : "",
+        resultsBody: document.getElementById("resultsBody") ? document.getElementById("resultsBody").innerHTML : ""
       };
     }
 
@@ -1613,7 +1855,7 @@
       specialTransportMode = state.specialTransportMode || null;
 
       currentResultAction = state.currentResultAction || null;
-      restoredFlightResultHtml = state.restoredFlightResultHtml || '';
+      restoredFlightResultHtml = state.restoredFlightResultHtml || "";
 
       renderRestoredScreen(state);
       updateStartLoadButton();
@@ -1633,9 +1875,11 @@
     function readSaveFromKey(key) {
       try {
         var raw = localStorage.getItem(key);
+
         if (!raw) {
           return null;
         }
+
         return JSON.parse(raw);
       } catch (err) {
         return null;
@@ -1649,19 +1893,22 @@
     function saveManualSlot(slot) {
       var screenToSave = lastScreenBeforeMenu || getActiveScreenId();
       var ok = saveGameToKey(slotKey(slot), screenToSave);
+
       if (ok) {
-        document.getElementById('menuStatus').innerHTML = 'Saved to Slot ' + slot + '.';
+        document.getElementById("menuStatus").innerHTML = "Saved to Slot " + slot + ".";
       } else {
-        document.getElementById('menuStatus').innerHTML = 'Save failed. Browser storage may be blocked.';
+        document.getElementById("menuStatus").innerHTML = "Save failed. Browser storage may be blocked.";
       }
+
       renderMenuButtons();
       updateStartLoadButton();
     }
 
     function loadManualSlot(slot) {
       var state = readSaveFromKey(slotKey(slot));
+
       if (!state) {
-        document.getElementById('menuStatus').innerHTML = 'Slot ' + slot + ' is empty.';
+        document.getElementById("menuStatus").innerHTML = "Slot " + slot + " is empty.";
         return;
       }
 
@@ -1671,12 +1918,14 @@
     function latestSaveState() {
       var saves = [];
       var auto = readSaveFromKey(AUTO_SAVE_KEY);
+
       if (auto) {
         saves.push(auto);
       }
 
       for (var i = 1; i <= 3; i++) {
         var slot = readSaveFromKey(slotKey(i));
+
         if (slot) {
           saves.push(slot);
         }
@@ -1695,6 +1944,7 @@
 
     function loadLatestGame() {
       var state = latestSaveState();
+
       if (!state) {
         return;
       }
@@ -1704,18 +1954,19 @@
 
     function clearAllSaves() {
       localStorage.removeItem(AUTO_SAVE_KEY);
+
       for (var i = 1; i <= 3; i++) {
         localStorage.removeItem(slotKey(i));
       }
 
-      document.getElementById('menuStatus').innerHTML = 'All saves cleared.';
+      document.getElementById("menuStatus").innerHTML = "All saves cleared.";
       renderMenuButtons();
       updateStartLoadButton();
     }
 
     function formatSaveStamp(state) {
       if (!state || !state.savedAt) {
-        return 'Empty';
+        return "Empty";
       }
 
       var d = new Date(state.savedAt);
@@ -1723,57 +1974,57 @@
     }
 
     function renderMenuButtons() {
-      var area = document.getElementById('menuButtons');
-      area.innerHTML = '';
+      var area = document.getElementById("menuButtons");
+      area.innerHTML = "";
 
-      var resume = document.createElement('button');
-      resume.className = 'menu-btn gold';
-      resume.textContent = 'Resume Race';
+      var resume = document.createElement("button");
+      resume.className = "menu-btn gold";
+      resume.textContent = "Resume Race";
       resume.onclick = closeMenu;
       area.appendChild(resume);
 
       for (var s = 1; s <= 3; s++) {
         (function (slot) {
-          var saveBtn = document.createElement('button');
-          saveBtn.className = 'menu-btn';
-          saveBtn.textContent = 'Save Slot ' + slot;
+          var saveBtn = document.createElement("button");
+          saveBtn.className = "menu-btn";
+          saveBtn.textContent = "Save Slot " + slot;
           saveBtn.onclick = function () { saveManualSlot(slot); };
           area.appendChild(saveBtn);
 
           var state = readSaveFromKey(slotKey(slot));
-          var loadBtn = document.createElement('button');
-          loadBtn.className = 'menu-btn';
-          loadBtn.textContent = 'Load Slot ' + slot + ' - ' + formatSaveStamp(state);
+          var loadBtn = document.createElement("button");
+          loadBtn.className = "menu-btn";
+          loadBtn.textContent = "Load Slot " + slot + " - " + formatSaveStamp(state);
           loadBtn.disabled = !state;
           loadBtn.onclick = function () { loadManualSlot(slot); };
           area.appendChild(loadBtn);
         })(s);
       }
 
-      var loadLatest = document.createElement('button');
-      loadLatest.className = 'menu-btn gold';
-      loadLatest.textContent = 'Load Latest Save';
+      var loadLatest = document.createElement("button");
+      loadLatest.className = "menu-btn gold";
+      loadLatest.textContent = "Load Latest Save";
       loadLatest.disabled = !latestSaveState();
       loadLatest.onclick = loadLatestGame;
       area.appendChild(loadLatest);
 
-      var clear = document.createElement('button');
-      clear.className = 'menu-btn';
-      clear.textContent = 'Clear All Saves';
+      var clear = document.createElement("button");
+      clear.className = "menu-btn";
+      clear.textContent = "Clear All Saves";
       clear.onclick = clearAllSaves;
       area.appendChild(clear);
 
-      var newGame = document.createElement('button');
-      newGame.className = 'menu-btn';
-      newGame.textContent = 'New Game';
+      var newGame = document.createElement("button");
+      newGame.className = "menu-btn";
+      newGame.textContent = "New Game";
       newGame.onclick = resetToStart;
       area.appendChild(newGame);
     }
 
     function renderMenuScreen() {
-      document.getElementById('menuStatus').innerHTML =
-        'Current Race: <strong>' + escapeHtml(playerTeam || 'None') + '</strong><br>' +
-        'Auto Save: <strong>' + formatSaveStamp(readSaveFromKey(AUTO_SAVE_KEY)) + '</strong><br>' +
+      document.getElementById("menuStatus").innerHTML =
+        "Current Race: <strong>" + escapeHtml(playerTeam || "None") + "</strong><br>" +
+        "Auto Save: <strong>" + formatSaveStamp(readSaveFromKey(AUTO_SAVE_KEY)) + "</strong><br>" +
         '<div class="menu-note">Saves are stored in this browser on this device.</div>';
 
       renderMenuButtons();
@@ -1783,43 +2034,45 @@
       lastScreenBeforeMenu = getActiveScreenId();
       autoSaveGame(lastScreenBeforeMenu);
       renderMenuScreen();
-      showScreen('menu');
+      showScreen("menu");
     }
 
     function closeMenu() {
-      var target = lastScreenBeforeMenu || 'legIntro';
+      var target = lastScreenBeforeMenu || "legIntro";
       restoreScreenById(target);
     }
 
     function restoreScreenById(id) {
-      renderRestoredScreen({ activeScreen: id });
+      renderRestoredScreen({
+        activeScreen: id
+      });
     }
 
     function renderRestoredScreen(state) {
-      var id = state.activeScreen || 'legIntro';
+      var id = state.activeScreen || "legIntro";
 
-      if (id === 'start') {
-        showScreen('start');
+      if (id === "start") {
+        showScreen("start");
         return;
       }
 
-      if (id === 'teams') {
-        showScreen('teams');
+      if (id === "teams") {
+        showScreen("teams");
         return;
       }
 
-      if (id === 'roster') {
+      if (id === "roster") {
         showRoster();
         return;
       }
 
-      if (id === 'legIntro') {
+      if (id === "legIntro") {
         renderLegIntroScreen();
-        showScreen('legIntro');
+        showScreen("legIntro");
         return;
       }
 
-      if (id === 'specialTransport') {
+      if (id === "specialTransport") {
         if (specialTransportMode === "fromAirport") {
           showTransportFromAirport();
         } else {
@@ -1828,93 +2081,96 @@
         return;
       }
 
-      if (id === 'flight') {
+      if (id === "flight") {
         renderFlightBody();
-        document.getElementById('flightResult').innerHTML = restoredFlightResultHtml || '';
-        document.getElementById('flightBtn').textContent = 'Leave Airport';
-        showScreen('flight');
+        document.getElementById("flightResult").innerHTML = restoredFlightResultHtml || "";
+        document.getElementById("flightBtn").textContent = "Leave Airport";
+        showScreen("flight");
         return;
       }
 
-      if (id === 'challenge') {
+      if (id === "challenge") {
         showChallenge();
         return;
       }
 
-      if (id === 'race') {
+      if (id === "race") {
         showRace();
         return;
       }
 
-      if (id === 'pitstop') {
+      if (id === "pitstop") {
         showPitStopScreen();
         return;
       }
 
-      if (id === 'results') {
+      if (id === "results") {
         restoreResultsScreen(state);
         return;
       }
 
       renderLegIntroScreen();
-      showScreen('legIntro');
+      showScreen("legIntro");
     }
 
     function restoreResultsScreen(state) {
-      document.getElementById('resultsTitle').textContent = state.resultsTitle || document.getElementById('resultsTitle').textContent || 'Results';
-      document.getElementById('resultsBody').innerHTML = state.resultsBody || document.getElementById('resultsBody').innerHTML || '';
+      document.getElementById("resultsTitle").textContent = state.resultsTitle || document.getElementById("resultsTitle").textContent || "Results";
+      document.getElementById("resultsBody").innerHTML = state.resultsBody || document.getElementById("resultsBody").innerHTML || "";
 
-      var area = document.getElementById('resultsButtons');
-      area.innerHTML = '';
+      var area = document.getElementById("resultsButtons");
+      area.innerHTML = "";
 
-      var btn = document.createElement('button');
+      var btn = document.createElement("button");
 
-      if (currentResultAction === 'nextLeg') {
-        btn.textContent = 'Next Leg';
+      if (currentResultAction === "nextLeg") {
+        btn.textContent = "Next Leg";
         btn.onclick = nextLeg;
       } else {
-        btn.textContent = 'New Game';
+        btn.textContent = "New Game";
         btn.onclick = resetToStart;
       }
 
       area.appendChild(btn);
-      showScreen('results');
+      showScreen("results");
     }
 
     function updateStartLoadButton() {
-      var btn = document.getElementById('startLoadBtn');
+      var btn = document.getElementById("startLoadBtn");
+
       if (!btn) {
         return;
       }
 
       var latest = latestSaveState();
       btn.disabled = !latest;
-      btn.textContent = latest ? 'Load Saved Race' : 'No Saved Race';
+      btn.textContent = latest ? "Load Saved Race" : "No Saved Race";
     }
 
     function updateTopMenuButton(id) {
-      var btn = document.getElementById('topMenuBtn');
+      var btn = document.getElementById("topMenuBtn");
+
       if (!btn) {
         return;
       }
 
-      var hideOn = ['start', 'teams', 'roster', 'menu'];
+      var hideOn = ["start", "teams", "roster", "menu"];
+
       if (raceIsInProgress() && hideOn.indexOf(id) === -1) {
-        btn.style.display = 'block';
+        btn.style.display = "block";
       } else {
-        btn.style.display = 'none';
+        btn.style.display = "none";
       }
     }
 
     function showScreen(id) {
-      document.querySelectorAll('.screen').forEach(function (s) {
-        s.classList.remove('active');
+      document.querySelectorAll(".screen").forEach(function (s) {
+        s.classList.remove("active");
       });
 
-      document.getElementById(id).classList.add('active');
+      document.getElementById(id).classList.add("active");
       updateTopMenuButton(id);
 
-      if (id !== 'menu') {
+      if (id !== "menu") {
         autoSaveGame(id);
       }
     }
