@@ -8,43 +8,162 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #2b0d14;
+      --bg-soft: #3a141b;
+      --card: #4a1822;
+      --card-light: #5a1c28;
+      --border: #9b2b3c;
+      --border-soft: rgba(255, 255, 255, 0.12);
+      --accent: #e63946;
+      --accent-dark: #c1121f;
+      --gold: #ffd166;
+      --green: #06d6a0;
+      --text: #ffffff;
+      --muted: #ffd8dd;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Chakra Petch', Arial, sans-serif;
       font-weight: 700;
-      background: #3a141b;
-      color: #ffffff;
+      background:
+        radial-gradient(circle at top, rgba(230, 57, 70, 0.28), transparent 34%),
+        linear-gradient(180deg, #4a121f 0%, #2b0d14 55%, #1b070c 100%);
+      color: var(--text);
       margin: 0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 16px;
-      box-sizing: border-box;
+      padding: 38px 16px 60px;
       text-align: center;
     }
 
-    .screen { display: none; width: 100%; max-width: 560px; }
-    .screen.active { display: block; }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 34px 34px;
+      pointer-events: none;
+      opacity: 0.35;
+    }
 
-    h1 { font-size: 2.2em; margin-bottom: 10px; font-weight: 700; }
-    h2 { font-weight: 700; }
-    p { font-weight: 700; }
+    .screen {
+      display: none;
+      width: 100%;
+      max-width: 680px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .screen.active {
+      display: block;
+      animation: fadeIn 0.18s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: clamp(2em, 7vw, 3.1em);
+      line-height: 1.05;
+      margin: 0 0 14px;
+      letter-spacing: 0.02em;
+      text-shadow: 0 4px 20px var(--shadow);
+      font-weight: 700;
+    }
+
+    h2 {
+      font-weight: 700;
+    }
+
+    p {
+      font-weight: 700;
+      line-height: 1.55;
+      color: var(--muted);
+    }
 
     button {
       font-family: 'Chakra Petch', Arial, sans-serif;
       font-weight: 700;
-      font-size: 1.2em;
-      padding: 14px 28px;
-      margin-top: 16px;
+      font-size: 1.08em;
+      padding: 14px 24px;
+      margin-top: 14px;
       border: none;
-      border-radius: 10px;
-      background: #e63946;
-      color: #ffffff;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #f04b58, var(--accent));
+      color: var(--text);
       cursor: pointer;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+      transition: transform 0.12s ease, background 0.12s ease, opacity 0.12s ease, border-color 0.12s ease;
     }
 
-    button:active { background: #c1121f; }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      background: var(--accent-dark);
+      transform: translateY(1px);
+    }
+
+    button:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .secondary-btn {
+      background: #5a1c28;
+      border: 2px solid var(--border);
+      box-shadow: none;
+    }
+
+    .hero-card,
+    .status,
+    .panel-card {
+      background: rgba(90, 28, 40, 0.9);
+      border: 1px solid var(--border-soft);
+      border-radius: 22px;
+      padding: 18px;
+      margin: 12px 0;
+      line-height: 1.6;
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(6px);
+    }
+
+    .hero-card {
+      padding: 26px 22px;
+      border: 1px solid rgba(255, 209, 102, 0.38);
+    }
+
+    .logo-badge {
+      width: 74px;
+      height: 74px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 14px;
+      border-radius: 999px;
+      background: rgba(255, 209, 102, 0.15);
+      border: 2px solid rgba(255, 209, 102, 0.7);
+      font-size: 2.1em;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 0.96em;
+    }
 
     #topMenuBtn {
       display: none;
@@ -52,128 +171,231 @@
       top: 12px;
       right: 12px;
       z-index: 50;
-      font-size: 0.95em;
-      padding: 9px 14px;
+      font-size: 0.92em;
+      padding: 10px 15px;
       margin: 0;
       border-radius: 999px;
-      background: #e63946;
-      border: 2px solid #ffd166;
+      background: rgba(230, 57, 70, 0.95);
+      border: 2px solid var(--gold);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.38);
     }
 
     .team-btn {
       display: block;
       width: 100%;
       margin: 10px 0 0 0;
-      background: #5a1c28;
-      border: 2px solid #9b2b3c;
-      font-size: 1.05em;
+      background: rgba(90, 28, 40, 0.95);
+      border: 2px solid var(--border);
+      font-size: 1.02em;
       text-align: left;
-      line-height: 1.3;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+      box-shadow: none;
     }
 
-    .team-btn:active { background: #9b2b3c; }
+    .team-btn:hover {
+      border-color: var(--gold);
+      background: #6b2030;
+    }
 
-    .cash { font-size: 1.3em; margin: 10px 0; color: #06d6a0; font-weight: 700; }
+    .cash {
+      display: inline-block;
+      font-size: 1.2em;
+      margin: 8px 0 12px;
+      color: var(--green);
+      background: rgba(6, 214, 160, 0.12);
+      border: 1px solid rgba(6, 214, 160, 0.5);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-weight: 700;
+    }
+
+    .cash-pill {
+      color: var(--green);
+      background: rgba(6, 214, 160, 0.12);
+      border: 1px solid rgba(6, 214, 160, 0.48);
+      border-radius: 999px;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
 
     .skills {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      gap: 9px;
       margin: 16px 0;
       text-align: left;
     }
 
     .skill {
-      background: #5a1c28;
-      border: 1px solid #9b2b3c;
-      border-radius: 8px;
-      padding: 8px 10px;
+      background: rgba(74, 24, 34, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
       display: flex;
       justify-content: space-between;
+      gap: 8px;
       font-weight: 700;
     }
 
-    .skill .lvl { font-weight: 700; color: #ffd166; }
-
-    .status {
-      background: #5a1c28;
-      border: 1px solid #9b2b3c;
-      border-radius: 10px;
-      padding: 12px;
-      margin: 12px 0;
-      line-height: 1.6;
+    .skill .lvl {
       font-weight: 700;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+
+    .screen-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--gold);
+      background: rgba(255, 209, 102, 0.12);
+      border: 1px solid rgba(255, 209, 102, 0.5);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.86em;
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
     .opt-btn {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       width: 100%;
       margin: 10px 0 0 0;
-      background: #5a1c28;
-      border: 2px solid #9b2b3c;
+      background: rgba(74, 24, 34, 0.96);
+      border: 2px solid var(--border);
       text-align: left;
+      box-shadow: none;
+      padding: 13px 14px;
     }
 
-    .opt-btn:active { background: #9b2b3c; }
-
-    .standings { text-align: left; margin-top: 8px; font-weight: 700; }
-
-    .standings > div {
-      padding: 6px 0;
-      border-bottom: 1px solid #9b2b3c;
-      line-height: 1.4;
+    .opt-btn:hover {
+      border-color: var(--gold);
+      background: #641f2d;
     }
 
-    .route-history {
-      background: #4a1822;
-      border: 1px solid #9b2b3c;
-      border-radius: 10px;
-      padding: 10px;
+    .transport-main {
+      overflow-wrap: anywhere;
+      line-height: 1.25;
+    }
+
+    .transport-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      min-width: 92px;
+      font-size: 0.92em;
+    }
+
+    .meta-money {
+      color: var(--green);
+    }
+
+    .meta-time {
+      color: var(--gold);
+    }
+
+    .standings {
+      text-align: left;
       margin-top: 8px;
-      line-height: 1.6;
-      color: #ffd166;
       font-weight: 700;
     }
 
-    .presence-report {
-      background: #4a1822;
-      border: 1px solid #ffd166;
-      border-radius: 10px;
+    .standings > div {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .route-history {
+      background: rgba(74, 24, 34, 0.96);
+      border: 1px solid var(--border);
+      border-radius: 14px;
       padding: 12px;
-      margin-top: 10px;
+      margin-top: 8px;
+      line-height: 1.6;
+      color: var(--gold);
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .presence-report {
+      background: rgba(43, 13, 20, 0.44);
+      border: 1px solid rgba(255, 209, 102, 0.68);
+      border-radius: 16px;
+      padding: 13px;
+      margin-top: 12px;
       line-height: 1.5;
       text-align: left;
     }
 
     .presence-section {
-      margin-top: 8px;
+      margin-top: 11px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.11);
     }
 
     .presence-section:first-child {
       margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .presence-section strong {
+      color: var(--gold);
+      overflow-wrap: anywhere;
     }
 
     .presence-event {
-      margin-left: 0;
+      margin: 4px 0;
+      padding-left: 10px;
+      border-left: 3px solid rgba(255, 209, 102, 0.44);
+      overflow-wrap: anywhere;
     }
 
     .challenge-summary {
-      color: #ffd166;
-      margin-top: 10px;
+      color: var(--gold);
+      margin-top: 12px;
       line-height: 1.5;
+      background: rgba(255, 209, 102, 0.1);
+      border: 1px solid rgba(255, 209, 102, 0.4);
+      border-radius: 14px;
+      padding: 10px;
     }
 
-    .chart { border-collapse: collapse; margin: 8px auto 0; font-size: 0.85em; font-weight: 700; }
+    .chart {
+      border-collapse: collapse;
+      margin: 10px auto 0;
+      font-size: 0.85em;
+      font-weight: 700;
+      min-width: 100%;
+    }
 
-    .chart th, .chart td {
-      border: 1px solid #9b2b3c;
-      padding: 5px 7px;
+    .chart th,
+    .chart td {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      padding: 7px 8px;
       text-align: center;
       white-space: nowrap;
       font-weight: 700;
     }
 
-    .chart th:first-child, .chart td:first-child { text-align: left; }
+    .chart th {
+      color: var(--gold);
+      background: rgba(255, 209, 102, 0.08);
+    }
+
+    .chart th:first-child,
+    .chart td:first-child {
+      text-align: left;
+    }
 
     .menu-grid {
       display: grid;
@@ -185,20 +407,58 @@
     .menu-btn {
       width: 100%;
       margin: 0;
-      background: #5a1c28;
-      border: 2px solid #9b2b3c;
+      background: rgba(74, 24, 34, 0.95);
+      border: 2px solid var(--border);
       text-align: center;
+      box-shadow: none;
     }
 
     .menu-btn.gold {
-      border-color: #ffd166;
+      border-color: var(--gold);
+      background: rgba(255, 209, 102, 0.13);
     }
 
     .menu-note {
-      color: #ffd166;
+      color: var(--gold);
       font-size: 0.9em;
       line-height: 1.4;
       margin-top: 8px;
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 28px 12px 52px;
+      }
+
+      .skills {
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      #topMenuBtn {
+        width: auto;
+      }
+
+      .opt-btn {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .transport-meta {
+        align-items: flex-start;
+        min-width: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .status,
+      .hero-card,
+      .panel-card {
+        padding: 15px;
+      }
     }
   </style>
 </head>
@@ -207,49 +467,65 @@
   <button id="topMenuBtn" onclick="openMenu()">☰ Menu</button>
 
   <div id="start" class="screen active">
-    <h1>The Amazing Race</h1>
-    <p>Race around the world. Tap to begin.</p>
-    <button onclick="showScreen('teams')">New Race</button>
-    <br>
-    <button id="startLoadBtn" onclick="loadLatestGame()">Load Saved Race</button>
+    <div class="hero-card">
+      <div class="logo-badge">🌎</div>
+      <h1>The Amazing Race</h1>
+      <p>Race around the world, manage your cash, choose your transport, and survive each leg.</p>
+      <button onclick="showScreen('teams')">New Race</button>
+      <br>
+      <button id="startLoadBtn" class="secondary-btn" onclick="loadLatestGame()">Load Saved Race</button>
+    </div>
   </div>
 
   <div id="menu" class="screen">
+    <span class="screen-label">Race Menu</span>
     <h1>Menu</h1>
     <div class="status" id="menuStatus"></div>
     <div class="menu-grid" id="menuButtons"></div>
   </div>
 
   <div id="teams" class="screen">
+    <span class="screen-label">Setup</span>
     <h1>Choose Your Team</h1>
+    <div class="status">
+      Pick the team you want to control. Their skills will be rolled after selection.
+    </div>
     <div id="teamList"></div>
-    <button onclick="showScreen('start')">Back</button>
+    <button class="secondary-btn" onclick="showScreen('start')">Back</button>
   </div>
 
   <div id="roster" class="screen">
+    <span class="screen-label">Your Team</span>
     <h1 id="rosterTeam"></h1>
     <div class="cash" id="rosterCash"></div>
-    <p>Your skills:</p>
-    <div class="skills" id="skillList"></div>
+    <div class="status">
+      <strong>Your skills</strong>
+      <div class="skills" id="skillList"></div>
+    </div>
     <button onclick="startSeason()">Start Racing</button>
     <br>
-    <button onclick="showScreen('teams')">Pick a different team</button>
+    <button class="secondary-btn" onclick="showScreen('teams')">Pick a Different Team</button>
   </div>
 
   <div id="legIntro" class="screen">
+    <span class="screen-label">Leg Start</span>
     <h1 id="legIntroTitle"></h1>
     <div class="status" id="legIntroBody"></div>
     <button onclick="showTransportToAirport()">Begin Leg</button>
   </div>
 
   <div id="specialTransport" class="screen">
+    <span class="screen-label">Travel Choice</span>
     <h1 id="specialTransportTitle"></h1>
     <div class="status" id="specialTransportStatus"></div>
-    <p>Choose your transport:</p>
-    <div id="specialTransportList"></div>
+    <div class="status">
+      Choose your transport:
+      <div id="specialTransportList"></div>
+    </div>
   </div>
 
   <div id="flight" class="screen">
+    <span class="screen-label">Flight</span>
     <h1>✈️ Flight</h1>
     <div class="status" id="flightBody"></div>
     <div class="status" id="flightResult"></div>
@@ -257,19 +533,24 @@
   </div>
 
   <div id="race" class="screen">
+    <span class="screen-label">Route Info</span>
     <h1>Travel On</h1>
     <div class="status" id="raceStatus"></div>
-    <p>Choose your transport:</p>
-    <div id="transportList"></div>
+    <div class="status">
+      Choose your transport:
+      <div id="transportList"></div>
+    </div>
   </div>
 
   <div id="pitstop" class="screen">
+    <span class="screen-label">Check In</span>
     <h1 id="pitstopTitle">🏁 Pit Stop</h1>
     <div class="status" id="pitstopBody"></div>
     <button onclick="checkInAtPitStop()">Check In</button>
   </div>
 
   <div id="results" class="screen">
+    <span class="screen-label">Results</span>
     <h1 id="resultsTitle"></h1>
     <div class="status" id="resultsBody"></div>
     <div id="resultsButtons"></div>
@@ -836,6 +1117,14 @@
       return city.name + " Airport";
     }
 
+    function transportButtonHtml(opt) {
+      return '<span class="transport-main">' + escapeHtml(opt.method) + '</span>' +
+        '<span class="transport-meta">' +
+        '<span class="meta-money">$' + opt.cost + '</span>' +
+        '<span class="meta-time">' + formatDuration(opt.time) + '</span>' +
+        '</span>';
+    }
+
     function shuffledCopy(arr) {
       var copy = arr.slice();
 
@@ -1255,7 +1544,7 @@
         (isFinalLeg() ? "<strong>Three teams remain. First to the final mat wins.</strong><br><br>" : "") +
         "Starting City: <strong>" + escapeHtml(legOrigin.name) + "</strong><br>" +
         "<br>Teams Remaining: <strong>" + remainingTeams.length + "</strong><br>" +
-        "Your Cash: <strong>$" + money[playerTeam] + "</strong>";
+        'Your Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
       renderFlightBody();
     }
@@ -1278,7 +1567,7 @@
       options.forEach(function (opt) {
         var btn = document.createElement("button");
         btn.className = "opt-btn";
-        btn.textContent = opt.method + " - $" + opt.cost + " · " + formatDuration(opt.time);
+        btn.innerHTML = transportButtonHtml(opt);
 
         if (opt.cost > money[playerTeam]) {
           btn.disabled = true;
@@ -1302,7 +1591,7 @@
         "<br>" +
         "Travel from the Pit Start in <strong>" + escapeHtml(legOrigin.name) + "</strong><br>" +
         "to <strong>" + escapeHtml(cityAirportName(legOrigin)) + "</strong>.<br><br>" +
-        "Cash: <strong>$" + money[playerTeam] + "</strong>";
+        'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
       renderSpecialTransportOptions(airportStartTransportOptions);
       showScreen("specialTransport");
@@ -1318,7 +1607,7 @@
         "<br>" +
         "Travel from <strong>" + escapeHtml(cityAirportName(legDest)) + "</strong><br>" +
         "to your first location in <strong>" + escapeHtml(legDest.name) + "</strong>.<br><br>" +
-        "Cash: <strong>$" + money[playerTeam] + "</strong>";
+        'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
       renderSpecialTransportOptions(airportEndTransportOptions);
       showScreen("specialTransport");
@@ -1427,7 +1716,7 @@
         "<br>" +
         currentLegLabel() + " · " + escapeHtml(legDest.name) + "<br>" +
         locationName + "<br>" +
-        "Cash: <strong>$" + money[playerTeam] + "</strong>";
+        'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
       var optionsForThisSegment = legTransportOptions[currentStop];
       var list = document.getElementById("transportList");
@@ -1436,7 +1725,7 @@
       optionsForThisSegment.forEach(function (opt) {
         var btn = document.createElement("button");
         btn.className = "opt-btn";
-        btn.textContent = opt.method + " - $" + opt.cost + " · " + formatDuration(opt.time);
+        btn.innerHTML = transportButtonHtml(opt);
 
         if (opt.cost > money[playerTeam]) {
           btn.disabled = true;
@@ -1476,7 +1765,7 @@
         (finalLeg
           ? "You have reached the Finish Line in <strong>" + escapeHtml(legDest.name) + "</strong>.<br><br>"
           : "You have reached the Pit Stop in <strong>" + escapeHtml(legDest.name) + "</strong>.<br><br>") +
-        "Cash: <strong>$" + money[playerTeam] + "</strong><br><br>" +
+        'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span><br><br>" +
         (finalLeg ? "Check in to reveal the winner." : "Check in to see the leg results.");
 
       showScreen("pitstop");
@@ -1674,7 +1963,7 @@
           "<br><strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last, but this is a NON-ELIMINATION leg!" +
           "<br>No team has been eliminated." +
           "<br>Teams left: " + remainingTeams.length +
-          " · Your cash: $" + money[playerTeam] +
+          ' · Your cash: <span class="cash-pill">$' + money[playerTeam] + "</span>" +
           nextDepartureText +
           chart;
 
@@ -1700,7 +1989,7 @@
         routeTrail +
         "<br><strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last and is eliminated." +
         "<br>Teams left: " + remainingTeams.length +
-        " · Your cash: $" + money[playerTeam] +
+        ' · Your cash: <span class="cash-pill">$' + money[playerTeam] + "</span>" +
         nextDepartureText +
         chart;
 
