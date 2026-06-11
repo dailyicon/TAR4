@@ -276,6 +276,11 @@
     var MIN_TRANSPORT_OPTIONS = 2;
     var MAX_TRANSPORT_OPTIONS = 4;
 
+    var MINUTES_PER_DAY = 1440;
+    var LEG_GAP_DAYS = 7;
+    var LEG_GAP_MINUTES = LEG_GAP_DAYS * MINUTES_PER_DAY;
+    var DEPARTURE_GAP_COMPRESSION = 0.5;
+
     var playerTeam = null;
     var skills = {};
     var money = {};
@@ -286,6 +291,9 @@
     var totalStopsThisLeg = 3;
     var currentStop = 0;
     var raceTime = 0;
+    var raceClock = 0;
+    var legStartClock = 0;
+    var nextLegDepartureGap = 0;
     var currentChallenge = null;
     var placementHistory = {};
     var routeHistory = [];
@@ -343,6 +351,56 @@
       }
 
       return hours + "h " + mins + "m";
+    }
+
+    function pad2(n) {
+      return n < 10 ? "0" + n : "" + n;
+    }
+
+    function formatRaceDateTime(minutes) {
+      var rounded = Math.max(0, Math.round(minutes));
+      var monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      var monthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+      var totalDays = Math.floor(rounded / MINUTES_PER_DAY);
+      var minuteOfDay = rounded % MINUTES_PER_DAY;
+
+      var yearOffset = 0;
+      while (totalDays >= 365) {
+        totalDays -= 365;
+        yearOffset += 1;
+      }
+
+      var monthIndex = 0;
+      while (monthIndex < monthLengths.length && totalDays >= monthLengths[monthIndex]) {
+        totalDays -= monthLengths[monthIndex];
+        monthIndex += 1;
+      }
+
+      if (monthIndex >= monthNames.length) {
+        monthIndex = 11;
+      }
+
+      var day = totalDays + 1;
+      var hour24 = Math.floor(minuteOfDay / 60);
+      var mins = minuteOfDay % 60;
+      var ampm = hour24 >= 12 ? "PM" : "AM";
+      var hour12 = hour24 % 12;
+      if (hour12 === 0) {
+        hour12 = 12;
+      }
+
+      var yearText = yearOffset > 0 ? " Year " + (yearOffset + 1) : "";
+      return monthNames[monthIndex] + " " + day + ", " + hour12 + ":" + pad2(mins) + " " + ampm + yearText;
+    }
+
+    function addRaceMinutes(minutes) {
+      var rounded = Math.max(0, Math.round(minutes));
+      raceTime += rounded;
+      raceClock += rounded;
     }
 
     function isFinalLeg() {
@@ -507,6 +565,9 @@
       money = {};
       placementHistory = {};
       routeHistory = [];
+      raceClock = 0;
+      legStartClock = 0;
+      nextLegDepartureGap = 0;
 
       teams.forEach(function (name) {
         money[name] = STARTING_MONEY;
@@ -522,6 +583,7 @@
     function startLeg() {
       currentStop = 0;
       raceTime = 0;
+      legStartClock = raceClock;
       legTransportOptions = [];
       airportStartTransportOptions = makeTransportOptionsForSegment();
       airportEndTransportOptions = makeTransportOptionsForSegment();
@@ -559,14 +621,17 @@
       document.getElementById('legIntroBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br><br>' +
         (isFinalLeg() ? '<strong>Three teams remain. First to the final mat wins.</strong><br><br>' : '') +
-        'Starting City: <strong>' + legOrigin.name + '</strong><br><br>' +
-        'Teams Remaining: <strong>' + remainingTeams.length + '</strong><br>' +
+        'Starting City: <strong>' + legOrigin.name + '</strong><br>' +
+        'Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong><br>' +
+        (legNum > 1 && nextLegDepartureGap > 0 ? 'Compressed Departure Gap: <strong>+' + formatDuration(nextLegDepartureGap) + '</strong><br>' : '') +
+        '<br>Teams Remaining: <strong>' + remainingTeams.length + '</strong><br>' +
         'Your Cash: <strong>$' + money[playerTeam] + '</strong>';
 
       document.getElementById('airportStartBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br><br>' +
         'You have reached <strong>' + cityAirportName(legOrigin) + '</strong>.<br><br>' +
-        'Prepare to board a flight from <strong>' + legOrigin.name + '</strong> to <strong>' + legDest.name + '</strong>.';
+        'Prepare to board a flight from <strong>' + legOrigin.name + '</strong> to <strong>' + legDest.name + '</strong>.<br><br>' +
+        'Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong>';
 
       document.getElementById('flightBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
@@ -604,8 +669,9 @@
         '<strong>' + playerTeam + '</strong><br>' +
         'Travel from the Pit Start in <strong>' + legOrigin.name + '</strong><br>' +
         'to <strong>' + cityAirportName(legOrigin) + '</strong>.<br><br>' +
-        'Cash: <strong>$' + money[playerTeam] + '</strong><br>' +
-        'Time: <strong>' + formatDuration(raceTime) + '</strong>';
+        'Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong><br>' +
+        'Leg Time: <strong>' + formatDuration(raceTime) + '</strong><br>' +
+        'Cash: <strong>$' + money[playerTeam] + '</strong>';
 
       renderSpecialTransportOptions(airportStartTransportOptions);
       showScreen('specialTransport');
@@ -619,8 +685,9 @@
         '<strong>' + playerTeam + '</strong><br>' +
         'Travel from <strong>' + cityAirportName(legDest) + '</strong><br>' +
         'to your first location in <strong>' + legDest.name + '</strong>.<br><br>' +
-        'Cash: <strong>$' + money[playerTeam] + '</strong><br>' +
-        'Time: <strong>' + formatDuration(raceTime) + '</strong>';
+        'Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong><br>' +
+        'Leg Time: <strong>' + formatDuration(raceTime) + '</strong><br>' +
+        'Cash: <strong>$' + money[playerTeam] + '</strong>';
 
       renderSpecialTransportOptions(airportEndTransportOptions);
       showScreen('specialTransport');
@@ -628,7 +695,7 @@
 
     function chooseSpecialTransport(opt) {
       money[playerTeam] = money[playerTeam] - opt.cost;
-      raceTime = raceTime + opt.time;
+      addRaceMinutes(opt.time);
 
       if (specialTransportMode === "toAirport") {
         showAirportStartScreen();
@@ -638,6 +705,13 @@
     }
 
     function showAirportStartScreen() {
+      document.getElementById('airportStartBody').innerHTML =
+        '<strong>' + playerTeam + '</strong><br><br>' +
+        'You have reached <strong>' + cityAirportName(legOrigin) + '</strong>.<br><br>' +
+        'Prepare to board a flight from <strong>' + legOrigin.name + '</strong> to <strong>' + legDest.name + '</strong>.<br><br>' +
+        'Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong><br>' +
+        'Leg Time: <strong>' + formatDuration(raceTime) + '</strong>';
+
       showScreen('airportStart');
     }
 
@@ -651,6 +725,8 @@
         '<strong>' + playerTeam + '</strong><br><br>' +
         'You have arrived at <strong>' + cityAirportName(legDest) + '</strong>.<br><br>' +
         'Destination City: <strong>' + legDest.name + '</strong><br><br>' +
+        'Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong><br>' +
+        'Leg Time: <strong>' + formatDuration(raceTime) + '</strong><br><br>' +
         'Leave the airport to begin the leg tasks.';
 
       showScreen('airportEnd');
@@ -666,7 +742,7 @@
       }
 
       var f = rollFlight();
-      raceTime = raceTime + f.total;
+      addRaceMinutes(f.total);
 
       var msg;
       if (f.delay === 0) {
@@ -681,7 +757,10 @@
       msg += '<br>Destination City: <strong>' + legDest.name + '</strong>.';
 
       var res = document.getElementById('flightResult');
-      res.innerHTML = msg + '<br>Time so far: ' + formatDuration(raceTime);
+      res.innerHTML =
+        msg +
+        '<br><br>Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong>' +
+        '<br>Leg Time: <strong>' + formatDuration(raceTime) + '</strong>';
 
       flightResolved = true;
     }
@@ -696,7 +775,9 @@
         '<strong>' + playerTeam + '</strong><br>' +
         currentLegLabel() + ' · ' + legDest.name + '<br>' +
         'Stop ' + (currentStop + 1) + '<br>' +
-        'Cash: $' + money[playerTeam] + ' · Time: ' + formatDuration(raceTime);
+        'Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong><br>' +
+        'Leg Time: <strong>' + formatDuration(raceTime) + '</strong><br>' +
+        'Cash: <strong>$' + money[playerTeam] + '</strong>';
 
       document.getElementById('challengeInfo').innerHTML =
         'Challenge type: <strong>' + stop.skill + '</strong><br>' +
@@ -707,7 +788,7 @@
     }
 
     function attemptChallenge() {
-      raceTime = raceTime + currentChallenge.adjusted;
+      addRaceMinutes(currentChallenge.adjusted);
       showRace();
     }
 
@@ -716,8 +797,9 @@
         '<strong>' + playerTeam + '</strong><br>' +
         currentLegLabel() + ' · ' + legDest.name + '<br>' +
         'Stop ' + (currentStop + 1) + '<br>' +
-        'Cash: $' + money[playerTeam] + '<br>' +
-        'Time elapsed: ' + formatDuration(raceTime);
+        'Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong><br>' +
+        'Leg Time: <strong>' + formatDuration(raceTime) + '</strong><br>' +
+        'Cash: <strong>$' + money[playerTeam] + '</strong>';
 
       if (!legTransportOptions[currentStop]) {
         legTransportOptions[currentStop] = makeTransportOptionsForSegment();
@@ -741,7 +823,7 @@
 
     function chooseTransport(opt) {
       money[playerTeam] = money[playerTeam] - opt.cost;
-      raceTime = raceTime + opt.time;
+      addRaceMinutes(opt.time);
       currentStop = currentStop + 1;
       if (currentStop >= totalStopsThisLeg) {
         showPitStopScreen();
@@ -760,7 +842,8 @@
         (finalLeg
           ? 'You have reached the Finish Line in <strong>' + legDest.name + '</strong>.<br><br>'
           : 'You have reached the Pit Stop in <strong>' + legDest.name + '</strong>.<br><br>') +
-        'Time: <strong>' + formatDuration(raceTime) + '</strong><br>' +
+        'Check-In Time: <strong>' + formatRaceDateTime(raceClock) + '</strong><br>' +
+        'Leg Time: <strong>' + formatDuration(raceTime) + '</strong><br>' +
         'Cash: <strong>$' + money[playerTeam] + '</strong><br><br>' +
         (finalLeg ? 'Check in to reveal the winner.' : 'Check in to see the leg results.');
 
@@ -868,6 +951,12 @@
       });
       results.sort(function (a, b) { return a.time - b.time; });
 
+      var playerResult = results.find(function (r) {
+        return r.team === playerTeam;
+      });
+      var winnerTime = results[0].time;
+      nextLegDepartureGap = playerResult ? Math.max(0, Math.round((playerResult.time - winnerTime) * DEPARTURE_GAP_COMPRESSION)) : 0;
+
       updateRouteHistoryForCompletedLeg();
 
       var placeOf = {};
@@ -900,7 +989,10 @@
           '<br><strong>' + lastPlaceTeam + '</strong> finished last, but this is a NON-ELIMINATION leg!' +
           '<br>No team has been eliminated.' +
           '<br>Teams left: ' + remainingTeams.length +
-          ' · Your cash: $' + money[playerTeam] + chart;
+          ' · Your cash: $' + money[playerTeam] +
+          '<br>Next leg starts 7 days later' +
+          (nextLegDepartureGap > 0 ? ' with a compressed departure gap of +' + formatDuration(nextLegDepartureGap) + '.' : '.') +
+          chart;
 
         renderResults(legRouteTitle('Leg ' + legNum), nonElimBody, 'Next Leg', nextLeg);
         return;
@@ -920,13 +1012,17 @@
         routeTrail +
         '<br><strong>' + lastPlaceTeam + '</strong> finished last and is eliminated.' +
         '<br>Teams left: ' + remainingTeams.length +
-        ' · Your cash: $' + money[playerTeam] + chart;
+        ' · Your cash: $' + money[playerTeam] +
+        '<br>Next leg starts 7 days later' +
+        (nextLegDepartureGap > 0 ? ' with a compressed departure gap of +' + formatDuration(nextLegDepartureGap) + '.' : '.') +
+        chart;
       renderResults(legRouteTitle('Leg ' + legNum), body3, 'Next Leg', nextLeg);
     }
 
     function nextLeg() {
       currentCity = legDest;
       legNum = legNum + 1;
+      raceClock = legStartClock + LEG_GAP_MINUTES + nextLegDepartureGap;
       startLeg();
     }
 
