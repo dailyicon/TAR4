@@ -135,6 +135,11 @@
       font-weight: 700;
     }
 
+    .teams-here {
+      color: #ffd166;
+      margin-top: 8px;
+    }
+
     .chart { border-collapse: collapse; margin: 8px auto 0; font-size: 0.85em; font-weight: 700; }
 
     .chart th, .chart td {
@@ -461,6 +466,8 @@
     var LEG_GAP_DAYS = 7;
     var LEG_GAP_MINUTES = LEG_GAP_DAYS * MINUTES_PER_DAY;
     var DEPARTURE_GAP_COMPRESSION = 0.5;
+    var VISIBLE_PRESENCE_WINDOW = 5;
+    var PITSTOP_PRESENCE_WINDOW = 240;
 
     var playerTeam = null;
     var skills = {};
@@ -546,8 +553,108 @@
       return n < 10 ? "0" + n : "" + n;
     }
 
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     function raceClockHeader() {
       return 'Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong>';
+    }
+
+    function startLocationKey() {
+      return "start";
+    }
+
+    function originAirportLocationKey() {
+      return "airport:origin";
+    }
+
+    function destinationAirportLocationKey() {
+      return "airport:destination";
+    }
+
+    function stopLocationKey(index) {
+      return "stop:" + index;
+    }
+
+    function pitstopLocationKey() {
+      return "pitstop";
+    }
+
+    function addPresenceSegment(list, locationKey, startClock, endClock, label) {
+      if (!list || !locationKey) {
+        return;
+      }
+
+      var start = Math.round(startClock);
+      var end = Math.round(endClock);
+
+      if (end <= start) {
+        end = start + 1;
+      }
+
+      list.push({
+        locationKey: locationKey,
+        startClock: start,
+        endClock: end,
+        label: label || ""
+      });
+    }
+
+    function formatVisibleTeamList(names) {
+      if (!names || names.length === 0) {
+        return "None";
+      }
+
+      var maxVisible = 4;
+      var visible = names.slice(0, maxVisible).map(escapeHtml);
+
+      if (names.length > maxVisible) {
+        visible.push("+" + (names.length - maxVisible) + " more");
+      }
+
+      return visible.join(", ");
+    }
+
+    function teamsAtLocation(locationKey) {
+      if (!locationKey || !remainingTeams || remainingTeams.length === 0) {
+        return [];
+      }
+
+      var here = [];
+
+      remainingTeams.forEach(function (name) {
+        if (name === playerTeam) {
+          return;
+        }
+
+        var record = teamLegRecords[name];
+        if (!record || !record.presenceSegments) {
+          return;
+        }
+
+        var present = record.presenceSegments.some(function (segment) {
+          return segment.locationKey === locationKey &&
+                 raceClock >= segment.startClock &&
+                 raceClock <= segment.endClock;
+        });
+
+        if (present) {
+          here.push(name);
+        }
+      });
+
+      return here;
+    }
+
+    function teamsHereHtml(locationKey) {
+      var names = teamsAtLocation(locationKey);
+      return '<br><div class="teams-here">Teams in Sight: <strong>' + formatVisibleTeamList(names) + '</strong></div>';
     }
 
     function formatFlightMinute(minute) {
@@ -704,7 +811,12 @@
     function simulateRivalLegRecord(name) {
       var total = 0;
       var events = [];
+      var presenceSegments = [];
       var teamStartClock = currentLegStartClocks[name] != null ? currentLegStartClocks[name] : legStartClock;
+
+      function currentClockForTeam() {
+        return teamStartClock + total;
+      }
 
       function addEvent(label, duration) {
         var rounded = Math.max(0, Math.round(duration));
@@ -712,15 +824,31 @@
         events.push({
           label: label,
           elapsed: total,
-          clock: teamStartClock + total
+          clock: currentClockForTeam()
         });
       }
+
+      addPresenceSegment(
+        presenceSegments,
+        startLocationKey(),
+        teamStartClock,
+        teamStartClock + VISIBLE_PRESENCE_WINDOW,
+        "Pit Start"
+      );
 
       var toAirportPick = chooseTeamTransport(name, airportStartTransportOptions);
       addEvent("Travel to origin airport by " + toAirportPick.method, toAirportPick.time);
 
-      var airportArrivalClock = teamStartClock + total;
-      var flightWait = waitForHourlyDeparture(airportArrivalClock, legFlightDepartureMinute);
+      var originAirportArrivalClock = currentClockForTeam();
+      var flightWait = waitForHourlyDeparture(originAirportArrivalClock, legFlightDepartureMinute);
+      addPresenceSegment(
+        presenceSegments,
+        originAirportLocationKey(),
+        originAirportArrivalClock,
+        originAirportArrivalClock + Math.max(flightWait, VISIBLE_PRESENCE_WINDOW),
+        "Origin Airport"
+      );
+
       if (flightWait > 0) {
         addEvent("Wait for flight departure", flightWait);
       }
@@ -728,17 +856,45 @@
       var flight = rollFlight();
       addEvent("Flight to destination airport", flight.total);
 
+      var destinationAirportArrivalClock = currentClockForTeam();
+      addPresenceSegment(
+        presenceSegments,
+        destinationAirportLocationKey(),
+        destinationAirportArrivalClock,
+        destinationAirportArrivalClock + VISIBLE_PRESENCE_WINDOW,
+        "Destination Airport"
+      );
+
       var fromAirportPick = chooseTeamTransport(name, airportEndTransportOptions);
       addEvent("Travel from destination airport by " + fromAirportPick.method, fromAirportPick.time);
 
       legStops.forEach(function (stop, index) {
+        var stopArrivalClock = currentClockForTeam();
         var lvl = skills[name][stop.skill];
         var challengeTime = Math.max(1, Math.round(stop.base * skillMultiplier(lvl)));
+
+        addPresenceSegment(
+          presenceSegments,
+          stopLocationKey(index),
+          stopArrivalClock,
+          stopArrivalClock + challengeTime + VISIBLE_PRESENCE_WINDOW,
+          "Stop " + (index + 1)
+        );
+
         addEvent("Complete " + stop.skill + " challenge", challengeTime);
 
         var transportPick = chooseTeamTransport(name, legTransportOptions[index]);
         addEvent("Travel after stop " + (index + 1) + " by " + transportPick.method, transportPick.time);
       });
+
+      var pitstopArrivalClock = currentClockForTeam();
+      addPresenceSegment(
+        presenceSegments,
+        pitstopLocationKey(),
+        pitstopArrivalClock,
+        pitstopArrivalClock + PITSTOP_PRESENCE_WINDOW,
+        "Pit Stop"
+      );
 
       return {
         team: name,
@@ -747,7 +903,8 @@
         checkInClock: teamStartClock + total,
         cashSpent: teamCashSpentThisLeg[name] || 0,
         cashRemaining: money[name],
-        events: events
+        events: events,
+        presenceSegments: presenceSegments
       };
     }
 
@@ -937,7 +1094,9 @@
     function renderLegIntroScreen() {
       document.getElementById('legIntroTitle').textContent = currentLegLabel();
       document.getElementById('legIntroBody').innerHTML =
-        raceClockHeader() + '<br><br>' +
+        raceClockHeader() +
+        teamsHereHtml(startLocationKey()) +
+        '<br><br>' +
         (isFinalLeg() ? '<strong>Three teams remain. First to the final mat wins.</strong><br><br>' : '') +
         'Starting City: <strong>' + legOrigin.name + '</strong><br>' +
         '<br>Teams Remaining: <strong>' + remainingTeams.length + '</strong><br>' +
@@ -976,7 +1135,9 @@
 
       document.getElementById('specialTransportTitle').textContent = 'Travel to Airport';
       document.getElementById('specialTransportStatus').innerHTML =
-        raceClockHeader() + '<br>' +
+        raceClockHeader() +
+        teamsHereHtml(startLocationKey()) +
+        '<br>' +
         'Travel from the Pit Start in <strong>' + legOrigin.name + '</strong><br>' +
         'to <strong>' + cityAirportName(legOrigin) + '</strong>.<br><br>' +
         'Cash: <strong>$' + money[playerTeam] + '</strong>';
@@ -990,7 +1151,9 @@
 
       document.getElementById('specialTransportTitle').textContent = 'Leave Airport';
       document.getElementById('specialTransportStatus').innerHTML =
-        raceClockHeader() + '<br>' +
+        raceClockHeader() +
+        teamsHereHtml(destinationAirportLocationKey()) +
+        '<br>' +
         'Travel from <strong>' + cityAirportName(legDest) + '</strong><br>' +
         'to your first location in <strong>' + legDest.name + '</strong>.<br><br>' +
         'Cash: <strong>$' + money[playerTeam] + '</strong>';
@@ -1050,7 +1213,8 @@
       var res = document.getElementById('flightResult');
       res.innerHTML =
         msg +
-        '<br><br>Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong>';
+        '<br><br>Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong>' +
+        teamsHereHtml(destinationAirportLocationKey());
 
       restoredFlightResultHtml = res.innerHTML;
       flightResolved = true;
@@ -1063,7 +1227,9 @@
       currentChallenge = { adjusted: adjusted };
 
       document.getElementById('challengeStatus').innerHTML =
-        raceClockHeader() + '<br>' +
+        raceClockHeader() +
+        teamsHereHtml(stopLocationKey(currentStop)) +
+        '<br>' +
         currentLegLabel() + ' · ' + legDest.name + '<br>' +
         'Stop ' + (currentStop + 1) + '<br>' +
         'Cash: <strong>$' + money[playerTeam] + '</strong>';
@@ -1083,7 +1249,9 @@
 
     function showRace() {
       document.getElementById('raceStatus').innerHTML =
-        raceClockHeader() + '<br>' +
+        raceClockHeader() +
+        teamsHereHtml(stopLocationKey(currentStop)) +
+        '<br>' +
         currentLegLabel() + ' · ' + legDest.name + '<br>' +
         'Stop ' + (currentStop + 1) + '<br>' +
         'Cash: <strong>$' + money[playerTeam] + '</strong>';
@@ -1121,7 +1289,9 @@
       document.getElementById('pitstopTitle').textContent = finalLeg ? '🏆 Finish Line' : '🏁 Pit Stop';
 
       document.getElementById('pitstopBody').innerHTML =
-        raceClockHeader() + '<br><br>' +
+        raceClockHeader() +
+        teamsHereHtml(pitstopLocationKey()) +
+        '<br><br>' +
         (finalLeg
           ? 'You have reached the Finish Line in <strong>' + legDest.name + '</strong>.<br><br>'
           : 'You have reached the Pit Stop in <strong>' + legDest.name + '</strong>.<br><br>') +
@@ -1143,7 +1313,7 @@
         var style = isYou ? ' style="color:#ffd166;font-weight:bold;"' : '';
 
         rows += '<div' + style + '>' +
-          (i + 1) + '. ' + r.team +
+          (i + 1) + '. ' + escapeHtml(r.team) +
           ' - ' + formatRaceDateTime(r.checkInClock) +
           '</div>';
       });
@@ -1180,7 +1350,7 @@
         var avg = nums.length ? (nums.reduce(function (s, x) { return s + x; }, 0) / nums.length).toFixed(1) : '';
         var isYou = (name === playerTeam);
         var rowStyle = isYou ? ' style="color:#ffd166;font-weight:bold;"' : '';
-        html += '<tr' + rowStyle + '><td>' + truncateName(name, 14) + '</td>';
+        html += '<tr' + rowStyle + '><td>' + escapeHtml(truncateName(name, 14)) + '</td>';
         h.forEach(function (p) { html += '<td>' + (p == null ? '' : p) + '</td>'; });
         html += '<td>' + avg + '</td></tr>';
       });
@@ -1214,7 +1384,8 @@
             checkInClock: raceClock,
             cashSpent: teamCashSpentThisLeg[name] || 0,
             cashRemaining: money[name],
-            events: []
+            events: [],
+            presenceSegments: []
           });
         } else {
           var record = teamLegRecords[name];
@@ -1266,7 +1437,7 @@
         var winner = results[0].team;
         var finalBody = standingsHtml(results) +
           routeTrail +
-          '<br><br>🏆 <strong>' + winner + '</strong> has crossed the final mat and wins The Amazing Race!' +
+          '<br><br>🏆 <strong>' + escapeHtml(winner) + '</strong> has crossed the final mat and wins The Amazing Race!' +
           (winner === playerTeam ? '<br><strong>That is you. You won the whole race!</strong>' : '') +
           '<br><br>The race is complete.' +
           chart;
@@ -1280,7 +1451,7 @@
       if (legIsNonElim) {
         var nonElimBody = standingsHtml(results) +
           routeTrail +
-          '<br><strong>' + lastPlaceTeam + '</strong> finished last, but this is a NON-ELIMINATION leg!' +
+          '<br><strong>' + escapeHtml(lastPlaceTeam) + '</strong> finished last, but this is a NON-ELIMINATION leg!' +
           '<br>No team has been eliminated.' +
           '<br>Teams left: ' + remainingTeams.length +
           ' · Your cash: $' + money[playerTeam] +
@@ -1303,7 +1474,7 @@
 
       var body3 = standingsHtml(results) +
         routeTrail +
-        '<br><strong>' + lastPlaceTeam + '</strong> finished last and is eliminated.' +
+        '<br><strong>' + escapeHtml(lastPlaceTeam) + '</strong> finished last and is eliminated.' +
         '<br>Teams left: ' + remainingTeams.length +
         ' · Your cash: $' + money[playerTeam] +
         nextDepartureText +
@@ -1600,9 +1771,8 @@
     }
 
     function renderMenuScreen() {
-      var latest = latestSaveState();
       document.getElementById('menuStatus').innerHTML =
-        'Current Race: <strong>' + (playerTeam || 'None') + '</strong><br>' +
+        'Current Race: <strong>' + escapeHtml(playerTeam || 'None') + '</strong><br>' +
         'Auto Save: <strong>' + formatSaveStamp(readSaveFromKey(AUTO_SAVE_KEY)) + '</strong><br>' +
         '<div class="menu-note">Saves are stored in this browser on this device.</div>';
 
