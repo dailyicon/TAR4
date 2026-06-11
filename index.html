@@ -893,7 +893,7 @@
           </div>
         </div>
 
-        <div class="settings-grid three">
+        <div class="settings-grid">
           <div class="setting-card">
             <label for="settingNonElimChance">Non-Elimination Chance</label>
             <select id="settingNonElimChance">
@@ -922,6 +922,15 @@
               <input id="settingFinalMaxStops" type="number" min="1" max="25" step="1" aria-label="Maximum final leg challenges">
             </div>
             <div class="setting-help">Final leg can stay bigger and more dramatic than regular legs.</div>
+          </div>
+
+          <div class="setting-card">
+            <label>Challenge Time Range</label>
+            <div class="range-pair">
+              <input id="settingChallengeMinTime" type="number" min="1" max="240" step="1" aria-label="Minimum base challenge time">
+              <input id="settingChallengeMaxTime" type="number" min="1" max="240" step="1" aria-label="Maximum base challenge time">
+            </div>
+            <div class="setting-help">Base minutes for each challenge before skill level modifies the time.</div>
           </div>
         </div>
       </div>
@@ -1099,7 +1108,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 8;
+    var SAVE_VERSION = 9;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -5475,6 +5484,8 @@
     var MAX_STOPS_PER_LEG = 5;
     var FINAL_MIN_STOPS_PER_LEG = 5;
     var FINAL_MAX_STOPS_PER_LEG = 7;
+    var CHALLENGE_MIN_TIME = 10;
+    var CHALLENGE_MAX_TIME = 40;
     var NON_ELIM_CHANCE = 0.15;
     var DEFAULT_RACE_SETTINGS = {
       teamCount: DEFAULT_TEAM_COUNT,
@@ -5484,6 +5495,8 @@
       maxStopsPerLeg: 5,
       finalMinStopsPerLeg: 5,
       finalMaxStopsPerLeg: 7,
+      challengeMinTime: 10,
+      challengeMaxTime: 40,
       nonElimChance: 0.15,
       flightChaos: "normal",
       skillMode: "random",
@@ -6575,6 +6588,8 @@
         maxStopsPerLeg: parseInt(base.maxStopsPerLeg, 10),
         finalMinStopsPerLeg: parseInt(base.finalMinStopsPerLeg, 10),
         finalMaxStopsPerLeg: parseInt(base.finalMaxStopsPerLeg, 10),
+        challengeMinTime: parseInt(base.challengeMinTime, 10),
+        challengeMaxTime: parseInt(base.challengeMaxTime, 10),
         nonElimChance: Number(base.nonElimChance),
         flightChaos: base.flightChaos || "normal",
         skillMode: base.skillMode || "random",
@@ -6595,6 +6610,8 @@
       settings.maxStopsPerLeg = clampNumber(isNaN(settings.maxStopsPerLeg) ? DEFAULT_RACE_SETTINGS.maxStopsPerLeg : settings.maxStopsPerLeg, 1, 20);
       settings.finalMinStopsPerLeg = clampNumber(isNaN(settings.finalMinStopsPerLeg) ? DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg : settings.finalMinStopsPerLeg, 1, 25);
       settings.finalMaxStopsPerLeg = clampNumber(isNaN(settings.finalMaxStopsPerLeg) ? DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg : settings.finalMaxStopsPerLeg, 1, 25);
+      settings.challengeMinTime = clampNumber(isNaN(settings.challengeMinTime) ? DEFAULT_RACE_SETTINGS.challengeMinTime : settings.challengeMinTime, 1, 240);
+      settings.challengeMaxTime = clampNumber(isNaN(settings.challengeMaxTime) ? DEFAULT_RACE_SETTINGS.challengeMaxTime : settings.challengeMaxTime, 1, 240);
       settings.nonElimChance = clampNumber(isNaN(settings.nonElimChance) ? DEFAULT_RACE_SETTINGS.nonElimChance : settings.nonElimChance, 0, 1);
 
       if (settings.maxStopsPerLeg < settings.minStopsPerLeg) {
@@ -6603,6 +6620,10 @@
 
       if (settings.finalMaxStopsPerLeg < settings.finalMinStopsPerLeg) {
         settings.finalMaxStopsPerLeg = settings.finalMinStopsPerLeg;
+      }
+
+      if (settings.challengeMaxTime < settings.challengeMinTime) {
+        settings.challengeMaxTime = settings.challengeMinTime;
       }
 
       if (!FLIGHT_CHAOS_PROFILES[settings.flightChaos]) {
@@ -6630,6 +6651,8 @@
       MAX_STOPS_PER_LEG = raceSettings.maxStopsPerLeg;
       FINAL_MIN_STOPS_PER_LEG = raceSettings.finalMinStopsPerLeg;
       FINAL_MAX_STOPS_PER_LEG = raceSettings.finalMaxStopsPerLeg;
+      CHALLENGE_MIN_TIME = raceSettings.challengeMinTime;
+      CHALLENGE_MAX_TIME = raceSettings.challengeMaxTime;
       NON_ELIM_CHANCE = raceSettings.nonElimChance;
       SKILL_TYPES = raceSettings.skillTypes.slice();
     }
@@ -6666,6 +6689,8 @@
         maxStopsPerLeg: settingValue("settingMaxStops", DEFAULT_RACE_SETTINGS.maxStopsPerLeg),
         finalMinStopsPerLeg: settingValue("settingFinalMinStops", DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg),
         finalMaxStopsPerLeg: settingValue("settingFinalMaxStops", DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg),
+        challengeMinTime: settingValue("settingChallengeMinTime", DEFAULT_RACE_SETTINGS.challengeMinTime),
+        challengeMaxTime: settingValue("settingChallengeMaxTime", DEFAULT_RACE_SETTINGS.challengeMaxTime),
         nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
         flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
         skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
@@ -6691,6 +6716,7 @@
         "<strong>" + Math.round(preview.nonElimChance * 100) + "%</strong> non-elim · " +
         "Normal legs <strong>" + preview.minStopsPerLeg + "-" + preview.maxStopsPerLeg + "</strong> challenges · " +
         "Final leg <strong>" + preview.finalMinStopsPerLeg + "-" + preview.finalMaxStopsPerLeg + "</strong> challenges · " +
+        "Challenge time <strong>" + preview.challengeMinTime + "-" + preview.challengeMaxTime + "m</strong> base · " +
         "Flight chaos: <strong>" + escapeHtml(chaos.label) + "</strong> · " +
         "Skills: <strong>" + escapeHtml(modeLabel) + "</strong> / <strong>" + preview.skillTypes.length + "</strong> skills" +
         (preview.skillMode === "player_all" ? " / Your team all <strong>" + preview.playerAllSkillLevel + "</strong>" : "");
@@ -6706,6 +6732,8 @@
       setSettingValue("settingMaxStops", s.maxStopsPerLeg);
       setSettingValue("settingFinalMinStops", s.finalMinStopsPerLeg);
       setSettingValue("settingFinalMaxStops", s.finalMaxStopsPerLeg);
+      setSettingValue("settingChallengeMinTime", s.challengeMinTime);
+      setSettingValue("settingChallengeMaxTime", s.challengeMaxTime);
       setSettingValue("settingFlightChaos", s.flightChaos);
       setSettingValue("settingSkillMode", s.skillMode);
       setSettingValue("settingPlayerAllSkillLevel", s.playerAllSkillLevel);
@@ -6719,7 +6747,8 @@
       [
         "settingTeamCount", "settingStartingMoney", "settingLegStipend", "settingNonElimChance",
         "settingMinStops", "settingMaxStops", "settingFinalMinStops",
-        "settingFinalMaxStops", "settingFlightChaos", "settingSkillMode",
+        "settingFinalMaxStops", "settingChallengeMinTime", "settingChallengeMaxTime",
+        "settingFlightChaos", "settingSkillMode",
         "settingPlayerAllSkillLevel", "settingSkillCount"
       ].forEach(function (id) {
         var el = document.getElementById(id);
@@ -6771,6 +6800,8 @@
         maxStopsPerLeg: settingValue("settingMaxStops", DEFAULT_RACE_SETTINGS.maxStopsPerLeg),
         finalMinStopsPerLeg: settingValue("settingFinalMinStops", DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg),
         finalMaxStopsPerLeg: settingValue("settingFinalMaxStops", DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg),
+        challengeMinTime: settingValue("settingChallengeMinTime", DEFAULT_RACE_SETTINGS.challengeMinTime),
+        challengeMaxTime: settingValue("settingChallengeMaxTime", DEFAULT_RACE_SETTINGS.challengeMaxTime),
         nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
         flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
         skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
@@ -8011,7 +8042,7 @@
       SKILL_TYPES.forEach(function (skill) {
         var item = document.createElement("div");
         item.className = "skill";
-        item.innerHTML = "<span>" + skill + "</span><span class=\"lvl\">" + skills[playerTeam][skill] + "</span>";
+        item.innerHTML = "<span>" + escapeHtml(skill) + "</span><span class=\"lvl\">" + skills[playerTeam][skill] + "</span>";
         box.appendChild(item);
       });
 
@@ -8115,7 +8146,7 @@
 
       for (var i = 0; i < totalStopsThisLeg; i++) {
         var skill = SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)];
-        var base = randomInt(10, 40);
+        var base = randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME);
 
         legStops.push({
           skill: skill,
