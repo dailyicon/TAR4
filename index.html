@@ -141,7 +141,15 @@
   <div id="legIntro" class="screen">
     <h1 id="legIntroTitle"></h1>
     <div class="status" id="legIntroBody"></div>
-    <button onclick="showAirportStartScreen()">Head to Airport</button>
+    <button onclick="showTransportToAirport()">Begin Leg</button>
+  </div>
+
+  <!-- Special Transport -->
+  <div id="specialTransport" class="screen">
+    <h1 id="specialTransportTitle"></h1>
+    <div class="status" id="specialTransportStatus"></div>
+    <p>Choose your transport:</p>
+    <div id="specialTransportList"></div>
   </div>
 
   <!-- Airport Start -->
@@ -155,15 +163,15 @@
   <div id="flight" class="screen">
     <h1>✈️ Flight</h1>
     <div class="status" id="flightBody"></div>
-    <div class="status" id="flightResult" style="display:none;"></div>
-    <button id="flightBtn" onclick="flightButton()">Board flight</button>
+    <div class="status" id="flightResult"></div>
+    <button id="flightBtn" onclick="flightButton()">Continue to Destination Airport</button>
   </div>
 
   <!-- Airport End -->
   <div id="airportEnd" class="screen">
     <h1>🛬 Destination Airport</h1>
     <div class="status" id="airportEndBody"></div>
-    <button onclick="showChallenge()">Leave Airport</button>
+    <button onclick="showTransportFromAirport()">Leave Airport</button>
   </div>
 
   <!-- Challenge -->
@@ -278,8 +286,12 @@
     var legDest = null;
     var legFlightTime = 0;
     var legHasConnection = false;
-    var flightBoarded = false;
+    var flightResolved = false;
     var legIsNonElim = false;
+
+    var airportStartTransportOptions = null;
+    var airportEndTransportOptions = null;
+    var specialTransportMode = null;
 
     function buildTeamButtons() {
       var list = document.getElementById('teamList');
@@ -363,6 +375,24 @@
       });
 
       return selected;
+    }
+
+    function chooseRivalTransport(name, options) {
+      var affordable = options.filter(function (o) {
+        return o.cost <= money[name];
+      });
+
+      var pick;
+      if (affordable.length > 0) {
+        pick = affordable[Math.floor(Math.random() * affordable.length)];
+      } else {
+        pick = options.reduce(function (cheapest, opt) {
+          return opt.cost < cheapest.cost ? opt : cheapest;
+        }, options[0]);
+      }
+
+      money[name] -= pick.cost;
+      return pick;
     }
 
     function updateRouteHistoryForCompletedLeg() {
@@ -472,6 +502,8 @@
       currentStop = 0;
       raceTime = 0;
       legTransportOptions = [];
+      airportStartTransportOptions = makeTransportOptionsForSegment();
+      airportEndTransportOptions = makeTransportOptionsForSegment();
       totalStopsThisLeg = randomInt(MIN_STOPS_PER_LEG, MAX_STOPS_PER_LEG);
 
       if (legNum > 1) {
@@ -501,29 +533,81 @@
       document.getElementById('legIntroBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br><br>' +
         'Starting City: <strong>' + legOrigin.name + '</strong><br><br>' +
-        'Leg Flow:<br>' +
-        '<strong>Start City → Airport → Mystery Flight → Destination Airport → Stops</strong><br><br>' +
-        'Leg Stops: <strong>' + totalStopsThisLeg + '</strong><br>' +
         'Teams Remaining: <strong>' + remainingTeams.length + '</strong><br>' +
         'Your Cash: <strong>$' + money[playerTeam] + '</strong>';
 
       document.getElementById('airportStartBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br><br>' +
         'You have reached <strong>' + cityAirportName(legOrigin) + '</strong>.<br><br>' +
-        'Prepare to board a flight from <strong>' + legOrigin.name + '</strong> to your next mystery destination.';
+        'Prepare to board a flight from <strong>' + legOrigin.name + '</strong> to <strong>' + legDest.name + '</strong>.';
 
       document.getElementById('flightBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
         'Leg ' + legNum + '<br><br>' +
         'Departing from <strong>' + cityAirportName(legOrigin) + '</strong><br>' +
-        'Flying to your next mystery airport.<br><br>' +
+        'Flying to <strong>' + cityAirportName(legDest) + '</strong>.<br><br>' +
         km.toLocaleString() + ' km · ~' + formatDuration(legFlightTime) + ' flight' +
         (legHasConnection ? '<br><br>🔗 This leg has a connection. A long delay could make you miss it.' : '');
 
-      flightBoarded = false;
-      document.getElementById('flightResult').style.display = 'none';
-      document.getElementById('flightBtn').textContent = 'Board flight';
+      flightResolved = false;
+      document.getElementById('flightResult').innerHTML = '';
+      document.getElementById('flightBtn').textContent = 'Continue to Destination Airport';
       showScreen('legIntro');
+    }
+
+    function renderSpecialTransportOptions(options) {
+      var list = document.getElementById('specialTransportList');
+      list.innerHTML = '';
+
+      options.forEach(function (opt) {
+        var btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.textContent = opt.method + ' - $' + opt.cost + ' · ' + formatDuration(opt.time);
+        if (opt.cost > money[playerTeam]) { btn.disabled = true; }
+        btn.onclick = function () { chooseSpecialTransport(opt); };
+        list.appendChild(btn);
+      });
+    }
+
+    function showTransportToAirport() {
+      specialTransportMode = "toAirport";
+
+      document.getElementById('specialTransportTitle').textContent = 'Travel to Airport';
+      document.getElementById('specialTransportStatus').innerHTML =
+        '<strong>' + playerTeam + '</strong><br>' +
+        'Travel from the Pit Start in <strong>' + legOrigin.name + '</strong><br>' +
+        'to <strong>' + cityAirportName(legOrigin) + '</strong>.<br><br>' +
+        'Cash: <strong>$' + money[playerTeam] + '</strong><br>' +
+        'Time: <strong>' + formatDuration(raceTime) + '</strong>';
+
+      renderSpecialTransportOptions(airportStartTransportOptions);
+      showScreen('specialTransport');
+    }
+
+    function showTransportFromAirport() {
+      specialTransportMode = "fromAirport";
+
+      document.getElementById('specialTransportTitle').textContent = 'Leave Airport';
+      document.getElementById('specialTransportStatus').innerHTML =
+        '<strong>' + playerTeam + '</strong><br>' +
+        'Travel from <strong>' + cityAirportName(legDest) + '</strong><br>' +
+        'to your first location in <strong>' + legDest.name + '</strong>.<br><br>' +
+        'Cash: <strong>$' + money[playerTeam] + '</strong><br>' +
+        'Time: <strong>' + formatDuration(raceTime) + '</strong>';
+
+      renderSpecialTransportOptions(airportEndTransportOptions);
+      showScreen('specialTransport');
+    }
+
+    function chooseSpecialTransport(opt) {
+      money[playerTeam] = money[playerTeam] - opt.cost;
+      raceTime = raceTime + opt.time;
+
+      if (specialTransportMode === "toAirport") {
+        showAirportStartScreen();
+      } else if (specialTransportMode === "fromAirport") {
+        showChallenge();
+      }
     }
 
     function showAirportStartScreen() {
@@ -531,6 +615,7 @@
     }
 
     function showFlightScreen() {
+      resolveFlightNow();
       showScreen('flight');
     }
 
@@ -538,22 +623,21 @@
       document.getElementById('airportEndBody').innerHTML =
         '<strong>' + playerTeam + '</strong><br><br>' +
         'You have arrived at <strong>' + cityAirportName(legDest) + '</strong>.<br><br>' +
-        'Destination City: <strong>' + legDest.name + '</strong><br>' +
-        'Stops Ahead: <strong>' + totalStopsThisLeg + '</strong><br><br>' +
+        'Destination City: <strong>' + legDest.name + '</strong><br><br>' +
         'Leave the airport to begin the leg tasks.';
 
       showScreen('airportEnd');
     }
 
     function flightButton() {
-      if (!flightBoarded) {
-        boardFlight();
-      } else {
-        showAirportEndScreen();
-      }
+      showAirportEndScreen();
     }
 
-    function boardFlight() {
+    function resolveFlightNow() {
+      if (flightResolved) {
+        return;
+      }
+
       var f = rollFlight();
       raceTime = raceTime + f.total;
 
@@ -571,10 +655,8 @@
 
       var res = document.getElementById('flightResult');
       res.innerHTML = msg + '<br>Time so far: ' + formatDuration(raceTime);
-      res.style.display = 'block';
 
-      flightBoarded = true;
-      document.getElementById('flightBtn').textContent = 'Continue to Destination Airport';
+      flightResolved = true;
     }
 
     function showChallenge() {
@@ -586,7 +668,7 @@
       document.getElementById('challengeStatus').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
         'Leg ' + legNum + ' · ' + legDest.name + '<br>' +
-        'Stop ' + (currentStop + 1) + ' of ' + totalStopsThisLeg + '<br>' +
+        'Stop ' + (currentStop + 1) + '<br>' +
         'Cash: $' + money[playerTeam] + ' · Time: ' + formatDuration(raceTime);
 
       document.getElementById('challengeInfo').innerHTML =
@@ -607,7 +689,7 @@
       document.getElementById('raceStatus').innerHTML =
         '<strong>' + playerTeam + '</strong><br>' +
         'Leg ' + legNum + ' · ' + legDest.name + '<br>' +
-        'Stop ' + (currentStop + 1) + ' of ' + totalStopsThisLeg + '<br>' +
+        'Stop ' + (currentStop + 1) + '<br>' +
         'Cash: $' + money[playerTeam] + '<br>' +
         'Time elapsed: ' + formatDuration(raceTime);
 
@@ -643,7 +725,16 @@
     }
 
     function simulateRivalLeg(name) {
-      var total = rollFlight().total;
+      var total = 0;
+
+      var toAirportPick = chooseRivalTransport(name, airportStartTransportOptions);
+      total += toAirportPick.time;
+
+      total += rollFlight().total;
+
+      var fromAirportPick = chooseRivalTransport(name, airportEndTransportOptions);
+      total += fromAirportPick.time;
+
       legStops.forEach(function (stop, index) {
         var lvl = skills[name][stop.skill];
         total += Math.max(1, Math.round(stop.base * skillMultiplier(lvl)));
@@ -654,22 +745,10 @@
           legTransportOptions[index] = optionsForThisSegment;
         }
 
-        var affordable = optionsForThisSegment.filter(function (o) {
-          return o.cost <= money[name];
-        });
-
-        var pick;
-        if (affordable.length > 0) {
-          pick = affordable[Math.floor(Math.random() * affordable.length)];
-        } else {
-          pick = optionsForThisSegment.reduce(function (cheapest, opt) {
-            return opt.cost < cheapest.cost ? opt : cheapest;
-          }, optionsForThisSegment[0]);
-        }
-
-        money[name] -= pick.cost;
+        var pick = chooseRivalTransport(name, optionsForThisSegment);
         total += pick.time;
       });
+
       return total;
     }
 
