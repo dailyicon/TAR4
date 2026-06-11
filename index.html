@@ -577,10 +577,16 @@
     <span class="screen-label">Race Setup</span>
     <h1>Customize Race</h1>
     <div class="status">
-      Tune the season before choosing your team. Team name customization can be added later without disturbing these settings.
+      Tune the season before choosing your team. Team names default to Team 1, Team 2, etc. Full name editing comes next.
     </div>
     <div class="panel-card">
       <div class="settings-grid">
+        <div class="setting-card">
+          <label for="settingTeamCount">Number of Teams</label>
+          <input id="settingTeamCount" type="number" min="4" max="50" step="1">
+          <div class="setting-help">Creates default teams named Team 1, Team 2, Team 3, and so on.</div>
+        </div>
+
         <div class="setting-card">
           <label for="settingStartingMoney">Starting Money</label>
           <input id="settingStartingMoney" type="number" min="0" max="999999" step="50">
@@ -642,7 +648,7 @@
     <br>
     <button class="secondary-btn" onclick="resetCustomizationDefaults()">Reset Defaults</button>
     <br>
-    <button class="secondary-btn" onclick="openCustomization()">Back</button>
+    <button class="secondary-btn" onclick="showScreen('start')">Back</button>
   </div>
 
   <div id="teams" class="screen">
@@ -652,7 +658,7 @@
       Pick the team you want to control. Their skills will be rolled after selection.
     </div>
     <div id="teamList"></div>
-    <button class="secondary-btn" onclick="showScreen('start')">Back</button>
+    <button class="secondary-btn" onclick="openCustomization()">Back</button>
   </div>
 
   <div id="roster" class="screen">
@@ -718,7 +724,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 6;
+    var SAVE_VERSION = 7;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -726,10 +732,8 @@
     var currentResultAction = null;
     var restoredFlightResultHtml = "";
 
-    var teams = [
-      "Red", "Blue", "Green", "Yellow", "Orange", "Purple",
-      "White", "Black", "Grey", "Brown", "Pink", "Magenta"
-    ];
+    var DEFAULT_TEAM_COUNT = 12;
+    var teams = makeDefaultTeamNames(DEFAULT_TEAM_COUNT);
 
     var SKILL_TYPES = [
       "Mental", "Physical", "Endurance", "Puzzle", "Creativity",
@@ -5088,6 +5092,7 @@
     var FINAL_MAX_STOPS_PER_LEG = 7;
     var NON_ELIM_CHANCE = 0.15;
     var DEFAULT_RACE_SETTINGS = {
+      teamCount: DEFAULT_TEAM_COUNT,
       startingMoney: 1500,
       legStipend: 1000,
       minStopsPerLeg: 2,
@@ -5172,6 +5177,17 @@
     var airportStartTransportOptions = null;
     var airportEndTransportOptions = null;
     var specialTransportMode = null;
+
+    function makeDefaultTeamNames(count) {
+      var safeCount = clampNumber(parseInt(count, 10) || DEFAULT_TEAM_COUNT, 4, 50);
+      var generated = [];
+
+      for (var i = 1; i <= safeCount; i++) {
+        generated.push("Team " + i);
+      }
+
+      return generated;
+    }
 
     function buildTeamButtons() {
       var list = document.getElementById("teamList");
@@ -5581,6 +5597,7 @@
     function cloneRaceSettings(source) {
       var base = source || DEFAULT_RACE_SETTINGS;
       return {
+        teamCount: parseInt(base.teamCount, 10),
         startingMoney: parseInt(base.startingMoney, 10),
         legStipend: parseInt(base.legStipend, 10),
         minStopsPerLeg: parseInt(base.minStopsPerLeg, 10),
@@ -5595,6 +5612,7 @@
     function sanitizeRaceSettings(source) {
       var settings = cloneRaceSettings(source || DEFAULT_RACE_SETTINGS);
 
+      settings.teamCount = clampNumber(isNaN(settings.teamCount) ? DEFAULT_RACE_SETTINGS.teamCount : settings.teamCount, 4, 50);
       settings.startingMoney = clampNumber(isNaN(settings.startingMoney) ? DEFAULT_RACE_SETTINGS.startingMoney : settings.startingMoney, 0, 999999);
       settings.legStipend = clampNumber(isNaN(settings.legStipend) ? DEFAULT_RACE_SETTINGS.legStipend : settings.legStipend, 0, 999999);
       settings.minStopsPerLeg = clampNumber(isNaN(settings.minStopsPerLeg) ? DEFAULT_RACE_SETTINGS.minStopsPerLeg : settings.minStopsPerLeg, 1, 20);
@@ -5654,6 +5672,7 @@
       }
 
       var preview = sanitizeRaceSettings({
+        teamCount: settingValue("settingTeamCount", DEFAULT_RACE_SETTINGS.teamCount),
         startingMoney: settingValue("settingStartingMoney", DEFAULT_RACE_SETTINGS.startingMoney),
         legStipend: settingValue("settingLegStipend", DEFAULT_RACE_SETTINGS.legStipend),
         minStopsPerLeg: settingValue("settingMinStops", DEFAULT_RACE_SETTINGS.minStopsPerLeg),
@@ -5666,7 +5685,8 @@
       var chaos = FLIGHT_CHAOS_PROFILES[preview.flightChaos] || FLIGHT_CHAOS_PROFILES.normal;
 
       box.innerHTML =
-        "Season Settings: <strong>$" + preview.startingMoney + "</strong> start · " +
+        "Season Settings: <strong>" + preview.teamCount + "</strong> teams · " +
+        "<strong>$" + preview.startingMoney + "</strong> start · " +
         "<strong>$" + preview.legStipend + "</strong> stipend · " +
         "<strong>" + Math.round(preview.nonElimChance * 100) + "%</strong> non-elim · " +
         "Normal legs <strong>" + preview.minStopsPerLeg + "-" + preview.maxStopsPerLeg + "</strong> challenges · " +
@@ -5676,6 +5696,7 @@
 
     function fillCustomizationForm(settings) {
       var s = sanitizeRaceSettings(settings || raceSettings || DEFAULT_RACE_SETTINGS);
+      setSettingValue("settingTeamCount", s.teamCount);
       setSettingValue("settingStartingMoney", s.startingMoney);
       setSettingValue("settingLegStipend", s.legStipend);
       setSettingValue("settingNonElimChance", s.nonElimChance);
@@ -5689,7 +5710,7 @@
 
     function bindCustomizationFormEvents() {
       [
-        "settingStartingMoney", "settingLegStipend", "settingNonElimChance",
+        "settingTeamCount", "settingStartingMoney", "settingLegStipend", "settingNonElimChance",
         "settingMinStops", "settingMaxStops", "settingFinalMinStops",
         "settingFinalMaxStops", "settingFlightChaos"
       ].forEach(function (id) {
@@ -5704,6 +5725,7 @@
 
     function readCustomizationForm() {
       return sanitizeRaceSettings({
+        teamCount: settingValue("settingTeamCount", DEFAULT_RACE_SETTINGS.teamCount),
         startingMoney: settingValue("settingStartingMoney", DEFAULT_RACE_SETTINGS.startingMoney),
         legStipend: settingValue("settingLegStipend", DEFAULT_RACE_SETTINGS.legStipend),
         minStopsPerLeg: settingValue("settingMinStops", DEFAULT_RACE_SETTINGS.minStopsPerLeg),
@@ -5728,6 +5750,10 @@
     function confirmCustomization() {
       raceSettings = readCustomizationForm();
       applyRaceSettingsToGlobals();
+      teams = makeDefaultTeamNames(raceSettings.teamCount);
+      playerTeam = null;
+      skills = {};
+      buildTeamButtons();
       showScreen("teams");
     }
 
@@ -7524,8 +7550,6 @@
     function resetToStart() {
       playerTeam = null;
       remainingTeams = [];
-      raceSettings = cloneRaceSettings(DEFAULT_RACE_SETTINGS);
-      applyRaceSettingsToGlobals();
       showScreen("start");
     }
 
@@ -7561,6 +7585,7 @@
         savedAt: Date.now(),
         activeScreen: activeScreen,
         raceSettings: sanitizeRaceSettings(raceSettings || DEFAULT_RACE_SETTINGS),
+        teams: teams.slice(),
 
         playerTeam: playerTeam,
         skills: skills,
@@ -7630,6 +7655,21 @@
 
       raceSettings = sanitizeRaceSettings(state.raceSettings || DEFAULT_RACE_SETTINGS);
       applyRaceSettingsToGlobals();
+
+      var savedTeams = Array.isArray(state.teams) ? state.teams.slice() : [];
+      var placementTeams = state.placementHistory ? Object.keys(state.placementHistory) : [];
+
+      if (savedTeams.length > 0) {
+        teams = savedTeams;
+      } else if (placementTeams.length > 0) {
+        teams = placementTeams;
+      } else if (state.remainingTeams && state.remainingTeams.length > 0) {
+        teams = state.remainingTeams.slice();
+      } else {
+        teams = makeDefaultTeamNames(raceSettings.teamCount);
+      }
+
+      raceSettings.teamCount = teams.length;
 
       playerTeam = state.playerTeam;
       skills = state.skills || {};
@@ -7909,6 +7949,7 @@
       }
 
       if (id === "teams") {
+        buildTeamButtons();
         showScreen("teams");
         return;
       }
