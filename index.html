@@ -22,10 +22,14 @@
       box-sizing: border-box;
       text-align: center;
     }
+
     .screen { display: none; width: 100%; max-width: 560px; }
     .screen.active { display: block; }
+
     h1 { font-size: 2.2em; margin-bottom: 10px; font-weight: 700; }
+    h2 { font-weight: 700; }
     p { font-weight: 700; }
+
     button {
       font-family: 'Chakra Petch', Arial, sans-serif;
       font-weight: 700;
@@ -38,8 +42,23 @@
       color: #ffffff;
       cursor: pointer;
     }
+
     button:active { background: #c1121f; }
     button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    #topMenuBtn {
+      display: none;
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 50;
+      font-size: 0.95em;
+      padding: 9px 14px;
+      margin: 0;
+      border-radius: 999px;
+      background: #e63946;
+      border: 2px solid #ffd166;
+    }
 
     .team-btn {
       display: block;
@@ -51,9 +70,11 @@
       text-align: left;
       line-height: 1.3;
     }
+
     .team-btn:active { background: #9b2b3c; }
 
     .cash { font-size: 1.3em; margin: 10px 0; color: #06d6a0; font-weight: 700; }
+
     .skills {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -61,6 +82,7 @@
       margin: 16px 0;
       text-align: left;
     }
+
     .skill {
       background: #5a1c28;
       border: 1px solid #9b2b3c;
@@ -70,6 +92,7 @@
       justify-content: space-between;
       font-weight: 700;
     }
+
     .skill .lvl { font-weight: 700; color: #ffd166; }
 
     .status {
@@ -81,6 +104,7 @@
       line-height: 1.6;
       font-weight: 700;
     }
+
     .opt-btn {
       display: block;
       width: 100%;
@@ -89,9 +113,11 @@
       border: 2px solid #9b2b3c;
       text-align: left;
     }
+
     .opt-btn:active { background: #9b2b3c; }
 
     .standings { text-align: left; margin-top: 8px; font-weight: 700; }
+
     .standings > div {
       padding: 6px 0;
       border-bottom: 1px solid #9b2b3c;
@@ -110,6 +136,7 @@
     }
 
     .chart { border-collapse: collapse; margin: 8px auto 0; font-size: 0.85em; font-weight: 700; }
+
     .chart th, .chart td {
       border: 1px solid #9b2b3c;
       padding: 5px 7px;
@@ -117,26 +144,60 @@
       white-space: nowrap;
       font-weight: 700;
     }
+
     .chart th:first-child, .chart td:first-child { text-align: left; }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .menu-btn {
+      width: 100%;
+      margin: 0;
+      background: #5a1c28;
+      border: 2px solid #9b2b3c;
+      text-align: center;
+    }
+
+    .menu-btn.gold {
+      border-color: #ffd166;
+    }
+
+    .menu-note {
+      color: #ffd166;
+      font-size: 0.9em;
+      line-height: 1.4;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Start -->
+  <button id="topMenuBtn" onclick="openMenu()">☰ Menu</button>
+
   <div id="start" class="screen active">
     <h1>The Amazing Race</h1>
     <p>Race around the world. Tap to begin.</p>
-    <button onclick="showScreen('teams')">Start</button>
+    <button onclick="showScreen('teams')">New Race</button>
+    <br>
+    <button id="startLoadBtn" onclick="loadLatestGame()">Load Saved Race</button>
   </div>
 
-  <!-- Choose team -->
+  <div id="menu" class="screen">
+    <h1>Menu</h1>
+    <div class="status" id="menuStatus"></div>
+    <div class="menu-grid" id="menuButtons"></div>
+  </div>
+
   <div id="teams" class="screen">
     <h1>Choose Your Team</h1>
     <div id="teamList"></div>
     <button onclick="showScreen('start')">Back</button>
   </div>
 
-  <!-- Roster -->
   <div id="roster" class="screen">
     <h1 id="rosterTeam"></h1>
     <div class="cash" id="rosterCash"></div>
@@ -147,14 +208,12 @@
     <button onclick="showScreen('teams')">Pick a different team</button>
   </div>
 
-  <!-- Leg Intro -->
   <div id="legIntro" class="screen">
     <h1 id="legIntroTitle"></h1>
     <div class="status" id="legIntroBody"></div>
     <button onclick="showTransportToAirport()">Begin Leg</button>
   </div>
 
-  <!-- Special Transport -->
   <div id="specialTransport" class="screen">
     <h1 id="specialTransportTitle"></h1>
     <div class="status" id="specialTransportStatus"></div>
@@ -162,7 +221,6 @@
     <div id="specialTransportList"></div>
   </div>
 
-  <!-- Flight -->
   <div id="flight" class="screen">
     <h1>✈️ Flight</h1>
     <div class="status" id="flightBody"></div>
@@ -170,7 +228,6 @@
     <button id="flightBtn" onclick="showTransportFromAirport()">Leave Airport</button>
   </div>
 
-  <!-- Challenge -->
   <div id="challenge" class="screen">
     <h1>Challenge</h1>
     <div class="status" id="challengeStatus"></div>
@@ -178,7 +235,6 @@
     <button onclick="attemptChallenge()">Next</button>
   </div>
 
-  <!-- Race / transport -->
   <div id="race" class="screen">
     <h1>Travel On</h1>
     <div class="status" id="raceStatus"></div>
@@ -186,14 +242,12 @@
     <div id="transportList"></div>
   </div>
 
-  <!-- Pit Stop -->
   <div id="pitstop" class="screen">
     <h1 id="pitstopTitle">🏁 Pit Stop</h1>
     <div class="status" id="pitstopBody"></div>
     <button onclick="checkInAtPitStop()">Check In</button>
   </div>
 
-  <!-- Results -->
   <div id="results" class="screen">
     <h1 id="resultsTitle"></h1>
     <div class="status" id="resultsBody"></div>
@@ -201,6 +255,13 @@
   </div>
 
   <script>
+    var SAVE_VERSION = 1;
+    var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
+    var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
+    var lastScreenBeforeMenu = "start";
+    var currentResultAction = null;
+    var restoredFlightResultHtml = "";
+
     var teams = [
       "FUSS",
       "#idfk",
@@ -278,30 +339,112 @@
     ];
 
     var WORLD_CITIES = [
-      { name: "Tokyo",          lat: 35.6762,  lon: 139.6503 },
-      { name: "London",         lat: 51.5074,  lon: -0.1278 },
-      { name: "New York",       lat: 40.7128,  lon: -74.0060 },
-      { name: "Paris",          lat: 48.8566,  lon: 2.3522 },
-      { name: "Sydney",         lat: -33.8688, lon: 151.2093 },
-      { name: "Cairo",          lat: 30.0444,  lon: 31.2357 },
+      { name: "Tokyo", lat: 35.6762, lon: 139.6503 },
+      { name: "London", lat: 51.5074, lon: -0.1278 },
+      { name: "New York", lat: 40.7128, lon: -74.0060 },
+      { name: "Paris", lat: 48.8566, lon: 2.3522 },
+      { name: "Sydney", lat: -33.8688, lon: 151.2093 },
+      { name: "Cairo", lat: 30.0444, lon: 31.2357 },
       { name: "Rio de Janeiro", lat: -22.9068, lon: -43.1729 },
-      { name: "Cape Town",      lat: -33.9249, lon: 18.4241 },
-      { name: "Moscow",         lat: 55.7558,  lon: 37.6173 },
-      { name: "Dubai",          lat: 25.2048,  lon: 55.2708 },
-      { name: "Singapore",      lat: 1.3521,   lon: 103.8198 },
-      { name: "Los Angeles",    lat: 34.0522,  lon: -118.2437 },
-      { name: "Mumbai",         lat: 19.0760,  lon: 72.8777 },
-      { name: "Beijing",        lat: 39.9042,  lon: 116.4074 },
-      { name: "Mexico City",    lat: 19.4326,  lon: -99.1332 },
-      { name: "Istanbul",       lat: 41.0082,  lon: 28.9784 },
-      { name: "Bangkok",        lat: 13.7563,  lon: 100.5018 },
-      { name: "Buenos Aires",   lat: -34.6037, lon: -58.3816 },
-      { name: "Nairobi",        lat: -1.2921,  lon: 36.8219 },
-      { name: "Reykjavik",      lat: 64.1466,  lon: -21.9426 },
-      { name: "Honolulu",       lat: 21.3069,  lon: -157.8583 },
-      { name: "Hong Kong",      lat: 22.3193,  lon: 114.1694 },
-      { name: "Lima",           lat: -12.0464, lon: -77.0428 },
-      { name: "Toronto",        lat: 43.6532,  lon: -79.3832 }
+      { name: "Cape Town", lat: -33.9249, lon: 18.4241 },
+      { name: "Moscow", lat: 55.7558, lon: 37.6173 },
+      { name: "Dubai", lat: 25.2048, lon: 55.2708 },
+      { name: "Singapore", lat: 1.3521, lon: 103.8198 },
+      { name: "Los Angeles", lat: 34.0522, lon: -118.2437 },
+      { name: "Mumbai", lat: 19.0760, lon: 72.8777 },
+      { name: "Beijing", lat: 39.9042, lon: 116.4074 },
+      { name: "Mexico City", lat: 19.4326, lon: -99.1332 },
+      { name: "Istanbul", lat: 41.0082, lon: 28.9784 },
+      { name: "Bangkok", lat: 13.7563, lon: 100.5018 },
+      { name: "Buenos Aires", lat: -34.6037, lon: -58.3816 },
+      { name: "Nairobi", lat: -1.2921, lon: 36.8219 },
+      { name: "Reykjavik", lat: 64.1466, lon: -21.9426 },
+      { name: "Honolulu", lat: 21.3069, lon: -157.8583 },
+      { name: "Hong Kong", lat: 22.3193, lon: 114.1694 },
+      { name: "Lima", lat: -12.0464, lon: -77.0428 },
+      { name: "Toronto", lat: 43.6532, lon: -79.3832 },
+      { name: "Seoul", lat: 37.5665, lon: 126.9780 },
+      { name: "Osaka", lat: 34.6937, lon: 135.5023 },
+      { name: "Kyoto", lat: 35.0116, lon: 135.7681 },
+      { name: "Shanghai", lat: 31.2304, lon: 121.4737 },
+      { name: "Taipei", lat: 25.0330, lon: 121.5654 },
+      { name: "Manila", lat: 14.5995, lon: 120.9842 },
+      { name: "Hanoi", lat: 21.0278, lon: 105.8342 },
+      { name: "Ho Chi Minh City", lat: 10.8231, lon: 106.6297 },
+      { name: "Kuala Lumpur", lat: 3.1390, lon: 101.6869 },
+      { name: "Jakarta", lat: -6.2088, lon: 106.8456 },
+      { name: "Bali", lat: -8.3405, lon: 115.0920 },
+      { name: "Delhi", lat: 28.6139, lon: 77.2090 },
+      { name: "Jaipur", lat: 26.9124, lon: 75.7873 },
+      { name: "Kathmandu", lat: 27.7172, lon: 85.3240 },
+      { name: "Colombo", lat: 6.9271, lon: 79.8612 },
+      { name: "Doha", lat: 25.2854, lon: 51.5310 },
+      { name: "Abu Dhabi", lat: 24.4539, lon: 54.3773 },
+      { name: "Muscat", lat: 23.5880, lon: 58.3829 },
+      { name: "Riyadh", lat: 24.7136, lon: 46.6753 },
+      { name: "Jerusalem", lat: 31.7683, lon: 35.2137 },
+      { name: "Athens", lat: 37.9838, lon: 23.7275 },
+      { name: "Rome", lat: 41.9028, lon: 12.4964 },
+      { name: "Venice", lat: 45.4408, lon: 12.3155 },
+      { name: "Milan", lat: 45.4642, lon: 9.1900 },
+      { name: "Barcelona", lat: 41.3874, lon: 2.1686 },
+      { name: "Madrid", lat: 40.4168, lon: -3.7038 },
+      { name: "Lisbon", lat: 38.7223, lon: -9.1393 },
+      { name: "Dublin", lat: 53.3498, lon: -6.2603 },
+      { name: "Edinburgh", lat: 55.9533, lon: -3.1883 },
+      { name: "Amsterdam", lat: 52.3676, lon: 4.9041 },
+      { name: "Brussels", lat: 50.8503, lon: 4.3517 },
+      { name: "Berlin", lat: 52.5200, lon: 13.4050 },
+      { name: "Munich", lat: 48.1351, lon: 11.5820 },
+      { name: "Vienna", lat: 48.2082, lon: 16.3738 },
+      { name: "Prague", lat: 50.0755, lon: 14.4378 },
+      { name: "Budapest", lat: 47.4979, lon: 19.0402 },
+      { name: "Warsaw", lat: 52.2297, lon: 21.0122 },
+      { name: "Copenhagen", lat: 55.6761, lon: 12.5683 },
+      { name: "Stockholm", lat: 59.3293, lon: 18.0686 },
+      { name: "Oslo", lat: 59.9139, lon: 10.7522 },
+      { name: "Helsinki", lat: 60.1699, lon: 24.9384 },
+      { name: "Zurich", lat: 47.3769, lon: 8.5417 },
+      { name: "Geneva", lat: 46.2044, lon: 6.1432 },
+      { name: "Nice", lat: 43.7102, lon: 7.2620 },
+      { name: "Marrakech", lat: 31.6295, lon: -7.9811 },
+      { name: "Casablanca", lat: 33.5731, lon: -7.5898 },
+      { name: "Tunis", lat: 36.8065, lon: 10.1815 },
+      { name: "Accra", lat: 5.6037, lon: -0.1870 },
+      { name: "Lagos", lat: 6.5244, lon: 3.3792 },
+      { name: "Dakar", lat: 14.7167, lon: -17.4677 },
+      { name: "Addis Ababa", lat: 8.9806, lon: 38.7578 },
+      { name: "Zanzibar", lat: -6.1659, lon: 39.2026 },
+      { name: "Kigali", lat: -1.9441, lon: 30.0619 },
+      { name: "Johannesburg", lat: -26.2041, lon: 28.0473 },
+      { name: "Windhoek", lat: -22.5609, lon: 17.0658 },
+      { name: "Auckland", lat: -36.8509, lon: 174.7645 },
+      { name: "Wellington", lat: -41.2865, lon: 174.7762 },
+      { name: "Melbourne", lat: -37.8136, lon: 144.9631 },
+      { name: "Perth", lat: -31.9523, lon: 115.8613 },
+      { name: "Brisbane", lat: -27.4698, lon: 153.0251 },
+      { name: "Vancouver", lat: 49.2827, lon: -123.1207 },
+      { name: "Montreal", lat: 45.5017, lon: -73.5673 },
+      { name: "Chicago", lat: 41.8781, lon: -87.6298 },
+      { name: "Miami", lat: 25.7617, lon: -80.1918 },
+      { name: "Las Vegas", lat: 36.1699, lon: -115.1398 },
+      { name: "Seattle", lat: 47.6062, lon: -122.3321 },
+      { name: "San Francisco", lat: 37.7749, lon: -122.4194 },
+      { name: "New Orleans", lat: 29.9511, lon: -90.0715 },
+      { name: "Havana", lat: 23.1136, lon: -82.3666 },
+      { name: "San Juan", lat: 18.4655, lon: -66.1057 },
+      { name: "Panama City", lat: 8.9824, lon: -79.5199 },
+      { name: "San José", lat: 9.9281, lon: -84.0907 },
+      { name: "Bogotá", lat: 4.7110, lon: -74.0721 },
+      { name: "Medellín", lat: 6.2442, lon: -75.5812 },
+      { name: "Quito", lat: -0.1807, lon: -78.4678 },
+      { name: "Cusco", lat: -13.5320, lon: -71.9675 },
+      { name: "Santiago", lat: -33.4489, lon: -70.6693 },
+      { name: "Montevideo", lat: -34.9011, lon: -56.1645 },
+      { name: "São Paulo", lat: -23.5505, lon: -46.6333 },
+      { name: "Salvador", lat: -12.9777, lon: -38.5016 },
+      { name: "Manaus", lat: -3.1190, lon: -60.0217 },
+      { name: "Anchorage", lat: 61.2181, lon: -149.9003 }
     ];
 
     var STARTING_MONEY = 1500;
@@ -712,6 +855,8 @@
       nextLegDepartureGap = 0;
       nextLegStartClock = 0;
       winnerCheckInClock = 0;
+      currentResultAction = null;
+      restoredFlightResultHtml = "";
 
       teams.forEach(function (name) {
         money[name] = STARTING_MONEY;
@@ -763,8 +908,10 @@
       do {
         dest = WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)];
       } while (dest.name === currentCity.name);
+
       legOrigin = currentCity;
       legDest = dest;
+
       var km = haversineKm(legOrigin, legDest);
       legFlightTime = flightMinutes(km);
       legHasConnection = Math.random() < 0.35;
@@ -779,7 +926,15 @@
       }
 
       buildRivalLegRecords();
+      renderLegIntroScreen();
+      flightResolved = false;
+      restoredFlightResultHtml = "";
+      document.getElementById('flightResult').innerHTML = '';
+      document.getElementById('flightBtn').textContent = 'Leave Airport';
+      showScreen('legIntro');
+    }
 
+    function renderLegIntroScreen() {
       document.getElementById('legIntroTitle').textContent = currentLegLabel();
       document.getElementById('legIntroBody').innerHTML =
         raceClockHeader() + '<br><br>' +
@@ -789,11 +944,6 @@
         'Your Cash: <strong>$' + money[playerTeam] + '</strong>';
 
       renderFlightBody();
-
-      flightResolved = false;
-      document.getElementById('flightResult').innerHTML = '';
-      document.getElementById('flightBtn').textContent = 'Leave Airport';
-      showScreen('legIntro');
     }
 
     function renderFlightBody() {
@@ -902,6 +1052,7 @@
         msg +
         '<br><br>Race Clock: <strong>' + formatRaceDateTime(raceClock) + '</strong>';
 
+      restoredFlightResultHtml = res.innerHTML;
       flightResolved = true;
     }
 
@@ -1037,7 +1188,7 @@
       return html;
     }
 
-    function renderResults(title, bodyHtml, buttonLabel, buttonAction) {
+    function renderResults(title, bodyHtml, buttonLabel, buttonAction, actionKey) {
       document.getElementById('resultsTitle').textContent = title;
       document.getElementById('resultsBody').innerHTML = bodyHtml;
       var area = document.getElementById('resultsButtons');
@@ -1046,6 +1197,7 @@
       btn.textContent = buttonLabel;
       btn.onclick = buttonAction;
       area.appendChild(btn);
+      currentResultAction = actionKey || null;
       showScreen('results');
     }
 
@@ -1119,7 +1271,7 @@
           '<br><br>The race is complete.' +
           chart;
 
-        renderResults('🏆 Final Leg: ' + route, finalBody, 'New Game', resetToStart);
+        renderResults('🏆 Final Leg: ' + route, finalBody, 'New Game', resetToStart, 'newGame');
         return;
       }
 
@@ -1135,7 +1287,7 @@
           nextDepartureText +
           chart;
 
-        renderResults(legRouteTitle('Leg ' + legNum), nonElimBody, 'Next Leg', nextLeg);
+        renderResults(legRouteTitle('Leg ' + legNum), nonElimBody, 'Next Leg', nextLeg, 'nextLeg');
         return;
       }
 
@@ -1145,7 +1297,7 @@
         var body2 = standingsHtml(results) +
           routeTrail +
           '<br>You finished last on Leg ' + legNum + ' and have been eliminated.' + chart;
-        renderResults('Eliminated: ' + route, body2, 'New Game', resetToStart);
+        renderResults('Eliminated: ' + route, body2, 'New Game', resetToStart, 'newGame');
         return;
       }
 
@@ -1156,7 +1308,7 @@
         ' · Your cash: $' + money[playerTeam] +
         nextDepartureText +
         chart;
-      renderResults(legRouteTitle('Leg ' + legNum), body3, 'Next Leg', nextLeg);
+      renderResults(legRouteTitle('Leg ' + legNum), body3, 'Next Leg', nextLeg, 'nextLeg');
     }
 
     function nextLeg() {
@@ -1167,17 +1319,438 @@
     }
 
     function resetToStart() {
+      playerTeam = null;
+      remainingTeams = [];
       showScreen('start');
+    }
+
+    function getActiveScreenId() {
+      var active = document.querySelector('.screen.active');
+      return active ? active.id : 'start';
+    }
+
+    function raceIsInProgress() {
+      return playerTeam && remainingTeams && remainingTeams.length > 0;
+    }
+
+    function autoSaveGame(screenOverride) {
+      if (!raceIsInProgress()) {
+        return;
+      }
+
+      var screenId = screenOverride || getActiveScreenId();
+      if (screenId === "start" || screenId === "teams" || screenId === "roster" || screenId === "menu") {
+        return;
+      }
+
+      saveGameToKey(AUTO_SAVE_KEY, screenId);
+      updateStartLoadButton();
+    }
+
+    function getGameState(screenOverride) {
+      var activeScreen = screenOverride || getActiveScreenId();
+
+      return {
+        version: SAVE_VERSION,
+        savedAt: Date.now(),
+        activeScreen: activeScreen,
+
+        playerTeam: playerTeam,
+        skills: skills,
+        money: money,
+        remainingTeams: remainingTeams,
+        legNum: legNum,
+        legStops: legStops,
+        legTransportOptions: legTransportOptions,
+        totalStopsThisLeg: totalStopsThisLeg,
+        currentStop: currentStop,
+        raceTime: raceTime,
+        raceClock: raceClock,
+        legStartClock: legStartClock,
+        nextLegDepartureGap: nextLegDepartureGap,
+        nextLegStartClock: nextLegStartClock,
+        winnerCheckInClock: winnerCheckInClock,
+        currentChallenge: currentChallenge,
+        placementHistory: placementHistory,
+        routeHistory: routeHistory,
+
+        nextLegStartClocks: nextLegStartClocks,
+        currentLegStartClocks: currentLegStartClocks,
+        teamLegRecords: teamLegRecords,
+        teamCashSpentThisLeg: teamCashSpentThisLeg,
+
+        currentCity: currentCity,
+        legOrigin: legOrigin,
+        legDest: legDest,
+        legFlightTime: legFlightTime,
+        legHasConnection: legHasConnection,
+        legFlightDepartureMinute: legFlightDepartureMinute,
+        flightResolved: flightResolved,
+        legIsNonElim: legIsNonElim,
+
+        airportStartTransportOptions: airportStartTransportOptions,
+        airportEndTransportOptions: airportEndTransportOptions,
+        specialTransportMode: specialTransportMode,
+
+        currentResultAction: currentResultAction,
+        restoredFlightResultHtml: document.getElementById('flightResult') ? document.getElementById('flightResult').innerHTML : restoredFlightResultHtml,
+        resultsTitle: document.getElementById('resultsTitle') ? document.getElementById('resultsTitle').textContent : '',
+        resultsBody: document.getElementById('resultsBody') ? document.getElementById('resultsBody').innerHTML : ''
+      };
+    }
+
+    function applyGameState(state) {
+      if (!state || state.version !== SAVE_VERSION) {
+        return false;
+      }
+
+      playerTeam = state.playerTeam;
+      skills = state.skills || {};
+      money = state.money || {};
+      remainingTeams = state.remainingTeams || [];
+      legNum = state.legNum || 1;
+      legStops = state.legStops || [];
+      legTransportOptions = state.legTransportOptions || [];
+      totalStopsThisLeg = state.totalStopsThisLeg || 3;
+      currentStop = state.currentStop || 0;
+      raceTime = state.raceTime || 0;
+      raceClock = state.raceClock || 0;
+      legStartClock = state.legStartClock || 0;
+      nextLegDepartureGap = state.nextLegDepartureGap || 0;
+      nextLegStartClock = state.nextLegStartClock || 0;
+      winnerCheckInClock = state.winnerCheckInClock || 0;
+      currentChallenge = state.currentChallenge || null;
+      placementHistory = state.placementHistory || {};
+      routeHistory = state.routeHistory || [];
+
+      nextLegStartClocks = state.nextLegStartClocks || {};
+      currentLegStartClocks = state.currentLegStartClocks || {};
+      teamLegRecords = state.teamLegRecords || {};
+      teamCashSpentThisLeg = state.teamCashSpentThisLeg || {};
+
+      currentCity = state.currentCity || null;
+      legOrigin = state.legOrigin || null;
+      legDest = state.legDest || null;
+      legFlightTime = state.legFlightTime || 0;
+      legHasConnection = !!state.legHasConnection;
+      legFlightDepartureMinute = state.legFlightDepartureMinute || 0;
+      flightResolved = !!state.flightResolved;
+      legIsNonElim = !!state.legIsNonElim;
+
+      airportStartTransportOptions = state.airportStartTransportOptions || [];
+      airportEndTransportOptions = state.airportEndTransportOptions || [];
+      specialTransportMode = state.specialTransportMode || null;
+
+      currentResultAction = state.currentResultAction || null;
+      restoredFlightResultHtml = state.restoredFlightResultHtml || '';
+
+      renderRestoredScreen(state);
+      updateStartLoadButton();
+      return true;
+    }
+
+    function saveGameToKey(key, screenOverride) {
+      try {
+        var state = getGameState(screenOverride);
+        localStorage.setItem(key, JSON.stringify(state));
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    function readSaveFromKey(key) {
+      try {
+        var raw = localStorage.getItem(key);
+        if (!raw) {
+          return null;
+        }
+        return JSON.parse(raw);
+      } catch (err) {
+        return null;
+      }
+    }
+
+    function slotKey(slot) {
+      return SAVE_SLOT_PREFIX + slot;
+    }
+
+    function saveManualSlot(slot) {
+      var screenToSave = lastScreenBeforeMenu || getActiveScreenId();
+      var ok = saveGameToKey(slotKey(slot), screenToSave);
+      if (ok) {
+        document.getElementById('menuStatus').innerHTML = 'Saved to Slot ' + slot + '.';
+      } else {
+        document.getElementById('menuStatus').innerHTML = 'Save failed. Browser storage may be blocked.';
+      }
+      renderMenuButtons();
+      updateStartLoadButton();
+    }
+
+    function loadManualSlot(slot) {
+      var state = readSaveFromKey(slotKey(slot));
+      if (!state) {
+        document.getElementById('menuStatus').innerHTML = 'Slot ' + slot + ' is empty.';
+        return;
+      }
+
+      applyGameState(state);
+    }
+
+    function latestSaveState() {
+      var saves = [];
+      var auto = readSaveFromKey(AUTO_SAVE_KEY);
+      if (auto) {
+        saves.push(auto);
+      }
+
+      for (var i = 1; i <= 3; i++) {
+        var slot = readSaveFromKey(slotKey(i));
+        if (slot) {
+          saves.push(slot);
+        }
+      }
+
+      if (saves.length === 0) {
+        return null;
+      }
+
+      saves.sort(function (a, b) {
+        return (b.savedAt || 0) - (a.savedAt || 0);
+      });
+
+      return saves[0];
+    }
+
+    function loadLatestGame() {
+      var state = latestSaveState();
+      if (!state) {
+        return;
+      }
+
+      applyGameState(state);
+    }
+
+    function clearAllSaves() {
+      localStorage.removeItem(AUTO_SAVE_KEY);
+      for (var i = 1; i <= 3; i++) {
+        localStorage.removeItem(slotKey(i));
+      }
+
+      document.getElementById('menuStatus').innerHTML = 'All saves cleared.';
+      renderMenuButtons();
+      updateStartLoadButton();
+    }
+
+    function formatSaveStamp(state) {
+      if (!state || !state.savedAt) {
+        return 'Empty';
+      }
+
+      var d = new Date(state.savedAt);
+      return d.toLocaleString();
+    }
+
+    function renderMenuButtons() {
+      var area = document.getElementById('menuButtons');
+      area.innerHTML = '';
+
+      var resume = document.createElement('button');
+      resume.className = 'menu-btn gold';
+      resume.textContent = 'Resume Race';
+      resume.onclick = closeMenu;
+      area.appendChild(resume);
+
+      for (var s = 1; s <= 3; s++) {
+        (function (slot) {
+          var saveBtn = document.createElement('button');
+          saveBtn.className = 'menu-btn';
+          saveBtn.textContent = 'Save Slot ' + slot;
+          saveBtn.onclick = function () { saveManualSlot(slot); };
+          area.appendChild(saveBtn);
+
+          var state = readSaveFromKey(slotKey(slot));
+          var loadBtn = document.createElement('button');
+          loadBtn.className = 'menu-btn';
+          loadBtn.textContent = 'Load Slot ' + slot + ' - ' + formatSaveStamp(state);
+          loadBtn.disabled = !state;
+          loadBtn.onclick = function () { loadManualSlot(slot); };
+          area.appendChild(loadBtn);
+        })(s);
+      }
+
+      var loadLatest = document.createElement('button');
+      loadLatest.className = 'menu-btn gold';
+      loadLatest.textContent = 'Load Latest Save';
+      loadLatest.disabled = !latestSaveState();
+      loadLatest.onclick = loadLatestGame;
+      area.appendChild(loadLatest);
+
+      var clear = document.createElement('button');
+      clear.className = 'menu-btn';
+      clear.textContent = 'Clear All Saves';
+      clear.onclick = clearAllSaves;
+      area.appendChild(clear);
+
+      var newGame = document.createElement('button');
+      newGame.className = 'menu-btn';
+      newGame.textContent = 'New Game';
+      newGame.onclick = resetToStart;
+      area.appendChild(newGame);
+    }
+
+    function renderMenuScreen() {
+      var latest = latestSaveState();
+      document.getElementById('menuStatus').innerHTML =
+        'Current Race: <strong>' + (playerTeam || 'None') + '</strong><br>' +
+        'Auto Save: <strong>' + formatSaveStamp(readSaveFromKey(AUTO_SAVE_KEY)) + '</strong><br>' +
+        '<div class="menu-note">Saves are stored in this browser on this device.</div>';
+
+      renderMenuButtons();
+    }
+
+    function openMenu() {
+      lastScreenBeforeMenu = getActiveScreenId();
+      autoSaveGame(lastScreenBeforeMenu);
+      renderMenuScreen();
+      showScreen('menu');
+    }
+
+    function closeMenu() {
+      var target = lastScreenBeforeMenu || 'legIntro';
+      restoreScreenById(target);
+    }
+
+    function restoreScreenById(id) {
+      renderRestoredScreen({ activeScreen: id });
+    }
+
+    function renderRestoredScreen(state) {
+      var id = state.activeScreen || 'legIntro';
+
+      if (id === 'start') {
+        showScreen('start');
+        return;
+      }
+
+      if (id === 'teams') {
+        showScreen('teams');
+        return;
+      }
+
+      if (id === 'roster') {
+        showRoster();
+        return;
+      }
+
+      if (id === 'legIntro') {
+        renderLegIntroScreen();
+        showScreen('legIntro');
+        return;
+      }
+
+      if (id === 'specialTransport') {
+        if (specialTransportMode === "fromAirport") {
+          showTransportFromAirport();
+        } else {
+          showTransportToAirport();
+        }
+        return;
+      }
+
+      if (id === 'flight') {
+        renderFlightBody();
+        document.getElementById('flightResult').innerHTML = restoredFlightResultHtml || '';
+        document.getElementById('flightBtn').textContent = 'Leave Airport';
+        showScreen('flight');
+        return;
+      }
+
+      if (id === 'challenge') {
+        showChallenge();
+        return;
+      }
+
+      if (id === 'race') {
+        showRace();
+        return;
+      }
+
+      if (id === 'pitstop') {
+        showPitStopScreen();
+        return;
+      }
+
+      if (id === 'results') {
+        restoreResultsScreen(state);
+        return;
+      }
+
+      renderLegIntroScreen();
+      showScreen('legIntro');
+    }
+
+    function restoreResultsScreen(state) {
+      document.getElementById('resultsTitle').textContent = state.resultsTitle || document.getElementById('resultsTitle').textContent || 'Results';
+      document.getElementById('resultsBody').innerHTML = state.resultsBody || document.getElementById('resultsBody').innerHTML || '';
+
+      var area = document.getElementById('resultsButtons');
+      area.innerHTML = '';
+
+      var btn = document.createElement('button');
+
+      if (currentResultAction === 'nextLeg') {
+        btn.textContent = 'Next Leg';
+        btn.onclick = nextLeg;
+      } else {
+        btn.textContent = 'New Game';
+        btn.onclick = resetToStart;
+      }
+
+      area.appendChild(btn);
+      showScreen('results');
+    }
+
+    function updateStartLoadButton() {
+      var btn = document.getElementById('startLoadBtn');
+      if (!btn) {
+        return;
+      }
+
+      var latest = latestSaveState();
+      btn.disabled = !latest;
+      btn.textContent = latest ? 'Load Saved Race' : 'No Saved Race';
+    }
+
+    function updateTopMenuButton(id) {
+      var btn = document.getElementById('topMenuBtn');
+      if (!btn) {
+        return;
+      }
+
+      var hideOn = ['start', 'teams', 'roster', 'menu'];
+      if (raceIsInProgress() && hideOn.indexOf(id) === -1) {
+        btn.style.display = 'block';
+      } else {
+        btn.style.display = 'none';
+      }
     }
 
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(function (s) {
         s.classList.remove('active');
       });
+
       document.getElementById(id).classList.add('active');
+      updateTopMenuButton(id);
+
+      if (id !== 'menu') {
+        autoSaveGame(id);
+      }
     }
 
     buildTeamButtons();
+    updateStartLoadButton();
   </script>
 
 </body>
