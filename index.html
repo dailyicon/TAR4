@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #0f1b2d;
+      background: #2d0f14;
       color: #ffffff;
       margin: 0;
       min-height: 100vh;
@@ -38,13 +38,13 @@
       display: block;
       width: 100%;
       margin: 10px 0 0 0;
-      background: #1d3050;
-      border: 2px solid #2a4a78;
+      background: #4a1620;
+      border: 2px solid #8a2432;
       font-size: 1.05em;
       text-align: left;
       line-height: 1.3;
     }
-    .team-btn:active { background: #2a4a78; }
+    .team-btn:active { background: #8a2432; }
 
     .cash { font-size: 1.3em; margin: 10px 0; color: #06d6a0; font-weight: bold; }
     .skills {
@@ -55,8 +55,8 @@
       text-align: left;
     }
     .skill {
-      background: #1d3050;
-      border: 1px solid #2a4a78;
+      background: #4a1620;
+      border: 1px solid #8a2432;
       border-radius: 8px;
       padding: 8px 10px;
       display: flex;
@@ -65,8 +65,8 @@
     .skill .lvl { font-weight: bold; color: #ffd166; }
 
     .status {
-      background: #1d3050;
-      border: 1px solid #2a4a78;
+      background: #4a1620;
+      border: 1px solid #8a2432;
       border-radius: 10px;
       padding: 12px;
       margin: 12px 0;
@@ -76,22 +76,22 @@
       display: block;
       width: 100%;
       margin: 10px 0 0 0;
-      background: #1d3050;
-      border: 2px solid #2a4a78;
+      background: #4a1620;
+      border: 2px solid #8a2432;
       text-align: left;
     }
-    .opt-btn:active { background: #2a4a78; }
+    .opt-btn:active { background: #8a2432; }
 
     .standings { text-align: left; margin-top: 8px; }
     .standings > div {
       padding: 6px 0;
-      border-bottom: 1px solid #2a4a78;
+      border-bottom: 1px solid #8a2432;
       line-height: 1.4;
     }
 
     .route-history {
-      background: #14243d;
-      border: 1px solid #2a4a78;
+      background: #3a1118;
+      border: 1px solid #8a2432;
       border-radius: 10px;
       padding: 10px;
       margin-top: 8px;
@@ -102,7 +102,7 @@
 
     .chart { border-collapse: collapse; margin: 8px auto 0; font-size: 0.85em; }
     .chart th, .chart td {
-      border: 1px solid #2a4a78;
+      border: 1px solid #8a2432;
       padding: 5px 7px;
       text-align: center;
       white-space: nowrap;
@@ -266,8 +266,8 @@
       { name: "Toronto",        lat: 43.6532,  lon: -79.3832 }
     ];
 
-    var STARTING_MONEY = 100;
-    var LEG_STIPEND = 75;
+    var STARTING_MONEY = 150;
+    var LEG_STIPEND = 125;
     var MIN_STOPS_PER_LEG = 2;
     var MAX_STOPS_PER_LEG = 5;
     var NON_ELIM_CHANCE = 0.15;
@@ -425,6 +425,10 @@
       return '<div class="route-history">' + routeHistory.join(' → ') + '</div>';
     }
 
+    function legRouteTitle(prefix) {
+      return prefix + ': ' + legOrigin.name + ' → ' + legDest.name;
+    }
+
     function selectTeam(name) {
       playerTeam = name;
       skills[name] = rollSkills();
@@ -553,7 +557,7 @@
         'Leg ' + legNum + '<br><br>' +
         'Departing from <strong>' + cityAirportName(legOrigin) + '</strong><br>' +
         'Flying to <strong>' + cityAirportName(legDest) + '</strong>.<br><br>' +
-        km.toLocaleString() + ' km · ~' + formatDuration(legFlightTime) + ' flight' +
+        '~' + formatDuration(legFlightTime) + ' flight' +
         (legHasConnection ? '<br><br>🔗 This leg has a connection. A long delay could make you miss it.' : '');
 
       flightResolved = false;
@@ -680,9 +684,8 @@
 
       document.getElementById('challengeInfo').innerHTML =
         'Challenge type: <strong>' + stop.skill + '</strong><br>' +
-        'Base time: ' + formatDuration(stop.base) + '<br>' +
-        'Your ' + stop.skill + ' level: ' + level + '<br>' +
-        'Adjusted time: <strong>' + formatDuration(adjusted) + '</strong>';
+        'Challenge time: <strong>' + formatDuration(adjusted) + '</strong><br>' +
+        'Your ' + stop.skill + ' level: <strong>' + level + '</strong>';
 
       showScreen('challenge');
     }
@@ -861,7 +864,7 @@
           '<br>🏆 <strong>' + winner + '</strong> wins The Amazing Race!' +
           (winner === playerTeam ? ' That\'s you. You won the whole thing!' : '') +
           chart;
-        renderResults('Final Leg', body, 'New Game', resetToStart);
+        renderResults('Final Leg: ' + route, body, 'New Game', resetToStart);
         return;
       }
 
@@ -875,7 +878,7 @@
           '<br>Teams left: ' + remainingTeams.length +
           ' · Your cash: $' + money[playerTeam] + chart;
 
-        renderResults('Non-Elimination Leg', nonElimBody, 'Next Leg', nextLeg);
+        renderResults(legRouteTitle('Leg ' + legNum), nonElimBody, 'Next Leg', nextLeg);
         return;
       }
 
@@ -885,7 +888,7 @@
         var body2 = route + standingsHtml(results) +
           routeTrail +
           '<br>You finished last on Leg ' + legNum + ' and have been eliminated.' + chart;
-        renderResults('Eliminated', body2, 'New Game', resetToStart);
+        renderResults('Eliminated: ' + route, body2, 'New Game', resetToStart);
         return;
       }
 
@@ -894,7 +897,7 @@
         '<br><strong>' + lastPlaceTeam + '</strong> finished last and is eliminated.' +
         '<br>Teams left: ' + remainingTeams.length +
         ' · Your cash: $' + money[playerTeam] + chart;
-      renderResults('Leg ' + legNum + ' Complete', body3, 'Next Leg', nextLeg);
+      renderResults(legRouteTitle('Leg ' + legNum), body3, 'Next Leg', nextLeg);
     }
 
     function nextLeg() {
