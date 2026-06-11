@@ -767,6 +767,125 @@
 
     .stacked-actions button { margin-top: 0; }
 
+    .save-slot-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .save-slot-card {
+      background: rgba(24, 7, 13, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      text-align: left;
+      min-width: 0;
+    }
+
+    .save-slot-card strong {
+      color: var(--gold);
+      display: block;
+      margin-bottom: 6px;
+      overflow-wrap: anywhere;
+    }
+
+    .save-slot-meta {
+      color: var(--muted-soft);
+      font-size: 0.88rem;
+      line-height: 1.4;
+      margin: 7px 0 10px;
+    }
+
+    .save-slot-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .transport-editor-card {
+      margin-top: 14px;
+      background: rgba(24, 7, 13, 0.34);
+      border: 1px solid rgba(255, 209, 102, 0.27);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      text-align: left;
+    }
+
+    .transport-editor-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .transport-editor-header strong {
+      color: var(--gold);
+      font-size: 1.02rem;
+    }
+
+    .mini-button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .transport-editor,
+    .transport-editor-head {
+      display: grid;
+      grid-template-columns: 70px minmax(140px, 1fr) 92px 92px 88px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .transport-editor {
+      max-height: 520px;
+      overflow: auto;
+      padding-right: 4px;
+      scrollbar-color: rgba(255, 209, 102, 0.45) rgba(255,255,255,0.05);
+    }
+
+    .transport-editor-head {
+      color: var(--gold);
+      font-size: 0.82rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .transport-row {
+      display: contents;
+    }
+
+    .transport-row input {
+      padding: 9px 10px;
+    }
+
+    .transport-row input[type=number] {
+      text-align: center;
+    }
+
+    .transport-remove-btn {
+      width: 100%;
+      padding: 9px 10px;
+      margin: 0;
+      font-size: 0.8rem;
+      border-radius: 10px;
+      background: rgba(230, 57, 70, 0.18);
+      border: 1px solid rgba(230, 57, 70, 0.48);
+      box-shadow: none;
+    }
+
+    .transport-note {
+      color: var(--muted-soft);
+      font-size: 0.84rem;
+      line-height: 1.35;
+      margin-top: 9px;
+    }
+
     @media (max-width: 760px) {
       body { padding: 28px 12px 56px; }
       .screen { max-width: 100%; }
@@ -795,7 +914,22 @@
       .custom-skill-grid,
       .team-skill-setter { grid-template-columns: 1fr; gap: 5px; }
       .range-pair { grid-template-columns: 1fr; }
-      .menu-grid { grid-template-columns: 1fr; }
+      .menu-grid,
+      .save-slot-grid { grid-template-columns: 1fr; }
+      .save-slot-actions { grid-template-columns: 1fr; }
+      .transport-editor,
+      .transport-editor-head { grid-template-columns: 1fr; }
+      .transport-editor-head { display: none; }
+      .transport-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        padding: 10px;
+        background: rgba(74, 24, 34, 0.45);
+      }
+      .transport-remove-btn { width: 100%; }
     }
   </style>
 </head>
@@ -810,7 +944,7 @@
       <p>Race around the world, manage your cash, choose your transport, and survive each leg.</p>
       <button onclick="openCustomization()">New Race</button>
       <br>
-      <button id="startLoadBtn" class="secondary-btn" onclick="loadLatestGame()">Load Saved Race</button>
+      <button id="startLoadBtn" class="secondary-btn" onclick="openSaveManager('start')">Save Manager</button>
     </div>
   </div>
 
@@ -819,6 +953,20 @@
     <h1>Menu</h1>
     <div class="status" id="menuStatus"></div>
     <div class="menu-grid" id="menuButtons"></div>
+  </div>
+
+  <div id="saveManager" class="screen">
+    <span class="screen-label">Save Manager</span>
+    <h1>Save Slots</h1>
+    <div class="page-intro">
+      Store, load, rename, or delete race saves from this browser. Slots are local to this device.
+    </div>
+    <div class="status" id="saveManagerBody"></div>
+    <div class="save-slot-grid" id="saveSlotGrid"></div>
+    <div class="action-row">
+      <button class="secondary-btn" onclick="closeSaveManager()">Back</button>
+      <button class="secondary-btn" onclick="clearAllSaves()">Clear All Saves</button>
+    </div>
   </div>
 
 
@@ -881,6 +1029,49 @@
             <input id="settingLegStipend" type="number" min="0" max="999999" step="50">
             <div class="setting-help">Cash added to each remaining team at the start of every leg after Leg 1.</div>
           </div>
+        </div>
+      </div>
+
+      <div class="setup-section">
+        <div class="section-heading">
+          <div>
+            <div class="section-kicker">Transport</div>
+            <h2 class="section-title">Local travel options</h2>
+            <div class="section-copy">Control how many travel choices appear each segment, then edit the emoji, name, price, and time for every transport option.</div>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <div class="setting-card">
+            <label>Transport Options Per Segment</label>
+            <div class="range-pair">
+              <input id="settingMinTransportOptions" type="number" min="1" max="50" step="1" aria-label="Minimum transport options">
+              <input id="settingMaxTransportOptions" type="number" min="1" max="50" step="1" aria-label="Maximum transport options">
+            </div>
+            <div class="setting-help">Minimum and maximum number of options shown whenever teams choose local travel.</div>
+          </div>
+        </div>
+
+        <div class="transport-editor-card">
+          <div class="transport-editor-header">
+            <div>
+              <strong>Transport List</strong>
+              <div class="setting-help">Edit up to 50 transport options. Emoji and name combine into the button label racers see.</div>
+            </div>
+            <div class="mini-button-row">
+              <button class="mini-btn" type="button" onclick="addTransportOption()">Add Transport</button>
+              <button class="mini-btn" type="button" onclick="resetTransportsToDefault()">Reset Default Transports</button>
+            </div>
+          </div>
+          <div class="transport-editor-head">
+            <span>Emoji</span>
+            <span>Name</span>
+            <span>Cost</span>
+            <span>Time</span>
+            <span></span>
+          </div>
+          <div id="transportEditor" class="transport-editor"></div>
+          <div id="transportNote" class="transport-note"></div>
         </div>
       </div>
 
@@ -1108,10 +1299,13 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 9;
+    var SAVE_VERSION = 10;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
+    var SAVE_SLOT_COUNT = 6;
+    var SAVE_SLOT_NAME_PREFIX = "amazingRaceSimulatorSlotName";
+    var saveManagerReturnScreen = "start";
     var lastScreenBeforeMenu = "start";
     var currentResultAction = null;
     var restoredFlightResultHtml = "";
@@ -1185,6 +1379,10 @@
       { method: "🗺️   Map", cost: 1, time: 47 },
       { method: "🚶   Walk", cost: 0, time: 48 }
     ];
+
+    var DEFAULT_STANDARD_TRANSPORT = STANDARD_TRANSPORT.map(function (opt) {
+      return { method: opt.method, cost: opt.cost, time: opt.time };
+    });
 
     var WORLD_CITIES = [
       {
@@ -5497,6 +5695,9 @@
       finalMaxStopsPerLeg: 7,
       challengeMinTime: 10,
       challengeMaxTime: 40,
+      minTransportOptions: 2,
+      maxTransportOptions: 5,
+      transportOptions: DEFAULT_STANDARD_TRANSPORT.map(function (opt) { return { method: opt.method, cost: opt.cost, time: opt.time }; }),
       nonElimChance: 0.15,
       flightChaos: "normal",
       skillMode: "random",
@@ -6553,8 +6754,16 @@
     }
 
     function makeTransportOptionsForSegment() {
-      var count = randomInt(MIN_TRANSPORT_OPTIONS, MAX_TRANSPORT_OPTIONS);
-      var selected = shuffledCopy(STANDARD_TRANSPORT).slice(0, count);
+      var available = sanitizeTransportOptions(STANDARD_TRANSPORT);
+      var minCount = clampNumber(MIN_TRANSPORT_OPTIONS, 1, available.length);
+      var maxCount = clampNumber(MAX_TRANSPORT_OPTIONS, 1, available.length);
+
+      if (maxCount < minCount) {
+        maxCount = minCount;
+      }
+
+      var count = randomInt(minCount, maxCount);
+      var selected = shuffledCopy(available).slice(0, count);
 
       selected.sort(function (a, b) {
         return a.time - b.time;
@@ -6572,6 +6781,247 @@
       teamCashSpentThisLeg[name] += amount;
     }
 
+    function cloneTransportOptions(source) {
+      var list = Array.isArray(source) ? source : DEFAULT_STANDARD_TRANSPORT;
+      return list.map(function (opt) {
+        return {
+          method: String(opt && opt.method != null ? opt.method : ""),
+          cost: parseInt(opt && opt.cost != null ? opt.cost : 0, 10) || 0,
+          time: parseInt(opt && opt.time != null ? opt.time : 0, 10) || 0
+        };
+      });
+    }
+
+    function splitTransportLabel(method, index) {
+      var raw = String(method == null ? "" : method).replace(/\s+/g, " ").trim();
+      var fallbackName = "Transport " + (index + 1);
+
+      if (!raw) {
+        return { emoji: "", name: fallbackName };
+      }
+
+      var parts = raw.split(" ");
+      var first = parts[0] || "";
+      var looksEmoji = /[^A-Za-z0-9]/.test(first) && first.length <= 8;
+
+      if (looksEmoji && parts.length > 1) {
+        return {
+          emoji: first,
+          name: parts.slice(1).join(" ").trim() || fallbackName
+        };
+      }
+
+      return { emoji: "", name: raw || fallbackName };
+    }
+
+    function buildTransportMethod(emoji, name, index) {
+      var cleanEmoji = String(emoji == null ? "" : emoji).replace(/\s+/g, "").trim();
+      var cleanName = String(name == null ? "" : name).replace(/\s+/g, " ").trim();
+
+      if (cleanEmoji.length > 12) {
+        cleanEmoji = cleanEmoji.slice(0, 12);
+      }
+
+      if (!cleanName) {
+        cleanName = "Transport " + (index + 1);
+      }
+
+      if (cleanName.length > 36) {
+        cleanName = cleanName.slice(0, 36).trim();
+      }
+
+      return cleanEmoji ? cleanEmoji + "   " + cleanName : cleanName;
+    }
+
+    function sanitizeTransportOptions(source) {
+      var list = Array.isArray(source) && source.length ? source : DEFAULT_STANDARD_TRANSPORT;
+      var result = [];
+
+      list.slice(0, 50).forEach(function (opt, index) {
+        var method = String(opt && opt.method != null ? opt.method : "").replace(/\s+/g, " ").trim();
+
+        if (!method) {
+          method = "Transport " + (index + 1);
+        }
+
+        if (method.length > 50) {
+          method = method.slice(0, 50).trim();
+        }
+
+        result.push({
+          method: method,
+          cost: clampNumber(parseInt(opt && opt.cost != null ? opt.cost : 0, 10) || 0, 0, 999999),
+          time: clampNumber(parseInt(opt && opt.time != null ? opt.time : 1, 10) || 1, 0, 9999)
+        });
+      });
+
+      if (result.length === 0) {
+        result = cloneTransportOptions(DEFAULT_STANDARD_TRANSPORT);
+      }
+
+      return result;
+    }
+
+    function readTransportEditor() {
+      var editor = document.getElementById("transportEditor");
+
+      if (!editor) {
+        return sanitizeTransportOptions((raceSettings && raceSettings.transportOptions) || STANDARD_TRANSPORT);
+      }
+
+      var rows = editor.querySelectorAll(".transport-row");
+      var list = [];
+
+      Array.prototype.forEach.call(rows, function (row, index) {
+        var emoji = row.querySelector(".transport-emoji-input");
+        var name = row.querySelector(".transport-name-input");
+        var cost = row.querySelector(".transport-cost-input");
+        var time = row.querySelector(".transport-time-input");
+
+        list.push({
+          method: buildTransportMethod(emoji ? emoji.value : "", name ? name.value : "", index),
+          cost: cost ? cost.value : 0,
+          time: time ? time.value : 1
+        });
+      });
+
+      return sanitizeTransportOptions(list);
+    }
+
+    function updateTransportNote() {
+      var note = document.getElementById("transportNote");
+
+      if (!note) {
+        return;
+      }
+
+      var list = readTransportEditor();
+      var minOpt = settingValue("settingMinTransportOptions", DEFAULT_RACE_SETTINGS.minTransportOptions);
+      var maxOpt = settingValue("settingMaxTransportOptions", DEFAULT_RACE_SETTINGS.maxTransportOptions);
+      minOpt = clampNumber(parseInt(minOpt, 10) || DEFAULT_RACE_SETTINGS.minTransportOptions, 1, Math.max(1, list.length));
+      maxOpt = clampNumber(parseInt(maxOpt, 10) || DEFAULT_RACE_SETTINGS.maxTransportOptions, 1, Math.max(1, list.length));
+
+      if (maxOpt < minOpt) {
+        maxOpt = minOpt;
+      }
+
+      note.textContent = "Transport list: " + list.length + "/50 options. Segments will show " + minOpt + "-" + maxOpt + " choices.";
+    }
+
+    function renderTransportEditor(seedOptions) {
+      var editor = document.getElementById("transportEditor");
+
+      if (!editor) {
+        return;
+      }
+
+      var list = sanitizeTransportOptions(seedOptions || (raceSettings && raceSettings.transportOptions) || DEFAULT_STANDARD_TRANSPORT);
+      editor.innerHTML = "";
+
+      list.forEach(function (opt, index) {
+        var parsed = splitTransportLabel(opt.method, index);
+        var row = document.createElement("div");
+        row.className = "transport-row";
+
+        var emoji = document.createElement("input");
+        emoji.className = "transport-emoji-input";
+        emoji.type = "text";
+        emoji.maxLength = 12;
+        emoji.value = parsed.emoji;
+        emoji.setAttribute("aria-label", "Transport " + (index + 1) + " emoji");
+
+        var name = document.createElement("input");
+        name.className = "transport-name-input";
+        name.type = "text";
+        name.maxLength = 36;
+        name.value = parsed.name;
+        name.setAttribute("aria-label", "Transport " + (index + 1) + " name");
+
+        var cost = document.createElement("input");
+        cost.className = "transport-cost-input";
+        cost.type = "number";
+        cost.min = 0;
+        cost.max = 999999;
+        cost.step = 1;
+        cost.value = opt.cost;
+        cost.setAttribute("aria-label", "Transport " + (index + 1) + " cost");
+
+        var time = document.createElement("input");
+        time.className = "transport-time-input";
+        time.type = "number";
+        time.min = 0;
+        time.max = 9999;
+        time.step = 1;
+        time.value = opt.time;
+        time.setAttribute("aria-label", "Transport " + (index + 1) + " time");
+
+        var remove = document.createElement("button");
+        remove.className = "transport-remove-btn";
+        remove.type = "button";
+        remove.textContent = "Remove";
+        remove.onclick = function () {
+          removeTransportOption(index);
+        };
+
+        [emoji, name, cost, time].forEach(function (input) {
+          input.addEventListener("input", function () {
+            updateTransportNote();
+            renderCustomizationSummary();
+          });
+          input.addEventListener("change", function () {
+            updateTransportNote();
+            renderCustomizationSummary();
+          });
+        });
+
+        row.appendChild(emoji);
+        row.appendChild(name);
+        row.appendChild(cost);
+        row.appendChild(time);
+        row.appendChild(remove);
+        editor.appendChild(row);
+      });
+
+      updateTransportNote();
+      renderCustomizationSummary();
+    }
+
+    function addTransportOption() {
+      var list = readTransportEditor();
+
+      if (list.length >= 50) {
+        updateTransportNote();
+        return;
+      }
+
+      list.push({
+        method: "🚗   Transport " + (list.length + 1),
+        cost: 100,
+        time: 20
+      });
+
+      renderTransportEditor(list);
+    }
+
+    function removeTransportOption(index) {
+      var list = readTransportEditor();
+
+      if (list.length <= 1) {
+        return;
+      }
+
+      list.splice(index, 1);
+      renderTransportEditor(list);
+    }
+
+    function resetTransportsToDefault() {
+      renderTransportEditor(DEFAULT_STANDARD_TRANSPORT);
+      setSettingValue("settingMinTransportOptions", DEFAULT_RACE_SETTINGS.minTransportOptions);
+      setSettingValue("settingMaxTransportOptions", DEFAULT_RACE_SETTINGS.maxTransportOptions);
+      updateTransportNote();
+      renderCustomizationSummary();
+    }
+
     function clampNumber(value, min, max) {
       return Math.max(min, Math.min(max, value));
     }
@@ -6579,6 +7029,7 @@
     function cloneRaceSettings(source) {
       var base = source || DEFAULT_RACE_SETTINGS;
       var baseSkillTypes = Array.isArray(base.skillTypes) ? base.skillTypes.slice() : DEFAULT_SKILL_TYPES.slice();
+      var baseTransportOptions = Array.isArray(base.transportOptions) ? base.transportOptions : DEFAULT_STANDARD_TRANSPORT;
 
       return {
         teamCount: parseInt(base.teamCount, 10),
@@ -6590,6 +7041,9 @@
         finalMaxStopsPerLeg: parseInt(base.finalMaxStopsPerLeg, 10),
         challengeMinTime: parseInt(base.challengeMinTime, 10),
         challengeMaxTime: parseInt(base.challengeMaxTime, 10),
+        minTransportOptions: parseInt(base.minTransportOptions, 10),
+        maxTransportOptions: parseInt(base.maxTransportOptions, 10),
+        transportOptions: cloneTransportOptions(baseTransportOptions),
         nonElimChance: Number(base.nonElimChance),
         flightChaos: base.flightChaos || "normal",
         skillMode: base.skillMode || "random",
@@ -6612,6 +7066,9 @@
       settings.finalMaxStopsPerLeg = clampNumber(isNaN(settings.finalMaxStopsPerLeg) ? DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg : settings.finalMaxStopsPerLeg, 1, 25);
       settings.challengeMinTime = clampNumber(isNaN(settings.challengeMinTime) ? DEFAULT_RACE_SETTINGS.challengeMinTime : settings.challengeMinTime, 1, 240);
       settings.challengeMaxTime = clampNumber(isNaN(settings.challengeMaxTime) ? DEFAULT_RACE_SETTINGS.challengeMaxTime : settings.challengeMaxTime, 1, 240);
+      settings.transportOptions = sanitizeTransportOptions(settings.transportOptions);
+      settings.minTransportOptions = clampNumber(isNaN(settings.minTransportOptions) ? DEFAULT_RACE_SETTINGS.minTransportOptions : settings.minTransportOptions, 1, Math.max(1, settings.transportOptions.length));
+      settings.maxTransportOptions = clampNumber(isNaN(settings.maxTransportOptions) ? DEFAULT_RACE_SETTINGS.maxTransportOptions : settings.maxTransportOptions, 1, Math.max(1, settings.transportOptions.length));
       settings.nonElimChance = clampNumber(isNaN(settings.nonElimChance) ? DEFAULT_RACE_SETTINGS.nonElimChance : settings.nonElimChance, 0, 1);
 
       if (settings.maxStopsPerLeg < settings.minStopsPerLeg) {
@@ -6624,6 +7081,10 @@
 
       if (settings.challengeMaxTime < settings.challengeMinTime) {
         settings.challengeMaxTime = settings.challengeMinTime;
+      }
+
+      if (settings.maxTransportOptions < settings.minTransportOptions) {
+        settings.maxTransportOptions = settings.minTransportOptions;
       }
 
       if (!FLIGHT_CHAOS_PROFILES[settings.flightChaos]) {
@@ -6653,6 +7114,9 @@
       FINAL_MAX_STOPS_PER_LEG = raceSettings.finalMaxStopsPerLeg;
       CHALLENGE_MIN_TIME = raceSettings.challengeMinTime;
       CHALLENGE_MAX_TIME = raceSettings.challengeMaxTime;
+      MIN_TRANSPORT_OPTIONS = raceSettings.minTransportOptions;
+      MAX_TRANSPORT_OPTIONS = raceSettings.maxTransportOptions;
+      STANDARD_TRANSPORT = sanitizeTransportOptions(raceSettings.transportOptions);
       NON_ELIM_CHANCE = raceSettings.nonElimChance;
       SKILL_TYPES = raceSettings.skillTypes.slice();
     }
@@ -6691,6 +7155,9 @@
         finalMaxStopsPerLeg: settingValue("settingFinalMaxStops", DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg),
         challengeMinTime: settingValue("settingChallengeMinTime", DEFAULT_RACE_SETTINGS.challengeMinTime),
         challengeMaxTime: settingValue("settingChallengeMaxTime", DEFAULT_RACE_SETTINGS.challengeMaxTime),
+        minTransportOptions: settingValue("settingMinTransportOptions", DEFAULT_RACE_SETTINGS.minTransportOptions),
+        maxTransportOptions: settingValue("settingMaxTransportOptions", DEFAULT_RACE_SETTINGS.maxTransportOptions),
+        transportOptions: readTransportEditor(),
         nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
         flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
         skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
@@ -6717,6 +7184,7 @@
         "Normal legs <strong>" + preview.minStopsPerLeg + "-" + preview.maxStopsPerLeg + "</strong> challenges · " +
         "Final leg <strong>" + preview.finalMinStopsPerLeg + "-" + preview.finalMaxStopsPerLeg + "</strong> challenges · " +
         "Challenge time <strong>" + preview.challengeMinTime + "-" + preview.challengeMaxTime + "m</strong> base · " +
+        "Transport <strong>" + preview.minTransportOptions + "-" + preview.maxTransportOptions + "</strong> choices from <strong>" + preview.transportOptions.length + "</strong> options · " +
         "Flight chaos: <strong>" + escapeHtml(chaos.label) + "</strong> · " +
         "Skills: <strong>" + escapeHtml(modeLabel) + "</strong> / <strong>" + preview.skillTypes.length + "</strong> skills" +
         (preview.skillMode === "player_all" ? " / Your team all <strong>" + preview.playerAllSkillLevel + "</strong>" : "");
@@ -6734,6 +7202,9 @@
       setSettingValue("settingFinalMaxStops", s.finalMaxStopsPerLeg);
       setSettingValue("settingChallengeMinTime", s.challengeMinTime);
       setSettingValue("settingChallengeMaxTime", s.challengeMaxTime);
+      setSettingValue("settingMinTransportOptions", s.minTransportOptions);
+      setSettingValue("settingMaxTransportOptions", s.maxTransportOptions);
+      renderTransportEditor(s.transportOptions);
       setSettingValue("settingFlightChaos", s.flightChaos);
       setSettingValue("settingSkillMode", s.skillMode);
       setSettingValue("settingPlayerAllSkillLevel", s.playerAllSkillLevel);
@@ -6748,6 +7219,7 @@
         "settingTeamCount", "settingStartingMoney", "settingLegStipend", "settingNonElimChance",
         "settingMinStops", "settingMaxStops", "settingFinalMinStops",
         "settingFinalMaxStops", "settingChallengeMinTime", "settingChallengeMaxTime",
+        "settingMinTransportOptions", "settingMaxTransportOptions",
         "settingFlightChaos", "settingSkillMode",
         "settingPlayerAllSkillLevel", "settingSkillCount"
       ].forEach(function (id) {
@@ -6770,6 +7242,15 @@
         teamCountEl.addEventListener("change", syncTeamEditor);
         teamCountEl.dataset.boundTeamNameEditor = "1";
       }
+
+      ["settingMinTransportOptions", "settingMaxTransportOptions"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el && !el.dataset.boundTransportNote) {
+          el.addEventListener("input", updateTransportNote);
+          el.addEventListener("change", updateTransportNote);
+          el.dataset.boundTransportNote = "1";
+        }
+      });
 
       var skillCountEl = document.getElementById("settingSkillCount");
       if (skillCountEl && !skillCountEl.dataset.boundSkillNameEditor) {
@@ -6802,6 +7283,9 @@
         finalMaxStopsPerLeg: settingValue("settingFinalMaxStops", DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg),
         challengeMinTime: settingValue("settingChallengeMinTime", DEFAULT_RACE_SETTINGS.challengeMinTime),
         challengeMaxTime: settingValue("settingChallengeMaxTime", DEFAULT_RACE_SETTINGS.challengeMaxTime),
+        minTransportOptions: settingValue("settingMinTransportOptions", DEFAULT_RACE_SETTINGS.minTransportOptions),
+        maxTransportOptions: settingValue("settingMaxTransportOptions", DEFAULT_RACE_SETTINGS.maxTransportOptions),
+        transportOptions: readTransportEditor(),
         nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
         flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
         skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
@@ -8657,7 +9141,7 @@
 
       var screenId = screenOverride || getActiveScreenId();
 
-      if (screenId === "start" || screenId === "customize" || screenId === "teams" || screenId === "roster" || screenId === "menu") {
+      if (screenId === "start" || screenId === "customize" || screenId === "teams" || screenId === "roster" || screenId === "menu" || screenId === "saveManager") {
         return;
       }
 
@@ -8869,17 +9353,43 @@
       return SAVE_SLOT_PREFIX + slot;
     }
 
+    function slotNameKey(slot) {
+      return SAVE_SLOT_NAME_PREFIX + slot;
+    }
+
+    function saveSlotDisplayName(slot) {
+      try {
+        return localStorage.getItem(slotNameKey(slot)) || ("Slot " + slot);
+      } catch (err) {
+        return "Slot " + slot;
+      }
+    }
+
+    function setSaveSlotDisplayName(slot, name) {
+      try {
+        var cleaned = String(name == null ? "" : name).replace(/\s+/g, " ").trim();
+        if (!cleaned) {
+          localStorage.removeItem(slotNameKey(slot));
+        } else {
+          localStorage.setItem(slotNameKey(slot), cleaned.slice(0, 50));
+        }
+      } catch (err) {}
+    }
+
     function saveManualSlot(slot) {
       var screenToSave = lastScreenBeforeMenu || getActiveScreenId();
       var ok = saveGameToKey(slotKey(slot), screenToSave);
 
       if (ok) {
-        document.getElementById("menuStatus").innerHTML = "Saved to Slot " + slot + ".";
+        var status = document.getElementById("menuStatus") || document.getElementById("saveManagerBody");
+        if (status) { status.innerHTML = "Saved to " + escapeHtml(saveSlotDisplayName(slot)) + "."; }
       } else {
-        document.getElementById("menuStatus").innerHTML = "Save failed. Browser storage may be blocked.";
+        var failStatus = document.getElementById("menuStatus") || document.getElementById("saveManagerBody");
+        if (failStatus) { failStatus.innerHTML = "Save failed. Browser storage may be blocked."; }
       }
 
       renderMenuButtons();
+      renderSaveManager();
       updateStartLoadButton();
     }
 
@@ -8887,14 +9397,16 @@
       var state = readSaveFromKey(slotKey(slot));
 
       if (!state) {
-        document.getElementById("menuStatus").innerHTML = "Slot " + slot + " is empty.";
+        var emptyStatus = document.getElementById("menuStatus") || document.getElementById("saveManagerBody");
+        if (emptyStatus) { emptyStatus.innerHTML = "Slot " + slot + " is empty."; }
         return;
       }
 
       var ok = applyGameState(state);
 
       if (!ok) {
-        document.getElementById("menuStatus").innerHTML = escapeHtml(unsupportedSaveMessage(state));
+        var badStatus = document.getElementById("menuStatus") || document.getElementById("saveManagerBody");
+        if (badStatus) { badStatus.innerHTML = escapeHtml(unsupportedSaveMessage(state)); }
       }
     }
 
@@ -8906,7 +9418,7 @@
         saves.push(auto);
       }
 
-      for (var i = 1; i <= 3; i++) {
+      for (var i = 1; i <= SAVE_SLOT_COUNT; i++) {
         var slot = readSaveFromKey(slotKey(i));
 
         if (slot) {
@@ -8943,12 +9455,15 @@
     function clearAllSaves() {
       localStorage.removeItem(AUTO_SAVE_KEY);
 
-      for (var i = 1; i <= 3; i++) {
+      for (var i = 1; i <= SAVE_SLOT_COUNT; i++) {
         localStorage.removeItem(slotKey(i));
+        localStorage.removeItem(slotNameKey(i));
       }
 
-      document.getElementById("menuStatus").innerHTML = "All saves cleared.";
+      var clearStatus = document.getElementById("menuStatus") || document.getElementById("saveManagerBody");
+      if (clearStatus) { clearStatus.innerHTML = "All saves cleared."; }
       renderMenuButtons();
+      renderSaveManager();
       updateStartLoadButton();
     }
 
@@ -8971,42 +9486,194 @@
       resume.onclick = closeMenu;
       area.appendChild(resume);
 
-      for (var s = 1; s <= 3; s++) {
-        (function (slot) {
-          var saveBtn = document.createElement("button");
-          saveBtn.className = "menu-btn";
-          saveBtn.textContent = "Save Slot " + slot;
-          saveBtn.onclick = function () { saveManualSlot(slot); };
-          area.appendChild(saveBtn);
-
-          var state = readSaveFromKey(slotKey(slot));
-          var loadBtn = document.createElement("button");
-          loadBtn.className = "menu-btn";
-          loadBtn.textContent = "Load Slot " + slot + " - " + formatSaveStamp(state);
-          loadBtn.disabled = !state;
-          loadBtn.onclick = function () { loadManualSlot(slot); };
-          area.appendChild(loadBtn);
-        })(s);
-      }
+      var manager = document.createElement("button");
+      manager.className = "menu-btn gold";
+      manager.textContent = "Open Save Manager";
+      manager.onclick = function () { openSaveManager("menu"); };
+      area.appendChild(manager);
 
       var loadLatest = document.createElement("button");
-      loadLatest.className = "menu-btn gold";
+      loadLatest.className = "menu-btn";
       loadLatest.textContent = "Load Latest Save";
       loadLatest.disabled = !latestSaveState();
       loadLatest.onclick = loadLatestGame;
       area.appendChild(loadLatest);
-
-      var clear = document.createElement("button");
-      clear.className = "menu-btn";
-      clear.textContent = "Clear All Saves";
-      clear.onclick = clearAllSaves;
-      area.appendChild(clear);
 
       var newGame = document.createElement("button");
       newGame.className = "menu-btn";
       newGame.textContent = "New Game";
       newGame.onclick = resetToStart;
       area.appendChild(newGame);
+    }
+
+    function saveStateSummaryHtml(state) {
+      if (!state) {
+        return '<div class="save-slot-meta">Empty slot</div>';
+      }
+
+      var team = state.playerTeam || "Unknown team";
+      var leg = state.legNum || 1;
+      var remaining = state.remainingTeams && state.remainingTeams.length ? state.remainingTeams.length : "?";
+      var stamp = formatSaveStamp(state);
+
+      return '<div class="save-slot-meta">' +
+        'Team: <strong>' + escapeHtml(team) + '</strong><br>' +
+        'Leg: <strong>' + escapeHtml(leg) + '</strong> · Teams left: <strong>' + escapeHtml(remaining) + '</strong><br>' +
+        'Saved: <strong>' + escapeHtml(stamp) + '</strong>' +
+        '</div>';
+    }
+
+    function renderSaveManager() {
+      var body = document.getElementById("saveManagerBody");
+      var grid = document.getElementById("saveSlotGrid");
+
+      if (!body || !grid) {
+        return;
+      }
+
+      var activeRaceText = raceIsInProgress()
+        ? "Current race: <strong>" + escapeHtml(playerTeam || "Unnamed team") + "</strong> · " + currentLegLabel()
+        : "No race is currently in progress. You can still load a saved race.";
+
+      body.innerHTML = activeRaceText + '<div class="menu-note">Save slots are stored in this browser on this device.</div>';
+      grid.innerHTML = "";
+
+      var autoState = readSaveFromKey(AUTO_SAVE_KEY);
+      var autoCard = document.createElement("div");
+      autoCard.className = "save-slot-card";
+      var autoTitle = document.createElement("strong");
+      autoTitle.textContent = "Auto Save";
+      autoCard.appendChild(autoTitle);
+      var autoSummary = document.createElement("div");
+      autoSummary.innerHTML = saveStateSummaryHtml(autoState);
+      autoCard.appendChild(autoSummary);
+      var autoActions = document.createElement("div");
+      autoActions.className = "save-slot-actions";
+
+      var loadAuto = document.createElement("button");
+      loadAuto.className = "mini-btn";
+      loadAuto.type = "button";
+      loadAuto.textContent = "Load";
+      loadAuto.disabled = !autoState;
+      loadAuto.onclick = function () {
+        var ok = applyGameState(autoState);
+        if (!ok) {
+          var badStatus = document.getElementById("saveManagerBody");
+          if (badStatus) { badStatus.innerHTML = escapeHtml(unsupportedSaveMessage(autoState)); }
+        }
+      };
+      autoActions.appendChild(loadAuto);
+
+      var deleteAuto = document.createElement("button");
+      deleteAuto.className = "mini-btn";
+      deleteAuto.type = "button";
+      deleteAuto.textContent = "Delete";
+      deleteAuto.disabled = !autoState;
+      deleteAuto.onclick = function () {
+        if (confirm("Delete Auto Save?")) {
+          localStorage.removeItem(AUTO_SAVE_KEY);
+          renderSaveManager();
+          updateStartLoadButton();
+        }
+      };
+      autoActions.appendChild(deleteAuto);
+
+      autoCard.appendChild(autoActions);
+      grid.appendChild(autoCard);
+
+      for (var slot = 1; slot <= SAVE_SLOT_COUNT; slot++) {
+        (function (slotNumber) {
+          var state = readSaveFromKey(slotKey(slotNumber));
+          var card = document.createElement("div");
+          card.className = "save-slot-card";
+
+          var title = document.createElement("strong");
+          title.textContent = saveSlotDisplayName(slotNumber);
+          card.appendChild(title);
+
+          var summary = document.createElement("div");
+          summary.innerHTML = saveStateSummaryHtml(state);
+          card.appendChild(summary);
+
+          var actions = document.createElement("div");
+          actions.className = "save-slot-actions";
+
+          var saveBtn = document.createElement("button");
+          saveBtn.className = "mini-btn";
+          saveBtn.type = "button";
+          saveBtn.textContent = state ? "Overwrite" : "Save Here";
+          saveBtn.disabled = !raceIsInProgress();
+          saveBtn.onclick = function () {
+            saveManualSlot(slotNumber);
+            renderSaveManager();
+          };
+          actions.appendChild(saveBtn);
+
+          var loadBtn = document.createElement("button");
+          loadBtn.className = "mini-btn";
+          loadBtn.type = "button";
+          loadBtn.textContent = "Load";
+          loadBtn.disabled = !state;
+          loadBtn.onclick = function () {
+            loadManualSlot(slotNumber);
+          };
+          actions.appendChild(loadBtn);
+
+          var renameBtn = document.createElement("button");
+          renameBtn.className = "mini-btn";
+          renameBtn.type = "button";
+          renameBtn.textContent = "Rename";
+          renameBtn.onclick = function () {
+            var current = saveSlotDisplayName(slotNumber);
+            var nextName = prompt("Rename save slot:", current);
+            if (nextName !== null) {
+              setSaveSlotDisplayName(slotNumber, nextName);
+              renderSaveManager();
+            }
+          };
+          actions.appendChild(renameBtn);
+
+          var deleteBtn = document.createElement("button");
+          deleteBtn.className = "mini-btn";
+          deleteBtn.type = "button";
+          deleteBtn.textContent = "Delete";
+          deleteBtn.disabled = !state;
+          deleteBtn.onclick = function () {
+            if (confirm("Delete " + saveSlotDisplayName(slotNumber) + "?")) {
+              localStorage.removeItem(slotKey(slotNumber));
+              renderSaveManager();
+              renderMenuButtons();
+              updateStartLoadButton();
+            }
+          };
+          actions.appendChild(deleteBtn);
+
+          card.appendChild(actions);
+          grid.appendChild(card);
+        })(slot);
+      }
+    }
+
+    function openSaveManager(returnScreen) {
+      saveManagerReturnScreen = returnScreen || getActiveScreenId() || "start";
+
+      if (saveManagerReturnScreen !== "start" && saveManagerReturnScreen !== "menu") {
+        autoSaveGame(saveManagerReturnScreen);
+      }
+
+      renderSaveManager();
+      showScreen("saveManager");
+    }
+
+    function closeSaveManager() {
+      if (saveManagerReturnScreen === "menu") {
+        renderMenuScreen();
+        showScreen("menu");
+      } else if (saveManagerReturnScreen && saveManagerReturnScreen !== "saveManager") {
+        restoreScreenById(saveManagerReturnScreen);
+      } else {
+        showScreen("start");
+      }
     }
 
     function renderMenuScreen() {
@@ -9041,6 +9708,12 @@
 
       if (id === "start") {
         showScreen("start");
+        return;
+      }
+
+      if (id === "saveManager") {
+        renderSaveManager();
+        showScreen("saveManager");
         return;
       }
 
@@ -9136,8 +9809,8 @@
       }
 
       var latest = latestSaveState();
-      btn.disabled = !latest;
-      btn.textContent = latest ? "Load Saved Race" : "No Saved Race";
+      btn.disabled = false;
+      btn.textContent = latest ? "Save Manager" : "Save Manager";
     }
 
     function updateTopMenuButton(id) {
@@ -9147,7 +9820,7 @@
         return;
       }
 
-      var hideOn = ["start", "customize", "teams", "roster", "menu"];
+      var hideOn = ["start", "customize", "teams", "roster", "menu", "saveManager"];
 
       if (raceIsInProgress() && hideOn.indexOf(id) === -1) {
         btn.style.display = "block";
@@ -9164,7 +9837,7 @@
       document.getElementById(id).classList.add("active");
       updateTopMenuButton(id);
 
-      if (id !== "menu") {
+      if (id !== "menu" && id !== "saveManager") {
         autoSaveGame(id);
       }
     }
