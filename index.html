@@ -24,9 +24,7 @@
       --shadow: rgba(0, 0, 0, 0.35);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Chakra Petch', Arial, sans-serif;
@@ -83,9 +81,7 @@
       font-weight: 700;
     }
 
-    h2 {
-      font-weight: 700;
-    }
+    h2 { font-weight: 700; }
 
     p {
       font-weight: 700;
@@ -108,20 +104,9 @@
       transition: transform 0.12s ease, background 0.12s ease, opacity 0.12s ease, border-color 0.12s ease;
     }
 
-    button:hover {
-      transform: translateY(-1px);
-    }
-
-    button:active {
-      background: var(--accent-dark);
-      transform: translateY(1px);
-    }
-
-    button:disabled {
-      opacity: 0.42;
-      cursor: not-allowed;
-      transform: none;
-    }
+    button:hover { transform: translateY(-1px); }
+    button:active { background: var(--accent-dark); transform: translateY(1px); }
+    button:disabled { opacity: 0.42; cursor: not-allowed; transform: none; }
 
     .secondary-btn {
       background: #5a1c28;
@@ -158,11 +143,6 @@
       border: 2px solid rgba(255, 209, 102, 0.7);
       font-size: 2.1em;
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
-    }
-
-    .subtle {
-      color: var(--muted);
-      font-size: 0.96em;
     }
 
     #topMenuBtn {
@@ -293,13 +273,8 @@
       font-size: 0.92em;
     }
 
-    .meta-money {
-      color: var(--green);
-    }
-
-    .meta-time {
-      color: var(--gold);
-    }
+    .meta-money { color: var(--green); }
+    .meta-time { color: var(--gold); }
 
     .standings {
       text-align: left;
@@ -312,6 +287,40 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.13);
       line-height: 1.4;
       overflow-wrap: anywhere;
+    }
+
+    .departure-list {
+      background: rgba(43, 13, 20, 0.44);
+      border: 1px solid rgba(255, 209, 102, 0.42);
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 12px;
+      text-align: left;
+    }
+
+    .departure-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 7px 0;
+      line-height: 1.35;
+    }
+
+    .departure-row:last-child { border-bottom: none; }
+    .departure-row.you { color: var(--gold); }
+
+    .departure-team {
+      overflow-wrap: anywhere;
+    }
+
+    .departure-time {
+      white-space: nowrap;
+      color: var(--muted);
+    }
+
+    .departure-row.you .departure-time {
+      color: var(--gold);
     }
 
     .route-history {
@@ -426,21 +435,10 @@
     }
 
     @media (max-width: 560px) {
-      body {
-        padding: 28px 12px 52px;
-      }
-
-      .skills {
-        grid-template-columns: 1fr;
-      }
-
-      button {
-        width: 100%;
-      }
-
-      #topMenuBtn {
-        width: auto;
-      }
+      body { padding: 28px 12px 52px; }
+      .skills { grid-template-columns: 1fr; }
+      button { width: 100%; }
+      #topMenuBtn { width: auto; }
 
       .opt-btn {
         align-items: flex-start;
@@ -458,6 +456,15 @@
       .hero-card,
       .panel-card {
         padding: 15px;
+      }
+
+      .departure-row {
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .departure-time {
+        white-space: normal;
       }
     }
   </style>
@@ -557,7 +564,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 1;
+    var SAVE_VERSION = 2;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
     var lastScreenBeforeMenu = "start";
@@ -565,22 +572,8 @@
     var restoredFlightResultHtml = "";
 
     var teams = [
-      "FUSS",
-      "#idfk",
-      "RUN... AWAY!! i'm... *growls* going BRUNGO MODE!!",
-      "Fire Seal FOREVER!",
-      "The Future Winners",
-      "The Coconut Trees",
-      "Paris",
-      "Canoe! Campers",
-      "The",
-      "Team Yaoi",
-      "Unlikely Winners: Electric Boogaloo",
-      "i got an addiction with rhythm games",
-      "Detour Divas",
-      "plastique fantastique iconique ozempique terrifique tournament of all stars v69 [S10 - 1ST]",
-      "The Good, The Furry, and the Wonderhoy!",
-      "Frequent Laundry"
+      "Red", "Blue", "Green", "Yellow", "Orange", "Purple",
+      "White", "Black", "Grey", "Brown", "Pink", "Magenta"
     ];
 
     var SKILL_TYPES = [
@@ -757,7 +750,7 @@
     var FINAL_MAX_STOPS_PER_LEG = 7;
     var NON_ELIM_CHANCE = 0.15;
     var MIN_TRANSPORT_OPTIONS = 2;
-    var MAX_TRANSPORT_OPTIONS = 4;
+    var MAX_TRANSPORT_OPTIONS = 5;
 
     var MINUTES_PER_DAY = 1440;
     var LEG_GAP_DAYS = 7;
@@ -886,6 +879,38 @@
 
     function pitstopLocationKey() {
       return "pitstop";
+    }
+
+    function getWalkOption() {
+      return STANDARD_TRANSPORT.find(function (opt) {
+        return opt.method.indexOf("Walk") !== -1;
+      });
+    }
+
+    function hasWalkOption(options) {
+      return options.some(function (opt) {
+        return opt.method.indexOf("Walk") !== -1;
+      });
+    }
+
+    function optionsWithEmergencyWalkForTeam(options, teamName) {
+      var prepared = options.slice();
+      var canAffordAny = prepared.some(function (opt) {
+        return opt.cost <= money[teamName];
+      });
+
+      if (!canAffordAny && !hasWalkOption(prepared)) {
+        var walk = getWalkOption();
+        if (walk) {
+          prepared.push(walk);
+        }
+      }
+
+      prepared.sort(function (a, b) {
+        return a.time - b.time;
+      });
+
+      return prepared;
     }
 
     function addPresenceSegment(list, locationKey, startClock, endClock, label) {
@@ -1040,6 +1065,35 @@
       return html;
     }
 
+    function departureTimesHtml() {
+      var rows = remainingTeams.slice().sort(function (a, b) {
+        var ca = currentLegStartClocks[a] != null ? currentLegStartClocks[a] : raceClock;
+        var cb = currentLegStartClocks[b] != null ? currentLegStartClocks[b] : raceClock;
+
+        if (ca !== cb) {
+          return ca - cb;
+        }
+
+        return a.localeCompare(b);
+      });
+
+      var html = '<div class="departure-list">';
+      html += '<strong>Departure Times</strong>';
+
+      rows.forEach(function (team) {
+        var clock = currentLegStartClocks[team] != null ? currentLegStartClocks[team] : raceClock;
+        var youClass = team === playerTeam ? " you" : "";
+
+        html += '<div class="departure-row' + youClass + '">';
+        html += '<span class="departure-team">' + escapeHtml(team) + (team === playerTeam ? " ← You" : "") + '</span>';
+        html += '<span class="departure-time">' + formatRaceDateTime(clock) + '</span>';
+        html += '</div>';
+      });
+
+      html += '</div>';
+      return html;
+    }
+
     function formatFlightMinute(minute) {
       return ":" + pad2(minute);
     }
@@ -1140,18 +1194,7 @@
 
     function makeTransportOptionsForSegment() {
       var count = randomInt(MIN_TRANSPORT_OPTIONS, MAX_TRANSPORT_OPTIONS);
-      var walk = STANDARD_TRANSPORT.find(function (opt) {
-        return opt.method.indexOf("Walk") !== -1;
-      });
-      var paidOptions = STANDARD_TRANSPORT.filter(function (opt) {
-        return opt !== walk;
-      });
-
-      var selected = shuffledCopy(paidOptions).slice(0, count - 1);
-
-      if (walk) {
-        selected.push(walk);
-      }
+      var selected = shuffledCopy(STANDARD_TRANSPORT).slice(0, count);
 
       selected.sort(function (a, b) {
         return a.time - b.time;
@@ -1170,7 +1213,8 @@
     }
 
     function chooseTeamTransport(name, options) {
-      var affordable = options.filter(function (o) {
+      var preparedOptions = optionsWithEmergencyWalkForTeam(options, name);
+      var affordable = preparedOptions.filter(function (o) {
         return o.cost <= money[name];
       });
 
@@ -1179,9 +1223,9 @@
       if (affordable.length > 0) {
         pick = affordable[Math.floor(Math.random() * affordable.length)];
       } else {
-        pick = options.reduce(function (cheapest, opt) {
+        pick = preparedOptions.reduce(function (cheapest, opt) {
           return opt.cost < cheapest.cost ? opt : cheapest;
-        }, options[0]);
+        }, preparedOptions[0]);
       }
 
       spendTeamMoney(name, pick.cost);
@@ -1441,15 +1485,13 @@
       winnerCheckInClock = 0;
       currentResultAction = null;
       restoredFlightResultHtml = "";
+      skills = {};
 
       teams.forEach(function (name) {
         money[name] = STARTING_MONEY;
         placementHistory[name] = [];
         nextLegStartClocks[name] = 0;
-
-        if (!skills[name]) {
-          skills[name] = rollSkills();
-        }
+        skills[name] = rollSkills();
       });
 
       currentCity = WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)];
@@ -1539,6 +1581,7 @@
 
       document.getElementById("legIntroBody").innerHTML =
         raceClockHeader() +
+        departureTimesHtml() +
         presenceReportHtml(startLocationKey(), raceClock, null) +
         "<br>" +
         (isFinalLeg() ? "<strong>Three teams remain. First to the final mat wins.</strong><br><br>" : "") +
@@ -1564,7 +1607,9 @@
       var list = document.getElementById("specialTransportList");
       list.innerHTML = "";
 
-      options.forEach(function (opt) {
+      var optionsForPlayer = optionsWithEmergencyWalkForTeam(options, playerTeam);
+
+      optionsForPlayer.forEach(function (opt) {
         var btn = document.createElement("button");
         btn.className = "opt-btn";
         btn.innerHTML = transportButtonHtml(opt);
@@ -1718,7 +1763,7 @@
         locationName + "<br>" +
         'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
-      var optionsForThisSegment = legTransportOptions[currentStop];
+      var optionsForThisSegment = optionsWithEmergencyWalkForTeam(legTransportOptions[currentStop], playerTeam);
       var list = document.getElementById("transportList");
       list.innerHTML = "";
 
@@ -1840,7 +1885,7 @@
       html += "<th>Avg</th></tr></thead><tbody>";
 
       sorted.forEach(function (name) {
-        var h = placementHistory[name];
+        var h = placementHistory[name] || [];
         var nums = h.filter(function (x) { return x != null; });
         var avg = nums.length ? (nums.reduce(function (s, x) { return s + x; }, 0) / nums.length).toFixed(1) : "";
         var isYou = (name === playerTeam);
@@ -1933,6 +1978,9 @@
       });
 
       teams.forEach(function (name) {
+        if (!placementHistory[name]) {
+          placementHistory[name] = [];
+        }
         placementHistory[name].push(placeOf[name] != null ? placeOf[name] : null);
       });
 
