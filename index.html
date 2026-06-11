@@ -515,6 +515,87 @@
       line-height: 1.45;
     }
 
+    .team-editor-card {
+      margin-top: 14px;
+      background: rgba(43, 13, 20, 0.42);
+      border: 1px solid rgba(255, 209, 102, 0.32);
+      border-radius: 16px;
+      padding: 13px;
+      text-align: left;
+    }
+
+    .team-editor-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .team-editor-header strong {
+      color: var(--gold);
+      font-size: 1.02em;
+    }
+
+    .mini-btn {
+      width: auto;
+      margin: 0;
+      padding: 8px 11px;
+      font-size: 0.84em;
+      border-radius: 999px;
+      background: rgba(255, 209, 102, 0.12);
+      border: 1px solid rgba(255, 209, 102, 0.5);
+      color: var(--gold);
+      box-shadow: none;
+      white-space: nowrap;
+    }
+
+    .team-name-editor {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      max-height: 380px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .team-name-row {
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .team-name-row span {
+      color: var(--muted);
+      font-size: 0.9em;
+      white-space: nowrap;
+    }
+
+    .team-name-row input {
+      width: 100%;
+      font-family: 'Chakra Petch', Arial, sans-serif;
+      font-weight: 700;
+      font-size: 1em;
+      color: var(--text);
+      background: rgba(74, 24, 34, 0.98);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 11px;
+      outline: none;
+    }
+
+    .team-name-row input:focus {
+      border-color: var(--gold);
+    }
+
+    .team-name-note {
+      color: var(--muted);
+      font-size: 0.86em;
+      line-height: 1.35;
+      margin-top: 9px;
+    }
+
     @media (max-width: 560px) {
       body { padding: 28px 12px 52px; }
       .skills { grid-template-columns: 1fr; }
@@ -547,6 +628,19 @@
       .departure-time {
         white-space: normal;
       }
+
+      .team-editor-header {
+        flex-direction: column;
+      }
+
+      .mini-btn {
+        width: 100%;
+      }
+
+      .team-name-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
     }
   </style>
 </head>
@@ -577,7 +671,7 @@
     <span class="screen-label">Race Setup</span>
     <h1>Customize Race</h1>
     <div class="status">
-      Tune the season before choosing your team. Team names default to Team 1, Team 2, etc. Full name editing comes next.
+      Tune the season before choosing your team. Team names default to Team 1, Team 2, etc., and you can rename them below.
     </div>
     <div class="panel-card">
       <div class="settings-grid">
@@ -642,6 +736,18 @@
       </div>
 
       <div class="setting-summary" id="customizationSummary"></div>
+
+      <div class="team-editor-card">
+        <div class="team-editor-header">
+          <div>
+            <strong>Team Names</strong>
+            <div class="setting-help">Edit the cast names for this season. Blank names will turn back into Team 1, Team 2, etc.</div>
+          </div>
+          <button class="mini-btn" type="button" onclick="resetTeamNamesToDefault()">Reset Team Names</button>
+        </div>
+        <div id="teamNameEditor" class="team-name-editor"></div>
+        <div id="teamNameNote" class="team-name-note"></div>
+      </div>
     </div>
 
     <button onclick="confirmCustomization()">Continue to Team Select</button>
@@ -5189,6 +5295,155 @@
       return generated;
     }
 
+    function cleanTeamName(value, index) {
+      var cleaned = String(value == null ? "" : value)
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!cleaned) {
+        cleaned = "Team " + (index + 1);
+      }
+
+      if (cleaned.length > 60) {
+        cleaned = cleaned.slice(0, 60).trim();
+      }
+
+      return cleaned || ("Team " + (index + 1));
+    }
+
+    function sanitizeTeamNames(names, count) {
+      var safeCount = clampNumber(parseInt(count, 10) || DEFAULT_TEAM_COUNT, 4, 50);
+      var source = Array.isArray(names) ? names : [];
+      var used = {};
+      var result = [];
+
+      for (var i = 0; i < safeCount; i++) {
+        var base = cleanTeamName(source[i], i);
+        var candidate = base;
+        var suffix = 2;
+
+        while (used[candidate.toLowerCase()]) {
+          candidate = base + " " + suffix;
+          suffix += 1;
+        }
+
+        used[candidate.toLowerCase()] = true;
+        result.push(candidate);
+      }
+
+      return result;
+    }
+
+    function readRawTeamNamesFromEditor() {
+      var editor = document.getElementById("teamNameEditor");
+
+      if (!editor) {
+        return teams.slice();
+      }
+
+      var inputs = editor.querySelectorAll(".team-name-input");
+      return Array.prototype.map.call(inputs, function (input) {
+        return input.value;
+      });
+    }
+
+    function currentTeamCountDraft() {
+      return sanitizeRaceSettings({
+        teamCount: settingValue("settingTeamCount", DEFAULT_RACE_SETTINGS.teamCount),
+        startingMoney: DEFAULT_RACE_SETTINGS.startingMoney,
+        legStipend: DEFAULT_RACE_SETTINGS.legStipend,
+        minStopsPerLeg: DEFAULT_RACE_SETTINGS.minStopsPerLeg,
+        maxStopsPerLeg: DEFAULT_RACE_SETTINGS.maxStopsPerLeg,
+        finalMinStopsPerLeg: DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg,
+        finalMaxStopsPerLeg: DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg,
+        nonElimChance: DEFAULT_RACE_SETTINGS.nonElimChance,
+        flightChaos: DEFAULT_RACE_SETTINGS.flightChaos
+      }).teamCount;
+    }
+
+    function renderTeamNameEditor(seedNames) {
+      var editor = document.getElementById("teamNameEditor");
+      var note = document.getElementById("teamNameNote");
+
+      if (!editor) {
+        return;
+      }
+
+      var count = currentTeamCountDraft();
+      var source = Array.isArray(seedNames) ? seedNames.slice() : readRawTeamNamesFromEditor();
+
+      if (source.length === 0) {
+        source = teams && teams.length ? teams.slice() : makeDefaultTeamNames(count);
+      }
+
+      editor.innerHTML = "";
+
+      for (var i = 0; i < count; i++) {
+        var row = document.createElement("div");
+        row.className = "team-name-row";
+
+        var label = document.createElement("span");
+        label.textContent = "Team " + (i + 1);
+
+        var input = document.createElement("input");
+        input.className = "team-name-input";
+        input.type = "text";
+        input.maxLength = 60;
+        input.value = source[i] != null ? source[i] : ("Team " + (i + 1));
+        input.setAttribute("aria-label", "Team " + (i + 1) + " name");
+        input.addEventListener("input", function () {
+          updateTeamNameNote();
+          renderCustomizationSummary();
+        });
+
+        row.appendChild(label);
+        row.appendChild(input);
+        editor.appendChild(row);
+      }
+
+      updateTeamNameNote();
+      renderCustomizationSummary();
+    }
+
+    function resetTeamNamesToDefault() {
+      var count = currentTeamCountDraft();
+      renderTeamNameEditor(makeDefaultTeamNames(count));
+    }
+
+    function updateTeamNameNote() {
+      var note = document.getElementById("teamNameNote");
+
+      if (!note) {
+        return;
+      }
+
+      var count = currentTeamCountDraft();
+      var raw = readRawTeamNamesFromEditor();
+      var sanitized = sanitizeTeamNames(raw, count);
+      var blanks = 0;
+      var changedDuplicates = 0;
+
+      for (var i = 0; i < count; i++) {
+        if (!String(raw[i] == null ? "" : raw[i]).trim()) {
+          blanks += 1;
+        } else if (cleanTeamName(raw[i], i) !== sanitized[i]) {
+          changedDuplicates += 1;
+        }
+      }
+
+      var parts = ["Cast size: " + count + " teams."];
+
+      if (blanks > 0) {
+        parts.push(blanks + " blank name" + (blanks === 1 ? "" : "s") + " will use default Team # names.");
+      }
+
+      if (changedDuplicates > 0) {
+        parts.push("Duplicate names will receive a number so every team stays unique.");
+      }
+
+      note.textContent = parts.join(" ");
+    }
+
     function buildTeamButtons() {
       var list = document.getElementById("teamList");
       list.innerHTML = "";
@@ -5683,9 +5938,16 @@
         flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos)
       });
       var chaos = FLIGHT_CHAOS_PROFILES[preview.flightChaos] || FLIGHT_CHAOS_PROFILES.normal;
+      var teamPreviewNames = sanitizeTeamNames(readRawTeamNamesFromEditor(), preview.teamCount);
+      var previewList = teamPreviewNames.slice(0, 4).map(escapeHtml).join(", ");
+
+      if (teamPreviewNames.length > 4) {
+        previewList += ", +" + (teamPreviewNames.length - 4) + " more";
+      }
 
       box.innerHTML =
-        "Season Settings: <strong>" + preview.teamCount + "</strong> teams · " +
+        "Season Settings: <strong>" + preview.teamCount + "</strong> teams" +
+        (previewList ? " (" + previewList + ")" : "") + " · " +
         "<strong>$" + preview.startingMoney + "</strong> start · " +
         "<strong>$" + preview.legStipend + "</strong> stipend · " +
         "<strong>" + Math.round(preview.nonElimChance * 100) + "%</strong> non-elim · " +
@@ -5721,6 +5983,16 @@
           el.dataset.boundCustomization = "1";
         }
       });
+
+      var teamCountEl = document.getElementById("settingTeamCount");
+      if (teamCountEl && !teamCountEl.dataset.boundTeamNameEditor) {
+        var syncTeamEditor = function () {
+          renderTeamNameEditor(readRawTeamNamesFromEditor());
+        };
+        teamCountEl.addEventListener("input", syncTeamEditor);
+        teamCountEl.addEventListener("change", syncTeamEditor);
+        teamCountEl.dataset.boundTeamNameEditor = "1";
+      }
     }
 
     function readCustomizationForm() {
@@ -5744,13 +6016,15 @@
 
       bindCustomizationFormEvents();
       fillCustomizationForm(raceSettings);
+      renderTeamNameEditor(teams && teams.length ? teams : makeDefaultTeamNames(raceSettings.teamCount));
       showScreen("customize");
     }
 
     function confirmCustomization() {
       raceSettings = readCustomizationForm();
+      teams = sanitizeTeamNames(readRawTeamNamesFromEditor(), raceSettings.teamCount);
+      raceSettings.teamCount = teams.length;
       applyRaceSettingsToGlobals();
-      teams = makeDefaultTeamNames(raceSettings.teamCount);
       playerTeam = null;
       skills = {};
       buildTeamButtons();
@@ -5759,7 +6033,9 @@
 
     function resetCustomizationDefaults() {
       raceSettings = cloneRaceSettings(DEFAULT_RACE_SETTINGS);
+      teams = makeDefaultTeamNames(raceSettings.teamCount);
       fillCustomizationForm(raceSettings);
+      renderTeamNameEditor(teams);
     }
 
     function normalizeWithinRange(value, min, max, invert) {
@@ -7945,6 +8221,11 @@
 
       if (id === "start") {
         showScreen("start");
+        return;
+      }
+
+      if (id === "customize") {
+        openCustomization();
         return;
       }
 
