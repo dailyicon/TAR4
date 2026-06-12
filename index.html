@@ -6288,18 +6288,17 @@
 
     function readTeamColorEditor(teamNamesOverride) {
       var names = teamNamesOverride || currentTeamNamesDraft();
-      var editor = document.getElementById("teamColorEditor");
       var result = {};
 
+      // Seed defaults first
       names.forEach(function (team, index) {
         result[team] = defaultColorForIndex(index);
       });
 
-      if (!editor) {
-        return result;
-      }
+      // Colors now live in the merged teamNameEditor, not the hidden teamColorEditor stub
+      var nameEditor = document.getElementById("teamNameEditor");
+      var inputs = nameEditor ? nameEditor.querySelectorAll(".team-color-input") : [];
 
-      var inputs = editor.querySelectorAll(".team-color-input");
       Array.prototype.forEach.call(inputs, function (input) {
         var teamIndex = parseInt(input.dataset.teamIndex, 10);
         var team = names[teamIndex];
@@ -6312,43 +6311,33 @@
     }
 
     function renderTeamColorEditor(seedColors) {
-      var editor = document.getElementById("teamColorEditor");
-      var note = document.getElementById("teamColorNote");
-
-      if (!editor) {
-        return;
-      }
+      // Colors are now rendered inside the merged teamNameEditor rows.
+      // This function updates the picker + hex values in those rows.
+      var nameEditor = document.getElementById("teamNameEditor");
+      if (!nameEditor) { return; }
 
       var names = currentTeamNamesDraft();
       var source = seedColors || (raceSettings && raceSettings.teamColors) || teamColors || {};
       var colors = sanitizeTeamColors(source, names);
-      editor.innerHTML = "";
 
-      names.forEach(function (team, index) {
-        var row = document.createElement("div");
-        row.className = "team-color-row";
+      var pickers = nameEditor.querySelectorAll(".team-color-input");
+      var hexInputs = nameEditor.querySelectorAll(".team-hex-input");
 
-        var label = document.createElement("span");
-        label.textContent = team;
-
-        var input = document.createElement("input");
-        input.type = "color";
-        input.className = "team-color-input";
-        input.dataset.teamIndex = index;
-        input.value = colors[team];
-        input.setAttribute("aria-label", team + " color");
-        input.addEventListener("input", function () {
-          renderCustomizationSummary();
-        });
-
-        row.appendChild(label);
-        row.appendChild(input);
-        editor.appendChild(row);
+      Array.prototype.forEach.call(pickers, function (picker) {
+        var idx = parseInt(picker.dataset.teamIndex, 10);
+        var team = names[idx];
+        if (team && colors[team]) {
+          picker.value = colors[team];
+        }
       });
 
-      if (note) {
-        note.textContent = "Color map: " + names.length + " teams. These colors appear in clue-by-clue charts and legends.";
-      }
+      Array.prototype.forEach.call(hexInputs, function (hex) {
+        var idx = parseInt(hex.dataset.teamIndex, 10);
+        var team = names[idx];
+        if (team && colors[team]) {
+          hex.value = colors[team].toUpperCase();
+        }
+      });
     }
 
     function resetTeamColorsToDefault() {
@@ -7625,6 +7614,7 @@
       return {
         teamCount: parseInt(base.teamCount, 10),
         teamColors: Object.assign({}, base.teamColors || {}),
+        teamNames: Array.isArray(base.teamNames) ? base.teamNames.slice() : [],
         startingMoney: parseInt(base.startingMoney, 10),
         legStipend: parseInt(base.legStipend, 10),
         minStopsPerLeg: parseInt(base.minStopsPerLeg, 10),
@@ -7808,6 +7798,10 @@
       setSettingValue("settingMinTransportOptions", s.minTransportOptions);
       setSettingValue("settingMaxTransportOptions", s.maxTransportOptions);
       renderTransportEditor(s.transportOptions);
+      renderTeamNameEditor(sanitizeTeamNames(
+        s.teamNames && s.teamNames.length ? s.teamNames : makeDefaultTeamNames(s.teamCount),
+        s.teamCount
+      ));
       renderTeamColorEditor(s.teamColors);
       setSettingValue("settingFlightChaos", s.flightChaos);
       setSettingValue("settingGapScaling", s.gapScaling != null ? String(s.gapScaling) : "0.5");
@@ -7915,7 +7909,8 @@
 
       bindCustomizationFormEvents();
       fillCustomizationForm(raceSettings);
-      renderTeamNameEditor(teams && teams.length ? teams : makeDefaultTeamNames(raceSettings.teamCount));
+      var seedNames = (raceSettings && raceSettings.teamNames && raceSettings.teamNames.length) ? raceSettings.teamNames : (teams && teams.length ? teams : makeDefaultTeamNames(raceSettings.teamCount));
+      renderTeamNameEditor(seedNames);
       renderPresetList();
       renderTeamColorEditor(raceSettings.teamColors);
       renderSkillNameEditor(raceSettings.skillTypes);
@@ -10859,8 +10854,11 @@
     }
 
     function readCustomizationForm() {
+      var rawNames = readRawTeamNamesFromEditor();
+      var teamCount = parseInt(settingValue("settingTeamCount", DEFAULT_RACE_SETTINGS.teamCount), 10) || DEFAULT_RACE_SETTINGS.teamCount;
       return sanitizeRaceSettings({
-        teamCount: settingValue("settingTeamCount", DEFAULT_RACE_SETTINGS.teamCount),
+        teamCount: teamCount,
+        teamNames: sanitizeTeamNames(rawNames, teamCount),
         teamColors: readTeamColorEditor(),
         startingMoney: settingValue("settingStartingMoney", DEFAULT_RACE_SETTINGS.startingMoney),
         legStipend: settingValue("settingLegStipend", DEFAULT_RACE_SETTINGS.legStipend),
@@ -10881,9 +10879,7 @@
         playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
         skillTypes: readRawSkillNamesFromEditor(),
-        customTeamSkills: readCustomTeamSkillEditor(),
-        gapScaling: settingValue("settingGapScaling", DEFAULT_RACE_SETTINGS.gapScaling),
-        gapScalingCustom: settingValue("settingGapScalingCustom", DEFAULT_RACE_SETTINGS.gapScalingCustom)
+        customTeamSkills: readCustomTeamSkillEditor()
       });
     }
 
