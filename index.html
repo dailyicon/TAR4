@@ -928,7 +928,7 @@
       border-radius: var(--radius-lg);
       padding: 14px;
       margin-top: 14px;
-      overflow-x: auto;
+      overflow: hidden;
     }
 
     .clue-chart-title {
@@ -941,7 +941,9 @@
 
     .clue-chart-card svg {
       display: block;
-      min-width: 100%;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
       background: rgba(255, 255, 255, 0.96);
       border-radius: 14px;
     }
@@ -8657,13 +8659,17 @@
       var labels = clueChartLabels();
       var activeResults = results.slice();
       var teamCount = activeResults.length;
-      var step = 88;
-      var chartLeft = 40;
-      var chartTop = 126;
-      var chartWidth = Math.max(720, (labels.length - 1) * step);
-      var legendWidth = 260;
-      var width = chartLeft + chartWidth + legendWidth + 30;
-      var rowGap = teamCount <= 12 ? 42 : teamCount <= 25 ? 30 : 22;
+      var labelCount = labels.length;
+      var chartLeft = 48;
+      var chartTop = 134;
+      var legendWidth = teamCount > 24 ? 220 : 260;
+      var width = 1040;
+      var chartWidth = width - chartLeft - legendWidth - 48;
+      var labelFontSize = labelCount <= 12 ? 10 : labelCount <= 18 ? 9 : labelCount <= 26 ? 8 : 7;
+      var labelAngle = labelCount <= 14 ? -40 : labelCount <= 24 ? -48 : -55;
+      var pointSize = labelCount > 24 || teamCount > 24 ? 7 : labelCount > 18 || teamCount > 16 ? 8 : 10;
+      var lineWidth = labelCount > 24 || teamCount > 24 ? 2.6 : labelCount > 18 || teamCount > 16 ? 3.2 : 4;
+      var rowGap = teamCount <= 8 ? 50 : teamCount <= 12 ? 42 : teamCount <= 25 ? 30 : teamCount <= 38 ? 22 : 17;
       var height = Math.max(360, chartTop + Math.max(1, teamCount - 1) * rowGap + 64);
       var chartBottom = height - 58;
       var yScale = function (rank) {
@@ -8745,7 +8751,7 @@
       var svg = '';
       svg += '<div class="clue-chart-card">';
       svg += '<div class="clue-chart-title">Clue-by-Clue Chart</div>';
-      svg += '<svg width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="Clue-by-clue placement chart">';
+      svg += '<svg width="100%" height="auto" viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="xMidYMin meet" role="img" aria-label="Clue-by-clue placement chart">';
       svg += '<rect x="0" y="0" width="' + width + '" height="' + height + '" fill="#ffffff"/>';
       svg += '<text x="' + (width / 2) + '" y="28" text-anchor="middle" class="axis-label" font-size="20">' + safeSvgText(currentLegLabel() + ': ' + legOrigin.name + ' → ' + legDest.name) + '</text>';
       svg += '<text x="' + (width / 2) + '" y="54" text-anchor="middle" class="chart-subtitle" font-size="14">Clue-by-clue placements across the leg</text>';
@@ -8758,8 +8764,10 @@
 
       labels.forEach(function (label, index) {
         var x = xScale(index);
-        svg += '<line x1="' + x + '" y1="72" x2="' + x + '" y2="' + chartBottom + '" stroke="#ececec" stroke-width="1"/>';
-        svg += '<text x="' + x + '" y="104" text-anchor="end" transform="rotate(-38 ' + x + ' 104)" class="axis-label" font-size="11">' + safeSvgText(label) + '</text>';
+        var labelY = chartTop - 14;
+        svg += '<line x1="' + x + '" y1="' + chartTop + '" x2="' + x + '" y2="' + chartBottom + '" stroke="#ececec" stroke-width="1"/>';
+        svg += '<line x1="' + x + '" y1="' + (chartTop - 5) + '" x2="' + x + '" y2="' + chartTop + '" stroke="#cccccc" stroke-width="1"/>';
+        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="end" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(label) + '</text>';
       });
 
       activeResults.forEach(function (r) {
@@ -8767,11 +8775,12 @@
         var pts = positions[r.team].map(function (p, index) {
           return xScale(index) + ',' + yScale(p.rank);
         }).join(' ');
-        svg += '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0.92"/>';
+        svg += '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="' + lineWidth + '" stroke-linejoin="round" stroke-linecap="round" opacity="0.92"/>';
         positions[r.team].forEach(function (p, index) {
           var x = xScale(index);
           var y = yScale(p.rank);
-          svg += '<rect x="' + (x - 5) + '" y="' + (y - 5) + '" width="10" height="10" transform="rotate(45 ' + x + ' ' + y + ')" fill="' + color + '" stroke="#ffffff" stroke-width="1"/>';
+          var half = pointSize / 2;
+          svg += '<rect x="' + (x - half) + '" y="' + (y - half) + '" width="' + pointSize + '" height="' + pointSize + '" transform="rotate(45 ' + x + ' ' + y + ')" fill="' + color + '" stroke="#ffffff" stroke-width="0.9"/>';
         });
       });
 
