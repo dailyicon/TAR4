@@ -1648,7 +1648,7 @@
     <span class="screen-label">Leg Start</span>
     <h1 id="legIntroTitle"></h1>
     <div class="status" id="legIntroBody"></div>
-    <button onclick="showTransportToAirport()">Begin Leg</button>
+    <button id="legIntroBeginBtn" onclick="showTransportToAirport()">Begin Leg</button>
   </div>
 
   <div id="specialTransport" class="screen">
@@ -6191,6 +6191,7 @@
     var nextLegStartClock = 0;
     var winnerCheckInClock = 0;
     var currentChallenge = null;
+    var startingLineChallenge = null;  // leg 1 only
     var placementHistory = {};
     var routeHistory = [];
 
@@ -7213,15 +7214,15 @@
       var details = locationPresenceDetails(locationKey, arrivalClock, departureClock);
 
       var html = '<div class="presence-report">';
-      html += '<div class="presence-section">Teams Present at Arrival:<br>';
+      html += '<div class="presence-section"><span style="color:var(--amber);font-weight:800;">Teams Present at Arrival:</span><br>';
       html += "<strong>" + teamNameListHtml(details.presentAtArrival) + "</strong></div>";
 
       if (departureClock != null) {
-        html += '<div class="presence-section">Teams Arrived:<br>';
+        html += '<div class="presence-section"><span style="color:var(--amber);font-weight:800;">Teams Arrived:</span><br>';
         html += eventListHtml(details.arrivedDuring, "arrived");
         html += "</div>";
 
-        html += '<div class="presence-section">Teams Departed:<br>';
+        html += '<div class="presence-section"><span style="color:var(--amber);font-weight:800;">Teams Departed:</span><br>';
         html += eventListHtml(details.departedDuring, "departed");
         html += "</div>";
       }
@@ -7230,15 +7231,27 @@
       return html;
     }
 
+    function lastLegPlacement(name) {
+      var h = placementHistory[name] || [];
+      for (var i = h.length - 1; i >= 0; i--) {
+        if (h[i] != null) { return h[i]; }
+      }
+      return 999;
+    }
+
     function departureTimesHtml() {
       var rows = remainingTeams.slice().sort(function (a, b) {
         var ca = currentLegStartClocks[a] != null ? currentLegStartClocks[a] : raceClock;
         var cb = currentLegStartClocks[b] != null ? currentLegStartClocks[b] : raceClock;
 
-        if (ca !== cb) {
-          return ca - cb;
-        }
+        if (ca !== cb) { return ca - cb; }
 
+        // Same departure time: sort by previous leg placement (leg 1 = alphabetical)
+        if (legNum > 1) {
+          var pa = lastLegPlacement(a);
+          var pb = lastLegPlacement(b);
+          if (pa !== pb) { return pa - pb; }
+        }
         return a.localeCompare(b);
       });
 
@@ -9024,7 +9037,9 @@
     }
 
     function clueChartLabels() {
-      var labels = ["Pit Start", "Origin Airport", "Destination Airport"];
+      var labels = [legNum === 1 ? "Starting Line" : "Pit Start"];
+      if (legNum === 1) { labels.push("Starting Line Complete"); }
+      labels.push("Origin Airport", "Destination Airport");
 
       for (var i = 0; i < totalStopsThisLeg; i++) {
         labels.push(challengeArriveLabel(i));
@@ -9276,14 +9291,23 @@
         });
       }
 
+      var startLabel = legNum === 1 ? "Starting Line" : "Pit Start";
       addPresenceSegment(
         presenceSegments,
         startLocationKey(),
         teamStartClock,
         teamStartClock + START_PRESENCE_WINDOW,
-        "Pit Start"
+        startLabel
       );
-      addMilestoneToList(milestones, "Pit Start", teamStartClock, "averageTie");
+      addMilestoneToList(milestones, startLabel, teamStartClock, "averageTie");
+
+      // Leg 1 only: rivals complete a Starting Line challenge before heading to airport
+      if (legNum === 1 && startingLineChallenge) {
+        var slLvl = skills[name][startingLineChallenge.skill] || randomLevel();
+        var slTime = Math.max(1, Math.round(startingLineChallenge.base * skillMultiplier(slLvl)));
+        addEvent("Starting Line challenge", slTime);
+        addMilestoneToList(milestones, "Starting Line Complete", currentClockForTeam(), "sequential");
+      }
 
       var toAirportPick = chooseTeamTransport(name, airportStartTransportOptions);
       addEvent("Travel to origin airport by " + toAirportPick.method, toAirportPick.time);
@@ -9475,7 +9499,7 @@
       raceClock = nextLegStartClocks[playerTeam];
       legStartClock = raceClock;
       playerLegMilestones = [];
-      addPlayerMilestone("Pit Start", legStartClock, "averageTie");
+      addPlayerMilestone(legNum === 1 ? "Starting Line" : "Pit Start", legStartClock, "averageTie");
 
       currentLegStartClocks = {};
       teamCashSpentThisLeg = {};
@@ -9530,6 +9554,14 @@
         legTransportOptions.push(makeTransportOptionsForSegment());
       }
 
+      // Leg 1: create the Starting Line challenge BEFORE building rivals
+      if (legNum === 1) {
+        var slSkill = SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)];
+        startingLineChallenge = { skill: slSkill, base: randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME) };
+      } else {
+        startingLineChallenge = null;
+      }
+
       buildRivalLegRecords();
       renderLegIntroScreen();
 
@@ -9543,6 +9575,16 @@
 
     function renderLegIntroScreen() {
       document.getElementById("legIntroTitle").textContent = currentLegLabel();
+      var beginBtn = document.getElementById("legIntroBeginBtn");
+      if (beginBtn) {
+        if (legNum === 1) {
+          beginBtn.textContent = "Begin Starting Line";
+          beginBtn.onclick = doStartingLineChallenge;
+        } else {
+          beginBtn.textContent = "Begin Leg";
+          beginBtn.onclick = showTransportToAirport;
+        }
+      }
 
       document.getElementById("legIntroBody").innerHTML =
         raceClockHeader() +
@@ -9713,9 +9755,9 @@
       if (currentChallenge && currentChallenge.stopIndex === currentStop) {
         challengeHtml =
           '<div class="challenge-summary">' +
-          "Challenge Completed: <strong>" + escapeHtml(currentChallenge.skill) + "</strong><br>" +
-          "Challenge Time: <strong>" + formatDuration(currentChallenge.adjusted) + "</strong><br>" +
-          "Your " + escapeHtml(currentChallenge.skill) + " level: <strong>" + currentChallenge.level + "</strong>" +
+          "Challenge: <strong>" + escapeHtml(currentChallenge.skill) + "</strong><br>" +
+          escapeHtml(currentChallenge.skill) + " Level: <strong>" + currentChallenge.level + "</strong><br>" +
+          "Challenge Time: <strong>" + formatDuration(currentChallenge.adjusted) + "</strong>" +
           "</div>";
       }
 
@@ -9726,7 +9768,6 @@
       }
 
       document.getElementById("raceStatus").innerHTML =
-        raceClockHeader() + "<br>" +
         arrivalLine +
         (currentChallenge && currentChallenge.stopIndex === currentStop
           ? presenceReportHtml(stopLocationKey(currentStop), currentChallenge.arrivalClock, currentChallenge.departureClock)
@@ -9788,6 +9829,52 @@
         (finalLeg ? "Check in to reveal the winner." : "Check in to see the leg results.");
 
       showScreen("pitstop");
+    }
+
+    function doStartingLineChallenge() {
+      if (!startingLineChallenge) {
+        showTransportToAirport();
+        return;
+      }
+      var level = skills[playerTeam][startingLineChallenge.skill] || randomLevel();
+      var adjusted = Math.max(1, Math.round(startingLineChallenge.base * skillMultiplier(level)));
+      var arrivalClock = raceClock;
+      var departureClock = arrivalClock + adjusted;
+      addRaceMinutes(adjusted);
+      addPlayerMilestone("Starting Line Complete", raceClock, "sequential");
+
+      // Show a brief result screen before transport to airport
+      var titleEl = document.getElementById("raceScreenTitle");
+      if (titleEl) { titleEl.textContent = "Starting Line"; }
+
+      var challengeHtml =
+        '<div class="challenge-summary">' +
+        "Challenge: <strong>" + escapeHtml(startingLineChallenge.skill) + "</strong><br>" +
+        escapeHtml(startingLineChallenge.skill) + " Level: <strong>" + level + "</strong><br>" +
+        "Challenge Time: <strong>" + formatDuration(adjusted) + "</strong>" +
+        "</div>";
+
+      var arrivalLine =
+        "Arrived: <strong>" + formatRaceDateTime(arrivalClock) + "</strong><br>" +
+        "Departed: <strong>" + formatRaceDateTime(departureClock) + "</strong><br>";
+
+      document.getElementById("raceStatus").innerHTML =
+        arrivalLine +
+        presenceReportHtml(startLocationKey(), arrivalClock, departureClock) +
+        challengeHtml +
+        "<br>" + currentLegLabel() + " · " + escapeHtml(legDest.name) + "<br>" +
+        'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
+
+      // Replace transport list with a single "Head to Airport" button
+      var list = document.getElementById("transportList");
+      list.innerHTML = "";
+      var airportBtn = document.createElement("button");
+      airportBtn.textContent = "Head to Airport";
+      airportBtn.style.marginTop = "18px";
+      airportBtn.onclick = showTransportToAirport;
+      list.appendChild(airportBtn);
+
+      showScreen("race");
     }
 
     function checkInAtPitStop() {
@@ -9954,9 +10041,6 @@
       lastCompletedLegClueData = results;
       var clueChart = "<br>" + clueByClueChartHtml(results);
       var chart = "<br><strong>Placement Chart</strong>" + placementChartHtml();
-      var nextDepartureText =
-        "<br>First-place time: <strong>" + formatRaceDateTime(winnerCheckInClock) + "</strong>" +
-        "<br>Your next departure: <strong>" + formatRaceDateTime(nextLegStartClock) + "</strong>";
 
       if (isFinalLeg()) {
         var winner = results[0].team;
@@ -9981,7 +10065,6 @@
           "<br>No team has been eliminated." +
           "<br>Teams left: " + remainingTeams.length +
           ' · Your cash: <span class="cash-pill">$' + money[playerTeam] + "</span>" +
-          nextDepartureText +
           clueChart +
           chart;
 
@@ -10009,7 +10092,6 @@
         "<br><strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last and is eliminated." +
         "<br>Teams left: " + remainingTeams.length +
         ' · Your cash: <span class="cash-pill">$' + money[playerTeam] + "</span>" +
-        nextDepartureText +
         clueChart +
         chart;
 
@@ -10097,6 +10179,7 @@
         activeFlightRoute: activeFlightRoute,
         flightResolved: flightResolved,
         legIsNonElim: legIsNonElim,
+        startingLineChallenge: startingLineChallenge,
         gapScalingValue: currentGapScalingMultiplier(),
 
         airportStartTransportOptions: airportStartTransportOptions,
@@ -10198,6 +10281,7 @@
       activeFlightRoute = state.activeFlightRoute || null;
       flightResolved = !!state.flightResolved;
       legIsNonElim = !!state.legIsNonElim;
+      startingLineChallenge = state.startingLineChallenge || null;
 
       airportStartTransportOptions = state.airportStartTransportOptions || makeTransportOptionsForSegment();
       airportEndTransportOptions = state.airportEndTransportOptions || makeTransportOptionsForSegment();
