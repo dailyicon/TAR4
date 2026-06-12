@@ -886,13 +886,90 @@
       margin-top: 9px;
     }
 
+
+
+    .team-color-editor {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .team-color-row {
+      display: grid;
+      grid-template-columns: 1fr 54px;
+      gap: 8px;
+      align-items: center;
+      background: rgba(24, 7, 13, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 13px;
+      padding: 8px 9px;
+      min-width: 0;
+    }
+
+    .team-color-row span {
+      overflow-wrap: anywhere;
+      color: var(--muted-soft);
+      font-size: 0.88rem;
+    }
+
+    .team-color-row input[type="color"] {
+      height: 38px;
+      padding: 3px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .clue-chart-card {
+      background: rgba(24, 7, 13, 0.42);
+      border: 1px solid rgba(255, 209, 102, 0.34);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      margin-top: 14px;
+      overflow-x: auto;
+    }
+
+    .clue-chart-title {
+      color: var(--gold);
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.84rem;
+    }
+
+    .clue-chart-card svg {
+      display: block;
+      min-width: 100%;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 14px;
+    }
+
+    .clue-chart-card .axis-label,
+    .clue-chart-card .legend-label,
+    .clue-chart-card .rank-label,
+    .clue-chart-card .chart-subtitle {
+      font-family: 'Chakra Petch', Arial, sans-serif;
+      fill: #111;
+      font-weight: 700;
+    }
+
+    .clue-chart-note {
+      color: var(--muted-soft);
+      font-size: 0.84rem;
+      line-height: 1.35;
+      margin-top: 9px;
+    }
+
     @media (max-width: 760px) {
       body { padding: 28px 12px 56px; }
       .screen { max-width: 100%; }
       .settings-grid,
       .settings-grid.three,
       #teamList,
-      .skills { grid-template-columns: 1fr; }
+      .skills,
+      .team-color-editor { grid-template-columns: 1fr; }
       .hero-card,
       .status,
       .panel-card { border-radius: 22px; padding: 16px; }
@@ -1005,6 +1082,18 @@
           </div>
           <div id="teamNameEditor" class="team-name-editor"></div>
           <div id="teamNameNote" class="team-name-note"></div>
+        </div>
+
+        <div class="team-editor-card">
+          <div class="team-editor-header">
+            <div>
+              <strong>Team Colors</strong>
+              <div class="setting-help">These colors power the clue-by-clue chart and team lines. Defaults are pre-generated for up to 50 teams.</div>
+            </div>
+            <button class="mini-btn" type="button" onclick="resetTeamColorsToDefault()">Reset Team Colors</button>
+          </div>
+          <div id="teamColorEditor" class="team-color-editor"></div>
+          <div id="teamColorNote" class="team-name-note"></div>
         </div>
       </div>
 
@@ -1299,7 +1388,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 10;
+    var SAVE_VERSION = 11;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -1311,6 +1400,8 @@
     var restoredFlightResultHtml = "";
 
     var DEFAULT_TEAM_COUNT = 12;
+    var DEFAULT_TEAM_COLORS = ["#ef4444", "#3b82f6", "#22c55e", "#eab308", "#8b5cf6", "#06b6d4", "#f97316", "#ec4899", "#14b8a6", "#a855f7", "#84cc16", "#f43f5e", "#0ea5e9", "#d946ef", "#10b981", "#f59e0b", "#6366f1", "#fb7185", "#2dd4bf", "#a3e635", "#dc2626", "#2563eb", "#16a34a", "#ca8a04", "#7c3aed", "#0891b2", "#ea580c", "#db2777", "#0f766e", "#9333ea", "#65a30d", "#e11d48", "#0284c7", "#c026d3", "#059669", "#d97706", "#4f46e5", "#be123c", "#0d9488", "#4d7c0f", "#991b1b", "#1d4ed8", "#15803d", "#a16207", "#6d28d9", "#0e7490", "#c2410c", "#be185d", "#115e59", "#581c87"];
+    var teamColors = {};
     var teams = makeDefaultTeamNames(DEFAULT_TEAM_COUNT);
 
     var SKILL_TYPES = [
@@ -5687,6 +5778,7 @@
     var NON_ELIM_CHANCE = 0.15;
     var DEFAULT_RACE_SETTINGS = {
       teamCount: DEFAULT_TEAM_COUNT,
+      teamColors: {},
       startingMoney: 1500,
       legStipend: 1000,
       minStopsPerLeg: 2,
@@ -5770,6 +5862,8 @@
     var currentLegStartClocks = {};
     var teamLegRecords = {};
     var teamCashSpentThisLeg = {};
+    var playerLegMilestones = [];
+    var lastCompletedLegClueData = null;
 
     var currentCity = null;
     var legOrigin = null;
@@ -5832,6 +5926,110 @@
       return result;
     }
 
+
+
+    function defaultColorForIndex(index) {
+      return DEFAULT_TEAM_COLORS[index % DEFAULT_TEAM_COLORS.length];
+    }
+
+    function normalizeHexColor(value, fallback) {
+      var raw = String(value == null ? "" : value).trim();
+      if (/^#[0-9a-fA-F]{6}$/.test(raw)) {
+        return raw.toUpperCase();
+      }
+      return fallback || "#999999";
+    }
+
+    function sanitizeTeamColors(source, teamNames) {
+      var names = Array.isArray(teamNames) && teamNames.length ? teamNames : teams.slice();
+      var raw = source || {};
+      var result = {};
+
+      names.forEach(function (team, index) {
+        result[team] = normalizeHexColor(raw[team], defaultColorForIndex(index));
+      });
+
+      return result;
+    }
+
+    function teamColor(teamName) {
+      if (!teamColors || !teamColors[teamName]) {
+        var idx = teams.indexOf(teamName);
+        return defaultColorForIndex(idx >= 0 ? idx : 0);
+      }
+      return teamColors[teamName];
+    }
+
+    function readTeamColorEditor(teamNamesOverride) {
+      var names = teamNamesOverride || currentTeamNamesDraft();
+      var editor = document.getElementById("teamColorEditor");
+      var result = {};
+
+      names.forEach(function (team, index) {
+        result[team] = defaultColorForIndex(index);
+      });
+
+      if (!editor) {
+        return result;
+      }
+
+      var inputs = editor.querySelectorAll(".team-color-input");
+      Array.prototype.forEach.call(inputs, function (input) {
+        var teamIndex = parseInt(input.dataset.teamIndex, 10);
+        var team = names[teamIndex];
+        if (team) {
+          result[team] = normalizeHexColor(input.value, defaultColorForIndex(teamIndex));
+        }
+      });
+
+      return result;
+    }
+
+    function renderTeamColorEditor(seedColors) {
+      var editor = document.getElementById("teamColorEditor");
+      var note = document.getElementById("teamColorNote");
+
+      if (!editor) {
+        return;
+      }
+
+      var names = currentTeamNamesDraft();
+      var source = seedColors || (raceSettings && raceSettings.teamColors) || teamColors || {};
+      var colors = sanitizeTeamColors(source, names);
+      editor.innerHTML = "";
+
+      names.forEach(function (team, index) {
+        var row = document.createElement("div");
+        row.className = "team-color-row";
+
+        var label = document.createElement("span");
+        label.textContent = team;
+
+        var input = document.createElement("input");
+        input.type = "color";
+        input.className = "team-color-input";
+        input.dataset.teamIndex = index;
+        input.value = colors[team];
+        input.setAttribute("aria-label", team + " color");
+        input.addEventListener("input", function () {
+          renderCustomizationSummary();
+        });
+
+        row.appendChild(label);
+        row.appendChild(input);
+        editor.appendChild(row);
+      });
+
+      if (note) {
+        note.textContent = "Color map: " + names.length + " teams. These colors appear in clue-by-clue charts and legends.";
+      }
+    }
+
+    function resetTeamColorsToDefault() {
+      renderTeamColorEditor({});
+      renderCustomizationSummary();
+    }
+
     function readRawTeamNamesFromEditor() {
       var editor = document.getElementById("teamNameEditor");
 
@@ -5848,6 +6046,7 @@
     function currentTeamCountDraft() {
       return sanitizeRaceSettings({
         teamCount: settingValue("settingTeamCount", DEFAULT_RACE_SETTINGS.teamCount),
+        teamColors: readTeamColorEditor(),
         startingMoney: DEFAULT_RACE_SETTINGS.startingMoney,
         legStipend: DEFAULT_RACE_SETTINGS.legStipend,
         minStopsPerLeg: DEFAULT_RACE_SETTINGS.minStopsPerLeg,
@@ -5894,6 +6093,8 @@
           renderCustomizationSummary();
         });
         input.addEventListener("change", function () {
+          var colorDraft = readTeamColorEditor();
+          renderTeamColorEditor(colorDraft);
           renderCustomTeamSkillEditor(readCustomTeamSkillEditor());
         });
 
@@ -7033,6 +7234,7 @@
 
       return {
         teamCount: parseInt(base.teamCount, 10),
+        teamColors: Object.assign({}, base.teamColors || {}),
         startingMoney: parseInt(base.startingMoney, 10),
         legStipend: parseInt(base.legStipend, 10),
         minStopsPerLeg: parseInt(base.minStopsPerLeg, 10),
@@ -7100,6 +7302,7 @@
       settings.skillTypes = sanitizeSkillNames(settings.skillTypes, settings.skillCount);
       settings.skillCount = settings.skillTypes.length;
       settings.customTeamSkills = cloneCustomTeamSkills(settings.customTeamSkills || {});
+      settings.teamColors = Object.assign({}, settings.teamColors || {});
 
       return settings;
     }
@@ -7117,6 +7320,8 @@
       MIN_TRANSPORT_OPTIONS = raceSettings.minTransportOptions;
       MAX_TRANSPORT_OPTIONS = raceSettings.maxTransportOptions;
       STANDARD_TRANSPORT = sanitizeTransportOptions(raceSettings.transportOptions);
+      teamColors = sanitizeTeamColors(raceSettings.teamColors, teams);
+      raceSettings.teamColors = teamColors;
       NON_ELIM_CHANCE = raceSettings.nonElimChance;
       SKILL_TYPES = raceSettings.skillTypes.slice();
     }
@@ -7147,6 +7352,7 @@
 
       var preview = sanitizeRaceSettings({
         teamCount: settingValue("settingTeamCount", DEFAULT_RACE_SETTINGS.teamCount),
+        teamColors: readTeamColorEditor(),
         startingMoney: settingValue("settingStartingMoney", DEFAULT_RACE_SETTINGS.startingMoney),
         legStipend: settingValue("settingLegStipend", DEFAULT_RACE_SETTINGS.legStipend),
         minStopsPerLeg: settingValue("settingMinStops", DEFAULT_RACE_SETTINGS.minStopsPerLeg),
@@ -7205,6 +7411,7 @@
       setSettingValue("settingMinTransportOptions", s.minTransportOptions);
       setSettingValue("settingMaxTransportOptions", s.maxTransportOptions);
       renderTransportEditor(s.transportOptions);
+      renderTeamColorEditor(s.teamColors);
       setSettingValue("settingFlightChaos", s.flightChaos);
       setSettingValue("settingSkillMode", s.skillMode);
       setSettingValue("settingPlayerAllSkillLevel", s.playerAllSkillLevel);
@@ -7235,7 +7442,9 @@
       if (teamCountEl && !teamCountEl.dataset.boundTeamNameEditor) {
         var syncTeamEditor = function () {
           var customDraft = readCustomTeamSkillEditor();
+          var colorDraft = readTeamColorEditor();
           renderTeamNameEditor(readRawTeamNamesFromEditor());
+          renderTeamColorEditor(colorDraft);
           renderCustomTeamSkillEditor(customDraft);
         };
         teamCountEl.addEventListener("input", syncTeamEditor);
@@ -7275,6 +7484,7 @@
     function readCustomizationForm() {
       return sanitizeRaceSettings({
         teamCount: settingValue("settingTeamCount", DEFAULT_RACE_SETTINGS.teamCount),
+        teamColors: readTeamColorEditor(),
         startingMoney: settingValue("settingStartingMoney", DEFAULT_RACE_SETTINGS.startingMoney),
         legStipend: settingValue("settingLegStipend", DEFAULT_RACE_SETTINGS.legStipend),
         minStopsPerLeg: settingValue("settingMinStops", DEFAULT_RACE_SETTINGS.minStopsPerLeg),
@@ -7304,6 +7514,7 @@
       bindCustomizationFormEvents();
       fillCustomizationForm(raceSettings);
       renderTeamNameEditor(teams && teams.length ? teams : makeDefaultTeamNames(raceSettings.teamCount));
+      renderTeamColorEditor(raceSettings.teamColors);
       renderSkillNameEditor(raceSettings.skillTypes);
       updateSkillModePanels();
       showScreen("customize");
@@ -7313,6 +7524,7 @@
       raceSettings = readCustomizationForm();
       teams = sanitizeTeamNames(readRawTeamNamesFromEditor(), raceSettings.teamCount);
       raceSettings.teamCount = teams.length;
+      raceSettings.teamColors = sanitizeTeamColors(raceSettings.teamColors, teams);
       raceSettings.skillTypes = sanitizeSkillNames(readRawSkillNamesFromEditor(), raceSettings.skillCount);
       raceSettings.skillCount = raceSettings.skillTypes.length;
       raceSettings.customTeamSkills = sanitizeCustomSkillMatrix(readCustomTeamSkillEditor(teams, raceSettings.skillTypes), teams, raceSettings.skillTypes);
@@ -7328,6 +7540,7 @@
       teams = makeDefaultTeamNames(raceSettings.teamCount);
       fillCustomizationForm(raceSettings);
       renderTeamNameEditor(teams);
+      renderTeamColorEditor(raceSettings.teamColors);
       renderSkillNameEditor(raceSettings.skillTypes);
       updateSkillModePanels();
     }
@@ -8363,6 +8576,225 @@
       return html;
     }
 
+
+
+    function addMilestoneToList(list, label, clock, tieMode) {
+      if (!list || !label || clock == null) {
+        return;
+      }
+
+      var rounded = Math.round(clock);
+      var existing = list.find(function (item) {
+        return item.label === label;
+      });
+
+      if (existing) {
+        existing.clock = rounded;
+        existing.tieMode = tieMode || existing.tieMode || "sequential";
+      } else {
+        list.push({ label: label, clock: rounded, tieMode: tieMode || "sequential" });
+      }
+    }
+
+    function addPlayerMilestone(label, clock, tieMode) {
+      addMilestoneToList(playerLegMilestones, label, clock, tieMode);
+    }
+
+    function challengeArriveLabel(index) {
+      return "Challenge " + stopLetter(index) + " Arrive";
+    }
+
+    function challengeCompleteLabel(index) {
+      return "Challenge " + stopLetter(index) + " Complete";
+    }
+
+    function clueChartLabels() {
+      var labels = ["Pit Start", "Origin Airport", "Flight Departure", "Destination Airport"];
+
+      for (var i = 0; i < totalStopsThisLeg; i++) {
+        labels.push(challengeArriveLabel(i));
+        labels.push(challengeCompleteLabel(i));
+      }
+
+      labels.push(isFinalLeg() ? "Finish Line" : "Pit Stop");
+      return labels;
+    }
+
+    function addPlayerPitstopMilestone() {
+      addPlayerMilestone(isFinalLeg() ? "Finish Line" : "Pit Stop", raceClock, "sequential");
+    }
+
+    function buildPlayerLegRecordForResults() {
+      addPlayerPitstopMilestone();
+      return {
+        team: playerTeam,
+        time: raceTime,
+        startClock: legStartClock,
+        checkInClock: raceClock,
+        cashSpent: teamCashSpentThisLeg[playerTeam] || 0,
+        cashRemaining: money[playerTeam],
+        events: [],
+        presenceSegments: [],
+        milestones: playerLegMilestones.slice()
+      };
+    }
+
+    function safeSvgText(value) {
+      return escapeHtml(value).replace(/\n/g, " ");
+    }
+
+    function milestoneClock(record, label) {
+      var ms = record && record.milestones ? record.milestones : [];
+      for (var i = 0; i < ms.length; i++) {
+        if (ms[i].label === label) {
+          return ms[i].clock;
+        }
+      }
+      return null;
+    }
+
+    function clueByClueChartHtml(results) {
+      if (!results || results.length === 0) {
+        return "";
+      }
+
+      var labels = clueChartLabels();
+      var activeResults = results.slice();
+      var teamCount = activeResults.length;
+      var step = 88;
+      var chartLeft = 40;
+      var chartTop = 126;
+      var chartWidth = Math.max(720, (labels.length - 1) * step);
+      var legendWidth = 260;
+      var width = chartLeft + chartWidth + legendWidth + 30;
+      var rowGap = teamCount <= 12 ? 42 : teamCount <= 25 ? 30 : 22;
+      var height = Math.max(360, chartTop + Math.max(1, teamCount - 1) * rowGap + 64);
+      var chartBottom = height - 58;
+      var yScale = function (rank) {
+        if (teamCount <= 1) {
+          return (chartTop + chartBottom) / 2;
+        }
+        return chartTop + ((rank - 1) / (teamCount - 1)) * (chartBottom - chartTop);
+      };
+      var xScale = function (index) {
+        return chartLeft + index * (chartWidth / Math.max(1, labels.length - 1));
+      };
+      var prevRank = {};
+      var positions = {};
+
+      activeResults.forEach(function (r, index) {
+        positions[r.team] = [];
+        prevRank[r.team] = index + 1;
+      });
+
+      labels.forEach(function (label, labelIndex) {
+        var entries = activeResults.map(function (r, teamIndex) {
+          var clock = milestoneClock(r, label);
+          if (clock == null) {
+            clock = r.checkInClock + 999999 + labelIndex;
+          }
+          return { team: r.team, clock: clock, originalIndex: teamIndex };
+        });
+
+        entries.sort(function (a, b) {
+          if (a.clock !== b.clock) {
+            return a.clock - b.clock;
+          }
+          if (label === "Destination Airport") {
+            return a.team.localeCompare(b.team);
+          }
+          var pa = prevRank[a.team] != null ? prevRank[a.team] : 999;
+          var pb = prevRank[b.team] != null ? prevRank[b.team] : 999;
+          if (pa !== pb) {
+            return pa - pb;
+          }
+          return a.team.localeCompare(b.team);
+        });
+
+        var rankMap = {};
+        var i = 0;
+        while (i < entries.length) {
+          var j = i + 1;
+          while (j < entries.length && entries[j].clock === entries[i].clock) {
+            j += 1;
+          }
+
+          if (label === "Destination Airport" && j - i > 1) {
+            var avgRank = ((i + 1) + j) / 2;
+            for (var k = i; k < j; k++) {
+              rankMap[entries[k].team] = avgRank;
+            }
+          } else {
+            for (var k2 = i; k2 < j; k2++) {
+              rankMap[entries[k2].team] = k2 + 1;
+            }
+          }
+          i = j;
+        }
+
+        activeResults.forEach(function (r) {
+          var rank = rankMap[r.team] || teamCount;
+          positions[r.team].push({ label: label, rank: rank, clock: milestoneClock(r, label) });
+          prevRank[r.team] = rank;
+        });
+      });
+
+      var finalOrder = activeResults.slice().sort(function (a, b) {
+        if (a.checkInClock !== b.checkInClock) {
+          return a.checkInClock - b.checkInClock;
+        }
+        return a.team.localeCompare(b.team);
+      });
+
+      var svg = '';
+      svg += '<div class="clue-chart-card">';
+      svg += '<div class="clue-chart-title">Clue-by-Clue Chart</div>';
+      svg += '<svg width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '" role="img" aria-label="Clue-by-clue placement chart">';
+      svg += '<rect x="0" y="0" width="' + width + '" height="' + height + '" fill="#ffffff"/>';
+      svg += '<text x="' + (width / 2) + '" y="28" text-anchor="middle" class="axis-label" font-size="20">' + safeSvgText(currentLegLabel() + ': ' + legOrigin.name + ' → ' + legDest.name) + '</text>';
+      svg += '<text x="' + (width / 2) + '" y="54" text-anchor="middle" class="chart-subtitle" font-size="14">Clue-by-clue placements across the leg</text>';
+
+      for (var rnk = 1; rnk <= teamCount; rnk++) {
+        var y = yScale(rnk);
+        svg += '<line x1="' + chartLeft + '" y1="' + y + '" x2="' + (chartLeft + chartWidth) + '" y2="' + y + '" stroke="#d4d4d4" stroke-width="1"/>';
+        svg += '<text x="' + (chartLeft + chartWidth + 14) + '" y="' + (y + 5) + '" class="rank-label" font-size="13">' + rnk + '</text>';
+      }
+
+      labels.forEach(function (label, index) {
+        var x = xScale(index);
+        svg += '<line x1="' + x + '" y1="72" x2="' + x + '" y2="' + chartBottom + '" stroke="#ececec" stroke-width="1"/>';
+        svg += '<text x="' + x + '" y="104" text-anchor="end" transform="rotate(-38 ' + x + ' 104)" class="axis-label" font-size="11">' + safeSvgText(label) + '</text>';
+      });
+
+      activeResults.forEach(function (r) {
+        var color = teamColor(r.team);
+        var pts = positions[r.team].map(function (p, index) {
+          return xScale(index) + ',' + yScale(p.rank);
+        }).join(' ');
+        svg += '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0.92"/>';
+        positions[r.team].forEach(function (p, index) {
+          var x = xScale(index);
+          var y = yScale(p.rank);
+          svg += '<rect x="' + (x - 5) + '" y="' + (y - 5) + '" width="10" height="10" transform="rotate(45 ' + x + ' ' + y + ')" fill="' + color + '" stroke="#ffffff" stroke-width="1"/>';
+        });
+      });
+
+      var legendX = chartLeft + chartWidth + 42;
+      finalOrder.forEach(function (r, index) {
+        var y = chartTop + index * Math.min(rowGap, 32);
+        var color = teamColor(r.team);
+        svg += '<text x="' + (legendX - 26) + '" y="' + (y + 5) + '" class="rank-label" text-anchor="end" font-size="14">' + (index + 1) + '</text>';
+        svg += '<line x1="' + legendX + '" y1="' + y + '" x2="' + (legendX + 28) + '" y2="' + y + '" stroke="' + color + '" stroke-width="4" stroke-linecap="round"/>';
+        svg += '<rect x="' + (legendX + 9) + '" y="' + (y - 5) + '" width="10" height="10" transform="rotate(45 ' + (legendX + 14) + ' ' + y + ')" fill="' + color + '" stroke="#ffffff" stroke-width="1"/>';
+        svg += '<text x="' + (legendX + 36) + '" y="' + (y + 5) + '" class="legend-label" font-size="14">' + safeSvgText(truncateName(r.team, 26)) + '</text>';
+      });
+
+      svg += '</svg>';
+      svg += '<div class="clue-chart-note">Landing ties share the middle placement, so a 4th-7th landing tie appears at 5.5. Challenge arrivals/completions are separated by previous order so the lines stay readable.</div>';
+      svg += '</div>';
+      return svg;
+    }
+
     function buildRivalLegRecords() {
       teamLegRecords = {};
       teamCashSpentThisLeg = {};
@@ -8382,6 +8814,7 @@
       var total = 0;
       var events = [];
       var presenceSegments = [];
+      var milestones = [];
       var teamStartClock = currentLegStartClocks[name] != null ? currentLegStartClocks[name] : legStartClock;
 
       function currentClockForTeam() {
@@ -8405,13 +8838,16 @@
         teamStartClock + START_PRESENCE_WINDOW,
         "Pit Start"
       );
+      addMilestoneToList(milestones, "Pit Start", teamStartClock, "sequential");
 
       var toAirportPick = chooseTeamTransport(name, airportStartTransportOptions);
       addEvent("Travel to origin airport by " + toAirportPick.method, toAirportPick.time);
 
       var originAirportArrivalClock = currentClockForTeam();
+      addMilestoneToList(milestones, "Origin Airport", originAirportArrivalClock, "sequential");
       var rivalRoute = planFlightRoute(legOrigin, legDest, originAirportArrivalClock);
       var originAirportDepartureClock = rivalRoute.firstDepartClock;
+      addMilestoneToList(milestones, "Flight Departure", originAirportDepartureClock, "sequential");
 
       addPresenceSegment(
         presenceSegments,
@@ -8427,6 +8863,7 @@
       );
 
       var destinationAirportArrivalClock = currentClockForTeam();
+      addMilestoneToList(milestones, "Destination Airport", destinationAirportArrivalClock, "averageLanding");
 
       addPresenceSegment(
         presenceSegments,
@@ -8441,6 +8878,7 @@
 
       legStops.forEach(function (stop, index) {
         var stopArrivalClock = currentClockForTeam();
+        addMilestoneToList(milestones, challengeArriveLabel(index), stopArrivalClock, "sequential");
         var lvl = skills[name][stop.skill];
         var challengeTime = Math.max(1, Math.round(stop.base * skillMultiplier(lvl)));
         var stopDepartureClock = stopArrivalClock + challengeTime;
@@ -8454,12 +8892,14 @@
         );
 
         addEvent("Complete " + stop.skill + " challenge", challengeTime);
+        addMilestoneToList(milestones, challengeCompleteLabel(index), currentClockForTeam(), "sequential");
 
         var transportPick = chooseTeamTransport(name, legTransportOptions[index]);
         addEvent("Travel after stop " + (index + 1) + " by " + transportPick.method, transportPick.time);
       });
 
       var pitstopArrivalClock = currentClockForTeam();
+      addMilestoneToList(milestones, isFinalLeg() ? "Finish Line" : "Pit Stop", pitstopArrivalClock, "sequential");
 
       addPresenceSegment(
         presenceSegments,
@@ -8477,7 +8917,8 @@
         cashSpent: teamCashSpentThisLeg[name] || 0,
         cashRemaining: money[name],
         events: events,
-        presenceSegments: presenceSegments
+        presenceSegments: presenceSegments,
+        milestones: milestones
       };
     }
 
@@ -8551,6 +8992,8 @@
       currentLegStartClocks = {};
       teamLegRecords = {};
       teamCashSpentThisLeg = {};
+      playerLegMilestones = [];
+      lastCompletedLegClueData = null;
       raceClock = 0;
       legStartClock = 0;
       nextLegDepartureGap = 0;
@@ -8586,6 +9029,8 @@
 
       raceClock = nextLegStartClocks[playerTeam];
       legStartClock = raceClock;
+      playerLegMilestones = [];
+      addPlayerMilestone("Pit Start", legStartClock, "sequential");
 
       currentLegStartClocks = {};
       teamCashSpentThisLeg = {};
@@ -8743,6 +9188,7 @@
       addRaceMinutes(opt.time);
 
       if (specialTransportMode === "toAirport") {
+        addPlayerMilestone("Origin Airport", raceClock, "sequential");
         showFlightScreen();
       } else if (specialTransportMode === "fromAirport") {
         autoCompleteChallengeAndShowTransport();
@@ -8763,8 +9209,10 @@
       var airportArrivalClock = raceClock;
       var route = planFlightRoute(legOrigin, legDest, airportArrivalClock);
       activeFlightRoute = route;
+      addPlayerMilestone("Flight Departure", route.firstDepartClock, "sequential");
 
       addRaceMinutes(route.totalFromAirportArrival);
+      addPlayerMilestone("Destination Airport", route.finalArrivalClock, "averageLanding");
 
       var msg = "";
 
@@ -8792,6 +9240,8 @@
       var departureClock = raceClock + adjusted;
       var locationName = "Challenge " + stopLetter(currentStop);
 
+      addPlayerMilestone(challengeArriveLabel(currentStop), arrivalClock, "sequential");
+
       currentChallenge = {
         stopIndex: currentStop,
         skill: stop.skill,
@@ -8803,6 +9253,7 @@
       };
 
       addRaceMinutes(adjusted);
+      addPlayerMilestone(challengeCompleteLabel(currentStop), raceClock, "sequential");
       showRace();
     }
 
@@ -8860,6 +9311,7 @@
       currentChallenge = null;
 
       if (currentStop >= totalStopsThisLeg) {
+        addPlayerPitstopMilestone();
         showPitStopScreen();
       } else {
         autoCompleteChallengeAndShowTransport();
@@ -8995,16 +9447,7 @@
 
       remainingTeams.forEach(function (name) {
         if (name === playerTeam) {
-          results.push({
-            team: name,
-            time: raceTime,
-            startClock: legStartClock,
-            checkInClock: raceClock,
-            cashSpent: teamCashSpentThisLeg[name] || 0,
-            cashRemaining: money[name],
-            events: [],
-            presenceSegments: []
-          });
+          results.push(buildPlayerLegRecordForResults());
         } else {
           var record = teamLegRecords[name];
 
@@ -9053,6 +9496,8 @@
       });
 
       var routeTrail = "<br><strong>Route History</strong>" + routeHistoryHtml();
+      lastCompletedLegClueData = results;
+      var clueChart = "<br>" + clueByClueChartHtml(results);
       var chart = "<br><strong>Placement Chart</strong>" + placementChartHtml();
       var nextDepartureText =
         "<br>First-place time: <strong>" + formatRaceDateTime(winnerCheckInClock) + "</strong>" +
@@ -9065,6 +9510,7 @@
           "<br><br>🏆 <strong>" + escapeHtml(winner) + "</strong> has crossed the final mat and wins The Amazing Race!" +
           (winner === playerTeam ? "<br><strong>That is you. You won the whole race!</strong>" : "") +
           "<br><br>The race is complete." +
+          clueChart +
           chart;
 
         renderResults("🏆 Final Leg: " + route, finalBody, "New Game", resetToStart, "newGame");
@@ -9081,6 +9527,7 @@
           "<br>Teams left: " + remainingTeams.length +
           ' · Your cash: <span class="cash-pill">$' + money[playerTeam] + "</span>" +
           nextDepartureText +
+          clueChart +
           chart;
 
         renderResults(legRouteTitle("Leg " + legNum), nonElimBody, "Next Leg", nextLeg, "nextLeg");
@@ -9095,6 +9542,7 @@
         var body2 = standingsHtml(results) +
           routeTrail +
           "<br>You finished last on Leg " + legNum + " and have been eliminated." +
+          clueChart +
           chart;
 
         renderResults("Eliminated: " + route, body2, "New Game", resetToStart, "newGame");
@@ -9107,6 +9555,7 @@
         "<br>Teams left: " + remainingTeams.length +
         ' · Your cash: <span class="cash-pill">$' + money[playerTeam] + "</span>" +
         nextDepartureText +
+        clueChart +
         chart;
 
       renderResults(legRouteTitle("Leg " + legNum), body3, "Next Leg", nextLeg, "nextLeg");
@@ -9122,6 +9571,8 @@
     function resetToStart() {
       playerTeam = null;
       remainingTeams = [];
+      playerLegMilestones = [];
+      lastCompletedLegClueData = null;
       showScreen("start");
     }
 
@@ -9182,6 +9633,8 @@
         currentLegStartClocks: currentLegStartClocks,
         teamLegRecords: teamLegRecords,
         teamCashSpentThisLeg: teamCashSpentThisLeg,
+        playerLegMilestones: playerLegMilestones,
+        lastCompletedLegClueData: lastCompletedLegClueData,
 
         currentCity: currentCity,
         legOrigin: legOrigin,
@@ -9242,6 +9695,7 @@
       }
 
       raceSettings.teamCount = teams.length;
+      raceSettings.teamColors = sanitizeTeamColors(raceSettings.teamColors, teams);
       raceSettings.skillTypes = sanitizeSkillNames(raceSettings.skillTypes, raceSettings.skillCount);
       raceSettings.skillCount = raceSettings.skillTypes.length;
       raceSettings.customTeamSkills = sanitizeCustomSkillMatrix(raceSettings.customTeamSkills, teams, raceSettings.skillTypes);
@@ -9270,6 +9724,8 @@
       currentLegStartClocks = state.currentLegStartClocks || {};
       teamLegRecords = state.teamLegRecords || {};
       teamCashSpentThisLeg = state.teamCashSpentThisLeg || {};
+      playerLegMilestones = state.playerLegMilestones || [];
+      lastCompletedLegClueData = state.lastCompletedLegClueData || null;
 
       currentCity = resolveCityObject(state.currentCity);
       legOrigin = resolveCityObject(state.legOrigin);
