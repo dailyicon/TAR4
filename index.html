@@ -8651,6 +8651,31 @@
       return null;
     }
 
+    function milestoneTieMode(record, label) {
+      var ms = record && record.milestones ? record.milestones : [];
+      for (var i = 0; i < ms.length; i++) {
+        if (ms[i].label === label) {
+          return ms[i].tieMode || "sequential";
+        }
+      }
+      return "sequential";
+    }
+
+    function shouldAverageTieForLabel(label, entries, startIndex, endIndex) {
+      if (endIndex - startIndex <= 1) {
+        return false;
+      }
+
+      for (var i = startIndex; i < endIndex; i++) {
+        var mode = milestoneTieMode(entries[i].record, label);
+        if (mode === "averageLanding" || mode === "averageTie") {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
     function clueByClueChartHtml(results) {
       if (!results || results.length === 0) {
         return "";
@@ -8695,7 +8720,7 @@
           if (clock == null) {
             clock = r.checkInClock + 999999 + labelIndex;
           }
-          return { team: r.team, clock: clock, originalIndex: teamIndex };
+          return { team: r.team, clock: clock, originalIndex: teamIndex, record: r };
         });
 
         entries.sort(function (a, b) {
@@ -8721,7 +8746,7 @@
             j += 1;
           }
 
-          if (label === "Destination Airport" && j - i > 1) {
+          if (shouldAverageTieForLabel(label, entries, i, j)) {
             var avgRank = ((i + 1) + j) / 2;
             for (var k = i; k < j; k++) {
               rankMap[entries[k].team] = avgRank;
@@ -8759,15 +8784,15 @@
       for (var rnk = 1; rnk <= teamCount; rnk++) {
         var y = yScale(rnk);
         svg += '<line x1="' + chartLeft + '" y1="' + y + '" x2="' + (chartLeft + chartWidth) + '" y2="' + y + '" stroke="#d4d4d4" stroke-width="1"/>';
-        svg += '<text x="' + (chartLeft + chartWidth + 14) + '" y="' + (y + 5) + '" class="rank-label" font-size="13">' + rnk + '</text>';
+        // Row numbers are shown once in the final legend, not again on the plot edge.
       }
 
       labels.forEach(function (label, index) {
         var x = xScale(index);
-        var labelY = chartTop - 14;
-        svg += '<line x1="' + x + '" y1="' + chartTop + '" x2="' + x + '" y2="' + chartBottom + '" stroke="#ececec" stroke-width="1"/>';
-        svg += '<line x1="' + x + '" y1="' + (chartTop - 5) + '" x2="' + x + '" y2="' + chartTop + '" stroke="#cccccc" stroke-width="1"/>';
-        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="end" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(label) + '</text>';
+        var labelY = chartTop - 9;
+        svg += '<line x1="' + x + '" y1="' + (labelY + 3) + '" x2="' + x + '" y2="' + chartBottom + '" stroke="#ececec" stroke-width="1"/>';
+        svg += '<circle cx="' + x + '" cy="' + chartTop + '" r="1.7" fill="#bdbdbd"/>';
+        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="start" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(label) + '</text>';
       });
 
       activeResults.forEach(function (r) {
@@ -8795,7 +8820,7 @@
       });
 
       svg += '</svg>';
-      svg += '<div class="clue-chart-note">Landing ties share the middle placement, so a 4th-7th landing tie appears at 5.5. Challenge arrivals/completions are separated by previous order so the lines stay readable.</div>';
+      svg += '<div class="clue-chart-note">Pit-start and landing ties share the middle placement, so a 4th-7th tie appears at 5.5. Challenge arrivals/completions are separated by previous order so the lines stay readable.</div>';
       svg += '</div>';
       return svg;
     }
@@ -8843,7 +8868,7 @@
         teamStartClock + START_PRESENCE_WINDOW,
         "Pit Start"
       );
-      addMilestoneToList(milestones, "Pit Start", teamStartClock, "sequential");
+      addMilestoneToList(milestones, "Pit Start", teamStartClock, "averageTie");
 
       var toAirportPick = chooseTeamTransport(name, airportStartTransportOptions);
       addEvent("Travel to origin airport by " + toAirportPick.method, toAirportPick.time);
@@ -9035,7 +9060,7 @@
       raceClock = nextLegStartClocks[playerTeam];
       legStartClock = raceClock;
       playerLegMilestones = [];
-      addPlayerMilestone("Pit Start", legStartClock, "sequential");
+      addPlayerMilestone("Pit Start", legStartClock, "averageTie");
 
       currentLegStartClocks = {};
       teamCashSpentThisLeg = {};
