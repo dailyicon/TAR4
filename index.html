@@ -9109,7 +9109,7 @@
       return false;
     }
 
-    function clueByClueChartHtml(results, labelsOverride) {
+    function clueByClueChartHtml(results, labelsOverride, titleOverride) {
       if (!results || results.length === 0) {
         return "";
       }
@@ -9211,7 +9211,7 @@
       svg += '<div class="clue-chart-title">Clue-by-Clue Chart</div>';
       svg += '<svg width="100%" height="auto" viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="xMidYMin meet" role="img" aria-label="Clue-by-clue placement chart">';
       svg += '<rect x="0" y="0" width="' + width + '" height="' + height + '" fill="#ffffff"/>';
-      svg += '<text x="' + (width / 2) + '" y="28" text-anchor="middle" class="axis-label" font-size="20">' + safeSvgText(currentLegLabel() + ': ' + legOrigin.name + ' → ' + legDest.name) + '</text>';
+      svg += '<text x="' + (width / 2) + '" y="28" text-anchor="middle" class="axis-label" font-size="20">' + safeSvgText(titleOverride || (currentLegLabel() + ': ' + legOrigin.name + ' \u2192 ' + legDest.name)) + '</text>';
 
       for (var rnk = 1; rnk <= teamCount; rnk++) {
         var y = yScale(rnk);
@@ -10057,8 +10057,9 @@
       var routeTrail = "<br><strong>Route History</strong>" + routeHistoryHtml();
       lastCompletedLegClueData = results;
       var savedLabels = clueChartLabels();
-      legHistory.push({ legNum: legNum, route: route, labels: savedLabels, results: results, isFinal: isFinalLeg() });
-      var clueChart = "<br>" + clueByClueChartHtml(results, savedLabels);
+      var savedTitle = (isFinalLeg() ? "Final Leg" : "Leg " + legNum) + ": " + route;
+      legHistory.push({ legNum: legNum, route: route, labels: savedLabels, results: results, isFinal: isFinalLeg(), title: savedTitle });
+      var clueChart = "<br>" + clueByClueChartHtml(results, savedLabels, savedTitle);
       var chart = "<br><strong>Placement Chart</strong>" + placementChartHtml();
 
       if (isFinalLeg()) {
@@ -10153,7 +10154,7 @@
         html += "<br><details><summary style=\"cursor:pointer;color:var(--amber);font-weight:800;" +
           "padding:8px 0;font-size:0.95rem;letter-spacing:0.04em;\">&#9654; " +
           escapeHtml(legLabel) + ": " + escapeHtml(entry.route) + "</summary>" +
-          clueByClueChartHtml(entry.results, entry.labels) +
+          clueByClueChartHtml(entry.results, entry.labels, entry.title) +
           "</details>";
       });
       return html;
@@ -10245,7 +10246,8 @@
       // Store leg chart data for full-race replay
       var simRoute = legOrigin.name + " → " + legDest.name;
       var simLabels = clueChartLabels();
-      legHistory.push({ legNum: legNum, route: simRoute, labels: simLabels, results: results, isFinal: isTheFinalLeg });
+      var simTitle = (isTheFinalLeg ? "Final Leg" : "Leg " + legNum) + ": " + simRoute;
+      legHistory.push({ legNum: legNum, route: simRoute, labels: simLabels, results: results, isFinal: isTheFinalLeg, title: simTitle });
 
       // Advance departure clocks
       var winnerClock = results[0].checkInClock;
