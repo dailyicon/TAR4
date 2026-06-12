@@ -9941,50 +9941,45 @@
     }
 
     function placementChartHtml() {
-      var firstTeam = teams[0];
-      var numLegs = placementHistory[firstTeam] ? placementHistory[firstTeam].length : 0;
+      // Use the longest history across all teams so post-elimination simulation legs show
+      var allTeamNames = Object.keys(placementHistory);
+      if (allTeamNames.length === 0) { return ""; }
 
-      if (numLegs === 0) {
-        return "";
-      }
+      var numLegs = 0;
+      allTeamNames.forEach(function (name) {
+        var len = (placementHistory[name] || []).length;
+        if (len > numLegs) { numLegs = len; }
+      });
 
-      var sorted = teams.slice().sort(function (a, b) {
+      if (numLegs === 0) { return ""; }
+
+      // Sort teams: best average first, then by most recent placement
+      var displayTeams = (teams && teams.length ? teams : allTeamNames).slice();
+      displayTeams.sort(function (a, b) {
         var la = lastPlacement(a);
         var lb = lastPlacement(b);
-
-        if (la.place !== lb.place) {
-          return la.place - lb.place;
-        }
-
+        if (la.place !== lb.place) { return la.place - lb.place; }
         return lb.leg - la.leg;
       });
 
       var html = '<div style="overflow-x:auto;"><table class="chart"><thead><tr><th>Team</th>';
-
-      for (var l = 1; l <= numLegs; l++) {
-        html += "<th>L" + l + "</th>";
-      }
-
+      for (var l = 1; l <= numLegs; l++) { html += "<th>L" + l + "</th>"; }
       html += "<th>Avg</th></tr></thead><tbody>";
 
-      sorted.forEach(function (name) {
-        var h = placementHistory[name] || [];
+      displayTeams.forEach(function (name) {
+        var h = (placementHistory[name] || []).slice();
+        // Pad to numLegs so every row has the same number of cells
+        while (h.length < numLegs) { h.push(null); }
         var nums = h.filter(function (x) { return x != null; });
         var avg = nums.length ? (nums.reduce(function (s, x) { return s + x; }, 0) / nums.length).toFixed(1) : "";
         var isYou = (name === playerTeam);
         var rowStyle = isYou ? " style=\"color:#ffd166;font-weight:bold;\"" : "";
-
         html += "<tr" + rowStyle + "><td>" + escapeHtml(truncateName(name, 14)) + "</td>";
-
-        h.forEach(function (p) {
-          html += "<td>" + (p == null ? "" : p) + "</td>";
-        });
-
+        h.forEach(function (p) { html += "<td>" + (p == null ? "" : p) + "</td>"; });
         html += "<td>" + avg + "</td></tr>";
       });
 
       html += "</tbody></table></div>";
-
       return html;
     }
 
@@ -10147,8 +10142,8 @@
     // race uses, then displays a final summary screen.
 
     function simulateOneLegHeadless() {
-      // Mirrors startLeg + showLegResults but without any player or UI.
-      // All teams in remainingTeams are treated as rivals.
+      // Cache isFinalLeg once — remainingTeams changes mid-function after elimination
+      var isTheFinalLeg = isFinalLeg();
 
       // Advance clock to earliest departure
       var earliestDepart = null;
@@ -10166,11 +10161,11 @@
         teamCashSpentThisLeg[name] = 0;
       });
 
-      // Generate leg structure
+      // Generate leg structure using the cached flag
       airportStartTransportOptions = makeTransportOptionsForSegment();
       airportEndTransportOptions   = makeTransportOptionsForSegment();
 
-      totalStopsThisLeg = isFinalLeg()
+      totalStopsThisLeg = isTheFinalLeg
         ? randomInt(FINAL_MIN_STOPS_PER_LEG, FINAL_MAX_STOPS_PER_LEG)
         : randomInt(MIN_STOPS_PER_LEG, MAX_STOPS_PER_LEG);
 
@@ -10178,7 +10173,7 @@
         remainingTeams.forEach(function (name) { money[name] += LEG_STIPEND; });
       }
 
-      legIsNonElim = !isFinalLeg() && Math.random() < NON_ELIM_CHANCE;
+      legIsNonElim = !isTheFinalLeg && Math.random() < NON_ELIM_CHANCE;
 
       currentCity = resolveCityObject(currentCity) ||
         ensureCityCoords(WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)]);
@@ -10195,10 +10190,7 @@
 
       legStops = [];
       legTransportOptions = [];
-      startingLineChallenge = (legNum === 1)
-        ? { skill: SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)],
-            base: randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME) }
-        : null;
+      startingLineChallenge = null; // never on simulated legs
 
       for (var i = 0; i < totalStopsThisLeg; i++) {
         legStops.push({
@@ -10224,7 +10216,15 @@
           : a.time - b.time;
       });
 
-      // Advance clocks and record placements
+      // Record placements for this leg
+      results.forEach(function (r, i) {
+        if (!placementHistory[r.team]) { placementHistory[r.team] = []; }
+        placementHistory[r.team].push(i + 1);
+      });
+
+      updateRouteHistoryForCompletedLeg();
+
+      // Advance departure clocks
       var winnerClock = results[0].checkInClock;
       nextLegStartClocks = {};
       results.forEach(function (r) {
@@ -10232,49 +10232,42 @@
         nextLegStartClocks[r.team] = winnerClock + LEG_GAP_MINUTES + gap;
       });
 
-      updateRouteHistoryForCompletedLeg();
+      currentCity = legDest;
 
-      results.forEach(function (r, i) {
-        if (!placementHistory[r.team]) { placementHistory[r.team] = []; }
-        placementHistory[r.team].push(i + 1);
-      });
+      // Final leg: return winner immediately, don't eliminate anyone
+      if (isTheFinalLeg) {
+        return results[0].team;
+      }
 
-      // Eliminate last unless non-elim or final
-      if (!isFinalLeg() && !legIsNonElim) {
+      // Eliminate last unless non-elim
+      if (!legIsNonElim) {
         var last = results[results.length - 1].team;
         remainingTeams = remainingTeams.filter(function (n) { return n !== last; });
       }
 
-      currentCity = legDest;
-
-      // Return the winner's name if this was the final leg
-      if (isFinalLeg()) { return results[0].team; }
       return null;
     }
 
     function simulateRestOfRace() {
-      // Safety cap: never loop more than 50 legs
       var maxLegs = 50;
       var winner  = null;
 
       while (remainingTeams.length > 0 && maxLegs-- > 0) {
+        // Increment BEFORE the leg so legNum is correct when placements are recorded
+        legNum += 1;
         winner = simulateOneLegHeadless();
         if (winner !== null) { break; }
-        legNum += 1;
       }
 
       return winner;
     }
 
     function watchRemainingRace() {
-      // Show a brief loading message while simulating
       document.getElementById("resultsTitle").textContent = "Simulating…";
-      document.getElementById("resultsBody").innerHTML =
-        "<p>Running the remaining legs…</p>";
+      document.getElementById("resultsBody").innerHTML = "<p>Running the remaining legs…</p>";
       document.getElementById("resultsButtons").innerHTML = "";
       showScreen("results");
 
-      // Use setTimeout so the browser can repaint before blocking
       setTimeout(function () {
         var eliminatedOnLeg = legNum;
         var winner = simulateRestOfRace();
@@ -10290,25 +10283,23 @@
             : "") +
           "<strong>Route History</strong>" + routeHistoryHtml() +
           "<br><strong>Final Standings</strong>" +
-          eliminationOrderHtml() +
+          eliminationOrderHtml(winner) +
           "<br><strong>Placement Chart</strong>" + placementChartHtml();
 
         renderResults(title, body, "New Game", resetToStart, "newGame");
       }, 30);
     }
 
-    function eliminationOrderHtml() {
-      // Build a list of teams sorted by the last leg they placed (eliminated first → winner last)
+    function eliminationOrderHtml(raceWinner) {
       var allTeams = Object.keys(placementHistory);
       var lastLeg  = {};
       var lastPlace = {};
 
       allTeams.forEach(function (name) {
         var h = placementHistory[name] || [];
-        // Last non-null entry = final appearance
         for (var i = h.length - 1; i >= 0; i--) {
           if (h[i] != null) {
-            lastLeg[name]   = i + 1;   // 1-indexed leg number
+            lastLeg[name]   = i + 1;
             lastPlace[name] = h[i];
             break;
           }
@@ -10316,16 +10307,17 @@
         if (lastLeg[name] == null) { lastLeg[name] = 0; lastPlace[name] = 999; }
       });
 
-      // Sort: teams that lasted longer come last; within same last leg, by final placement
+      // Sort: eliminated earliest first, winner last
       allTeams.sort(function (a, b) {
-        if (lastLeg[a] !== lastLeg[b])   { return lastLeg[a] - lastLeg[b]; }
+        if (lastLeg[a] !== lastLeg[b]) { return lastLeg[a] - lastLeg[b]; }
         return lastPlace[a] - lastPlace[b];
       });
 
       var html = '<div class="standings">';
       allTeams.forEach(function (name) {
-        var isWinner = remainingTeams.indexOf(name) !== -1 && lastPlace[name] === 1;
-        var style = (name === playerTeam)
+        var isWinner = (name === raceWinner);
+        var isYou    = (name === playerTeam);
+        var style = isYou
           ? ' style="color:#ffd166;font-weight:bold;"'
           : (isWinner ? ' style="color:#00e5ff;font-weight:bold;"' : "");
         var badge = isWinner ? " 🏆" : "";
