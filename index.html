@@ -9292,19 +9292,27 @@
       }
 
       var startLabel = legNum === 1 ? "Starting Line" : "Pit Start";
+
+      // Leg 1 only: rivals complete a Starting Line challenge before heading to airport
+      // Calculate challenge time first so we can set the correct presence window
+      var slEndClock = teamStartClock + START_PRESENCE_WINDOW;
+      if (legNum === 1 && startingLineChallenge) {
+        var slLvl = skills[name][startingLineChallenge.skill] || randomLevel();
+        var slTime = Math.max(1, Math.round(startingLineChallenge.base * skillMultiplier(slLvl)));
+        slEndClock = teamStartClock + slTime;
+      }
+
+      // Presence window covers the full Starting Line challenge duration
       addPresenceSegment(
         presenceSegments,
         startLocationKey(),
         teamStartClock,
-        teamStartClock + START_PRESENCE_WINDOW,
+        slEndClock,
         startLabel
       );
       addMilestoneToList(milestones, startLabel, teamStartClock, "averageTie");
 
-      // Leg 1 only: rivals complete a Starting Line challenge before heading to airport
       if (legNum === 1 && startingLineChallenge) {
-        var slLvl = skills[name][startingLineChallenge.skill] || randomLevel();
-        var slTime = Math.max(1, Math.round(startingLineChallenge.base * skillMultiplier(slLvl)));
         addEvent("Starting Line challenge", slTime);
         addMilestoneToList(milestones, "Starting Line Complete", currentClockForTeam(), "sequential");
       }
@@ -9843,7 +9851,7 @@
       addRaceMinutes(adjusted);
       addPlayerMilestone("Starting Line Complete", raceClock, "sequential");
 
-      // Show a brief result screen before transport to airport
+      // Update h1
       var titleEl = document.getElementById("raceScreenTitle");
       if (titleEl) { titleEl.textContent = "Starting Line"; }
 
@@ -9865,16 +9873,29 @@
         "<br>" + currentLegLabel() + " · " + escapeHtml(legDest.name) + "<br>" +
         'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
-      // Replace transport list with a single "Head to Airport" button
+      // Show the real airport transport options — same as showTransportToAirport
+      // but rendered inline on the race screen so the player picks their transport here
       var list = document.getElementById("transportList");
       list.innerHTML = "";
-      var airportBtn = document.createElement("button");
-      airportBtn.textContent = "Head to Airport";
-      airportBtn.style.marginTop = "18px";
-      airportBtn.onclick = showTransportToAirport;
-      list.appendChild(airportBtn);
+      var opts = optionsWithEmergencyWalkForTeam(airportStartTransportOptions, playerTeam);
+      opts.forEach(function (opt) {
+        var btn = document.createElement("button");
+        btn.className = "opt-btn";
+        btn.innerHTML = transportButtonHtml(opt);
+        if (opt.cost > money[playerTeam]) { btn.disabled = true; }
+        btn.onclick = function () { chooseStartingLineTransport(opt); };
+        list.appendChild(btn);
+      });
 
       showScreen("race");
+    }
+
+    // Called when the player picks transport after the Starting Line challenge.
+    // Deducts cost, advances clock, then goes straight to the flight screen.
+    function chooseStartingLineTransport(opt) {
+      spendTeamMoney(playerTeam, opt.cost);
+      addRaceMinutes(opt.time);
+      showFlightScreen();
     }
 
     function checkInAtPitStop() {
@@ -10083,7 +10104,22 @@
           clueChart +
           chart;
 
-        renderResults("Eliminated: " + route, body2, "New Game", resetToStart, "newGame");
+        var area2 = document.getElementById("resultsButtons");
+        document.getElementById("resultsTitle").textContent = "Eliminated: " + route;
+        document.getElementById("resultsBody").innerHTML = body2;
+        area2.innerHTML = "";
+        var watchBtn = document.createElement("button");
+        watchBtn.textContent = "Watch the Rest";
+        watchBtn.onclick = watchRemainingRace;
+        area2.appendChild(watchBtn);
+        var ngBtn = document.createElement("button");
+        ngBtn.className = "secondary-btn";
+        ngBtn.style.marginLeft = "10px";
+        ngBtn.textContent = "New Game";
+        ngBtn.onclick = resetToStart;
+        area2.appendChild(ngBtn);
+        currentResultAction = "eliminated";
+        showScreen("results");
         return;
       }
 
@@ -10103,6 +10139,203 @@
       legNum = legNum + 1;
       raceClock = nextLegStartClocks[playerTeam] != null ? nextLegStartClocks[playerTeam] : nextLegStartClock;
       startLeg();
+    }
+
+
+    // ── POST-ELIMINATION SIMULATION ─────────────────────────────────────────
+    // Runs all remaining legs headlessly, updating the same globals the real
+    // race uses, then displays a final summary screen.
+
+    function simulateOneLegHeadless() {
+      // Mirrors startLeg + showLegResults but without any player or UI.
+      // All teams in remainingTeams are treated as rivals.
+
+      // Advance clock to earliest departure
+      var earliestDepart = null;
+      remainingTeams.forEach(function (name) {
+        var d = nextLegStartClocks[name] != null ? nextLegStartClocks[name] : raceClock;
+        if (earliestDepart === null || d < earliestDepart) { earliestDepart = d; }
+      });
+      raceClock = earliestDepart || raceClock;
+      legStartClock = raceClock;
+
+      currentLegStartClocks = {};
+      teamCashSpentThisLeg = {};
+      remainingTeams.forEach(function (name) {
+        currentLegStartClocks[name] = nextLegStartClocks[name] != null ? nextLegStartClocks[name] : raceClock;
+        teamCashSpentThisLeg[name] = 0;
+      });
+
+      // Generate leg structure
+      airportStartTransportOptions = makeTransportOptionsForSegment();
+      airportEndTransportOptions   = makeTransportOptionsForSegment();
+
+      totalStopsThisLeg = isFinalLeg()
+        ? randomInt(FINAL_MIN_STOPS_PER_LEG, FINAL_MAX_STOPS_PER_LEG)
+        : randomInt(MIN_STOPS_PER_LEG, MAX_STOPS_PER_LEG);
+
+      if (legNum > 1) {
+        remainingTeams.forEach(function (name) { money[name] += LEG_STIPEND; });
+      }
+
+      legIsNonElim = !isFinalLeg() && Math.random() < NON_ELIM_CHANCE;
+
+      currentCity = resolveCityObject(currentCity) ||
+        ensureCityCoords(WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)]);
+
+      var dest;
+      do {
+        dest = ensureCityCoords(WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)]);
+      } while (dest.name === currentCity.name);
+
+      legOrigin = currentCity;
+      legDest   = dest;
+      activeFlightRoute = null;
+      FLIGHT_DELAY_MAP  = {};
+
+      legStops = [];
+      legTransportOptions = [];
+      startingLineChallenge = (legNum === 1)
+        ? { skill: SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)],
+            base: randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME) }
+        : null;
+
+      for (var i = 0; i < totalStopsThisLeg; i++) {
+        legStops.push({
+          skill: SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)],
+          base:  randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME)
+        });
+        legTransportOptions.push(makeTransportOptionsForSegment());
+      }
+
+      // Simulate every rival
+      teamLegRecords = {};
+      remainingTeams.forEach(function (name) {
+        teamLegRecords[name] = simulateRivalLegRecord(name);
+      });
+
+      // Sort by check-in
+      var results = remainingTeams.map(function (name) {
+        return teamLegRecords[name];
+      });
+      results.sort(function (a, b) {
+        return a.checkInClock !== b.checkInClock
+          ? a.checkInClock - b.checkInClock
+          : a.time - b.time;
+      });
+
+      // Advance clocks and record placements
+      var winnerClock = results[0].checkInClock;
+      nextLegStartClocks = {};
+      results.forEach(function (r) {
+        var gap = Math.max(0, Math.round((r.checkInClock - winnerClock) * currentGapScalingMultiplier()));
+        nextLegStartClocks[r.team] = winnerClock + LEG_GAP_MINUTES + gap;
+      });
+
+      updateRouteHistoryForCompletedLeg();
+
+      results.forEach(function (r, i) {
+        if (!placementHistory[r.team]) { placementHistory[r.team] = []; }
+        placementHistory[r.team].push(i + 1);
+      });
+
+      // Eliminate last unless non-elim or final
+      if (!isFinalLeg() && !legIsNonElim) {
+        var last = results[results.length - 1].team;
+        remainingTeams = remainingTeams.filter(function (n) { return n !== last; });
+      }
+
+      currentCity = legDest;
+
+      // Return the winner's name if this was the final leg
+      if (isFinalLeg()) { return results[0].team; }
+      return null;
+    }
+
+    function simulateRestOfRace() {
+      // Safety cap: never loop more than 50 legs
+      var maxLegs = 50;
+      var winner  = null;
+
+      while (remainingTeams.length > 0 && maxLegs-- > 0) {
+        winner = simulateOneLegHeadless();
+        if (winner !== null) { break; }
+        legNum += 1;
+      }
+
+      return winner;
+    }
+
+    function watchRemainingRace() {
+      // Show a brief loading message while simulating
+      document.getElementById("resultsTitle").textContent = "Simulating…";
+      document.getElementById("resultsBody").innerHTML =
+        "<p>Running the remaining legs…</p>";
+      document.getElementById("resultsButtons").innerHTML = "";
+      showScreen("results");
+
+      // Use setTimeout so the browser can repaint before blocking
+      setTimeout(function () {
+        var eliminatedOnLeg = legNum;
+        var winner = simulateRestOfRace();
+
+        var title = winner
+          ? "🏆 Race Complete — " + escapeHtml(winner) + " wins!"
+          : "🏆 Race Complete";
+
+        var body =
+          "<br>You were eliminated on <strong>Leg " + eliminatedOnLeg + "</strong>.<br><br>" +
+          (winner
+            ? "🏆 <strong>" + escapeHtml(winner) + "</strong> crossed the final mat and won The Amazing Race!<br><br>"
+            : "") +
+          "<strong>Route History</strong>" + routeHistoryHtml() +
+          "<br><strong>Final Standings</strong>" +
+          eliminationOrderHtml() +
+          "<br><strong>Placement Chart</strong>" + placementChartHtml();
+
+        renderResults(title, body, "New Game", resetToStart, "newGame");
+      }, 30);
+    }
+
+    function eliminationOrderHtml() {
+      // Build a list of teams sorted by the last leg they placed (eliminated first → winner last)
+      var allTeams = Object.keys(placementHistory);
+      var lastLeg  = {};
+      var lastPlace = {};
+
+      allTeams.forEach(function (name) {
+        var h = placementHistory[name] || [];
+        // Last non-null entry = final appearance
+        for (var i = h.length - 1; i >= 0; i--) {
+          if (h[i] != null) {
+            lastLeg[name]   = i + 1;   // 1-indexed leg number
+            lastPlace[name] = h[i];
+            break;
+          }
+        }
+        if (lastLeg[name] == null) { lastLeg[name] = 0; lastPlace[name] = 999; }
+      });
+
+      // Sort: teams that lasted longer come last; within same last leg, by final placement
+      allTeams.sort(function (a, b) {
+        if (lastLeg[a] !== lastLeg[b])   { return lastLeg[a] - lastLeg[b]; }
+        return lastPlace[a] - lastPlace[b];
+      });
+
+      var html = '<div class="standings">';
+      allTeams.forEach(function (name) {
+        var isWinner = remainingTeams.indexOf(name) !== -1 && lastPlace[name] === 1;
+        var style = (name === playerTeam)
+          ? ' style="color:#ffd166;font-weight:bold;"'
+          : (isWinner ? ' style="color:#00e5ff;font-weight:bold;"' : "");
+        var badge = isWinner ? " 🏆" : "";
+        html += "<div" + style + ">" +
+          "Leg " + lastLeg[name] + " · " +
+          escapeHtml(name) + badge +
+          "</div>";
+      });
+      html += "</div>";
+      return html;
     }
 
     function resetToStart() {
@@ -10788,12 +11021,22 @@
       if (currentResultAction === "nextLeg") {
         btn.textContent = "Next Leg";
         btn.onclick = nextLeg;
+        area.appendChild(btn);
+      } else if (currentResultAction === "eliminated") {
+        btn.textContent = "Watch the Rest";
+        btn.onclick = watchRemainingRace;
+        area.appendChild(btn);
+        var ng2 = document.createElement("button");
+        ng2.className = "secondary-btn";
+        ng2.style.marginLeft = "10px";
+        ng2.textContent = "New Game";
+        ng2.onclick = resetToStart;
+        area.appendChild(ng2);
       } else {
         btn.textContent = "New Game";
         btn.onclick = resetToStart;
+        area.appendChild(btn);
       }
-
-      area.appendChild(btn);
       showScreen("results");
     }
 
