@@ -8607,7 +8607,7 @@
     }
 
     function clueChartLabels() {
-      var labels = ["Pit Start", "Origin Airport", "Flight Departure", "Destination Airport"];
+      var labels = ["Pit Start", "Origin Airport", "Destination Airport"];
 
       for (var i = 0; i < totalStopsThisLeg; i++) {
         labels.push(challengeArriveLabel(i));
@@ -8779,7 +8779,6 @@
       svg += '<svg width="100%" height="auto" viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="xMidYMin meet" role="img" aria-label="Clue-by-clue placement chart">';
       svg += '<rect x="0" y="0" width="' + width + '" height="' + height + '" fill="#ffffff"/>';
       svg += '<text x="' + (width / 2) + '" y="28" text-anchor="middle" class="axis-label" font-size="20">' + safeSvgText(currentLegLabel() + ': ' + legOrigin.name + ' → ' + legDest.name) + '</text>';
-      svg += '<text x="' + (width / 2) + '" y="54" text-anchor="middle" class="chart-subtitle" font-size="14">Clue-by-clue placements across the leg</text>';
 
       for (var rnk = 1; rnk <= teamCount; rnk++) {
         var y = yScale(rnk);
@@ -8790,7 +8789,6 @@
       labels.forEach(function (label, index) {
         var x = xScale(index);
         var labelY = chartTop - 9;
-        svg += '<line x1="' + x + '" y1="' + (labelY + 3) + '" x2="' + x + '" y2="' + chartBottom + '" stroke="#ececec" stroke-width="1"/>';
         svg += '<circle cx="' + x + '" cy="' + chartTop + '" r="1.7" fill="#bdbdbd"/>';
         svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="start" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(label) + '</text>';
       });
@@ -8811,7 +8809,7 @@
 
       var legendX = chartLeft + chartWidth + 42;
       finalOrder.forEach(function (r, index) {
-        var y = chartTop + index * Math.min(rowGap, 32);
+        var y = yScale(index + 1);
         var color = teamColor(r.team);
         svg += '<text x="' + (legendX - 26) + '" y="' + (y + 5) + '" class="rank-label" text-anchor="end" font-size="14">' + (index + 1) + '</text>';
         svg += '<line x1="' + legendX + '" y1="' + y + '" x2="' + (legendX + 28) + '" y2="' + y + '" stroke="' + color + '" stroke-width="4" stroke-linecap="round"/>';
