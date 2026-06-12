@@ -10057,7 +10057,7 @@
       var routeTrail = "<br><strong>Route History</strong>" + routeHistoryHtml();
       lastCompletedLegClueData = results;
       var savedLabels = clueChartLabels();
-      legHistory.push({ legNum: legNum, route: route, labels: savedLabels, results: results });
+      legHistory.push({ legNum: legNum, route: route, labels: savedLabels, results: results, isFinal: isFinalLeg() });
       var clueChart = "<br>" + clueByClueChartHtml(results, savedLabels);
       var chart = "<br><strong>Placement Chart</strong>" + placementChartHtml();
 
@@ -10149,9 +10149,8 @@
       if (!legHistory || legHistory.length === 0) { return ""; }
       var html = "";
       legHistory.forEach(function (entry) {
-        var legLabel = entry.legNum === legHistory.length && entry.results.length <= 3
-          ? "Final Leg" : "Leg " + entry.legNum;
-        html += "<br><details open><summary style=\"cursor:pointer;color:var(--amber);font-weight:800;" +
+        var legLabel = entry.isFinal ? "Final Leg" : "Leg " + entry.legNum;
+        html += "<br><details><summary style=\"cursor:pointer;color:var(--amber);font-weight:800;" +
           "padding:8px 0;font-size:0.95rem;letter-spacing:0.04em;\">&#9654; " +
           escapeHtml(legLabel) + ": " + escapeHtml(entry.route) + "</summary>" +
           clueByClueChartHtml(entry.results, entry.labels) +
@@ -10246,7 +10245,7 @@
       // Store leg chart data for full-race replay
       var simRoute = legOrigin.name + " → " + legDest.name;
       var simLabels = clueChartLabels();
-      legHistory.push({ legNum: legNum, route: simRoute, labels: simLabels, results: results });
+      legHistory.push({ legNum: legNum, route: simRoute, labels: simLabels, results: results, isFinal: isTheFinalLeg });
 
       // Advance departure clocks
       var winnerClock = results[0].checkInClock;
