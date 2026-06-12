@@ -6044,18 +6044,14 @@
     }
 
     function currentTeamCountDraft() {
-      return sanitizeRaceSettings({
-        teamCount: settingValue("settingTeamCount", DEFAULT_RACE_SETTINGS.teamCount),
-        teamColors: readTeamColorEditor(),
-        startingMoney: DEFAULT_RACE_SETTINGS.startingMoney,
-        legStipend: DEFAULT_RACE_SETTINGS.legStipend,
-        minStopsPerLeg: DEFAULT_RACE_SETTINGS.minStopsPerLeg,
-        maxStopsPerLeg: DEFAULT_RACE_SETTINGS.maxStopsPerLeg,
-        finalMinStopsPerLeg: DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg,
-        finalMaxStopsPerLeg: DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg,
-        nonElimChance: DEFAULT_RACE_SETTINGS.nonElimChance,
-        flightChaos: DEFAULT_RACE_SETTINGS.flightChaos
-      }).teamCount;
+      var raw = settingValue("settingTeamCount", (raceSettings && raceSettings.teamCount) || DEFAULT_RACE_SETTINGS.teamCount);
+      var parsed = parseInt(raw, 10);
+
+      if (isNaN(parsed)) {
+        parsed = DEFAULT_RACE_SETTINGS.teamCount;
+      }
+
+      return clampNumber(parsed, 4, 50);
     }
 
     function renderTeamNameEditor(seedNames) {
