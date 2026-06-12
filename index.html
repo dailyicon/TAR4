@@ -1350,26 +1350,20 @@
         <div class="team-editor-card">
           <div class="team-editor-header">
             <div>
-              <strong>Team Names</strong>
-              <div class="setting-help">Edit the cast names for this season. Blank names will turn back into Team 1, Team 2, etc.</div>
+              <strong>Team Names &amp; Colors</strong>
+              <div class="setting-help">Edit names and pick a color per team. Colors appear in the clue-by-clue chart.</div>
             </div>
-            <button class="mini-btn" type="button" onclick="resetTeamNamesToDefault()">Reset Team Names</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+              <button class="mini-btn" type="button" onclick="resetTeamNamesToDefault()">Reset Names</button>
+              <button class="mini-btn" type="button" onclick="resetTeamColorsToDefault()">Reset Colors</button>
+            </div>
           </div>
           <div id="teamNameEditor" class="team-name-editor"></div>
           <div id="teamNameNote" class="team-name-note"></div>
         </div>
 
-        <div class="team-editor-card">
-          <div class="team-editor-header">
-            <div>
-              <strong>Team Colors</strong>
-              <div class="setting-help">These colors power the clue-by-clue chart and team lines. Defaults are pre-generated for up to 50 teams.</div>
-            </div>
-            <button class="mini-btn" type="button" onclick="resetTeamColorsToDefault()">Reset Team Colors</button>
-          </div>
-          <div id="teamColorEditor" class="team-color-editor"></div>
-          <div id="teamColorNote" class="team-name-note"></div>
-        </div>
+        <div id="teamColorEditor" style="display:none"></div>
+        <div id="teamColorNote" style="display:none"></div>
       </div>
 
       <div class="setup-section">
@@ -1640,7 +1634,7 @@
 
   <div id="race" class="screen">
     <span class="screen-label">Route Info</span>
-    <h1>Travel On</h1>
+    <h1 id="raceScreenTitle">Travel On</h1>
     <div class="status" id="raceStatus"></div>
     <div class="status">
       Choose your transport:
@@ -6056,12 +6050,12 @@
       teamColors: {},
       startingMoney: 1500,
       legStipend: 1000,
-      minStopsPerLeg: 2,
-      maxStopsPerLeg: 5,
+      minStopsPerLeg: 4,
+      maxStopsPerLeg: 6,
       finalMinStopsPerLeg: 5,
-      finalMaxStopsPerLeg: 7,
-      challengeMinTime: 10,
-      challengeMaxTime: 40,
+      finalMaxStopsPerLeg: 8,
+      challengeMinTime: 5,
+      challengeMaxTime: 60,
       minTransportOptions: 2,
       maxTransportOptions: 5,
       transportOptions: DEFAULT_STANDARD_TRANSPORT.map(function (opt) { return { method: opt.method, cost: opt.cost, time: opt.time }; }),
@@ -6078,7 +6072,7 @@
       calm: { label: "Calm", delayChance: 0.10, delayScale: 0.65 },
       normal: { label: "Normal", delayChance: 0.20, delayScale: 1.00 },
       chaotic: { label: "Chaotic", delayChance: 0.35, delayScale: 1.25 },
-      nightmare: { label: "Airport Nightmare", delayChance: 0.50, delayScale: 1.60 }
+      nightmare: { label: "Airport Nightmare", delayChance: 0.72, delayScale: 2.40 }
     };
     var MIN_TRANSPORT_OPTIONS = 2;
     var MAX_TRANSPORT_OPTIONS = 5;
@@ -6339,6 +6333,7 @@
 
       var count = currentTeamCountDraft();
       var source = Array.isArray(seedNames) ? seedNames.slice() : readRawTeamNamesFromEditor();
+      var colorSource = readTeamColorEditor();
 
       if (source.length === 0) {
         source = teams && teams.length ? teams.slice() : makeDefaultTeamNames(count);
@@ -6347,31 +6342,75 @@
       editor.innerHTML = "";
 
       for (var i = 0; i < count; i++) {
-        var row = document.createElement("div");
-        row.className = "team-name-row";
+        (function(index) {
+          var row = document.createElement("div");
+          row.className = "team-name-row team-name-color-row";
+          row.style.cssText = "display:grid;grid-template-columns:72px 1fr 44px 96px;gap:8px;align-items:center;";
 
-        var label = document.createElement("span");
-        label.textContent = "Team " + (i + 1);
+          var label = document.createElement("span");
+          label.textContent = "Team " + (index + 1);
 
-        var input = document.createElement("input");
-        input.className = "team-name-input";
-        input.type = "text";
-        input.maxLength = 60;
-        input.value = source[i] != null ? source[i] : ("Team " + (i + 1));
-        input.setAttribute("aria-label", "Team " + (i + 1) + " name");
-        input.addEventListener("input", function () {
-          updateTeamNameNote();
-          renderCustomizationSummary();
-        });
-        input.addEventListener("change", function () {
-          var colorDraft = readTeamColorEditor();
-          renderTeamColorEditor(colorDraft);
-          renderCustomTeamSkillEditor(readCustomTeamSkillEditor());
-        });
+          var nameInput = document.createElement("input");
+          nameInput.className = "team-name-input";
+          nameInput.type = "text";
+          nameInput.maxLength = 60;
+          nameInput.value = source[index] != null ? source[index] : ("Team " + (index + 1));
+          nameInput.setAttribute("aria-label", "Team " + (index + 1) + " name");
 
-        row.appendChild(label);
-        row.appendChild(input);
-        editor.appendChild(row);
+          var teamName = nameInput.value;
+          var currentColor = colorSource[teamName] || defaultColorForIndex(index);
+
+          var colorPicker = document.createElement("input");
+          colorPicker.type = "color";
+          colorPicker.className = "team-color-input";
+          colorPicker.dataset.teamIndex = index;
+          colorPicker.value = currentColor;
+          colorPicker.setAttribute("aria-label", "Team " + (index + 1) + " color picker");
+          colorPicker.style.cssText = "height:38px;padding:3px;border-radius:8px;cursor:pointer;width:44px;background:transparent;border:1px solid rgba(255,255,255,0.14);";
+
+          var hexInput = document.createElement("input");
+          hexInput.type = "text";
+          hexInput.className = "team-hex-input";
+          hexInput.dataset.teamIndex = index;
+          hexInput.maxLength = 7;
+          hexInput.value = currentColor;
+          hexInput.setAttribute("aria-label", "Team " + (index + 1) + " hex color");
+          hexInput.style.cssText = "font-size:0.82rem;letter-spacing:0.04em;text-transform:uppercase;";
+          hexInput.placeholder = "#ff0000";
+
+          // Sync color picker → hex
+          colorPicker.addEventListener("input", function () {
+            hexInput.value = colorPicker.value.toUpperCase();
+            renderCustomizationSummary();
+          });
+
+          // Sync hex → color picker (only when valid)
+          hexInput.addEventListener("input", function () {
+            var val = hexInput.value.trim();
+            if (!val.startsWith("#")) { val = "#" + val; }
+            if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+              colorPicker.value = val.toLowerCase();
+              hexInput.value = val.toUpperCase();
+            }
+            renderCustomizationSummary();
+          });
+
+          nameInput.addEventListener("input", function () {
+            updateTeamNameNote();
+            renderCustomizationSummary();
+          });
+          nameInput.addEventListener("change", function () {
+            var colorDraft = readTeamColorEditor();
+            renderTeamColorEditor(colorDraft);
+            renderCustomTeamSkillEditor(readCustomTeamSkillEditor());
+          });
+
+          row.appendChild(label);
+          row.appendChild(nameInput);
+          row.appendChild(colorPicker);
+          row.appendChild(hexInput);
+          editor.appendChild(row);
+        })(i);
       }
 
       updateTeamNameNote();
@@ -6739,8 +6778,15 @@
           setAllSkillsForTeam(teamIndex);
         };
 
+        var randButton = document.createElement("button");
+        randButton.type = "button";
+        randButton.className = "mini-btn";
+        randButton.textContent = "Randomize";
+        randButton.onclick = (function(ti) { return function() { randomizeSkillsForTeam(ti); }; })(teamIndex);
+
         setter.appendChild(setInput);
         setter.appendChild(setButton);
+        setter.appendChild(randButton);
 
         header.appendChild(title);
         header.appendChild(setter);
@@ -6796,6 +6842,22 @@
 
       Array.prototype.forEach.call(inputs, function (input) {
         input.value = level;
+      });
+
+      renderCustomizationSummary();
+    }
+
+    function randomizeSkillsForTeam(teamIndex) {
+      var editor = document.getElementById("customSkillEditor");
+
+      if (!editor) {
+        return;
+      }
+
+      var inputs = editor.querySelectorAll('.custom-skill-input[data-team-index="' + teamIndex + '"]');
+
+      Array.prototype.forEach.call(inputs, function (input) {
+        input.value = randomLevel();
       });
 
       renderCustomizationSummary();
@@ -7132,7 +7194,7 @@
         var youClass = team === playerTeam ? " you" : "";
 
         html += '<div class="departure-row' + youClass + '">';
-        html += '<span class="departure-team">' + escapeHtml(team) + (team === playerTeam ? " ← You" : "") + '</span>';
+        html += '<span class="departure-team">' + escapeHtml(team) + '</span>';
         html += '<span class="departure-time">' + formatRaceDateTime(clock) + '</span>';
         html += '</div>';
       });
@@ -7653,8 +7715,7 @@
       }
 
       box.innerHTML =
-        "Season Settings: <strong>" + preview.teamCount + "</strong> teams" +
-        (previewList ? " (" + previewList + ")" : "") + " · " +
+        "Season Settings: <strong>" + preview.teamCount + "</strong> teams · " +
         "<strong>$" + preview.startingMoney + "</strong> start · " +
         "<strong>$" + preview.legStipend + "</strong> stipend · " +
         "<strong>" + Math.round(preview.nonElimChance * 100) + "%</strong> non-elim · " +
@@ -9562,6 +9623,10 @@
       var locationName = currentChallenge ? currentChallenge.locationName : "Challenge " + stopLetter(currentStop);
       var challengeHtml = "";
 
+      // Update the h1 to the challenge name
+      var titleEl = document.getElementById("raceScreenTitle");
+      if (titleEl) { titleEl.textContent = locationName; }
+
       if (currentChallenge && currentChallenge.stopIndex === currentStop) {
         challengeHtml =
           '<div class="challenge-summary">' +
@@ -9571,15 +9636,21 @@
           "</div>";
       }
 
+      var arrivalLine = "";
+      if (currentChallenge && currentChallenge.stopIndex === currentStop) {
+        arrivalLine = "Arrived: <strong>" + formatRaceDateTime(currentChallenge.arrivalClock) + "</strong><br>" +
+          "Departed: <strong>" + formatRaceDateTime(currentChallenge.departureClock) + "</strong><br>";
+      }
+
       document.getElementById("raceStatus").innerHTML =
-        raceClockHeader() +
+        raceClockHeader() + "<br>" +
+        arrivalLine +
         (currentChallenge && currentChallenge.stopIndex === currentStop
           ? presenceReportHtml(stopLocationKey(currentStop), currentChallenge.arrivalClock, currentChallenge.departureClock)
           : presenceReportHtml(stopLocationKey(currentStop), raceClock, null)) +
         challengeHtml +
         "<br>" +
         currentLegLabel() + " · " + escapeHtml(legDest.name) + "<br>" +
-        locationName + "<br>" +
         'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
       var optionsForThisSegment = optionsWithEmergencyWalkForTeam(legTransportOptions[currentStop], playerTeam);
