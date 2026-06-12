@@ -6103,7 +6103,7 @@
       skillCount: DEFAULT_SKILL_TYPES.length,
       skillTypes: DEFAULT_SKILL_TYPES.slice(),
       customTeamSkills: {},
-      gapScaling: 0.5,
+      gapScaling: "0.5",
       gapScalingCustom: 0.5
     };
     var raceSettings = null;
@@ -6129,14 +6129,24 @@
     }
 
     function currentGapScalingMultiplier() {
-      if (!raceSettings) { return DEPARTURE_GAP_COMPRESSION; }
-      var s = String(raceSettings.gapScaling);
+      // Read from live DOM first so the value is always current
+      var domSel = document.getElementById("settingGapScaling");
+      var domCustom = document.getElementById("settingGapScalingCustom");
+      var s = domSel ? domSel.value : (raceSettings ? String(raceSettings.gapScaling) : "0.5");
+      var customVal = domCustom ? parseFloat(domCustom.value) : (raceSettings ? parseFloat(raceSettings.gapScalingCustom) : 0.5);
+
+      // During a race the customize screen is not open, fall back to raceSettings
+      if (!domSel && raceSettings) {
+        s = String(raceSettings.gapScaling);
+        customVal = parseFloat(raceSettings.gapScalingCustom) || 0.5;
+      }
+
       if (s === "1.0") { return 1.0; }
-      if (s === "0.667") { return 0.667; }
+      if (s === "0.667") { return 2 / 3; }
       if (s === "0.5") { return 0.5; }
-      if (s === "0.333") { return 0.333; }
-      if (s === "custom") { return parseFloat(raceSettings.gapScalingCustom) || 0.5; }
-      return DEPARTURE_GAP_COMPRESSION;
+      if (s === "0.333") { return 1 / 3; }
+      if (s === "custom") { return isNaN(customVal) ? 0.5 : Math.max(0, Math.min(1, customVal)); }
+      return 0.5;
     }
     var START_PRESENCE_WINDOW = 0;
     var AIRPORT_EXIT_PRESENCE_WINDOW = 5;
@@ -7632,7 +7642,9 @@
         playerAllSkillLevel: parseInt(base.playerAllSkillLevel, 10),
         skillCount: parseInt(base.skillCount != null ? base.skillCount : baseSkillTypes.length, 10),
         skillTypes: baseSkillTypes,
-        customTeamSkills: cloneCustomTeamSkills(base.customTeamSkills || {})
+        customTeamSkills: cloneCustomTeamSkills(base.customTeamSkills || {}),
+        gapScaling: base.gapScaling != null ? base.gapScaling : DEFAULT_RACE_SETTINGS.gapScaling,
+        gapScalingCustom: base.gapScalingCustom != null ? parseFloat(base.gapScalingCustom) : DEFAULT_RACE_SETTINGS.gapScalingCustom
       };
     }
 
@@ -7649,7 +7661,7 @@
       settings.challengeMinTime = clampNumber(isNaN(settings.challengeMinTime) ? DEFAULT_RACE_SETTINGS.challengeMinTime : settings.challengeMinTime, 1, 240);
       settings.challengeMaxTime = clampNumber(isNaN(settings.challengeMaxTime) ? DEFAULT_RACE_SETTINGS.challengeMaxTime : settings.challengeMaxTime, 1, 240);
       var validScalings = ["1.0","0.667","0.5","0.333","custom"];
-      if (!settings.gapScaling || validScalings.indexOf(String(settings.gapScaling)) === -1) {
+      if (settings.gapScaling == null || validScalings.indexOf(String(settings.gapScaling)) === -1) {
         settings.gapScaling = DEFAULT_RACE_SETTINGS.gapScaling;
       }
       var customScaling = parseFloat(settings.gapScalingCustom);
@@ -7788,7 +7800,7 @@
       setSettingValue("settingTeamCount", s.teamCount);
       setSettingValue("settingStartingMoney", s.startingMoney);
       setSettingValue("settingLegStipend", s.legStipend);
-      setSettingValue("settingNonElimChance", s.nonElimChance);
+      setSettingValue("settingNonElimChance", String(s.nonElimChance));
       setSettingValue("settingMinStops", s.minStopsPerLeg);
       setSettingValue("settingMaxStops", s.maxStopsPerLeg);
       setSettingValue("settingFinalMinStops", s.finalMinStopsPerLeg);
@@ -7805,7 +7817,7 @@
       renderTeamColorEditor(s.teamColors);
       setSettingValue("settingFlightChaos", s.flightChaos);
       setSettingValue("settingGapScaling", s.gapScaling != null ? String(s.gapScaling) : "0.5");
-      setSettingValue("settingGapScalingCustom", s.gapScalingCustom != null ? s.gapScalingCustom : 0.5);
+      setSettingValue("settingGapScalingCustom", s.gapScalingCustom != null ? String(s.gapScalingCustom) : "0.5");
       updateGapScalingCustomVisibility();
       setSettingValue("settingSkillMode", s.skillMode);
       setSettingValue("settingPlayerAllSkillLevel", s.playerAllSkillLevel);
@@ -7920,6 +7932,11 @@
 
     function confirmCustomization() {
       raceSettings = readCustomizationForm();
+      // Belt-and-suspenders: stamp gapScaling directly from DOM in case sanitize dropped it
+      var gapEl = document.getElementById("settingGapScaling");
+      var gapCustomEl = document.getElementById("settingGapScalingCustom");
+      if (gapEl) { raceSettings.gapScaling = gapEl.value; }
+      if (gapCustomEl) { raceSettings.gapScalingCustom = parseFloat(gapCustomEl.value) || 0.5; }
       teams = sanitizeTeamNames(readRawTeamNamesFromEditor(), raceSettings.teamCount);
       raceSettings.teamCount = teams.length;
       raceSettings.teamColors = sanitizeTeamColors(raceSettings.teamColors, teams);
