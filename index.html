@@ -1481,6 +1481,21 @@
             </div>
             <div class="setting-help">Base minutes for each challenge before skill level modifies the time.</div>
           </div>
+          <div class="setting-card full">
+            <label for="settingGapScaling">Departure Gap Scaling</label>
+            <select id="settingGapScaling" onchange="updateGapScalingCustomVisibility();renderCustomizationSummary();">
+              <option value="1.0">No scaling — gaps stay as-is (10h → 10h)</option>
+              <option value="0.667">Gentle — 10h gap becomes 6h 40m</option>
+              <option value="0.5" selected>Standard — 10h gap becomes 5h</option>
+              <option value="0.333">Aggressive — 10h gap becomes 3h 20m</option>
+              <option value="custom">Custom — set your own multiplier</option>
+            </select>
+            <div id="gapScalingCustomRow" style="display:none;margin-top:9px;">
+              <input id="settingGapScalingCustom" type="number" min="0" max="1" step="0.01" value="0.5" aria-label="Custom gap scaling multiplier">
+              <div class="setting-help">A number from 0 (everyone departs simultaneously) to 1 (no scaling at all). 0.5 halves every gap.</div>
+            </div>
+            <div class="setting-help">Controls how much finishing order affects your departure time on the next leg. Smaller values mean tighter racing.</div>
+          </div>
         </div>
       </div>
 
@@ -1563,6 +1578,28 @@
           <div id="customSkillEditor" class="custom-skill-editor"></div>
           <div id="customSkillNote" class="custom-skill-note"></div>
         </div>
+      </div>
+
+      <div class="setup-section">
+        <div class="section-heading">
+          <div>
+            <div class="section-kicker">Presets</div>
+            <h2 class="section-title">Season presets</h2>
+            <div class="section-copy">Save your current setup as a named preset and reload it any time. Presets are stored in this browser.</div>
+          </div>
+        </div>
+        <div class="settings-grid">
+          <div class="setting-card">
+            <label for="presetNameInput">Preset Name</label>
+            <input id="presetNameInput" type="text" maxlength="60" placeholder="My favorite setup">
+            <div class="setting-help">Give this preset a name, then hit Save Preset.</div>
+          </div>
+          <div class="setting-card" style="display:flex;flex-direction:column;justify-content:flex-end;gap:8px;">
+            <button class="mini-btn" type="button" onclick="saveCurrentPreset()" style="width:100%;margin-top:0;">Save Preset</button>
+            <button class="mini-btn" type="button" onclick="deleteSelectedPreset()" id="deletePresetBtn" style="width:100%;margin-top:0;border-color:rgba(255,31,53,0.4);color:#ff6670;" disabled>Delete Selected</button>
+          </div>
+        </div>
+        <div id="presetList" style="margin-top:12px;"></div>
       </div>
 
       <div class="setup-section">
@@ -6048,8 +6085,8 @@
     var DEFAULT_RACE_SETTINGS = {
       teamCount: DEFAULT_TEAM_COUNT,
       teamColors: {},
-      startingMoney: 1500,
-      legStipend: 1000,
+      startingMoney: 2500,
+      legStipend: 2000,
       minStopsPerLeg: 4,
       maxStopsPerLeg: 6,
       finalMinStopsPerLeg: 5,
@@ -6065,7 +6102,9 @@
       playerAllSkillLevel: DEFAULT_PLAYER_ALL_SKILL_LEVEL,
       skillCount: DEFAULT_SKILL_TYPES.length,
       skillTypes: DEFAULT_SKILL_TYPES.slice(),
-      customTeamSkills: {}
+      customTeamSkills: {},
+      gapScaling: 0.5,
+      gapScalingCustom: 0.5
     };
     var raceSettings = null;
     var FLIGHT_CHAOS_PROFILES = {
@@ -6081,6 +6120,24 @@
     var LEG_GAP_DAYS = 7;
     var LEG_GAP_MINUTES = LEG_GAP_DAYS * MINUTES_PER_DAY;
     var DEPARTURE_GAP_COMPRESSION = 0.5;
+    function updateGapScalingCustomVisibility() {
+      var sel = document.getElementById("settingGapScaling");
+      var row = document.getElementById("gapScalingCustomRow");
+      if (sel && row) {
+        row.style.display = sel.value === "custom" ? "block" : "none";
+      }
+    }
+
+    function currentGapScalingMultiplier() {
+      if (!raceSettings) { return DEPARTURE_GAP_COMPRESSION; }
+      var s = String(raceSettings.gapScaling);
+      if (s === "1.0") { return 1.0; }
+      if (s === "0.667") { return 0.667; }
+      if (s === "0.5") { return 0.5; }
+      if (s === "0.333") { return 0.333; }
+      if (s === "custom") { return parseFloat(raceSettings.gapScalingCustom) || 0.5; }
+      return DEPARTURE_GAP_COMPRESSION;
+    }
     var START_PRESENCE_WINDOW = 0;
     var AIRPORT_EXIT_PRESENCE_WINDOW = 5;
     var PITSTOP_PRESENCE_WINDOW = 240;
@@ -7601,6 +7658,12 @@
       settings.finalMaxStopsPerLeg = clampNumber(isNaN(settings.finalMaxStopsPerLeg) ? DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg : settings.finalMaxStopsPerLeg, 1, 25);
       settings.challengeMinTime = clampNumber(isNaN(settings.challengeMinTime) ? DEFAULT_RACE_SETTINGS.challengeMinTime : settings.challengeMinTime, 1, 240);
       settings.challengeMaxTime = clampNumber(isNaN(settings.challengeMaxTime) ? DEFAULT_RACE_SETTINGS.challengeMaxTime : settings.challengeMaxTime, 1, 240);
+      var validScalings = ["1.0","0.667","0.5","0.333","custom"];
+      if (!settings.gapScaling || validScalings.indexOf(String(settings.gapScaling)) === -1) {
+        settings.gapScaling = DEFAULT_RACE_SETTINGS.gapScaling;
+      }
+      var customScaling = parseFloat(settings.gapScalingCustom);
+      settings.gapScalingCustom = isNaN(customScaling) ? 0.5 : Math.max(0, Math.min(1, customScaling));
       settings.transportOptions = sanitizeTransportOptions(settings.transportOptions);
       settings.minTransportOptions = clampNumber(isNaN(settings.minTransportOptions) ? DEFAULT_RACE_SETTINGS.minTransportOptions : settings.minTransportOptions, 1, Math.max(1, settings.transportOptions.length));
       settings.maxTransportOptions = clampNumber(isNaN(settings.maxTransportOptions) ? DEFAULT_RACE_SETTINGS.maxTransportOptions : settings.maxTransportOptions, 1, Math.max(1, settings.transportOptions.length));
@@ -7699,6 +7762,8 @@
         transportOptions: readTransportEditor(),
         nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
         flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
+        gapScaling: settingValue("settingGapScaling", DEFAULT_RACE_SETTINGS.gapScaling),
+        gapScalingCustom: settingValue("settingGapScalingCustom", DEFAULT_RACE_SETTINGS.gapScalingCustom),
         skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
         playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
@@ -7745,6 +7810,9 @@
       renderTransportEditor(s.transportOptions);
       renderTeamColorEditor(s.teamColors);
       setSettingValue("settingFlightChaos", s.flightChaos);
+      setSettingValue("settingGapScaling", s.gapScaling != null ? String(s.gapScaling) : "0.5");
+      setSettingValue("settingGapScalingCustom", s.gapScalingCustom != null ? s.gapScalingCustom : 0.5);
+      updateGapScalingCustomVisibility();
       setSettingValue("settingSkillMode", s.skillMode);
       setSettingValue("settingPlayerAllSkillLevel", s.playerAllSkillLevel);
       setSettingValue("settingSkillCount", s.skillCount);
@@ -7830,6 +7898,8 @@
         transportOptions: readTransportEditor(),
         nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
         flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
+        gapScaling: settingValue("settingGapScaling", DEFAULT_RACE_SETTINGS.gapScaling),
+        gapScalingCustom: settingValue("settingGapScalingCustom", DEFAULT_RACE_SETTINGS.gapScalingCustom),
         skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
         playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
@@ -7846,6 +7916,7 @@
       bindCustomizationFormEvents();
       fillCustomizationForm(raceSettings);
       renderTeamNameEditor(teams && teams.length ? teams : makeDefaultTeamNames(raceSettings.teamCount));
+      renderPresetList();
       renderTeamColorEditor(raceSettings.teamColors);
       renderSkillNameEditor(raceSettings.skillTypes);
       updateSkillModePanels();
@@ -9152,7 +9223,7 @@
       });
 
       svg += '</svg>';
-      svg += '<div class="clue-chart-note">Pit-start and landing ties share the middle placement, so a 4th-7th tie appears at 5.5. Challenge arrivals/completions are separated by previous order so the lines stay readable.</div>';
+      
       svg += '</div>';
       return svg;
     }
@@ -9844,7 +9915,7 @@
       nextLegStartClocks = {};
 
       results.forEach(function (r) {
-        var compressedGap = Math.max(0, Math.round((r.checkInClock - winnerCheckInClock) * DEPARTURE_GAP_COMPRESSION));
+        var compressedGap = Math.max(0, Math.round((r.checkInClock - winnerCheckInClock) * currentGapScalingMultiplier()));
         nextLegStartClocks[r.team] = winnerCheckInClock + LEG_GAP_MINUTES + compressedGap;
 
         if (r.team === playerTeam) {
@@ -10014,6 +10085,7 @@
         activeFlightRoute: activeFlightRoute,
         flightResolved: flightResolved,
         legIsNonElim: legIsNonElim,
+        gapScalingValue: currentGapScalingMultiplier(),
 
         airportStartTransportOptions: airportStartTransportOptions,
         airportEndTransportOptions: airportEndTransportOptions,
@@ -10668,6 +10740,151 @@
       if (id !== "menu" && id !== "saveManager") {
         autoSaveGame(id);
       }
+    }
+
+    var PRESET_STORE_KEY = "amazingRacePresets";
+
+    function loadAllPresets() {
+      try {
+        var raw = localStorage.getItem(PRESET_STORE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) { return []; }
+    }
+
+    function saveAllPresets(presets) {
+      try { localStorage.setItem(PRESET_STORE_KEY, JSON.stringify(presets)); } catch (e) {}
+    }
+
+    function saveCurrentPreset() {
+      var nameEl = document.getElementById("presetNameInput");
+      var name = nameEl ? nameEl.value.trim() : "";
+      if (!name) { alert("Enter a preset name first."); return; }
+
+      var settings = readCustomizationForm();
+      var presets = loadAllPresets();
+      var existing = presets.findIndex(function(p) { return p.name === name; });
+      var entry = { name: name, savedAt: Date.now(), settings: settings };
+
+      if (existing >= 0) {
+        if (!confirm("Overwrite preset \"" + name + "\"?")) { return; }
+        presets[existing] = entry;
+      } else {
+        presets.push(entry);
+      }
+
+      saveAllPresets(presets);
+      renderPresetList();
+      if (nameEl) { nameEl.value = ""; }
+    }
+
+    function loadPreset(name) {
+      var presets = loadAllPresets();
+      var entry = presets.find(function(p) { return p.name === name; });
+      if (!entry || !entry.settings) { return; }
+      fillCustomizationForm(sanitizeRaceSettings(entry.settings));
+      renderCustomizationSummary();
+    }
+
+    function deleteSelectedPreset() {
+      var selected = document.querySelector(".preset-row.selected");
+      if (!selected) { return; }
+      var name = selected.dataset.presetName;
+      if (!confirm("Delete preset \"" + name + "\"?")) { return; }
+      var presets = loadAllPresets().filter(function(p) { return p.name !== name; });
+      saveAllPresets(presets);
+      renderPresetList();
+    }
+
+    function renderPresetList() {
+      var container = document.getElementById("presetList");
+      var deleteBtn = document.getElementById("deletePresetBtn");
+      if (!container) { return; }
+
+      var presets = loadAllPresets();
+      container.innerHTML = "";
+
+      if (presets.length === 0) {
+        container.innerHTML = "<div style=\"color:rgba(255,245,230,0.45);font-size:0.85rem;padding:6px 0;\">No presets saved yet.</div>";
+        if (deleteBtn) { deleteBtn.disabled = true; }
+        return;
+      }
+
+      presets.forEach(function(entry) {
+        var row = document.createElement("div");
+        row.className = "preset-row";
+        row.dataset.presetName = entry.name;
+        row.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;margin-bottom:8px;background:rgba(13,3,5,0.5);border:1px solid rgba(255,255,255,0.1);border-left:3px solid transparent;border-radius:8px;cursor:pointer;transition:border-left-color 0.12s,background 0.12s;";
+
+        var info = document.createElement("div");
+        info.style.cssText = "overflow-wrap:anywhere;text-align:left;";
+
+        var nameSpan = document.createElement("strong");
+        nameSpan.style.cssText = "color:rgba(255,245,230,0.9);display:block;font-size:0.9rem;";
+        nameSpan.textContent = entry.name;
+
+        var dateSpan = document.createElement("span");
+        dateSpan.style.cssText = "color:rgba(255,245,230,0.42);font-size:0.78rem;";
+        dateSpan.textContent = entry.savedAt ? new Date(entry.savedAt).toLocaleString() : "";
+
+        info.appendChild(nameSpan);
+        info.appendChild(dateSpan);
+
+        var loadBtn = document.createElement("button");
+        loadBtn.className = "mini-btn";
+        loadBtn.type = "button";
+        loadBtn.textContent = "Load";
+        loadBtn.style.cssText = "flex-shrink:0;margin:0;";
+        loadBtn.onclick = function(e) {
+          e.stopPropagation();
+          loadPreset(entry.name);
+        };
+
+        row.appendChild(info);
+        row.appendChild(loadBtn);
+
+        row.addEventListener("click", function() {
+          document.querySelectorAll(".preset-row").forEach(function(r) {
+            r.style.borderLeftColor = "transparent";
+            r.style.background = "rgba(13,3,5,0.5)";
+            r.classList.remove("selected");
+          });
+          row.style.borderLeftColor = "var(--amber, #ffb800)";
+          row.style.background = "rgba(255,184,0,0.06)";
+          row.classList.add("selected");
+          if (deleteBtn) { deleteBtn.disabled = false; }
+        });
+
+        container.appendChild(row);
+      });
+    }
+
+    function readCustomizationForm() {
+      return sanitizeRaceSettings({
+        teamCount: settingValue("settingTeamCount", DEFAULT_RACE_SETTINGS.teamCount),
+        teamColors: readTeamColorEditor(),
+        startingMoney: settingValue("settingStartingMoney", DEFAULT_RACE_SETTINGS.startingMoney),
+        legStipend: settingValue("settingLegStipend", DEFAULT_RACE_SETTINGS.legStipend),
+        nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
+        minStopsPerLeg: settingValue("settingMinStops", DEFAULT_RACE_SETTINGS.minStopsPerLeg),
+        maxStopsPerLeg: settingValue("settingMaxStops", DEFAULT_RACE_SETTINGS.maxStopsPerLeg),
+        finalMinStopsPerLeg: settingValue("settingFinalMinStops", DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg),
+        finalMaxStopsPerLeg: settingValue("settingFinalMaxStops", DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg),
+        challengeMinTime: settingValue("settingChallengeMinTime", DEFAULT_RACE_SETTINGS.challengeMinTime),
+        challengeMaxTime: settingValue("settingChallengeMaxTime", DEFAULT_RACE_SETTINGS.challengeMaxTime),
+        minTransportOptions: settingValue("settingMinTransportOptions", DEFAULT_RACE_SETTINGS.minTransportOptions),
+        maxTransportOptions: settingValue("settingMaxTransportOptions", DEFAULT_RACE_SETTINGS.maxTransportOptions),
+        transportOptions: readTransportEditor(),
+        flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
+        gapScaling: settingValue("settingGapScaling", DEFAULT_RACE_SETTINGS.gapScaling),
+        gapScalingCustom: settingValue("settingGapScalingCustom", DEFAULT_RACE_SETTINGS.gapScalingCustom),
+        skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
+        playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
+        skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
+        skillTypes: readRawSkillNamesFromEditor(),
+        customTeamSkills: readCustomTeamSkillEditor(),
+        gapScaling: settingValue("settingGapScaling", DEFAULT_RACE_SETTINGS.gapScaling),
+        gapScalingCustom: settingValue("settingGapScalingCustom", DEFAULT_RACE_SETTINGS.gapScalingCustom)
+      });
     }
 
     raceSettings = cloneRaceSettings(DEFAULT_RACE_SETTINGS);
