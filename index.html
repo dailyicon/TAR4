@@ -8972,36 +8972,101 @@
         return '<div class="flight-route">No flight route found.</div>';
       }
 
+      var isDirectLabel = route.connections === 0 ? "Direct" : route.connections + " connection" + (route.connections > 1 ? "s" : "");
+      var missedAny = route.hops.some(function(h) { return h.missedConnection; });
+      var delayedAny = route.hops.some(function(h) { return h.delay > 0; });
+
       var html = '<div class="flight-route">';
-      html += '<div class="flight-route-title">Flight Route</div>';
-      html += '<strong>' + escapeHtml(flightRoutePathText(route)) + '</strong><br>';
-      html += 'Connections: <strong>' + route.connections + '</strong><br>';
-      html += 'Total routing time: <strong>' + formatDuration(route.totalFromAirportArrival) + '</strong>';
 
-      route.hops.forEach(function (hop) {
-        html += '<div class="flight-hop">';
-        html += escapeHtml(hop.from) + ' → ' + escapeHtml(hop.to) + '<br>';
-        html += 'Scheduled Depart: <strong>' + formatRaceDateTime(hop.scheduledDepartClock) + '</strong><br>';
+      // Header summary bar
+      html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:14px;">';
+      html += '<div>';
+      html += '<div class="flight-route-title">Your Itinerary</div>';
+      html += '<div style="font-size:1.05rem;font-weight:800;letter-spacing:0.02em;">' +
+        escapeHtml(route.hops[0].from) +
+        ' <span style="color:var(--red);">→</span> ' +
+        escapeHtml(route.hops[route.hops.length - 1].to) +
+        '</div>';
+      html += '</div>';
+      html += '<div style="text-align:right;">';
+      html += '<div style="color:var(--cyan);font-weight:800;font-size:0.95rem;">' + formatDuration(route.totalFromAirportArrival) + ' total</div>';
+      html += '<div style="color:var(--muted);font-size:0.82rem;margin-top:2px;">' + escapeHtml(isDirectLabel) + '</div>';
+      if (missedAny) {
+        html += '<div style="color:var(--red);font-size:0.82rem;font-weight:700;margin-top:4px;">❌ Missed connection</div>';
+      } else if (delayedAny) {
+        html += '<div style="color:var(--amber);font-size:0.82rem;font-weight:700;margin-top:4px;">⚠️ Delays encountered</div>';
+      } else {
+        html += '<div style="color:var(--green);font-size:0.82rem;font-weight:700;margin-top:4px;">✅ All on time</div>';
+      }
+      html += '</div>';
+      html += '</div>';
 
-        if (hop.delay > 0) {
-          html += 'Actual Depart: <strong>' + formatRaceDateTime(hop.departClock) + '</strong> · Delayed <strong>' + formatDuration(hop.delay) + '</strong><br>';
-        } else {
-          html += 'Actual Depart: <strong>' + formatRaceDateTime(hop.departClock) + '</strong> · On time<br>';
-        }
-
-        html += 'Arrive: <strong>' + formatRaceDateTime(hop.arriveClock) + '</strong><br>';
-        html += 'Flight time: <strong>' + formatDuration(hop.duration) + '</strong>';
-
+      // Hop cards
+      route.hops.forEach(function (hop, i) {
+        var statusBadge, statusColor;
         if (hop.missedConnection) {
-          html += '<br><strong>Missed connection. Rebooked onward.</strong>';
+          statusBadge = "❌ Missed connection — rebooked";
+          statusColor = "var(--red)";
         } else if (hop.rebooked) {
-          html += '<br><strong>Rebooked flight.</strong>';
+          statusBadge = "🔁 Rebooked flight";
+          statusColor = "var(--amber)";
+        } else if (hop.delay > 0) {
+          statusBadge = "⚠️ Delayed " + formatDuration(hop.delay);
+          statusColor = "var(--amber)";
+        } else {
+          statusBadge = "✅ On time";
+          statusColor = "var(--green)";
         }
 
+        html += '<div class="flight-hop">';
+
+        // Route line
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px;">';
+        html += '<div style="font-weight:800;font-size:0.97rem;">' +
+          escapeHtml(hop.from) + ' <span style="color:var(--red);">→</span> ' + escapeHtml(hop.to) +
+          '</div>';
+        html += '<div style="font-size:0.8rem;font-weight:700;color:' + statusColor + ';">' + statusBadge + '</div>';
         html += '</div>';
+
+        // Time grid
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">';
+
+        html += '<div>';
+        html += '<div style="color:var(--muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">Departs</div>';
+        if (hop.delay > 0) {
+          html += '<div style="font-weight:700;font-size:0.88rem;text-decoration:line-through;color:var(--muted);">' + formatRaceTimeOnly(hop.scheduledDepartClock) + '</div>';
+          html += '<div style="font-weight:800;font-size:0.95rem;color:var(--amber);">' + formatRaceTimeOnly(hop.departClock) + '</div>';
+        } else {
+          html += '<div style="font-weight:800;font-size:0.95rem;">' + formatRaceTimeOnly(hop.departClock) + '</div>';
+        }
+        html += '</div>';
+
+        html += '<div>';
+        html += '<div style="color:var(--muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">Arrives</div>';
+        html += '<div style="font-weight:800;font-size:0.95rem;color:var(--cyan);">' + formatRaceTimeOnly(hop.arriveClock) + '</div>';
+        html += '</div>';
+
+        html += '<div>';
+        html += '<div style="color:var(--muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;">Flight Time</div>';
+        html += '<div style="font-weight:800;font-size:0.95rem;">' + formatDuration(hop.duration) + '</div>';
+        html += '</div>';
+
+        html += '</div>'; // end time grid
+
+        // Layover indicator between hops
+        if (i < route.hops.length - 1) {
+          var nextHop = route.hops[i + 1];
+          var layoverMin = nextHop.departClock - hop.arriveClock;
+          html += '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.12);' +
+            'color:var(--muted);font-size:0.8rem;font-weight:600;">' +
+            '🕐 Layover in <strong style="color:var(--cream);">' + escapeHtml(hop.to) + '</strong> · ' + formatDuration(layoverMin) +
+            '</div>';
+        }
+
+        html += '</div>'; // end flight-hop
       });
 
-      html += '</div>';
+      html += '</div>'; // end flight-route
       return html;
     }
 
@@ -9144,8 +9209,27 @@
 
       activeResults.forEach(function (r, index) {
         positions[r.team] = [];
-        prevRank[r.team] = index + 1;
+        // On leg 2+, seed prevRank from last leg's actual placement so that
+        // same-departure-time ties at Pit Start sort by previous finish order.
+        var seedRank = index + 1;
+        if (legNum > 1 && placementHistory[r.team] && placementHistory[r.team].length > 0) {
+          var hist = placementHistory[r.team];
+          // Find the most recent non-null placement (could be from a prior leg)
+          for (var h = hist.length - 1; h >= 0; h--) {
+            if (hist[h] != null) { seedRank = hist[h]; break; }
+          }
+        }
+        prevRank[r.team] = seedRank;
       });
+
+      // Build a "true standings" map for Pit Stop/Finish Line so tied check-in
+      // clocks are ordered by total leg time (matching actual showLegResults sort).
+      var trueStandingsRank = {};
+      var standingsSorted = activeResults.slice().sort(function (a, b) {
+        if (a.checkInClock !== b.checkInClock) { return a.checkInClock - b.checkInClock; }
+        return (a.time || 0) - (b.time || 0);
+      });
+      standingsSorted.forEach(function (r, i) { trueStandingsRank[r.team] = i + 1; });
 
       labels.forEach(function (label, labelIndex) {
         var entries = activeResults.map(function (r, teamIndex) {
@@ -9156,9 +9240,19 @@
           return { team: r.team, clock: clock, originalIndex: teamIndex, record: r };
         });
 
+        var isPitStop = (label === "Pit Stop" || label === "Finish Line");
+
         entries.sort(function (a, b) {
           if (a.clock !== b.clock) {
             return a.clock - b.clock;
+          }
+          // Pit Stop/Finish Line: sort tied clocks by true standings rank
+          // so chart end-position matches actual leg result.
+          if (isPitStop) {
+            var ra = trueStandingsRank[a.team] != null ? trueStandingsRank[a.team] : 999;
+            var rb = trueStandingsRank[b.team] != null ? trueStandingsRank[b.team] : 999;
+            if (ra !== rb) { return ra - rb; }
+            return a.team.localeCompare(b.team);
           }
           if (label === "Destination Airport") {
             return a.team.localeCompare(b.team);
@@ -9179,7 +9273,7 @@
             j += 1;
           }
 
-          if (shouldAverageTieForLabel(label, entries, i, j)) {
+          if (!isPitStop && shouldAverageTieForLabel(label, entries, i, j)) {
             var avgRank = ((i + 1) + j) / 2;
             for (var k = i; k < j; k++) {
               rankMap[entries[k].team] = avgRank;
@@ -9609,19 +9703,41 @@
     }
 
     function renderFlightBody() {
+      var distKm = legDistanceKm || (legOrigin && legDest ? haversineKm(legOrigin, legDest) : 0);
+      var estFlightMin = distKm ? flightMinutes(distKm) : null;
+      var chaosLabel = currentFlightChaosProfile().label;
+
       document.getElementById("flightBody").innerHTML =
-        raceClockHeader() + "<br>" +
-        currentLegLabel() + "<br><br>" +
-        "Departing from <strong>" + escapeHtml(cityAirportName(legOrigin)) + "</strong><br>" +
-        "Flying to <strong>" + escapeHtml(cityAirportName(legDest)) + "</strong>.<br><br>" +
-        "Flight Routing: <strong>Real-coordinate, hub-weighted daily airport network</strong><br>" +
-        "Flights per day per airport: <strong>" + Math.ceil(MINUTES_PER_DAY / SCHEDULE_GRAN) + "</strong><br>" +
-        "Schedule granularity: <strong>" + SCHEDULE_GRAN + "m</strong><br>" +
-        "Outbound degree: <strong>" + Math.min(OUT_DEGREE, Math.max(0, cityNames().length - 1)) + "</strong><br>" +
-        "Connection minimum: <strong>" + CONN_MINUTES + "m</strong><br>" +
-        "Flight times are based on route distance and cruise speed.<br>" +
-        "Flight Chaos: <strong>" + escapeHtml(currentFlightChaosProfile().label) + "</strong><br><br>" +
-        "Your exact route will be calculated when you reach the airport.";
+        '<div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">' +
+          '<div style="font-size:2.2rem;line-height:1;">✈️</div>' +
+          '<div>' +
+            '<div style="color:var(--amber);font-size:0.72rem;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:3px;">' + escapeHtml(currentLegLabel()) + '</div>' +
+            '<div style="font-size:1.15rem;font-weight:800;letter-spacing:0.02em;">' +
+              escapeHtml(legOrigin ? legOrigin.name : "") + ' <span style="color:var(--red);">→</span> ' + escapeHtml(legDest ? legDest.name : "") +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">' +
+          '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:12px;">' +
+            '<div style="color:var(--muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Distance</div>' +
+            '<div style="font-size:1rem;font-weight:800;">' + (distKm ? distKm.toLocaleString() + " km" : "—") + '</div>' +
+          '</div>' +
+          '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:12px;">' +
+            '<div style="color:var(--muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Est. Flight Time</div>' +
+            '<div style="font-size:1rem;font-weight:800;">' + (estFlightMin ? formatDuration(estFlightMin) : "—") + '</div>' +
+          '</div>' +
+          '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:12px;">' +
+            '<div style="color:var(--muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Race Clock</div>' +
+            '<div style="font-size:1rem;font-weight:800;color:var(--cyan);">' + formatRaceDateTime(raceClock) + '</div>' +
+          '</div>' +
+          '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:12px;">' +
+            '<div style="color:var(--muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Flight Chaos</div>' +
+            '<div style="font-size:1rem;font-weight:800;">' + escapeHtml(chaosLabel) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="color:var(--muted);font-size:0.88rem;font-weight:500;line-height:1.5;padding:10px 14px;background:rgba(0,0,0,0.2);border-radius:8px;border-left:3px solid var(--red);">' +
+          'Your exact route and connections will be revealed when you arrive at the airport.' +
+        '</div>';
     }
 
     function renderSpecialTransportOptions(options) {
@@ -9713,16 +9829,22 @@
       var msg = "";
 
       msg += presenceReportHtml(originAirportLocationKey(), airportArrivalClock, route.firstDepartClock);
-      msg += "<br>Airport Arrival: <strong>" + formatRaceDateTime(airportArrivalClock) + "</strong>";
-      msg += "<br>First Flight Departure: <strong>" + formatRaceDateTime(route.firstDepartClock) + "</strong>";
-      msg += "<br>Final Flight Arrival: <strong>" + formatRaceDateTime(route.finalArrivalClock) + "</strong><br>";
+      msg += '<div style="margin-top:12px;padding:10px 14px;background:rgba(0,0,0,0.25);border-radius:8px;'
+        + 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">';
+      msg += '<div><div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;'
+        + 'letter-spacing:0.08em;margin-bottom:3px;">Airport Arrival</div>'
+        + '<div style="font-weight:800;font-size:0.88rem;">' + formatRaceTimeOnly(airportArrivalClock) + '</div></div>';
+      msg += '<div><div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;'
+        + 'letter-spacing:0.08em;margin-bottom:3px;">First Flight</div>'
+        + '<div style="font-weight:800;font-size:0.88rem;color:var(--amber);">' + formatRaceTimeOnly(route.firstDepartClock) + '</div></div>';
+      msg += '<div><div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;'
+        + 'letter-spacing:0.08em;margin-bottom:3px;">Lands</div>'
+        + '<div style="font-weight:800;font-size:0.88rem;color:var(--cyan);">' + formatRaceTimeOnly(route.finalArrivalClock) + '</div></div>';
+      msg += '</div>';
       msg += flightRouteHtml(route);
-      msg += "<br>Destination City: <strong>" + escapeHtml(legDest.name) + "</strong>.";
 
       var res = document.getElementById("flightResult");
-      res.innerHTML =
-        msg +
-        "<br><br>Race Clock: <strong>" + formatRaceDateTime(raceClock) + "</strong>";
+      res.innerHTML = msg;
 
       restoredFlightResultHtml = res.innerHTML;
       flightResolved = true;
