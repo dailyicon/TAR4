@@ -9703,8 +9703,8 @@
     }
 
     function renderFlightBody() {
-      var distKm = legDistanceKm || (legOrigin && legDest ? haversineKm(legOrigin, legDest) : 0);
-      var estFlightMin = distKm ? flightMinutes(distKm) : null;
+      var distKm = (legOrigin && legDest) ? distanceKmBetweenCities(legOrigin.name, legDest.name) : 0;
+      var estFlightMin = distKm ? flightTimeMinutesBetweenDistance(distKm) : null;
       var chaosLabel = currentFlightChaosProfile().label;
 
       document.getElementById("flightBody").innerHTML =
