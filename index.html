@@ -1495,6 +1495,29 @@
               <div class="setting-help">A number from 0 (everyone departs simultaneously) to 1 (no scaling at all). 0.5 halves every gap.</div>
             </div>
             <div class="setting-help">Controls how much finishing order affects your departure time on the next leg. Smaller values mean tighter racing.</div>
+          <div class="setting-card">
+            <label for="settingFinalTeamCount">Finale Trigger</label>
+            <select id="settingFinalTeamCount" onchange="renderCustomizationSummary();">
+              <option value="2">Final 2 — last two teams race to the finish</option>
+              <option value="3" selected>Final 3 — standard (top 3 teams)</option>
+              <option value="4">Final 4 — four teams in the finale</option>
+              <option value="5">Final 5 — five teams in the finale</option>
+              <option value="6">Final 6 — six teams in the finale</option>
+              <option value="7">Final 7 — seven teams in the finale</option>
+              <option value="8">Final 8 — eight teams in the finale</option>
+            </select>
+            <div class="setting-help">How many teams remain when the final leg begins.</div>
+          </div>
+
+          <div class="setting-card full">
+            <label for="settingLegGapHours">Gap Between Legs: <span id="legGapLabel">36h</span></label>
+            <input id="settingLegGapHours" type="range" min="12" max="240" step="12" value="36"
+              oninput="updateLegGapLabel();renderCustomizationSummary();"
+              style="width:100%;margin:8px 0 4px;accent-color:var(--red);">
+            <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:0.78rem;font-weight:600;">
+              <span>12h</span><span>3 days</span><span>7 days</span><span>10 days</span>
+            </div>
+            <div class="setting-help">Time between the winner checking in and the first team's next departure. Shorter gaps mean tighter, sprint-style racing.</div>
           </div>
         </div>
       </div>
@@ -6104,7 +6127,9 @@
       skillTypes: DEFAULT_SKILL_TYPES.slice(),
       customTeamSkills: {},
       gapScaling: "0.5",
-      gapScalingCustom: 0.5
+      gapScalingCustom: 0.5,
+      finalTeamCount: 3,
+      legGapHours: 36
     };
     var raceSettings = null;
     var FLIGHT_CHAOS_PROFILES = {
@@ -6119,7 +6144,21 @@
     var MINUTES_PER_DAY = 1440;
     var LEG_GAP_DAYS = 7;
     var LEG_GAP_MINUTES = LEG_GAP_DAYS * MINUTES_PER_DAY;
+    var FINAL_TEAM_COUNT = 3;
     var DEPARTURE_GAP_COMPRESSION = 0.5;
+    function updateLegGapLabel() {
+      var slider = document.getElementById("settingLegGapHours");
+      var label = document.getElementById("legGapLabel");
+      if (!slider || !label) { return; }
+      var h = parseInt(slider.value, 10) || 36;
+      var days = Math.floor(h / 24);
+      var hours = h % 24;
+      var parts = [];
+      if (days > 0) { parts.push(days + " day" + (days !== 1 ? "s" : "")); }
+      if (hours > 0) { parts.push(hours + "h"); }
+      label.textContent = parts.join(" ") || h + "h";
+    }
+
     function updateGapScalingCustomVisibility() {
       var sel = document.getElementById("settingGapScaling");
       var row = document.getElementById("gapScalingCustomRow");
@@ -7321,7 +7360,7 @@
     }
 
     function isFinalLeg() {
-      return remainingTeams.length <= 3;
+      return remainingTeams.length <= FINAL_TEAM_COUNT;
     }
 
     function currentLegLabel() {
@@ -7658,7 +7697,9 @@
         skillTypes: baseSkillTypes,
         customTeamSkills: cloneCustomTeamSkills(base.customTeamSkills || {}),
         gapScaling: base.gapScaling != null ? base.gapScaling : DEFAULT_RACE_SETTINGS.gapScaling,
-        gapScalingCustom: base.gapScalingCustom != null ? parseFloat(base.gapScalingCustom) : DEFAULT_RACE_SETTINGS.gapScalingCustom
+        gapScalingCustom: base.gapScalingCustom != null ? parseFloat(base.gapScalingCustom) : DEFAULT_RACE_SETTINGS.gapScalingCustom,
+        finalTeamCount: parseInt(base.finalTeamCount, 10) || DEFAULT_RACE_SETTINGS.finalTeamCount,
+        legGapHours: parseInt(base.legGapHours, 10) || DEFAULT_RACE_SETTINGS.legGapHours
       };
     }
 
@@ -7680,6 +7721,8 @@
       }
       var customScaling = parseFloat(settings.gapScalingCustom);
       settings.gapScalingCustom = isNaN(customScaling) ? 0.5 : Math.max(0, Math.min(1, customScaling));
+      settings.finalTeamCount = clampNumber(isNaN(settings.finalTeamCount) ? DEFAULT_RACE_SETTINGS.finalTeamCount : settings.finalTeamCount, 2, 10);
+      settings.legGapHours = Math.round(clampNumber(isNaN(settings.legGapHours) ? DEFAULT_RACE_SETTINGS.legGapHours : settings.legGapHours, 12, 240) / 12) * 12;
       settings.transportOptions = sanitizeTransportOptions(settings.transportOptions);
       settings.minTransportOptions = clampNumber(isNaN(settings.minTransportOptions) ? DEFAULT_RACE_SETTINGS.minTransportOptions : settings.minTransportOptions, 1, Math.max(1, settings.transportOptions.length));
       settings.maxTransportOptions = clampNumber(isNaN(settings.maxTransportOptions) ? DEFAULT_RACE_SETTINGS.maxTransportOptions : settings.maxTransportOptions, 1, Math.max(1, settings.transportOptions.length));
@@ -7736,6 +7779,8 @@
       raceSettings.teamColors = teamColors;
       NON_ELIM_CHANCE = raceSettings.nonElimChance;
       SKILL_TYPES = raceSettings.skillTypes.slice();
+      LEG_GAP_MINUTES = raceSettings.legGapHours * 60;
+      FINAL_TEAM_COUNT = raceSettings.finalTeamCount;
     }
 
     function currentFlightChaosProfile() {
@@ -7780,6 +7825,8 @@
         flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
         gapScaling: settingValue("settingGapScaling", DEFAULT_RACE_SETTINGS.gapScaling),
         gapScalingCustom: settingValue("settingGapScalingCustom", DEFAULT_RACE_SETTINGS.gapScalingCustom),
+        finalTeamCount: parseInt(settingValue("settingFinalTeamCount", DEFAULT_RACE_SETTINGS.finalTeamCount), 10),
+        legGapHours: parseInt(settingValue("settingLegGapHours", DEFAULT_RACE_SETTINGS.legGapHours), 10),
         skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
         playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
@@ -7833,6 +7880,9 @@
       setSettingValue("settingGapScaling", s.gapScaling != null ? String(s.gapScaling) : "0.5");
       setSettingValue("settingGapScalingCustom", s.gapScalingCustom != null ? String(s.gapScalingCustom) : "0.5");
       updateGapScalingCustomVisibility();
+      setSettingValue("settingFinalTeamCount", s.finalTeamCount != null ? s.finalTeamCount : DEFAULT_RACE_SETTINGS.finalTeamCount);
+      setSettingValue("settingLegGapHours", s.legGapHours != null ? s.legGapHours : DEFAULT_RACE_SETTINGS.legGapHours);
+      updateLegGapLabel();
       setSettingValue("settingSkillMode", s.skillMode);
       setSettingValue("settingPlayerAllSkillLevel", s.playerAllSkillLevel);
       setSettingValue("settingSkillCount", s.skillCount);
@@ -7847,7 +7897,7 @@
         "settingMinStops", "settingMaxStops", "settingFinalMinStops",
         "settingFinalMaxStops", "settingChallengeMinTime", "settingChallengeMaxTime",
         "settingMinTransportOptions", "settingMaxTransportOptions",
-        "settingFlightChaos", "settingSkillMode",
+        "settingFlightChaos", "settingFinalTeamCount", "settingLegGapHours", "settingSkillMode",
         "settingPlayerAllSkillLevel", "settingSkillCount"
       ].forEach(function (id) {
         var el = document.getElementById(id);
@@ -7920,6 +7970,8 @@
         flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
         gapScaling: settingValue("settingGapScaling", DEFAULT_RACE_SETTINGS.gapScaling),
         gapScalingCustom: settingValue("settingGapScalingCustom", DEFAULT_RACE_SETTINGS.gapScalingCustom),
+        finalTeamCount: parseInt(settingValue("settingFinalTeamCount", DEFAULT_RACE_SETTINGS.finalTeamCount), 10),
+        legGapHours: parseInt(settingValue("settingLegGapHours", DEFAULT_RACE_SETTINGS.legGapHours), 10),
         skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
         playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
@@ -7951,6 +8003,10 @@
       var gapCustomEl = document.getElementById("settingGapScalingCustom");
       if (gapEl) { raceSettings.gapScaling = gapEl.value; }
       if (gapCustomEl) { raceSettings.gapScalingCustom = parseFloat(gapCustomEl.value) || 0.5; }
+      var finalTeamEl = document.getElementById("settingFinalTeamCount");
+      var legGapEl = document.getElementById("settingLegGapHours");
+      if (finalTeamEl) { raceSettings.finalTeamCount = parseInt(finalTeamEl.value, 10) || DEFAULT_RACE_SETTINGS.finalTeamCount; }
+      if (legGapEl) { raceSettings.legGapHours = parseInt(legGapEl.value, 10) || DEFAULT_RACE_SETTINGS.legGapHours; }
       teams = sanitizeTeamNames(readRawTeamNamesFromEditor(), raceSettings.teamCount);
       raceSettings.teamCount = teams.length;
       raceSettings.teamColors = sanitizeTeamColors(raceSettings.teamColors, teams);
@@ -9511,11 +9567,25 @@
     }
 
     function routeHistoryHtml() {
-      if (routeHistory.length === 0) {
-        return "";
+      if (routeHistory.length === 0) { return ""; }
+
+      // Build leg-numbered entries: each pair of adjacent cities is one leg
+      var entries = [];
+      for (var i = 0; i + 1 < routeHistory.length; i++) {
+        entries.push("Leg " + (i + 1) + ": " + routeHistory[i] + " → " + routeHistory[i + 1]);
       }
 
-      return '<div class="route-history">' + routeHistory.join(" → ") + '</div>';
+      var inner = entries.map(function(e) {
+        return '<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.08);' +
+          'color:var(--cream);font-size:0.9rem;">' + escapeHtml(e) + '</div>';
+      }).join("");
+
+      return '<details style="margin-top:8px;">' +
+        '<summary style="cursor:pointer;color:var(--amber);font-weight:800;' +
+        'padding:8px 0;font-size:0.95rem;letter-spacing:0.04em;list-style:none;">' +
+        '&#9654; Race Route (' + entries.length + ' leg' + (entries.length !== 1 ? "s" : "") + ')</summary>' +
+        '<div class="route-history" style="margin-top:6px;">' + inner + '</div>' +
+        '</details>';
     }
 
     function legRouteTitle(prefix) {
@@ -10025,16 +10095,20 @@
       showLegResults();
     }
 
-    function standingsHtml(results) {
+    function standingsHtml(results, eliminatedTeam) {
       var rows = "";
 
       results.forEach(function (r, i) {
         var isYou = (r.team === playerTeam);
+        var isElim = (r.team === eliminatedTeam);
         var style = isYou ? " style=\"color:#ffd166;font-weight:bold;\"" : "";
 
         rows += "<div" + style + ">" +
           (i + 1) + ". " + escapeHtml(r.team) +
-          " - " + formatRaceDateTime(r.checkInClock) +
+          (isElim ? ' <span style="color:var(--red);font-size:0.8rem;font-weight:900;' +
+            'letter-spacing:0.06em;background:rgba(255,31,53,0.14);border:1px solid rgba(255,31,53,0.4);' +
+            'border-radius:4px;padding:1px 6px;vertical-align:middle;">ELIM</span>' : "") +
+          " · " + formatRaceTimeOnly(r.checkInClock) +
           "</div>";
       });
 
@@ -10176,7 +10250,7 @@
         placementHistory[name].push(placeOf[name] != null ? placeOf[name] : null);
       });
 
-      var routeTrail = "<br><strong>Route History</strong>" + routeHistoryHtml();
+      var routeTrail = routeHistoryHtml();
       lastCompletedLegClueData = results;
       var savedLabels = clueChartLabels();
       var savedTitle = (isFinalLeg() ? "Final Leg" : "Leg " + legNum) + ": " + route;
@@ -10186,7 +10260,7 @@
 
       if (isFinalLeg()) {
         var winner = results[0].team;
-        var finalBody = standingsHtml(results) +
+        var finalBody = standingsHtml(results, null) +
           routeTrail +
           "<br><br>🏆 <strong>" + escapeHtml(winner) + "</strong> has crossed the final mat and wins The Amazing Race!" +
           (winner === playerTeam ? "<br><strong>That is you. You won the whole race!</strong>" : "") +
@@ -10201,7 +10275,7 @@
       var lastPlaceTeam = results[results.length - 1].team;
 
       if (legIsNonElim) {
-        var nonElimBody = standingsHtml(results) +
+        var nonElimBody = standingsHtml(results, null) +
           routeTrail +
           "<br><strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last, but this is a NON-ELIMINATION leg!" +
           "<br>No team has been eliminated." +
@@ -10219,7 +10293,7 @@
       });
 
       if (lastPlaceTeam === playerTeam) {
-        var body2 = standingsHtml(results) +
+        var body2 = standingsHtml(results, lastPlaceTeam) +
           routeTrail +
           "<br>You finished last on Leg " + legNum + " and have been eliminated." +
           clueChart +
@@ -10244,7 +10318,7 @@
         return;
       }
 
-      var body3 = standingsHtml(results) +
+      var body3 = standingsHtml(results, lastPlaceTeam) +
         routeTrail +
         "<br><strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last and is eliminated." +
         "<br>Teams left: " + remainingTeams.length +
@@ -10428,7 +10502,7 @@
           (winner
             ? "🏆 <strong>" + escapeHtml(winner) + "</strong> crossed the final mat and won The Amazing Race!<br><br>"
             : "") +
-          "<strong>Route History</strong>" + routeHistoryHtml() +
+          routeHistoryHtml() +
           "<br><strong>Final Standings</strong>" +
           eliminationOrderHtml(winner) +
           "<br><strong>Clue-by-Clue Charts — All Legs</strong>" + allLegsChartHtml() +
@@ -11048,12 +11122,64 @@
     }
 
     function renderMenuScreen() {
-      document.getElementById("menuStatus").innerHTML =
-        "Current Race: <strong>" + escapeHtml(playerTeam || "None") + "</strong><br>" +
-        "Auto Save: <strong>" + formatSaveStamp(readSaveFromKey(AUTO_SAVE_KEY)) + "</strong><br>" +
-        '<div class="menu-note">Saves are stored in this browser on this device.</div>';
+      var inRace = raceIsInProgress();
+      var statusHtml = "";
 
+      if (inRace) {
+        // Average placement so far
+        var hist = placementHistory[playerTeam] || [];
+        var nums = hist.filter(function(x){ return x != null; });
+        var avg = nums.length
+          ? (nums.reduce(function(s,x){ return s+x; }, 0) / nums.length).toFixed(1)
+          : "—";
+
+        // Last placement
+        var lastPlace = nums.length ? nums[nums.length - 1] : null;
+        var lastPlaceStr = lastPlace != null ? ordinal(lastPlace) : "—";
+
+        statusHtml =
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">' +
+          '<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;">' +
+            '<div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Your Team</div>' +
+            '<div style="font-weight:800;font-size:1rem;">' + escapeHtml(playerTeam || "—") + '</div>' +
+          '</div>' +
+          '<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;">' +
+            '<div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Current Leg</div>' +
+            '<div style="font-weight:800;font-size:1rem;">' + (isFinalLeg() ? "Final" : "Leg " + legNum) + '</div>' +
+          '</div>' +
+          '<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;">' +
+            '<div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Cash</div>' +
+            '<div style="font-weight:800;font-size:1rem;color:var(--green);">$' + (money[playerTeam] || 0) + '</div>' +
+          '</div>' +
+          '<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;">' +
+            '<div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Avg Placement</div>' +
+            '<div style="font-weight:800;font-size:1rem;">' + avg + ' <span style="color:var(--muted);font-size:0.82rem;font-weight:600;">(last: ' + lastPlaceStr + ')</span></div>' +
+          '</div>' +
+          '<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;">' +
+            '<div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Teams Left</div>' +
+            '<div style="font-weight:800;font-size:1rem;">' + remainingTeams.length + '</div>' +
+          '</div>' +
+          '<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;">' +
+            '<div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Auto Save</div>' +
+            '<div style="font-weight:700;font-size:0.82rem;color:var(--muted);">' + formatSaveStamp(readSaveFromKey(AUTO_SAVE_KEY)) + '</div>' +
+          '</div>' +
+          '</div>' +
+          '<div class="menu-note">Saves are stored in this browser on this device.</div>';
+      } else {
+        statusHtml =
+          "No race in progress.<br>" +
+          "Auto Save: <strong>" + formatSaveStamp(readSaveFromKey(AUTO_SAVE_KEY)) + "</strong><br>" +
+          '<div class="menu-note">Saves are stored in this browser on this device.</div>';
+      }
+
+      document.getElementById("menuStatus").innerHTML = statusHtml;
       renderMenuButtons();
+    }
+
+    function ordinal(n) {
+      var s = ["th","st","nd","rd"];
+      var v = n % 100;
+      return n + (s[(v-20)%10] || s[v] || s[0]);
     }
 
     function openMenu() {
@@ -11361,6 +11487,8 @@
         flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
         gapScaling: settingValue("settingGapScaling", DEFAULT_RACE_SETTINGS.gapScaling),
         gapScalingCustom: settingValue("settingGapScalingCustom", DEFAULT_RACE_SETTINGS.gapScalingCustom),
+        finalTeamCount: parseInt(settingValue("settingFinalTeamCount", DEFAULT_RACE_SETTINGS.finalTeamCount), 10),
+        legGapHours: parseInt(settingValue("settingLegGapHours", DEFAULT_RACE_SETTINGS.legGapHours), 10),
         skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
         playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
