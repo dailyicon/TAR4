@@ -1190,24 +1190,6 @@
       font-weight: 900;
     }
 
-    .time-chart-section {
-      margin-top: 12px;
-    }
-
-    .time-chart-section:first-of-type {
-      margin-top: 0;
-    }
-
-    .time-chart-section-label {
-      color: var(--muted);
-      font-size: 0.72rem;
-      font-weight: 900;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin: 0 0 5px;
-      text-align: left;
-    }
-
     .time-chart-wrap {
       width: 100%;
       overflow: hidden;
@@ -1229,21 +1211,21 @@
       border: 1px solid rgba(0, 0, 0, 0.42);
       padding: var(--tc-pad-y, 7px) var(--tc-pad-x, 9px);
       text-align: center;
-      white-space: nowrap;
       min-width: 0;
-      line-height: 1.18;
+      line-height: 1.12;
     }
 
     .time-chart th {
       background: #111;
       color: var(--cream);
-      letter-spacing: 0.02em;
+      letter-spacing: 0.015em;
       text-transform: uppercase;
       font-size: var(--tc-head-font-size, 0.72rem);
       box-shadow: inset 0 -2px 0 rgba(255, 184, 0, 0.45);
-      line-height: 1.02;
-      white-space: nowrap;
-      overflow: hidden;
+      line-height: 0.98;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
       text-overflow: clip;
     }
 
@@ -1264,6 +1246,7 @@
       vertical-align: middle;
       padding-top: max(3px, calc(var(--tc-pad-y, 7px) + 1px));
       padding-bottom: max(3px, calc(var(--tc-pad-y, 7px) + 1px));
+      text-align: center;
     }
 
     .time-chart .sub-head {
@@ -1271,8 +1254,9 @@
       vertical-align: middle;
       padding-top: max(2px, calc(var(--tc-pad-y, 7px) - 1px));
       padding-bottom: max(2px, calc(var(--tc-pad-y, 7px) - 1px));
-      letter-spacing: 0.015em;
+      letter-spacing: 0.01em;
       background: #171717;
+      text-align: center;
     }
 
     .time-chart-cell {
@@ -1281,7 +1265,11 @@
       text-overflow: clip;
       max-width: none;
       vertical-align: middle;
-      line-height: 1;
+      line-height: 1.02;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      hyphens: auto;
     }
 
     /* ── CLUE CHART ─────────────────────────────────────────── */
@@ -9653,24 +9641,23 @@
         .replace("Pit Stop", "Pitstop")
         .replace("Departure", "Depart")
         .replace("Start Done", "Start")
+        .replace("Airport", "Airport")
         .replace("Flight #", "Flight")
+        .replace("Landed", "Landed")
         .replace("Finish Time", "Finish")
         .replace("Check-In", "Check-In");
     }
 
-    function shortClueChartLabel(label) {
-      var raw = String(label || "");
-      var match = raw.match(/^Challenge\s+([A-Z]+)\s+(Arrive|Complete)$/);
-      if (match) {
-        return match[1] + (match[2] === "Arrive" ? " Arr." : " Left");
-      }
-
-      return raw
-        .replace("Starting Line Complete", "Start Done")
-        .replace("Origin Airport", "Airport")
-        .replace("Destination Airport", "Landed")
-        .replace("Flight Departure", "Flight")
-        .replace("Pit Stop", "Pitstop");
+    function compactChartLabel(label) {
+      var txt = shortTimelineHeader(label);
+      return txt
+        .replace("Check-In", "Check")
+        .replace("Pitstop", "Pits")
+        .replace("Landed", "Land")
+        .replace("Airport", "Air")
+        .replace("Departure", "Depart")
+        .replace("Arrive", "Arrive")
+        .replace("Left", "Left");
     }
 
     function timelineColumnWeight(col) {
@@ -9682,134 +9669,47 @@
         return 0.98;
       }
       if (col.isTransport) {
-        return 1.22;
+        return 1.18;
       }
       return 0.92;
     }
 
-    function timelineCellFontSizeRem(value, baseSize, isTransport, sectionColumnCount) {
+    function timelineCellFontSizeRem(value, baseSize, isTransport, columnCount, teamCount) {
       var size = baseSize || 0.72;
       var text = String(value == null ? "" : value);
       var len = text.length;
+      var density = Math.max(1, (columnCount / 12)) * Math.max(1, (teamCount || 1) / 12);
 
       if (isTransport) {
-        if (len >= 7) { size *= 0.98; }
-        if (len >= 9) { size *= 0.94; }
-        if (len >= 11) { size *= 0.90; }
-        if (len >= 13) { size *= 0.86; }
-        if (len >= 15) { size *= 0.80; }
-        if (sectionColumnCount >= 10) { size *= 0.96; }
-        if (sectionColumnCount >= 13) { size *= 0.92; }
+        if (len >= 7) { size *= 0.97; }
+        if (len >= 9) { size *= 0.93; }
+        if (len >= 11) { size *= 0.89; }
+        if (len >= 13) { size *= 0.84; }
+        if (len >= 15) { size *= 0.78; }
+        if (len >= 18) { size *= 0.72; }
       } else {
-        if (len >= 9) { size *= 0.98; }
-        if (len >= 12) { size *= 0.94; }
+        if (len >= 9) { size *= 0.97; }
+        if (len >= 12) { size *= 0.93; }
       }
 
-      return Math.max(0.48, Math.min(size, baseSize || size));
+      if (density >= 2.0) { size *= 0.95; }
+      if (density >= 3.0) { size *= 0.90; }
+      if (density >= 4.0) { size *= 0.86; }
+
+      return Math.max(0.34, Math.min(size, baseSize || size));
     }
 
-    function timelineColumnGroups(columns) {
-      var groups = [];
-
-      for (var i = 0; i < columns.length;) {
-        var col = columns[i];
-        var groupCols = [col];
-
-        if (col.subLabel) {
-          var j = i + 1;
-          while (j < columns.length && columns[j].group === col.group && columns[j].subLabel) {
-            groupCols.push(columns[j]);
-            j += 1;
-          }
-          i = j;
-        } else {
-          i += 1;
-        }
-
-        var weight = groupCols.reduce(function (sum, c) {
-          return sum + timelineColumnWeight(c);
-        }, 0);
-
-        groups.push({
-          label: col.group || col.label,
-          columns: groupCols,
-          weight: weight
-        });
-      }
-
-      return groups;
-    }
-
-    function timelinePackedSections(columns, teamCount) {
-      var groups = timelineColumnGroups(columns);
-      var maxWeight = teamCount > 40 ? 8.6 : teamCount > 28 ? 9.4 : 10.6;
-      var sections = [];
-      var current = [];
-      var currentWeight = 0;
-
-      groups.forEach(function (group) {
-        if (current.length > 0 && currentWeight + group.weight > maxWeight) {
-          sections.push(current);
-          current = [];
-          currentWeight = 0;
-        }
-
-        current.push(group);
-        currentWeight += group.weight;
-      });
-
-      if (current.length > 0) {
-        sections.push(current);
-      }
-
-      return sections.map(function (sectionGroups) {
-        var sectionColumns = [];
-        sectionGroups.forEach(function (g) {
-          sectionColumns = sectionColumns.concat(g.columns);
-        });
-        return {
-          groups: sectionGroups,
-          columns: sectionColumns
-        };
-      });
-    }
-
-    function timelineSectionSizing(sectionColumnCount) {
-      var fontSize = 0.82;
-      var headFontSize = 0.72;
-      var padX = 7;
-      var padY = 7;
-      var rankWidth = 42;
-
-      if (sectionColumnCount >= 9) {
-        fontSize = 0.76;
-        headFontSize = 0.66;
-        padX = 6;
-        padY = 6;
-        rankWidth = 38;
-      }
-      if (sectionColumnCount >= 12) {
-        fontSize = 0.70;
-        headFontSize = 0.60;
-        padX = 5;
-        padY = 5;
-        rankWidth = 35;
-      }
-      if (sectionColumnCount >= 15) {
-        fontSize = 0.64;
-        headFontSize = 0.55;
-        padX = 4;
-        padY = 4;
-        rankWidth = 32;
-      }
-
-      return {
-        fontSize: fontSize,
-        headFontSize: headFontSize,
-        padX: padX,
-        padY: padY,
-        rankWidth: rankWidth
-      };
+    function timelineHeaderFontSizeRem(label, baseSize, columnCount, teamCount) {
+      var size = baseSize || 0.62;
+      var len = String(label == null ? "" : label).length;
+      var density = Math.max(1, (columnCount / 12)) * Math.max(1, (teamCount || 1) / 12);
+      if (len >= 6) { size *= 0.96; }
+      if (len >= 8) { size *= 0.92; }
+      if (len >= 10) { size *= 0.88; }
+      if (density >= 2.0) { size *= 0.92; }
+      if (density >= 3.0) { size *= 0.87; }
+      if (density >= 4.0) { size *= 0.82; }
+      return Math.max(0.30, size);
     }
 
     function legTimelineChartHtml(results, labelsOverride, titleOverride, isFinalOverride) {
@@ -9925,78 +9825,128 @@
         return { column: col, entries: entries };
       });
 
-      var columnRowByKey = {};
-      columnRows.forEach(function (colData) {
-        columnRowByKey[colData.column.key] = colData;
-      });
+      var teamCountForChart = activeResults.length;
+      var columnCount = columns.length + 1;
+      var densityScore = columnCount + Math.max(0, teamCountForChart - 12) * 0.45;
+      var fontSize = 0.76;
+      var headFontSize = 0.68;
+      var padX = 8;
+      var padY = 7;
+      var rankWidth = 42;
 
-      var sections = timelinePackedSections(columns, activeResults.length);
-      var html = '<div class="time-chart-card">';
+      if (densityScore >= 14) {
+        fontSize = 0.70;
+        headFontSize = 0.62;
+        padX = 6;
+        padY = 5;
+        rankWidth = 38;
+      }
+      if (densityScore >= 18) {
+        fontSize = 0.63;
+        headFontSize = 0.56;
+        padX = 5;
+        padY = 4;
+        rankWidth = 35;
+      }
+      if (densityScore >= 24) {
+        fontSize = 0.57;
+        headFontSize = 0.50;
+        padX = 4;
+        padY = 4;
+        rankWidth = 32;
+      }
+      if (densityScore >= 32) {
+        fontSize = 0.50;
+        headFontSize = 0.45;
+        padX = 3;
+        padY = 3;
+        rankWidth = 28;
+      }
+      if (densityScore >= 42) {
+        fontSize = 0.45;
+        headFontSize = 0.40;
+        padX = 2;
+        padY = 2;
+        rankWidth = 24;
+      }
+
+      var timeChartStyle = '--tc-font-size:' + fontSize + 'rem;--tc-head-font-size:' + headFontSize + 'rem;--tc-pad-x:' + padX + 'px;--tc-pad-y:' + padY + 'px;--tc-rank-w:' + rankWidth + 'px;';
+
+      var html = '<div class="time-chart-card" style="' + timeChartStyle + '">';
       html += '<div class="time-chart-title">Detailed Time Chart</div>';
+      html += '<div class="time-chart-wrap"><table class="time-chart" role="table" aria-label="Detailed leg time chart">';
 
-      sections.forEach(function (section, sectionIndex) {
-        var sectionColumnCount = section.columns.length + 1;
-        var sizing = timelineSectionSizing(sectionColumnCount);
-        var timeChartStyle = '--tc-font-size:' + sizing.fontSize + 'rem;--tc-head-font-size:' + sizing.headFontSize + 'rem;--tc-pad-x:' + sizing.padX + 'px;--tc-pad-y:' + sizing.padY + 'px;--tc-rank-w:' + sizing.rankWidth + 'px;';
-        var sectionRows = section.columns.map(function (col) { return columnRowByKey[col.key]; });
-        var totalWeight = 0.62;
-        section.columns.forEach(function (col) { totalWeight += timelineColumnWeight(col); });
-
-        html += '<div class="time-chart-section" style="' + timeChartStyle + '">';
-        if (sections.length > 1) {
-          html += '<div class="time-chart-section-label">Timeline ' + (sectionIndex + 1) + ' / ' + sections.length + '</div>';
-        }
-
-        html += '<div class="time-chart-wrap"><table class="time-chart" role="table" aria-label="Detailed leg time chart section ' + (sectionIndex + 1) + '">';
-        html += '<colgroup><col style="width:' + ((0.62 / totalWeight) * 100).toFixed(3) + '%">';
-        section.columns.forEach(function (col) {
-          html += '<col style="width:' + ((timelineColumnWeight(col) / totalWeight) * 100).toFixed(3) + '%">';
-        });
-        html += '</colgroup>';
-
-        var topHeader = '<tr><th class="rank-head group-head" rowspan="2">#</th>';
-        var bottomHeader = '<tr>';
-
-        section.groups.forEach(function (group) {
-          var hasSubHeaders = group.columns.some(function (col) { return !!col.subLabel; });
-          if (group.columns.length > 1 || hasSubHeaders) {
-            topHeader += '<th class="group-head" colspan="' + group.columns.length + '">' + escapeHtml(shortTimelineHeader(group.label)) + '</th>';
-            group.columns.forEach(function (col) {
-              bottomHeader += '<th class="sub-head">' + escapeHtml(col.subLabel || shortTimelineHeader(col.label)) + '</th>';
-            });
-          } else {
-            topHeader += '<th class="group-head" rowspan="2">' + escapeHtml(shortTimelineHeader(group.label || group.columns[0].label)) + '</th>';
-          }
-        });
-
-        topHeader += '</tr>';
-        bottomHeader += '</tr>';
-        html += '<thead>' + topHeader + bottomHeader + '</thead><tbody>';
-
-        for (var rowIndex = 0; rowIndex < activeResults.length; rowIndex++) {
-          html += '<tr><td class="rank-cell">' + (rowIndex + 1) + '</td>';
-          sectionRows.forEach(function (colData) {
-            var entry = colData.entries[rowIndex];
-            var color = teamColor(entry.team);
-            var textColor = contrastTextColor(color);
-            var value = entry.value == null || entry.value === "" ? "—" : String(entry.value);
-            var cellFontSize = timelineCellFontSizeRem(value, sizing.fontSize, !!colData.column.isTransport, sectionColumnCount);
-            var extraStyle = 'font-size:' + cellFontSize.toFixed(3) + 'rem;';
-            if (colData.column.isTransport) {
-              extraStyle += 'letter-spacing:-0.025em;';
-            } else {
-              extraStyle += 'letter-spacing:-0.01em;';
-            }
-            html += '<td class="time-chart-cell" title="' + escapeHtml(entry.team + ' · ' + colData.column.label) + '" style="background:' + color + ';color:' + textColor + ';' + extraStyle + '">' + escapeHtml(value) + '</td>';
-          });
-          html += '</tr>';
-        }
-
-        html += '</tbody></table></div></div>';
+      var totalWeight = 0.62;
+      columns.forEach(function (col) { totalWeight += timelineColumnWeight(col); });
+      html += '<colgroup><col style="width:' + ((0.62 / totalWeight) * 100).toFixed(3) + '%">';
+      columns.forEach(function (col) {
+        html += '<col style="width:' + ((timelineColumnWeight(col) / totalWeight) * 100).toFixed(3) + '%">';
       });
+      html += '</colgroup>';
 
+      var topHeader = '<tr><th class="rank-head group-head" rowspan="2">#</th>';
+      var bottomHeader = '<tr>';
+      for (var headerIndex = 0; headerIndex < columns.length;) {
+        var headerCol = columns[headerIndex];
+        if (headerCol.subLabel) {
+          var span = 1;
+          while (headerIndex + span < columns.length && columns[headerIndex + span].group === headerCol.group && columns[headerIndex + span].subLabel) {
+            span += 1;
+          }
+          var groupLabel = compactChartLabel(headerCol.group);
+          var groupStyle = 'font-size:' + timelineHeaderFontSizeRem(groupLabel, headFontSize, columnCount, teamCountForChart).toFixed(3) + 'rem;';
+          topHeader += '<th class="group-head" colspan="' + span + '" style="' + groupStyle + '">' + escapeHtml(groupLabel) + '</th>';
+          for (var sh = 0; sh < span; sh++) {
+            var subLabel = compactChartLabel(columns[headerIndex + sh].subLabel);
+            var subStyle = 'font-size:' + timelineHeaderFontSizeRem(subLabel, Math.max(0.3, headFontSize - 0.07), columnCount, teamCountForChart).toFixed(3) + 'rem;';
+            bottomHeader += '<th class="sub-head" style="' + subStyle + '">' + escapeHtml(subLabel) + '</th>';
+          }
+          headerIndex += span;
+        } else {
+          var soloLabel = compactChartLabel(headerCol.group || headerCol.label);
+          var soloStyle = 'font-size:' + timelineHeaderFontSizeRem(soloLabel, headFontSize, columnCount, teamCountForChart).toFixed(3) + 'rem;';
+          topHeader += '<th class="group-head" rowspan="2" style="' + soloStyle + '">' + escapeHtml(soloLabel) + '</th>';
+          headerIndex += 1;
+        }
+      }
+      topHeader += '</tr>';
+      bottomHeader += '</tr>';
+      html += '<thead>' + topHeader + bottomHeader + '</thead><tbody>';
+
+      for (var rowIndex = 0; rowIndex < activeResults.length; rowIndex++) {
+        html += '<tr><td class="rank-cell">' + (rowIndex + 1) + '</td>';
+        columnRows.forEach(function (colData) {
+          var entry = colData.entries[rowIndex];
+          var color = teamColor(entry.team);
+          var textColor = contrastTextColor(color);
+          var value = entry.value == null || entry.value === "" ? "—" : String(entry.value);
+          var cellFontSize = timelineCellFontSizeRem(value, fontSize, !!colData.column.isTransport, columnCount, teamCountForChart);
+          var extraStyle = 'font-size:' + cellFontSize.toFixed(3) + 'rem;';
+          if (colData.column.isTransport) {
+            extraStyle += 'letter-spacing:-0.03em;';
+          } else {
+            extraStyle += 'letter-spacing:-0.01em;white-space:nowrap;';
+          }
+          html += '<td class="time-chart-cell" title="' + escapeHtml(entry.team + ' · ' + colData.column.label) + '" style="background:' + color + ';color:' + textColor + ';' + extraStyle + '">' + escapeHtml(value) + '</td>';
+        });
+        html += '</tr>';
+      }
+
+      html += '</tbody></table></div>';
       html += '</div>';
       return html;
+    }
+
+    function shortClueChartLabel(label) {
+      var txt = String(label || "");
+      txt = txt.replace("Origin Airport", "Origin Air")
+        .replace("Destination Airport", "Dest Air")
+        .replace("Starting Line Complete", "Start Done")
+        .replace("Pit Stop", "Pitstop")
+        .replace("Finish Line", "Finish")
+        .replace(/Challenge ([A-Z]) Arrive/g, "$1 Arrive")
+        .replace(/Challenge ([A-Z]) Complete/g, "$1 Left");
+      return txt;
     }
 
     function clueByClueChartHtml(results, labelsOverride, titleOverride) {
@@ -10008,16 +9958,21 @@
       var activeResults = results.slice();
       var teamCount = activeResults.length;
       var labelCount = labels.length;
+      var maxLabelLen = 0;
+      labels.forEach(function (lb) { maxLabelLen = Math.max(maxLabelLen, String(lb || '').length); });
       var chartLeft = 48;
-      var chartTop = 134;
+      var chartTop = labelCount >= 28 ? 150 : labelCount >= 18 ? 142 : 134;
       var legendWidth = teamCount > 24 ? 220 : 260;
       var width = 1040;
       var chartWidth = width - chartLeft - legendWidth - 48;
-      var labelFontSize = labelCount <= 12 ? 11 : labelCount <= 18 ? 9.5 : labelCount <= 26 ? 8 : labelCount <= 38 ? 6.8 : 5.8;
-      var labelAngle = labelCount <= 14 ? -35 : labelCount <= 24 ? -44 : -52;
+      var labelFontSize = labelCount <= 12 ? 10 : labelCount <= 18 ? 8.8 : labelCount <= 26 ? 7.4 : labelCount <= 38 ? 6.2 : 5.2;
+      if (maxLabelLen >= 18) { labelFontSize -= 0.6; }
+      if (maxLabelLen >= 24) { labelFontSize -= 0.6; }
+      labelFontSize = Math.max(4.2, labelFontSize);
+      var labelAngle = labelCount <= 14 ? -36 : labelCount <= 24 ? -44 : labelCount <= 34 ? -50 : -56;
       var pointSize = labelCount > 24 || teamCount > 24 ? 7 : labelCount > 18 || teamCount > 16 ? 8 : 10;
       var lineWidth = labelCount > 24 || teamCount > 24 ? 2.6 : labelCount > 18 || teamCount > 16 ? 3.2 : 4;
-      var rowGap = teamCount <= 8 ? 50 : teamCount <= 12 ? 42 : teamCount <= 25 ? 30 : teamCount <= 38 ? 22 : 17;
+      var rowGap = teamCount <= 8 ? 50 : teamCount <= 12 ? 42 : teamCount <= 25 ? 30 : teamCount <= 38 ? 22 : teamCount <= 50 ? 16 : 12;
       var height = Math.max(360, chartTop + Math.max(1, teamCount - 1) * rowGap + 64);
       var chartBottom = height - 58;
       var yScale = function (rank) {
@@ -10140,10 +10095,10 @@
 
       labels.forEach(function (label, index) {
         var x = xScale(index);
-        var labelY = chartTop - 9;
-        var displayLabel = shortClueChartLabel(label);
+        var labelY = chartTop - 10;
+        var shortLabel = shortClueChartLabel(label);
         svg += '<circle cx="' + x + '" cy="' + chartTop + '" r="1.7" fill="#bdbdbd"/>';
-        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="middle" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(displayLabel) + '</text>';
+        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="middle" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(shortLabel) + '</text>';
       });
 
       activeResults.forEach(function (r) {
