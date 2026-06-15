@@ -1005,7 +1005,37 @@
       cursor: pointer;
       list-style: none;
       margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
+
+    .broadcast-details-title {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .broadcast-details-toggle {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 62px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid currentColor;
+      background: rgba(255,255,255,0.055);
+      color: var(--panel-color, var(--amber));
+      font-size: 0.68rem;
+      font-weight: 900;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .broadcast-details-toggle::before { content: "Open"; }
+    .broadcast-details[open] .broadcast-details-toggle::before { content: "Close"; }
 
     .broadcast-details[open] > summary { margin-bottom: 12px; }
 
@@ -2539,7 +2569,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 16;
+    var SAVE_VERSION = 17;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -7599,6 +7629,7 @@
     var currentCity = null;
     var legOrigin = null;
     var legDest = null;
+    var seasonCityOrder = [];
     var legStartLocation = null;
     var legPitStopLocation = null;
     var currentCityStartLocation = null;
@@ -8765,12 +8796,48 @@
       return null;
     }
 
+    function allDesignedCityKeys() {
+      return (DESIGNED_LEG_CITIES || []).map(function (city) { return city.key; }).filter(Boolean);
+    }
+
+    function sanitizeSeasonCityOrder(order) {
+      var available = allDesignedCityKeys();
+      var availableSet = {};
+      var seen = {};
+      var cleaned = [];
+      available.forEach(function (key) { availableSet[key] = true; });
+
+      if (Array.isArray(order)) {
+        order.forEach(function (key) {
+          key = String(key || "").toUpperCase();
+          if (availableSet[key] && !seen[key]) {
+            cleaned.push(key);
+            seen[key] = true;
+          }
+        });
+      }
+
+      available.forEach(function (key) {
+        if (!seen[key]) {
+          cleaned.push(key);
+          seen[key] = true;
+        }
+      });
+
+      return cleaned;
+    }
+
+    function buildRandomSeasonCityOrder() {
+      return shuffledCopy(allDesignedCityKeys());
+    }
+
     function designedCityKeyForLegIndex(index) {
-      if (!DESIGNED_LEG_CITIES || DESIGNED_LEG_CITIES.length === 0) {
+      var order = sanitizeSeasonCityOrder(seasonCityOrder);
+      if (!order || order.length === 0) {
         return null;
       }
-      var safeIndex = ((index % DESIGNED_LEG_CITIES.length) + DESIGNED_LEG_CITIES.length) % DESIGNED_LEG_CITIES.length;
-      return DESIGNED_LEG_CITIES[safeIndex].key;
+      var safeIndex = ((index % order.length) + order.length) % order.length;
+      return order[safeIndex];
     }
 
     function designedCityObject(key) {
@@ -11011,47 +11078,41 @@
     }
 
     function timelineCellFontSizeRem(value, baseSize, isTransport, columnCount, teamCount) {
-      var size = baseSize || 0.72;
+      var originalSize = baseSize || 0.72;
+      var size = originalSize;
       var text = String(value == null ? "" : value);
       var len = text.length;
-      var density = Math.max(1, (columnCount / 12)) * Math.max(1, (teamCount || 1) / 12);
 
+      // Keep normal cells at the normal size. Only squeeze labels that would otherwise crowd the cell.
       if (isTransport) {
-        if (len >= 7) { size *= 0.95; }
-        if (len >= 9) { size *= 0.90; }
-        if (len >= 11) { size *= 0.84; }
-        if (len >= 13) { size *= 0.78; }
-        if (len >= 15) { size *= 0.72; }
-        if (len >= 18) { size *= 0.66; }
-        if (/\s/.test(text)) { size *= 0.93; }
+        if (len > 10) { size *= 0.95; }
+        if (len > 12) { size *= 0.90; }
+        if (len > 14) { size *= 0.84; }
+        if (len > 16) { size *= 0.78; }
+        if (len > 18) { size *= 0.70; }
+        if (len > 22) { size *= 0.62; }
       } else {
-        if (len >= 9) { size *= 0.97; }
-        if (len >= 12) { size *= 0.93; }
+        if (len > 12) { size *= 0.94; }
+        if (len > 16) { size *= 0.86; }
+        if (len > 22) { size *= 0.76; }
       }
 
-      if (density >= 2.0) { size *= 0.95; }
-      if (density >= 3.0) { size *= 0.90; }
-      if (density >= 4.0) { size *= 0.86; }
-
-      return Math.max(0.30, Math.min(size, baseSize || size));
+      return Math.max(0.30, Math.min(size, originalSize));
     }
 
     function timelineHeaderFontSizeRem(label, baseSize, columnCount, teamCount) {
-      var size = baseSize || 0.62;
+      var originalSize = baseSize || 0.62;
+      var size = originalSize;
       var len = String(label == null ? "" : label).length;
-      var density = Math.max(1, (columnCount / 12)) * Math.max(1, (teamCount || 1) / 12);
-      if (len >= 4) { size *= 0.98; }
-      if (len >= 6) { size *= 0.94; }
-      if (len >= 8) { size *= 0.90; }
-      if (len >= 10) { size *= 0.86; }
-      if (len >= 14) { size *= 0.80; }
-      if (len >= 18) { size *= 0.72; }
-      if (len >= 24) { size *= 0.64; }
-      if (len >= 30) { size *= 0.56; }
-      if (density >= 2.0) { size *= 0.90; }
-      if (density >= 3.0) { size *= 0.85; }
-      if (density >= 4.0) { size *= 0.80; }
-      return Math.max(0.20, size);
+
+      // Short headers should stay visually consistent; only long location names shrink.
+      if (len > 10) { size *= 0.94; }
+      if (len > 14) { size *= 0.86; }
+      if (len > 18) { size *= 0.76; }
+      if (len > 24) { size *= 0.66; }
+      if (len > 30) { size *= 0.56; }
+      if (len > 38) { size *= 0.48; }
+      return Math.max(0.20, Math.min(size, originalSize));
     }
 
     function legTimelineChartHtml(results, labelsOverride, titleOverride, isFinalOverride, locationData) {
@@ -11303,11 +11364,18 @@
       var width = 1040;
       var chartWidth = width - chartLeft - legendWidth - 48;
       var labelFontSize = labelCount <= 12 ? 9 : labelCount <= 18 ? 8 : labelCount <= 26 ? 7 : 6;
-      if (maxDisplayLabelLength >= 18) { labelFontSize *= 0.88; }
-      if (maxDisplayLabelLength >= 24) { labelFontSize *= 0.78; }
-      if (maxDisplayLabelLength >= 30) { labelFontSize *= 0.70; }
-      if (maxDisplayLabelLength >= 36) { labelFontSize *= 0.62; }
       labelFontSize = Math.max(3.4, labelFontSize);
+      function clueAxisLabelFontSize(label) {
+        var originalSize = labelFontSize;
+        var size = originalSize;
+        var len = String(label == null ? "" : label).length;
+        if (len > 16) { size *= 0.92; }
+        if (len > 22) { size *= 0.82; }
+        if (len > 28) { size *= 0.72; }
+        if (len > 34) { size *= 0.62; }
+        if (len > 42) { size *= 0.52; }
+        return Math.max(3.0, Math.min(size, originalSize));
+      }
       var labelAngle = labelCount <= 14 ? -40 : labelCount <= 24 ? -48 : -55;
       var pointSize = labelCount > 24 || teamCount > 24 ? 7 : labelCount > 18 || teamCount > 16 ? 8 : 10;
       var lineWidth = labelCount > 24 || teamCount > 24 ? 2.6 : labelCount > 18 || teamCount > 16 ? 3.2 : 4;
@@ -11436,7 +11504,8 @@
         var x = xScale(index);
         var labelY = chartTop - 9;
         svg += '<circle cx="' + x + '" cy="' + chartTop + '" r="1.7" fill="#bdbdbd"/>';
-        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="start" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize.toFixed(2) + '">' + safeSvgText(displayLabels[index]) + '</text>';
+        var thisLabelFontSize = clueAxisLabelFontSize(displayLabels[index]);
+        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="start" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + thisLabelFontSize.toFixed(2) + '">' + safeSvgText(displayLabels[index]) + '</text>';
       });
 
       activeResults.forEach(function (r) {
@@ -11736,6 +11805,7 @@
       legPitStopLocation = null;
       currentCityStartLocation = null;
       currentCityStartCityKey = null;
+      seasonCityOrder = buildRandomSeasonCityOrder();
       FLIGHT_DELAY_MAP = {};
       skills = {};
 
@@ -12349,6 +12419,13 @@
       return summary;
     }
 
+    function broadcastDetailsHtml(title, bodyHtml, panelColor, openByDefault) {
+      return '<details class="broadcast-details" ' + (openByDefault ? 'open ' : '') + 'style="--panel-color:' + panelColor + ';">' +
+        '<summary><span class="broadcast-details-title">' + escapeHtml(title) + '</span><span class="broadcast-details-toggle" aria-hidden="true"></span></summary>' +
+        bodyHtml +
+        '</details>';
+    }
+
     function resultsBroadcastHtml(opts) {
       opts = opts || {};
       var results = opts.results || [];
@@ -12382,23 +12459,23 @@
 
       html += '<div class="broadcast-grid">';
       html += '<section class="broadcast-panel" style="--panel-color:var(--amber);"><div class="broadcast-panel-title">Mat Standings</div>' + standingsHtml(results, opts.eliminatedTeam || null) + '</section>';
-      html += '<section class="broadcast-panel" style="--panel-color:var(--cyan);"><div class="broadcast-panel-title">Your Leg Recap</div>' + legRecapHtml() + '</section>';
+      html += broadcastDetailsHtml('Your Leg Recap', legRecapHtml(), 'var(--cyan)', false);
       html += '</div>';
 
       if (opts.routeTrail) {
-        html += '<details class="broadcast-details" style="--panel-color:var(--green);"><summary>Route Trail</summary>' + opts.routeTrail + '</details>';
+        html += broadcastDetailsHtml('Route Trail', opts.routeTrail, 'var(--green)', false);
       }
       if (opts.placementChart) {
-        html += '<details class="broadcast-details" open style="--panel-color:var(--amber);"><summary>Placement Chart</summary>' + opts.placementChart + '</details>';
+        html += broadcastDetailsHtml('Placement Chart', opts.placementChart, 'var(--amber)', true);
       }
       if (opts.timeChart) {
-        html += '<details class="broadcast-details" style="--panel-color:var(--red);"><summary>Detailed Time Chart</summary>' + opts.timeChart + '</details>';
+        html += broadcastDetailsHtml('Detailed Time Chart', opts.timeChart, 'var(--red)', true);
       }
       if (opts.clueChart) {
-        html += '<details class="broadcast-details" style="--panel-color:var(--cyan);"><summary>Clue-by-Clue Chart</summary>' + opts.clueChart + '</details>';
+        html += broadcastDetailsHtml('Clue-by-Clue Chart', opts.clueChart, 'var(--cyan)', true);
       }
       if (opts.allLegsCharts) {
-        html += '<details class="broadcast-details" style="--panel-color:var(--green);"><summary>Leg Charts — All Legs</summary>' + opts.allLegsCharts + '</details>';
+        html += broadcastDetailsHtml('Leg Charts — All Legs', opts.allLegsCharts, 'var(--green)', false);
       }
       html += '</div>';
       return html;
@@ -12409,8 +12486,8 @@
       html += '<div class="broadcast-hero"><div class="broadcast-kicker">Race Complete</div><h2 class="broadcast-route-title">' + escapeHtml(title) + '</h2>';
       html += '<div class="broadcast-subline">The whole season has reached the final mat.</div></div>';
       html += '<div class="broadcast-panel" style="--panel-color:var(--amber);">' + bodyHtml + '</div>';
-      if (placementHtml) { html += '<details class="broadcast-details" open style="--panel-color:var(--amber);"><summary>Final Placement Chart</summary>' + placementHtml + '</details>'; }
-      if (allLegsHtml) { html += '<details class="broadcast-details" style="--panel-color:var(--green);"><summary>Leg Charts — All Legs</summary>' + allLegsHtml + '</details>'; }
+      if (placementHtml) { html += broadcastDetailsHtml('Final Placement Chart', placementHtml, 'var(--amber)', true); }
+      if (allLegsHtml) { html += broadcastDetailsHtml('Leg Charts — All Legs', allLegsHtml, 'var(--green)', false); }
       html += '</div>';
       return html;
     }
@@ -12891,6 +12968,7 @@
       legHistory = [];
       activeRaceSeed = "";
       raceRngState = null;
+      seasonCityOrder = [];
       showScreen("start");
     }
 
@@ -12960,6 +13038,11 @@
         currentCity: currentCity,
         legOrigin: legOrigin,
         legDest: legDest,
+        seasonCityOrder: sanitizeSeasonCityOrder(seasonCityOrder),
+        legStartLocation: legStartLocation,
+        legPitStopLocation: legPitStopLocation,
+        currentCityStartLocation: currentCityStartLocation,
+        currentCityStartCityKey: currentCityStartCityKey,
         activeFlightRoute: activeFlightRoute,
         flightResolved: flightResolved,
         legIsNonElim: legIsNonElim,
@@ -13022,6 +13105,11 @@
       state.playerLegLog = Array.isArray(state.playerLegLog) ? state.playerLegLog : [];
       state.playerLegTimelineDetails = state.playerLegTimelineDetails && typeof state.playerLegTimelineDetails === "object" ? state.playerLegTimelineDetails : {};
       state.legHistory = Array.isArray(state.legHistory) ? state.legHistory : [];
+      state.seasonCityOrder = sanitizeSeasonCityOrder(state.seasonCityOrder);
+      state.legStartLocation = state.legStartLocation || "";
+      state.legPitStopLocation = state.legPitStopLocation || "";
+      state.currentCityStartLocation = state.currentCityStartLocation || "";
+      state.currentCityStartCityKey = state.currentCityStartCityKey || "";
 
       if (state.activeRaceSeed == null) {
         state.activeRaceSeed = state.raceSettings.raceSeed || "";
@@ -13095,9 +13183,14 @@
       lastCompletedLegClueData = state.lastCompletedLegClueData || null;
       legHistory = state.legHistory || [];
 
+      seasonCityOrder = sanitizeSeasonCityOrder(state.seasonCityOrder);
       currentCity = resolveCityObject(state.currentCity);
       legOrigin = resolveCityObject(state.legOrigin);
       legDest = resolveCityObject(state.legDest);
+      legStartLocation = state.legStartLocation || "";
+      legPitStopLocation = state.legPitStopLocation || "";
+      currentCityStartLocation = state.currentCityStartLocation || "";
+      currentCityStartCityKey = state.currentCityStartCityKey || "";
 
       if (!currentCity && legOrigin) {
         currentCity = legOrigin;
