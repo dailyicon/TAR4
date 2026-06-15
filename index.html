@@ -863,6 +863,318 @@
       background: rgba(255, 184, 0, 0.075);
     }
 
+
+
+    /* ── BROADCAST RESULTS RECAP ───────────────────────────── */
+
+    #results .status {
+      background: transparent;
+      border: none;
+      border-left: none;
+      box-shadow: none;
+      padding: 0;
+    }
+
+    .broadcast-results {
+      text-align: left;
+      display: grid;
+      gap: 14px;
+    }
+
+    .broadcast-hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--r-xl);
+      padding: 22px;
+      background:
+        radial-gradient(circle at 16% 0%, rgba(255,31,53,0.26), transparent 42%),
+        linear-gradient(145deg, rgba(42,13,19,0.98), rgba(13,3,5,0.98));
+      border: 1px solid rgba(255,245,230,0.12);
+      border-left: 4px solid var(--hero-color, var(--red));
+      box-shadow: 0 20px 52px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .broadcast-hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.035) 48%, transparent 62%);
+      transform: translateX(-35%);
+    }
+
+    .broadcast-kicker {
+      color: var(--amber);
+      font-size: 0.74rem;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .broadcast-route-title {
+      margin: 0;
+      font-size: clamp(1.45rem, 4vw, 2.45rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--cream);
+      text-transform: uppercase;
+    }
+
+    .broadcast-subline {
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    .broadcast-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .broadcast-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.065);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--cream);
+      font-size: 0.82rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .broadcast-pill.good { color: var(--green); background: rgba(0,224,154,0.09); border-color: rgba(0,224,154,0.24); }
+    .broadcast-pill.warn { color: var(--amber); background: rgba(255,184,0,0.10); border-color: rgba(255,184,0,0.28); }
+    .broadcast-pill.danger { color: var(--red); background: rgba(255,31,53,0.10); border-color: rgba(255,31,53,0.30); }
+    .broadcast-pill.info { color: var(--cyan); background: rgba(0,229,255,0.08); border-color: rgba(0,229,255,0.22); }
+
+    .broadcast-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      gap: 14px;
+    }
+
+    .broadcast-panel,
+    .broadcast-details {
+      background: linear-gradient(160deg, rgba(31,8,13,0.94), rgba(13,3,5,0.94));
+      border: 1px solid rgba(255,245,230,0.12);
+      border-left: 3px solid var(--panel-color, var(--amber));
+      border-radius: var(--r-lg);
+      padding: 16px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 34px rgba(0,0,0,0.24);
+      overflow: hidden;
+    }
+
+    .broadcast-panel-title,
+    .broadcast-details > summary {
+      color: var(--panel-color, var(--amber));
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .broadcast-details > summary {
+      cursor: pointer;
+      list-style: none;
+      margin-bottom: 0;
+    }
+
+    .broadcast-details[open] > summary { margin-bottom: 12px; }
+
+    .broadcast-outcome {
+      border-radius: var(--r-md);
+      padding: 13px 14px;
+      border: 1px solid rgba(255,245,230,0.12);
+      border-left: 3px solid var(--outcome-color, var(--amber));
+      background: rgba(255,255,255,0.035);
+      color: var(--cream);
+      line-height: 1.45;
+      font-size: 0.94rem;
+    }
+
+    .standings.broadcast-standings {
+      margin-top: 0;
+      display: grid;
+      gap: 7px;
+    }
+
+    .broadcast-standing-row {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+      border-radius: var(--r-sm);
+      background: rgba(255,255,255,0.032);
+      font-size: 0.9rem;
+    }
+
+    .broadcast-standing-row.you {
+      background: rgba(255,184,0,0.075);
+      border-color: rgba(255,184,0,0.20);
+    }
+
+    .broadcast-place {
+      color: var(--muted);
+      font-weight: 900;
+      font-size: 0.82rem;
+    }
+
+    .broadcast-team-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .broadcast-team-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.12);
+    }
+
+    .broadcast-team-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--cream);
+      font-weight: 900;
+    }
+
+    .broadcast-time-line {
+      color: var(--cyan);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .elim-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 7px;
+      color: var(--red);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      background: rgba(255,31,53,0.14);
+      border: 1px solid rgba(255,31,53,0.42);
+      border-radius: 5px;
+      padding: 2px 6px;
+      vertical-align: middle;
+    }
+
+    .leg-recap-card {
+      display: grid;
+      gap: 12px;
+    }
+
+    .leg-recap-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .leg-recap-stat {
+      border-radius: var(--r-sm);
+      padding: 10px;
+      text-align: center;
+      background: rgba(0,0,0,0.24);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .leg-recap-label {
+      color: var(--muted);
+      font-size: 0.67rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      margin-bottom: 4px;
+    }
+
+    .leg-recap-value {
+      font-size: 0.92rem;
+      font-weight: 900;
+    }
+
+    .leg-recap-cash {
+      padding: 9px 11px;
+      border-radius: var(--r-sm);
+      background: rgba(0,224,154,0.07);
+      border: 1px solid rgba(0,224,154,0.18);
+      border-left: 3px solid var(--green);
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .leg-recap-timeline {
+      display: grid;
+      gap: 7px;
+    }
+
+    .leg-recap-event {
+      display: grid;
+      grid-template-columns: 4px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.065);
+    }
+
+    .leg-recap-event:last-child { border-bottom: none; }
+
+    .leg-recap-stripe {
+      width: 4px;
+      height: 36px;
+      border-radius: 999px;
+      background: var(--event-color, var(--muted));
+    }
+
+    .leg-recap-event-title {
+      color: var(--cream);
+      font-size: 0.9rem;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .leg-recap-event-meta {
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-top: 2px;
+      font-weight: 700;
+    }
+
+    .leg-recap-duration-pill {
+      justify-self: end;
+      white-space: nowrap;
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 0.76rem;
+      font-weight: 900;
+      color: var(--event-color, var(--cream));
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    @media (max-width: 760px) {
+      .broadcast-grid,
+      .leg-recap-stats { grid-template-columns: 1fr; }
+      .broadcast-standing-row { grid-template-columns: 32px minmax(0, 1fr); }
+      .broadcast-time-line { grid-column: 2; justify-self: start; }
+    }
+
     /* ── MENU ───────────────────────────────────────────────── */
 
     .menu-grid {
@@ -2020,6 +2332,24 @@
       <div class="setup-section">
         <div class="section-heading">
           <div>
+            <div class="section-kicker">Replay</div>
+            <h2 class="section-title">Seeded randomness</h2>
+            <div class="section-copy">Use a seed to make a season replayable. Same setup + same choices + same seed means the same race chaos returns instead of vanishing into the fog machine.</div>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <div class="setting-card full">
+            <label for="settingRaceSeed">Race Seed</label>
+            <input id="settingRaceSeed" type="text" maxlength="60" placeholder="Leave blank for normal randomness">
+            <div class="setting-help">Optional. Type anything, like <strong>Season 1 Test</strong>, to make random rolls reproducible for debugging and replays.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-section">
+        <div class="section-heading">
+          <div>
             <div class="section-kicker">Skills</div>
             <h2 class="section-title">Skill setup</h2>
             <div class="section-copy">Keep everyone randomized, give only your chosen team a fixed profile, or hand-edit the whole cast.</div>
@@ -2189,7 +2519,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 13;
+    var SAVE_VERSION = 14;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -2199,6 +2529,8 @@
     var lastScreenBeforeMenu = "start";
     var currentResultAction = null;
     var restoredFlightResultHtml = "";
+    var activeRaceSeed = "";
+    var raceRngState = null;
 
     var DEFAULT_TEAM_COUNT = 12;
     var DEFAULT_TEAM_COLORS = ["#ef4444", "#3b82f6", "#22c55e", "#eab308", "#8b5cf6", "#06b6d4", "#f97316", "#ec4899", "#14b8a6", "#a855f7", "#84cc16", "#f43f5e", "#0ea5e9", "#d946ef", "#10b981", "#f59e0b", "#6366f1", "#fb7185", "#2dd4bf", "#a3e635", "#dc2626", "#2563eb", "#16a34a", "#ca8a04", "#7c3aed", "#0891b2", "#ea580c", "#db2777", "#0f766e", "#9333ea", "#65a30d", "#e11d48", "#0284c7", "#c026d3", "#059669", "#d97706", "#4f46e5", "#be123c", "#0d9488", "#4d7c0f", "#991b1b", "#1d4ed8", "#15803d", "#a16207", "#6d28d9", "#0e7490", "#c2410c", "#be185d", "#115e59", "#581c87"];
@@ -6601,7 +6933,8 @@
       gapScaling: "0.5",
       gapScalingCustom: 0.5,
       finalTeamCount: 3,
-      legGapHours: 36
+      legGapHours: 36,
+      raceSeed: ""
     };
     var raceSettings = null;
     var FLIGHT_CHAOS_PROFILES = {
@@ -7519,7 +7852,7 @@
     }
 
     function randomLevel() {
-      return Math.floor(Math.random() * 11) + 1;
+      return randomInt(MIN_SKILL_LEVEL, MAX_SKILL_LEVEL);
     }
 
     function rollSkills() {
@@ -7529,7 +7862,7 @@
     }
 
     function randomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+      return Math.floor(raceRandom() * (max - min + 1)) + min;
     }
 
     function stopLetter(index) {
@@ -7908,7 +8241,7 @@
       var copy = arr.slice();
 
       for (var i = copy.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
+        var j = Math.floor(raceRandom() * (i + 1));
         var temp = copy[i];
         copy[i] = copy[j];
         copy[j] = temp;
@@ -8220,7 +8553,8 @@
         gapScaling: base.gapScaling != null ? base.gapScaling : DEFAULT_RACE_SETTINGS.gapScaling,
         gapScalingCustom: base.gapScalingCustom != null ? parseFloat(base.gapScalingCustom) : DEFAULT_RACE_SETTINGS.gapScalingCustom,
         finalTeamCount: parseInt(base.finalTeamCount, 10) || DEFAULT_RACE_SETTINGS.finalTeamCount,
-        legGapHours: parseInt(base.legGapHours, 10) || DEFAULT_RACE_SETTINGS.legGapHours
+        legGapHours: parseInt(base.legGapHours, 10) || DEFAULT_RACE_SETTINGS.legGapHours,
+        raceSeed: base.raceSeed != null ? String(base.raceSeed) : ""
       };
     }
 
@@ -8279,6 +8613,7 @@
       settings.skillCount = settings.skillTypes.length;
       settings.customTeamSkills = cloneCustomTeamSkills(settings.customTeamSkills || {});
       settings.teamColors = Object.assign({}, settings.teamColors || {});
+      settings.raceSeed = normalizeRaceSeed(settings.raceSeed);
 
       return settings;
     }
@@ -8348,6 +8683,7 @@
         gapScalingCustom: settingValue("settingGapScalingCustom", DEFAULT_RACE_SETTINGS.gapScalingCustom),
         finalTeamCount: parseInt(settingValue("settingFinalTeamCount", DEFAULT_RACE_SETTINGS.finalTeamCount), 10),
         legGapHours: parseInt(settingValue("settingLegGapHours", DEFAULT_RACE_SETTINGS.legGapHours), 10),
+        raceSeed: settingValue("settingRaceSeed", DEFAULT_RACE_SETTINGS.raceSeed),
         skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
         playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
@@ -8373,6 +8709,7 @@
         "Challenge time <strong>" + preview.challengeMinTime + "-" + preview.challengeMaxTime + "m</strong> base · " +
         "Transport <strong>" + preview.minTransportOptions + "-" + preview.maxTransportOptions + "</strong> choices from <strong>" + preview.transportOptions.length + "</strong> options · " +
         "Flight chaos: <strong>" + escapeHtml(chaos.label) + "</strong> · " +
+        (preview.raceSeed ? "Seed: <strong>" + escapeHtml(preview.raceSeed) + "</strong> · " : "") +
         "Skills: <strong>" + escapeHtml(modeLabel) + "</strong> / <strong>" + preview.skillTypes.length + "</strong> skills" +
         (preview.skillMode === "player_all" ? " / Your team all <strong>" + preview.playerAllSkillLevel + "</strong>" : "");
     }
@@ -8403,6 +8740,7 @@
       updateGapScalingCustomVisibility();
       setSettingValue("settingFinalTeamCount", s.finalTeamCount != null ? s.finalTeamCount : DEFAULT_RACE_SETTINGS.finalTeamCount);
       setSettingValue("settingLegGapHours", s.legGapHours != null ? s.legGapHours : DEFAULT_RACE_SETTINGS.legGapHours);
+      setSettingValue("settingRaceSeed", s.raceSeed || "");
       updateLegGapLabel();
       setSettingValue("settingSkillMode", s.skillMode);
       setSettingValue("settingPlayerAllSkillLevel", s.playerAllSkillLevel);
@@ -8418,7 +8756,7 @@
         "settingMinStops", "settingMaxStops", "settingFinalMinStops",
         "settingFinalMaxStops", "settingChallengeMinTime", "settingChallengeMaxTime",
         "settingMinTransportOptions", "settingMaxTransportOptions",
-        "settingFlightChaos", "settingFinalTeamCount", "settingLegGapHours", "settingSkillMode",
+        "settingFlightChaos", "settingFinalTeamCount", "settingLegGapHours", "settingRaceSeed", "settingSkillMode",
         "settingPlayerAllSkillLevel", "settingSkillCount"
       ].forEach(function (id) {
         var el = document.getElementById(id);
@@ -8493,6 +8831,7 @@
         gapScalingCustom: settingValue("settingGapScalingCustom", DEFAULT_RACE_SETTINGS.gapScalingCustom),
         finalTeamCount: parseInt(settingValue("settingFinalTeamCount", DEFAULT_RACE_SETTINGS.finalTeamCount), 10),
         legGapHours: parseInt(settingValue("settingLegGapHours", DEFAULT_RACE_SETTINGS.legGapHours), 10),
+        raceSeed: settingValue("settingRaceSeed", DEFAULT_RACE_SETTINGS.raceSeed),
         skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
         playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
@@ -8535,6 +8874,7 @@
       raceSettings.skillCount = raceSettings.skillTypes.length;
       raceSettings.customTeamSkills = sanitizeCustomSkillMatrix(readCustomTeamSkillEditor(teams, raceSettings.skillTypes), teams, raceSettings.skillTypes);
       applyRaceSettingsToGlobals();
+      initializeRaceRandom(raceSettings.raceSeed);
       playerTeam = null;
       skills = {};
       buildTeamButtons();
@@ -8675,7 +9015,7 @@
         return sum + Math.max(0.001, score);
       }, 0);
 
-      var roll = Math.random() * total;
+      var roll = raceRandom() * total;
       var running = 0;
 
       for (var i = 0; i < candidates.length; i++) {
@@ -8763,7 +9103,7 @@
           reserveScore * reserveWeight +
           valueScore * valueWeight;
 
-        var noise = (Math.random() - 0.5) * (0.12 + pressure * 0.18);
+        var noise = (raceRandom() - 0.5) * (0.12 + pressure * 0.18);
         var score = clampNumber(baseScore + noise, 0.02, 1.25);
 
         if (cost > budget * 0.72 && pressure < 0.55) {
@@ -8841,6 +9181,40 @@
         s = Math.imul(1664525, s) + 1013904223;
         return (s >>> 0) / 4294967296;
       };
+    }
+
+
+    function normalizeRaceSeed(value) {
+      return String(value == null ? "" : value).replace(/\s+/g, " ").trim().slice(0, 60);
+    }
+
+    function initialRaceRngState(seedText) {
+      var seed = normalizeRaceSeed(seedText);
+      if (!seed) { return null; }
+      var state = stableHash(seed + "|amazing-race-sim-seed-v1");
+      return state === 0 ? 1 : state;
+    }
+
+    function initializeRaceRandom(seedText, savedState) {
+      activeRaceSeed = normalizeRaceSeed(seedText);
+      if (!activeRaceSeed) {
+        raceRngState = null;
+        return;
+      }
+      var parsedState = savedState == null ? null : (parseInt(savedState, 10) >>> 0);
+      raceRngState = parsedState || initialRaceRngState(activeRaceSeed) || 1;
+    }
+
+    function raceRandom() {
+      if (!activeRaceSeed) {
+        return Math.random();
+      }
+      raceRngState = (Math.imul(1664525, raceRngState >>> 0) + 1013904223) >>> 0;
+      return raceRngState / 4294967296;
+    }
+
+    function randomIndex(length) {
+      return Math.floor(raceRandom() * length);
     }
 
     function shuffleWithSeed(arr, seedText) {
@@ -9291,11 +9665,11 @@
     function rollDelayMinutes() {
       var chaos = currentFlightChaosProfile();
 
-      if (Math.random() >= chaos.delayChance) {
+      if (raceRandom() >= chaos.delayChance) {
         return 0;
       }
 
-      var r = Math.random();
+      var r = raceRandom();
       var rawDelay;
 
       if (r < 0.50) {
@@ -10651,7 +11025,7 @@
         skills[name] = name === playerTeam ? playerRolledSkills : makeStartingSkillProfile(name, false);
       });
 
-      currentCity = ensureCityCoords(WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)]);
+      currentCity = ensureCityCoords(WORLD_CITIES[randomIndex(WORLD_CITIES.length)]);
       routeHistory.push(currentCity.name);
       startLeg();
     }
@@ -10696,14 +11070,14 @@
         });
       }
 
-      legIsNonElim = !isFinalLeg() && Math.random() < NON_ELIM_CHANCE;
+      legIsNonElim = !isFinalLeg() && raceRandom() < NON_ELIM_CHANCE;
 
-      currentCity = resolveCityObject(currentCity) || ensureCityCoords(WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)]);
+      currentCity = resolveCityObject(currentCity) || ensureCityCoords(WORLD_CITIES[randomIndex(WORLD_CITIES.length)]);
 
       var dest;
 
       do {
-        dest = ensureCityCoords(WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)]);
+        dest = ensureCityCoords(WORLD_CITIES[randomIndex(WORLD_CITIES.length)]);
       } while (dest.name === currentCity.name);
 
       legOrigin = currentCity;
@@ -10714,7 +11088,7 @@
       legStops = [];
 
       for (var i = 0; i < totalStopsThisLeg; i++) {
-        var skill = SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)];
+        var skill = SKILL_TYPES[randomIndex(SKILL_TYPES.length)];
         var base = randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME);
 
         legStops.push({
@@ -10728,7 +11102,7 @@
 
       // Leg 1: create the Starting Line challenge BEFORE building rivals
       if (legNum === 1) {
-        var slSkill = SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)];
+        var slSkill = SKILL_TYPES[randomIndex(SKILL_TYPES.length)];
         startingLineChallenge = { skill: slSkill, base: randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME), teamBases: {} };
       } else {
         startingLineChallenge = null;
@@ -11116,19 +11490,24 @@
       results.forEach(function (r, i) {
         var isYou = (r.team === playerTeam);
         var isElim = (r.team === eliminatedTeam);
-        var style = isYou ? " style=\"color:#ffd166;font-weight:bold;\"" : "";
+        var rowClass = "broadcast-standing-row" + (isYou ? " you" : "") + (isElim ? " eliminated" : "");
+        var teamCol = teamColor(r.team);
 
-        rows += "<div" + style + ">" +
-          (i + 1) + ". " + escapeHtml(r.team) +
-          " · " + formatRaceTimeOnly(r.checkInClock) +
-          (isElim ? ' <span style="color:var(--red);font-size:0.8rem;font-weight:900;' +
-            'letter-spacing:0.06em;background:rgba(255,31,53,0.14);border:1px solid rgba(255,31,53,0.4);' +
-            'border-radius:4px;padding:1px 6px;vertical-align:middle;">ELIM</span>' : "") +
-          "</div>";
+        rows += '<div class="' + rowClass + '">' +
+          '<div class="broadcast-place">' + ordinal(i + 1) + '</div>' +
+          '<div class="broadcast-team-line">' +
+            '<span class="broadcast-team-dot" style="background:' + escapeHtml(teamCol) + ';"></span>' +
+            '<span class="broadcast-team-name">' + escapeHtml(r.team) + '</span>' +
+          '</div>' +
+          '<div class="broadcast-time-line">' + formatRaceTimeOnly(r.checkInClock) +
+            (isElim ? ' <span class="elim-badge">ELIM</span>' : '') +
+          '</div>' +
+        '</div>';
       });
 
-      return '<div class="standings">' + rows + "</div>";
+      return '<div class="standings broadcast-standings">' + rows + "</div>";
     }
+
 
     function truncateName(name, n) {
       return name.length > n ? name.slice(0, n - 1) + "…" : name;
@@ -11214,6 +11593,83 @@
       return html;
     }
 
+    function playerResultSummary(results) {
+      var summary = { place: null, record: null };
+      (results || []).forEach(function (r, i) {
+        if (r.team === playerTeam) {
+          summary.place = i + 1;
+          summary.record = r;
+        }
+      });
+      return summary;
+    }
+
+    function resultsBroadcastHtml(opts) {
+      opts = opts || {};
+      var results = opts.results || [];
+      var route = opts.route || "";
+      var playerSummary = playerResultSummary(results);
+      var playerRecord = playerSummary.record || {};
+      var playerPlace = playerSummary.place != null ? ordinal(playerSummary.place) : "—";
+      var finishTime = playerRecord.checkInClock != null ? formatRaceTimeOnly(playerRecord.checkInClock) : "—";
+      var teamCount = results.length || (remainingTeams ? remainingTeams.length : 0);
+      var statusKind = opts.statusKind || "info";
+      var outcomeColor = statusKind === "danger" ? "var(--red)" : (statusKind === "good" ? "var(--green)" : (statusKind === "warn" ? "var(--amber)" : "var(--cyan)"));
+      var heroColor = teamColorForPlayer ? teamColorForPlayer() : "var(--red)";
+
+      var html = '<div class="broadcast-results">';
+      html += '<div class="broadcast-hero" style="--hero-color:' + escapeHtml(heroColor) + ';">';
+      html += '<div class="broadcast-kicker">' + escapeHtml(opts.kicker || currentLegLabel() + ' Broadcast Recap') + '</div>';
+      html += '<h2 class="broadcast-route-title">' + escapeHtml(route) + '</h2>';
+      html += '<div class="broadcast-subline">' + escapeHtml(opts.subtitle || 'The mat has been reached. Here is the leg in broadcast form.') + '</div>';
+      html += '<div class="broadcast-pill-row">' +
+        '<span class="broadcast-pill warn">Your place: ' + escapeHtml(playerPlace) + '</span>' +
+        '<span class="broadcast-pill info">Finish: ' + escapeHtml(finishTime) + '</span>' +
+        '<span class="broadcast-pill good">Cash: $' + escapeHtml(money[playerTeam] || 0) + '</span>' +
+        '<span class="broadcast-pill">Teams: ' + escapeHtml(teamCount) + '</span>' +
+        (activeRaceSeed ? '<span class="broadcast-pill info">Seed: ' + escapeHtml(activeRaceSeed) + '</span>' : '') +
+      '</div>';
+      html += '</div>';
+
+      if (opts.outcomeHtml) {
+        html += '<div class="broadcast-outcome" style="--outcome-color:' + outcomeColor + ';">' + opts.outcomeHtml + '</div>';
+      }
+
+      html += '<div class="broadcast-grid">';
+      html += '<section class="broadcast-panel" style="--panel-color:var(--amber);"><div class="broadcast-panel-title">Mat Standings</div>' + standingsHtml(results, opts.eliminatedTeam || null) + '</section>';
+      html += '<section class="broadcast-panel" style="--panel-color:var(--cyan);"><div class="broadcast-panel-title">Your Leg Recap</div>' + legRecapHtml() + '</section>';
+      html += '</div>';
+
+      if (opts.routeTrail) {
+        html += '<details class="broadcast-details" style="--panel-color:var(--green);"><summary>Route Trail</summary>' + opts.routeTrail + '</details>';
+      }
+      if (opts.placementChart) {
+        html += '<details class="broadcast-details" open style="--panel-color:var(--amber);"><summary>Placement Chart</summary>' + opts.placementChart + '</details>';
+      }
+      if (opts.timeChart) {
+        html += '<details class="broadcast-details" style="--panel-color:var(--red);"><summary>Detailed Time Chart</summary>' + opts.timeChart + '</details>';
+      }
+      if (opts.clueChart) {
+        html += '<details class="broadcast-details" style="--panel-color:var(--cyan);"><summary>Clue-by-Clue Chart</summary>' + opts.clueChart + '</details>';
+      }
+      if (opts.allLegsCharts) {
+        html += '<details class="broadcast-details" style="--panel-color:var(--green);"><summary>Leg Charts — All Legs</summary>' + opts.allLegsCharts + '</details>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function finalRaceBroadcastHtml(title, bodyHtml, placementHtml, allLegsHtml) {
+      var html = '<div class="broadcast-results">';
+      html += '<div class="broadcast-hero"><div class="broadcast-kicker">Race Complete</div><h2 class="broadcast-route-title">' + escapeHtml(title) + '</h2>';
+      html += '<div class="broadcast-subline">The whole season has reached the final mat.</div></div>';
+      html += '<div class="broadcast-panel" style="--panel-color:var(--amber);">' + bodyHtml + '</div>';
+      if (placementHtml) { html += '<details class="broadcast-details" open style="--panel-color:var(--amber);"><summary>Final Placement Chart</summary>' + placementHtml + '</details>'; }
+      if (allLegsHtml) { html += '<details class="broadcast-details" style="--panel-color:var(--green);"><summary>Leg Charts — All Legs</summary>' + allLegsHtml + '</details>'; }
+      html += '</div>';
+      return html;
+    }
+
     function renderResults(title, bodyHtml, buttonLabel, buttonAction, actionKey) {
       document.getElementById("resultsTitle").textContent = title;
       document.getElementById("resultsBody").innerHTML = bodyHtml;
@@ -11289,22 +11745,28 @@
       var savedLabels = clueChartLabels();
       var savedTitle = (isFinalLeg() ? "Final Leg" : "Leg " + legNum) + ": " + route;
       legHistory.push({ legNum: legNum, route: route, labels: savedLabels, results: results, isFinal: isFinalLeg(), title: savedTitle });
-      var timeChart = "<br>" + legTimelineChartHtml(results, savedLabels, savedTitle, isFinalLeg());
-      var clueChart = "<br>" + clueByClueChartHtml(results, savedLabels, savedTitle);
-      var chart = "<br>" + placementChartHtml();
+      var timeChart = legTimelineChartHtml(results, savedLabels, savedTitle, isFinalLeg());
+      var clueChart = clueByClueChartHtml(results, savedLabels, savedTitle);
+      var chart = placementChartHtml();
 
       if (isFinalLeg()) {
         var winner = results[0].team;
-        var finalBody = standingsHtml(results, null) +
-          legRecapHtml() +
-          routeTrail +
-          "<br><br>🏆 <strong>" + escapeHtml(winner) + "</strong> has crossed the final mat and wins The Amazing Race!" +
+        var finalOutcome = "🏆 <strong>" + escapeHtml(winner) + "</strong> crossed the final mat and wins The Amazing Race!" +
           (winner === playerTeam ? "<br><strong>That is you. You won the whole race!</strong>" : "") +
-          "<br><br>The race is complete." +
-          timeChart +
-          clueChart +
-          "<br><strong>Leg Charts — All Legs</strong>" + allLegsChartHtml() +
-          "<br>" + placementChartHtml();
+          "<br>The race is complete.";
+        var finalBody = resultsBroadcastHtml({
+          route: route,
+          results: results,
+          kicker: "Final Leg Broadcast Recap",
+          subtitle: "The final mat is down. The season has a winner.",
+          statusKind: winner === playerTeam ? "good" : "info",
+          outcomeHtml: finalOutcome,
+          routeTrail: routeTrail,
+          timeChart: timeChart,
+          clueChart: clueChart,
+          placementChart: placementChartHtml(),
+          allLegsCharts: allLegsChartHtml()
+        });
 
         renderResults("🏆 Final Leg: " + route, finalBody, "New Game", resetToStart, "newGame");
         return;
@@ -11313,16 +11775,18 @@
       var lastPlaceTeam = results[results.length - 1].team;
 
       if (legIsNonElim) {
-        var nonElimBody = standingsHtml(results, null) +
-          legRecapHtml() +
-          routeTrail +
-          "<br><strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last, but this is a NON-ELIMINATION leg!" +
-          "<br>No team has been eliminated." +
-          "<br>Teams left: " + remainingTeams.length +
-          ' · Your cash: <span class="cash-pill">$' + money[playerTeam] + "</span>" +
-          timeChart +
-          clueChart +
-          chart;
+        var nonElimBody = resultsBroadcastHtml({
+          route: route,
+          results: results,
+          kicker: "Leg " + legNum + " Broadcast Recap",
+          subtitle: "Last place got spared. The race keeps every team in the story.",
+          statusKind: "warn",
+          outcomeHtml: "<strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last, but this is a <strong>NON-ELIMINATION</strong> leg.<br>No team has been eliminated. Teams left: <strong>" + remainingTeams.length + "</strong>.",
+          routeTrail: routeTrail,
+          timeChart: timeChart,
+          clueChart: clueChart,
+          placementChart: chart
+        });
 
         renderResults(legRouteTitle("Leg " + legNum), nonElimBody, "Next Leg", nextLeg, "nextLeg");
         return;
@@ -11333,17 +11797,23 @@
       });
 
       if (lastPlaceTeam === playerTeam) {
-        var body2 = standingsHtml(results, lastPlaceTeam) +
-          legRecapHtml() +
-          routeTrail +
-          "<br>You finished last on Leg " + legNum + " and have been eliminated." +
-          timeChart +
-          clueChart +
-          chart;
+        var elimBody = resultsBroadcastHtml({
+          route: route,
+          results: results,
+          eliminatedTeam: lastPlaceTeam,
+          kicker: "Leg " + legNum + " Broadcast Recap",
+          subtitle: "Your race reached the mat, but the season continues without you.",
+          statusKind: "danger",
+          outcomeHtml: "You finished last on <strong>Leg " + legNum + "</strong> and have been eliminated.",
+          routeTrail: routeTrail,
+          timeChart: timeChart,
+          clueChart: clueChart,
+          placementChart: chart
+        });
 
         var area2 = document.getElementById("resultsButtons");
         document.getElementById("resultsTitle").textContent = "Eliminated: " + route;
-        document.getElementById("resultsBody").innerHTML = body2;
+        document.getElementById("resultsBody").innerHTML = elimBody;
         area2.innerHTML = "";
         var watchBtn = document.createElement("button");
         watchBtn.textContent = "Watch the Rest";
@@ -11360,18 +11830,23 @@
         return;
       }
 
-      var body3 = standingsHtml(results, lastPlaceTeam) +
-        legRecapHtml() +
-        routeTrail +
-        "<br><strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last and is eliminated." +
-        "<br>Teams left: " + remainingTeams.length +
-        ' · Your cash: <span class="cash-pill">$' + money[playerTeam] + "</span>" +
-        timeChart +
-        clueChart +
-        chart;
+      var body3 = resultsBroadcastHtml({
+        route: route,
+        results: results,
+        eliminatedTeam: lastPlaceTeam,
+        kicker: "Leg " + legNum + " Broadcast Recap",
+        subtitle: "The leg is complete. One team has been cut from the race.",
+        statusKind: "danger",
+        outcomeHtml: "<strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last and is eliminated.<br>Teams left: <strong>" + remainingTeams.length + "</strong> · Your cash: <span class=\"cash-pill\">$" + money[playerTeam] + "</span>",
+        routeTrail: routeTrail,
+        timeChart: timeChart,
+        clueChart: clueChart,
+        placementChart: chart
+      });
 
       renderResults(legRouteTitle("Leg " + legNum), body3, "Next Leg", nextLeg, "nextLeg");
     }
+
 
     function nextLeg() {
       currentCity = legDest;
@@ -11416,65 +11891,44 @@
       });
 
       var typeColors = { transport: "var(--cyan)", challenge: "var(--amber)", flight: "var(--red)" };
+      var html = '<div class="leg-recap-card">';
 
-      var html = "<details style=\"margin-top:14px;\">"
-        + "<summary style=\"cursor:pointer;color:var(--amber);font-weight:800;"
-        + "padding:8px 0;font-size:0.95rem;letter-spacing:0.04em;list-style:none;\">"
-        + "&#9654; Your Leg Recap</summary>";
-
-      html += "<div style=\"margin-top:10px;background:rgba(0,0,0,0.25);border-radius:10px;padding:14px;\">";
-
-      // Stat row
-      html += "<div style=\"display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;\">";
+      html += '<div class="leg-recap-stats">';
       [
         { label: "Total", val: formatDuration(totalMin), color: "var(--cream)" },
         { label: "Flights", val: formatDuration(flightMin), color: "var(--red)" },
         { label: "Transport", val: formatDuration(transportMin), color: "var(--cyan)" },
         { label: "Challenges", val: formatDuration(challengeMin), color: "var(--amber)" }
       ].forEach(function(s) {
-        html += "<div style=\"text-align:center;\">"
-          + "<div style=\"color:var(--muted);font-size:0.68rem;font-weight:700;text-transform:uppercase;"
-          + "letter-spacing:0.08em;margin-bottom:3px;\">" + s.label + "</div>"
-          + "<div style=\"font-weight:800;font-size:0.92rem;color:" + s.color + ";\">" + s.val + "</div>"
-          + "</div>";
+        html += '<div class="leg-recap-stat">' +
+          '<div class="leg-recap-label">' + escapeHtml(s.label) + '</div>' +
+          '<div class="leg-recap-value" style="color:' + s.color + ';">' + escapeHtml(s.val) + '</div>' +
+        '</div>';
       });
-      html += "</div>";
+      html += '</div>';
 
-      // Cash row
-      html += "<div style=\"margin-bottom:12px;padding:8px 12px;background:rgba(0,224,154,0.07);"
-        + "border-radius:7px;border-left:2px solid var(--green);font-size:0.88rem;\">"
-        + "<span style=\"color:var(--muted)\">Cash spent: </span>"
-        + "<strong style=\"color:var(--green)\">$" + cashSpent + "</strong>"
-        + "<span style=\"color:var(--muted);margin-left:12px;\">Remaining: </span>"
-        + "<strong style=\"color:var(--green)\">$" + (money[playerTeam] || 0) + "</strong>"
-        + "</div>";
+      html += '<div class="leg-recap-cash">Cash spent: <strong style="color:var(--green)">$' + cashSpent + '</strong>' +
+        ' <span style="margin-left:12px;">Remaining:</span> <strong style="color:var(--green)">$' + (money[playerTeam] || 0) + '</strong></div>';
 
-      // Timeline
-      html += "<div style=\"font-size:0.82rem;font-weight:700;text-transform:uppercase;"
-        + "letter-spacing:0.08em;color:var(--muted);margin-bottom:8px;\">Timeline</div>";
-
+      html += '<div class="leg-recap-timeline">';
       playerLegLog.forEach(function(e) {
         var color = typeColors[e.type] || "var(--muted)";
-        var pct = Math.max(2, Math.round((e.duration / totalMin) * 100));
-        html += "<div style=\"display:flex;align-items:center;gap:10px;padding:7px 0;"
-          + "border-bottom:1px solid rgba(255,255,255,0.06);\">"
-          + "<div style=\"width:3px;height:32px;border-radius:2px;background:" + color + ";flex-shrink:0;\"></div>"
-          + "<div style=\"flex:1;min-width:0;\">"
-          + "<div style=\"overflow-wrap:anywhere;font-size:0.88rem;\">" + escapeHtml(e.label) + "</div>"
-          + "<div style=\"color:var(--muted);font-size:0.78rem;margin-top:1px;\">"
-          + formatDuration(e.duration)
-          + (e.cost > 0 ? " &middot; <span style=\"color:var(--green)\">-$" + e.cost + "</span>" : "")
-          + "</div></div>"
-          + "<div style=\"text-align:right;flex-shrink:0;\">"
-          + "<div style=\"width:56px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-left:auto;\">"
-          + "<div style=\"height:100%;width:" + pct + "%;background:" + color + ";border-radius:2px;\"></div></div>"
-          + "<div style=\"color:var(--muted);font-size:0.72rem;margin-top:2px;\">" + pct + "%</div>"
-          + "</div></div>";
+        html += '<div class="leg-recap-event" style="--event-color:' + color + ';">' +
+          '<div class="leg-recap-stripe"></div>' +
+          '<div>' +
+            '<div class="leg-recap-event-title">' + escapeHtml(e.label) + '</div>' +
+            '<div class="leg-recap-event-meta">' +
+              (e.clock != null ? formatRaceTimeOnly(e.clock) + ' · ' : '') +
+              (e.cost > 0 ? '<span style="color:var(--green)">-$' + e.cost + '</span>' : '<span>No cost</span>') +
+            '</div>' +
+          '</div>' +
+          '<div class="leg-recap-duration-pill">' + formatDuration(e.duration) + '</div>' +
+        '</div>';
       });
-
-      html += "</div></details>";
+      html += '</div></div>';
       return html;
     }
+
 
     function simulateOneLegHeadless() {
       // Cache isFinalLeg once — remainingTeams changes mid-function after elimination
@@ -11508,14 +11962,14 @@
         remainingTeams.forEach(function (name) { money[name] += LEG_STIPEND; });
       }
 
-      legIsNonElim = !isTheFinalLeg && Math.random() < NON_ELIM_CHANCE;
+      legIsNonElim = !isTheFinalLeg && raceRandom() < NON_ELIM_CHANCE;
 
       currentCity = resolveCityObject(currentCity) ||
-        ensureCityCoords(WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)]);
+        ensureCityCoords(WORLD_CITIES[randomIndex(WORLD_CITIES.length)]);
 
       var dest;
       do {
-        dest = ensureCityCoords(WORLD_CITIES[Math.floor(Math.random() * WORLD_CITIES.length)]);
+        dest = ensureCityCoords(WORLD_CITIES[randomIndex(WORLD_CITIES.length)]);
       } while (dest.name === currentCity.name);
 
       legOrigin = currentCity;
@@ -11529,7 +11983,7 @@
 
       for (var i = 0; i < totalStopsThisLeg; i++) {
         legStops.push({
-          skill: SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)],
+          skill: SKILL_TYPES[randomIndex(SKILL_TYPES.length)],
           base:  randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME),
           teamBases: {}
         });
@@ -11618,16 +12072,15 @@
           ? "🏆 Race Complete — " + escapeHtml(winner) + " wins!"
           : "🏆 Race Complete";
 
-        var body =
-          "<br>You were eliminated on <strong>Leg " + eliminatedOnLeg + "</strong>.<br><br>" +
+        var summaryBody =
+          "You were eliminated on <strong>Leg " + eliminatedOnLeg + "</strong>.<br><br>" +
           (winner
             ? "🏆 <strong>" + escapeHtml(winner) + "</strong> crossed the final mat and won The Amazing Race!<br><br>"
             : "") +
           routeHistoryHtml() +
           "<br><strong>Final Standings</strong>" +
-          eliminationOrderHtml(winner) +
-          "<br><strong>Leg Charts — All Legs</strong>" + allLegsChartHtml() +
-          "<br>" + placementChartHtml();
+          eliminationOrderHtml(winner);
+        var body = finalRaceBroadcastHtml(title, summaryBody, placementChartHtml(), allLegsChartHtml());
 
         renderResults(title, body, "New Game", resetToStart, "newGame");
       }, 30);
@@ -11681,6 +12134,8 @@
       playerLegTimelineDetails = {};
       lastCompletedLegClueData = null;
       legHistory = [];
+      activeRaceSeed = "";
+      raceRngState = null;
       showScreen("start");
     }
 
@@ -11762,6 +12217,8 @@
 
         currentResultAction: currentResultAction,
         restoredFlightResultHtml: document.getElementById("flightResult") ? document.getElementById("flightResult").innerHTML : restoredFlightResultHtml,
+        activeRaceSeed: activeRaceSeed,
+        raceRngState: raceRngState,
         resultsTitle: document.getElementById("resultsTitle") ? document.getElementById("resultsTitle").textContent : "",
         resultsBody: document.getElementById("resultsBody") ? document.getElementById("resultsBody").innerHTML : ""
       };
@@ -11783,15 +12240,55 @@
 
     function unsupportedSaveMessage(state) {
       var version = state && state.version != null ? state.version : "unknown";
+      if (typeof version === "number" && version > SAVE_VERSION) {
+        return "This save is from a newer simulator version (" + version + "). This page supports saves through version " + SAVE_VERSION + ".";
+      }
       return "This save is from version " + version + ". This page supports save versions " + MIN_SUPPORTED_SAVE_VERSION + " through " + SAVE_VERSION + ".";
     }
 
-    function applyGameState(state) {
+    function migrateSaveState(state) {
       if (!state || !isSaveStateSupported(state)) {
+        return null;
+      }
+
+      var originalVersion = saveVersionNumber(state);
+      state.raceSettings = sanitizeRaceSettings(state.raceSettings || DEFAULT_RACE_SETTINGS);
+      state.teams = Array.isArray(state.teams) ? state.teams.slice() : [];
+      state.remainingTeams = Array.isArray(state.remainingTeams) ? state.remainingTeams.slice() : [];
+      state.legStops = Array.isArray(state.legStops) ? state.legStops : [];
+      state.legTransportOptions = Array.isArray(state.legTransportOptions) ? state.legTransportOptions : [];
+      state.placementHistory = state.placementHistory && typeof state.placementHistory === "object" ? state.placementHistory : {};
+      state.routeHistory = Array.isArray(state.routeHistory) ? state.routeHistory : [];
+      state.nextLegStartClocks = state.nextLegStartClocks && typeof state.nextLegStartClocks === "object" ? state.nextLegStartClocks : {};
+      state.currentLegStartClocks = state.currentLegStartClocks && typeof state.currentLegStartClocks === "object" ? state.currentLegStartClocks : {};
+      state.teamLegRecords = state.teamLegRecords && typeof state.teamLegRecords === "object" ? state.teamLegRecords : {};
+      state.teamCashSpentThisLeg = state.teamCashSpentThisLeg && typeof state.teamCashSpentThisLeg === "object" ? state.teamCashSpentThisLeg : {};
+      state.playerLegMilestones = Array.isArray(state.playerLegMilestones) ? state.playerLegMilestones : [];
+      state.playerLegLog = Array.isArray(state.playerLegLog) ? state.playerLegLog : [];
+      state.playerLegTimelineDetails = state.playerLegTimelineDetails && typeof state.playerLegTimelineDetails === "object" ? state.playerLegTimelineDetails : {};
+      state.legHistory = Array.isArray(state.legHistory) ? state.legHistory : [];
+
+      if (state.activeRaceSeed == null) {
+        state.activeRaceSeed = state.raceSettings.raceSeed || "";
+      }
+      state.activeRaceSeed = normalizeRaceSeed(state.activeRaceSeed);
+      if (state.raceRngState == null && state.activeRaceSeed) {
+        state.raceRngState = initialRaceRngState(state.activeRaceSeed);
+      }
+
+      state.migratedFromVersion = originalVersion;
+      state.version = SAVE_VERSION;
+      return state;
+    }
+
+    function applyGameState(state) {
+      state = migrateSaveState(state);
+      if (!state) {
         return false;
       }
 
       raceSettings = sanitizeRaceSettings(state.raceSettings || DEFAULT_RACE_SETTINGS);
+      initializeRaceRandom(state.activeRaceSeed || raceSettings.raceSeed, state.raceRngState);
       applyRaceSettingsToGlobals();
 
       var savedTeams = Array.isArray(state.teams) ? state.teams.slice() : [];
@@ -12093,6 +12590,8 @@
         'Team: <strong>' + escapeHtml(team) + '</strong><br>' +
         'Leg: <strong>' + escapeHtml(leg) + '</strong> · Teams left: <strong>' + escapeHtml(remaining) + '</strong><br>' +
         'Saved: <strong>' + escapeHtml(stamp) + '</strong>' +
+        (state.raceSettings && state.raceSettings.raceSeed ? '<br>Seed: <strong>' + escapeHtml(state.raceSettings.raceSeed) + '</strong>' : '') +
+        '<br>Save version: <strong>' + escapeHtml(saveVersionNumber(state)) + '</strong>' +
         '</div>';
     }
 
@@ -12624,6 +13123,7 @@
         gapScalingCustom: settingValue("settingGapScalingCustom", DEFAULT_RACE_SETTINGS.gapScalingCustom),
         finalTeamCount: parseInt(settingValue("settingFinalTeamCount", DEFAULT_RACE_SETTINGS.finalTeamCount), 10),
         legGapHours: parseInt(settingValue("settingLegGapHours", DEFAULT_RACE_SETTINGS.legGapHours), 10),
+        raceSeed: settingValue("settingRaceSeed", DEFAULT_RACE_SETTINGS.raceSeed),
         skillMode: settingValue("settingSkillMode", DEFAULT_RACE_SETTINGS.skillMode),
         playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
