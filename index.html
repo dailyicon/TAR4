@@ -9587,6 +9587,15 @@
       return milestoneClock(record, "Flight Departure");
     }
 
+    function timelineFlightArrivalClock(record) {
+      var landed = milestoneClock(record, "Destination Airport");
+      if (landed != null) { return Math.round(landed); }
+      var route = record && record.flightRoute;
+      var hop = route && route.hops && route.hops[route.hops.length - 1];
+      if (hop && hop.arriveClock != null) { return Math.round(hop.arriveClock); }
+      return timelineFlightDepartClock(record);
+    }
+
     function timelineFlightDestination(record) {
       var route = record && record.flightRoute;
       var hop = route && route.hops && route.hops[0];
@@ -9594,21 +9603,37 @@
     }
 
     function timelineFlightNumberMap(results) {
-      var seen = {};
-      var flights = [];
+      var flightsByKey = {};
 
       (results || []).forEach(function (record) {
         var key = timelineFlightKey(record);
-        if (!key || seen[key]) { return; }
-        seen[key] = true;
-        flights.push({
-          key: key,
-          departClock: timelineFlightDepartClock(record) == null ? 999999999 : timelineFlightDepartClock(record),
-          to: timelineFlightDestination(record)
-        });
+        if (!key) { return; }
+        var arrivalClock = timelineFlightArrivalClock(record);
+        var departClock = timelineFlightDepartClock(record);
+
+        if (!flightsByKey[key]) {
+          flightsByKey[key] = {
+            key: key,
+            arrivalClock: arrivalClock == null ? 999999999 : arrivalClock,
+            departClock: departClock == null ? 999999999 : departClock,
+            to: timelineFlightDestination(record)
+          };
+        } else {
+          if (arrivalClock != null && arrivalClock < flightsByKey[key].arrivalClock) {
+            flightsByKey[key].arrivalClock = arrivalClock;
+          }
+          if (departClock != null && departClock < flightsByKey[key].departClock) {
+            flightsByKey[key].departClock = departClock;
+          }
+        }
+      });
+
+      var flights = Object.keys(flightsByKey).map(function (key) {
+        return flightsByKey[key];
       });
 
       flights.sort(function (a, b) {
+        if (a.arrivalClock !== b.arrivalClock) { return a.arrivalClock - b.arrivalClock; }
         if (a.departClock !== b.departClock) { return a.departClock - b.departClock; }
         return String(a.to).localeCompare(String(b.to));
       });
@@ -9651,12 +9676,15 @@
     function compactChartLabel(label) {
       var txt = shortTimelineHeader(label);
       return txt
-        .replace("Check-In", "Check")
+        .replace("Check-In", "Chk")
         .replace("Pitstop", "Pits")
         .replace("Landed", "Land")
         .replace("Airport", "Air")
-        .replace("Departure", "Depart")
-        .replace("Arrive", "Arrive")
+        .replace("Departure", "Dep")
+        .replace("Depart", "Dep")
+        .replace("Flight", "Flt")
+        .replace("Finish", "Fin")
+        .replace("Arrive", "Arr")
         .replace("Left", "Left");
     }
 
@@ -9682,11 +9710,11 @@
 
       if (isTransport) {
         if (len >= 7) { size *= 0.97; }
-        if (len >= 9) { size *= 0.93; }
-        if (len >= 11) { size *= 0.89; }
-        if (len >= 13) { size *= 0.84; }
-        if (len >= 15) { size *= 0.78; }
-        if (len >= 18) { size *= 0.72; }
+        if (len >= 9) { size *= 0.94; }
+        if (len >= 11) { size *= 0.90; }
+        if (len >= 13) { size *= 0.86; }
+        if (len >= 15) { size *= 0.81; }
+        if (len >= 18) { size *= 0.76; }
       } else {
         if (len >= 9) { size *= 0.97; }
         if (len >= 12) { size *= 0.93; }
@@ -9748,7 +9776,7 @@
       }
 
       addColumn("toAirport", "Airport", function (r) { return milestoneClock(r, "Origin Airport"); }, function (r) { return timelineDetail(r, "toAirport"); }, false, { group: "Airport", isTransport: true });
-      addColumn("flight", "Flight #", function (r) { return timelineFlightDepartClock(r); }, function (r) { return timelineFlightLabel(r, flightMap); }, false, { group: "Flight #" });
+      addColumn("flight", "Flight #", function (r) { return timelineFlightArrivalClock(r); }, function (r) { return timelineFlightLabel(r, flightMap); }, false, { group: "Flight #" });
       addColumn("landed", "Landed", function (r) { return milestoneClock(r, "Destination Airport"); }, function (r) {
         var c = milestoneClock(r, "Destination Airport");
         return c == null ? "—" : formatRaceTimeCompact(c);
@@ -9937,18 +9965,6 @@
       return html;
     }
 
-    function shortClueChartLabel(label) {
-      var txt = String(label || "");
-      txt = txt.replace("Origin Airport", "Origin Air")
-        .replace("Destination Airport", "Dest Air")
-        .replace("Starting Line Complete", "Start Done")
-        .replace("Pit Stop", "Pitstop")
-        .replace("Finish Line", "Finish")
-        .replace(/Challenge ([A-Z]) Arrive/g, "$1 Arrive")
-        .replace(/Challenge ([A-Z]) Complete/g, "$1 Left");
-      return txt;
-    }
-
     function clueByClueChartHtml(results, labelsOverride, titleOverride) {
       if (!results || results.length === 0) {
         return "";
@@ -9958,21 +9974,16 @@
       var activeResults = results.slice();
       var teamCount = activeResults.length;
       var labelCount = labels.length;
-      var maxLabelLen = 0;
-      labels.forEach(function (lb) { maxLabelLen = Math.max(maxLabelLen, String(lb || '').length); });
       var chartLeft = 48;
-      var chartTop = labelCount >= 28 ? 150 : labelCount >= 18 ? 142 : 134;
+      var chartTop = 134;
       var legendWidth = teamCount > 24 ? 220 : 260;
       var width = 1040;
       var chartWidth = width - chartLeft - legendWidth - 48;
-      var labelFontSize = labelCount <= 12 ? 10 : labelCount <= 18 ? 8.8 : labelCount <= 26 ? 7.4 : labelCount <= 38 ? 6.2 : 5.2;
-      if (maxLabelLen >= 18) { labelFontSize -= 0.6; }
-      if (maxLabelLen >= 24) { labelFontSize -= 0.6; }
-      labelFontSize = Math.max(4.2, labelFontSize);
-      var labelAngle = labelCount <= 14 ? -36 : labelCount <= 24 ? -44 : labelCount <= 34 ? -50 : -56;
+      var labelFontSize = labelCount <= 12 ? 10 : labelCount <= 18 ? 9 : labelCount <= 26 ? 8 : 7;
+      var labelAngle = labelCount <= 14 ? -40 : labelCount <= 24 ? -48 : -55;
       var pointSize = labelCount > 24 || teamCount > 24 ? 7 : labelCount > 18 || teamCount > 16 ? 8 : 10;
       var lineWidth = labelCount > 24 || teamCount > 24 ? 2.6 : labelCount > 18 || teamCount > 16 ? 3.2 : 4;
-      var rowGap = teamCount <= 8 ? 50 : teamCount <= 12 ? 42 : teamCount <= 25 ? 30 : teamCount <= 38 ? 22 : teamCount <= 50 ? 16 : 12;
+      var rowGap = teamCount <= 8 ? 50 : teamCount <= 12 ? 42 : teamCount <= 25 ? 30 : teamCount <= 38 ? 22 : 17;
       var height = Math.max(360, chartTop + Math.max(1, teamCount - 1) * rowGap + 64);
       var chartBottom = height - 58;
       var yScale = function (rank) {
@@ -10095,10 +10106,9 @@
 
       labels.forEach(function (label, index) {
         var x = xScale(index);
-        var labelY = chartTop - 10;
-        var shortLabel = shortClueChartLabel(label);
+        var labelY = chartTop - 9;
         svg += '<circle cx="' + x + '" cy="' + chartTop + '" r="1.7" fill="#bdbdbd"/>';
-        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="middle" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(shortLabel) + '</text>';
+        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="start" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(label) + '</text>';
       });
 
       activeResults.forEach(function (r) {
