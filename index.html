@@ -11078,26 +11078,10 @@
     }
 
     function timelineCellFontSizeRem(value, baseSize, isTransport, columnCount, teamCount) {
+      // Start each detailed chart value at the normal size. A post-render fitter measures the real
+      // rendered cell and shrinks only the specific cells that overflow.
       var originalSize = baseSize || 0.72;
-      var size = originalSize;
-      var text = String(value == null ? "" : value);
-      var len = text.length;
-
-      // Keep normal cells at the normal size. Only squeeze labels that would otherwise crowd the cell.
-      if (isTransport) {
-        if (len > 10) { size *= 0.95; }
-        if (len > 12) { size *= 0.90; }
-        if (len > 14) { size *= 0.84; }
-        if (len > 16) { size *= 0.78; }
-        if (len > 18) { size *= 0.70; }
-        if (len > 22) { size *= 0.62; }
-      } else {
-        if (len > 12) { size *= 0.94; }
-        if (len > 16) { size *= 0.86; }
-        if (len > 22) { size *= 0.76; }
-      }
-
-      return Math.max(0.30, Math.min(size, originalSize));
+      return originalSize;
     }
 
     function timelineHeaderFontSizeRem(label, baseSize, columnCount, teamCount) {
@@ -11241,36 +11225,26 @@
       var rankWidth = 42;
 
       if (densityScore >= 14) {
-        fontSize = 0.70;
-        headFontSize = 0.62;
         padX = 6;
         padY = 5;
         rankWidth = 38;
       }
       if (densityScore >= 18) {
-        fontSize = 0.63;
-        headFontSize = 0.56;
         padX = 5;
         padY = 4;
         rankWidth = 35;
       }
       if (densityScore >= 24) {
-        fontSize = 0.57;
-        headFontSize = 0.50;
         padX = 4;
         padY = 4;
         rankWidth = 32;
       }
       if (densityScore >= 32) {
-        fontSize = 0.50;
-        headFontSize = 0.45;
         padX = 3;
         padY = 3;
         rankWidth = 28;
       }
       if (densityScore >= 42) {
-        fontSize = 0.45;
-        headFontSize = 0.40;
         padX = 2;
         padY = 2;
         rankWidth = 24;
@@ -12492,6 +12466,64 @@
       return html;
     }
 
+    function fitOneTimeChartTextNode(el) {
+      if (!el || !el.style) { return; }
+      var computed = window.getComputedStyle ? window.getComputedStyle(el) : null;
+      var basePx = parseFloat(el.getAttribute("data-fit-base-px") || "");
+      if (!basePx && computed) {
+        basePx = parseFloat(computed.fontSize || "");
+        if (basePx) { el.setAttribute("data-fit-base-px", String(basePx)); }
+      }
+      if (!basePx || !isFinite(basePx)) { return; }
+
+      el.style.fontSize = basePx + "px";
+      if (!el.clientWidth || !el.scrollWidth) { return; }
+
+      var minPx = el.tagName && el.tagName.toLowerCase() === "th" ? 3.0 : 2.8;
+      var currentPx = basePx;
+      var guard = 0;
+      while (guard < 16 && el.scrollWidth > el.clientWidth + 1 && currentPx > minPx) {
+        var ratio = Math.max(0.55, Math.min(0.96, (el.clientWidth - 1) / Math.max(1, el.scrollWidth)));
+        currentPx = Math.max(minPx, currentPx * ratio);
+        el.style.fontSize = currentPx + "px";
+        guard += 1;
+      }
+    }
+
+    function fitDetailedTimeChartText(root) {
+      root = root || document;
+      if (!root.querySelectorAll) { return; }
+      var nodes = root.querySelectorAll(".time-chart-cell, .time-chart th:not(.rank-head)");
+      Array.prototype.forEach.call(nodes, function (el) {
+        fitOneTimeChartTextNode(el);
+      });
+    }
+
+    function scheduleDetailedTimeChartFit(root) {
+      var target = root || document;
+      fitDetailedTimeChartText(target);
+      setTimeout(function () { fitDetailedTimeChartText(target); }, 0);
+      setTimeout(function () { fitDetailedTimeChartText(target); }, 80);
+      if (window.requestAnimationFrame) {
+        window.requestAnimationFrame(function () { fitDetailedTimeChartText(target); });
+      }
+    }
+
+    if (document && document.addEventListener) {
+      document.addEventListener("toggle", function (evt) {
+        var target = evt.target;
+        if (target && target.matches && target.matches("details.broadcast-details[open]")) {
+          scheduleDetailedTimeChartFit(target);
+        }
+      }, true);
+    }
+
+    if (window && window.addEventListener) {
+      window.addEventListener("resize", function () {
+        scheduleDetailedTimeChartFit(document);
+      });
+    }
+
     function renderResults(title, bodyHtml, buttonLabel, buttonAction, actionKey) {
       document.getElementById("resultsTitle").textContent = title;
       document.getElementById("resultsBody").innerHTML = bodyHtml;
@@ -12506,6 +12538,7 @@
 
       currentResultAction = actionKey || null;
       showScreen("results");
+      scheduleDetailedTimeChartFit(document.getElementById("resultsBody"));
     }
 
     function showLegResults() {
@@ -13755,6 +13788,7 @@
     function restoreResultsScreen(state) {
       document.getElementById("resultsTitle").textContent = state.resultsTitle || document.getElementById("resultsTitle").textContent || "Results";
       document.getElementById("resultsBody").innerHTML = state.resultsBody || document.getElementById("resultsBody").innerHTML || "";
+      scheduleDetailedTimeChartFit(document.getElementById("resultsBody"));
 
       var area = document.getElementById("resultsButtons");
       area.innerHTML = "";
