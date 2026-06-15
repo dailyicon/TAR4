@@ -1166,6 +1166,124 @@
       border: 1px solid var(--line);
     }
 
+
+
+    /* ── DETAILED LEG TIME CHART ───────────────────────────── */
+
+    .time-chart-card {
+      background: rgba(13, 3, 5, 0.5);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--amber);
+      border-radius: var(--r-lg);
+      padding: 16px;
+      margin-top: 14px;
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .time-chart-title {
+      color: var(--amber);
+      margin-bottom: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 900;
+    }
+
+    .time-chart-section {
+      margin-top: 12px;
+    }
+
+    .time-chart-section:first-of-type {
+      margin-top: 0;
+    }
+
+    .time-chart-section-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 0 0 5px;
+      text-align: left;
+    }
+
+    .time-chart-wrap {
+      width: 100%;
+      overflow: hidden;
+      border-radius: var(--r-sm);
+      border: 1px solid rgba(255, 245, 230, 0.16);
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    .time-chart {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--tc-font-size, 0.78rem);
+      font-weight: 900;
+      table-layout: fixed;
+    }
+
+    .time-chart th,
+    .time-chart td {
+      border: 1px solid rgba(0, 0, 0, 0.42);
+      padding: var(--tc-pad-y, 7px) var(--tc-pad-x, 9px);
+      text-align: center;
+      white-space: nowrap;
+      min-width: 0;
+      line-height: 1.18;
+    }
+
+    .time-chart th {
+      background: #111;
+      color: var(--cream);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      font-size: var(--tc-head-font-size, 0.72rem);
+      box-shadow: inset 0 -2px 0 rgba(255, 184, 0, 0.45);
+      line-height: 1.02;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: clip;
+    }
+
+    .time-chart .rank-head,
+    .time-chart .rank-cell {
+      min-width: var(--tc-rank-w, 44px);
+      width: var(--tc-rank-w, 44px);
+      background: #f3f3f3;
+      color: #111;
+      font-size: calc(var(--tc-font-size, 0.78rem) + 0.12rem);
+      box-shadow: 2px 0 0 rgba(0,0,0,0.35);
+    }
+
+    .time-chart .rank-head { background: #111; color: var(--cream); }
+
+    .time-chart .group-head {
+      font-size: var(--tc-head-font-size, 0.72rem);
+      vertical-align: middle;
+      padding-top: max(3px, calc(var(--tc-pad-y, 7px) + 1px));
+      padding-bottom: max(3px, calc(var(--tc-pad-y, 7px) + 1px));
+    }
+
+    .time-chart .sub-head {
+      font-size: calc(var(--tc-head-font-size, 0.72rem) - 0.07rem);
+      vertical-align: middle;
+      padding-top: max(2px, calc(var(--tc-pad-y, 7px) - 1px));
+      padding-bottom: max(2px, calc(var(--tc-pad-y, 7px) - 1px));
+      letter-spacing: 0.015em;
+      background: #171717;
+    }
+
+    .time-chart-cell {
+      text-shadow: none;
+      overflow: hidden;
+      text-overflow: clip;
+      max-width: none;
+      vertical-align: middle;
+      line-height: 1;
+    }
+
     /* ── CLUE CHART ─────────────────────────────────────────── */
 
     .clue-chart-card {
@@ -1885,7 +2003,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 11;
+    var SAVE_VERSION = 12;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -6408,6 +6526,7 @@
     var teamCashSpentThisLeg = {};
     var playerLegMilestones = [];
     var playerLegLog = [];
+    var playerLegTimelineDetails = {};
     var lastCompletedLegClueData = null;
     var legHistory = [];  // [{legNum, route, labels, results}] — one entry per completed leg
 
@@ -7321,6 +7440,20 @@
       }
 
       return hour12 + ":" + pad2(mins) + " " + ampm;
+    }
+
+    function formatRaceTimeCompact(minutes) {
+      var rounded = Math.max(0, Math.round(minutes));
+      var minuteOfDay = rounded % MINUTES_PER_DAY;
+      var hour24 = Math.floor(minuteOfDay / 60);
+      var mins = minuteOfDay % 60;
+      var hour12 = hour24 % 12;
+
+      if (hour12 === 0) {
+        hour12 = 12;
+      }
+
+      return hour12 + ":" + pad2(mins);
     }
 
     function teamNameListHtml(names) {
@@ -9356,7 +9489,13 @@
         cashRemaining: money[playerTeam],
         events: [],
         presenceSegments: [],
-        milestones: playerLegMilestones.slice()
+        milestones: playerLegMilestones.slice(),
+        flightRoute: activeFlightRoute,
+        timelineDetails: {
+          toAirport: playerLegTimelineDetails.toAirport || null,
+          fromAirport: playerLegTimelineDetails.fromAirport || null,
+          afterStops: (playerLegTimelineDetails.afterStops || []).slice()
+        }
       };
     }
 
@@ -9399,6 +9538,467 @@
       return false;
     }
 
+
+    function timelineStopCountFromLabels(labels) {
+      var count = 0;
+      (labels || []).forEach(function (label) {
+        var m = /^Challenge ([A-Z]+) Complete$/.exec(label || "");
+        if (m) { count += 1; }
+      });
+      return count || totalStopsThisLeg || 0;
+    }
+
+    function timelineTransportName(method) {
+      var split = splitTransportLabel(method || "", 0);
+      return split.name || String(method || "").replace(/\s+/g, " ").trim() || "—";
+    }
+
+    function timelineDetail(record, key, index) {
+      var details = record && record.timelineDetails ? record.timelineDetails : {};
+      if (key === "toAirport" && details.toAirport) {
+        return timelineTransportName(details.toAirport);
+      }
+      if (key === "fromAirport" && details.fromAirport) {
+        return timelineTransportName(details.fromAirport);
+      }
+      if (key === "afterStop" && details.afterStops && details.afterStops[index]) {
+        return timelineTransportName(details.afterStops[index]);
+      }
+
+      // Backward-compatible parser for older records that only stored event text.
+      var events = record && Array.isArray(record.events) ? record.events : [];
+      var prefix = "";
+      if (key === "toAirport") { prefix = "Travel to origin airport by "; }
+      if (key === "fromAirport") { prefix = "Travel from destination airport by "; }
+      if (key === "afterStop") { prefix = "Travel after stop " + (index + 1) + " by "; }
+
+      for (var i = 0; i < events.length; i++) {
+        var label = String(events[i].label || "");
+        if (prefix && label.indexOf(prefix) === 0) {
+          return timelineTransportName(label.slice(prefix.length));
+        }
+      }
+      return "—";
+    }
+
+    function timelineFlightKey(record) {
+      var route = record && record.flightRoute;
+      var hop = route && route.hops && route.hops[0];
+      if (hop) {
+        return [hop.from || legOrigin.name, hop.to || "?", Math.round(hop.departClock || 0)].join("|");
+      }
+      var dep = milestoneClock(record, "Flight Departure");
+      if (dep == null) { return null; }
+      return [(legOrigin && legOrigin.name) || "?", "?", Math.round(dep)].join("|");
+    }
+
+    function timelineFlightDepartClock(record) {
+      var route = record && record.flightRoute;
+      var hop = route && route.hops && route.hops[0];
+      if (hop && hop.departClock != null) { return Math.round(hop.departClock); }
+      return milestoneClock(record, "Flight Departure");
+    }
+
+    function timelineFlightDestination(record) {
+      var route = record && record.flightRoute;
+      var hop = route && route.hops && route.hops[0];
+      return hop && hop.to ? hop.to : "";
+    }
+
+    function timelineFlightNumberMap(results) {
+      var seen = {};
+      var flights = [];
+
+      (results || []).forEach(function (record) {
+        var key = timelineFlightKey(record);
+        if (!key || seen[key]) { return; }
+        seen[key] = true;
+        flights.push({
+          key: key,
+          departClock: timelineFlightDepartClock(record) == null ? 999999999 : timelineFlightDepartClock(record),
+          to: timelineFlightDestination(record)
+        });
+      });
+
+      flights.sort(function (a, b) {
+        if (a.departClock !== b.departClock) { return a.departClock - b.departClock; }
+        return String(a.to).localeCompare(String(b.to));
+      });
+
+      var map = {};
+      flights.forEach(function (flight, index) {
+        map[flight.key] = "Flight " + (index + 1);
+      });
+      return map;
+    }
+
+    function timelineFlightLabel(record, flightMap) {
+      var key = timelineFlightKey(record);
+      return key && flightMap && flightMap[key] ? flightMap[key] : "Flight ?";
+    }
+
+    function contrastTextColor(hex) {
+      var clean = normalizeHexColor(hex, "#777777").replace("#", "");
+      var r = parseInt(clean.slice(0, 2), 16);
+      var g = parseInt(clean.slice(2, 4), 16);
+      var b = parseInt(clean.slice(4, 6), 16);
+      var brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      return brightness >= 142 ? "#111111" : "#ffffff";
+    }
+
+    function shortTimelineHeader(label) {
+      return String(label || "")
+        .replace("Challenge ", "")
+        .replace(" Complete", "")
+        .replace("Pit Stop", "Pitstop")
+        .replace("Departure", "Depart")
+        .replace("Start Done", "Start")
+        .replace("Flight #", "Flight")
+        .replace("Finish Time", "Finish")
+        .replace("Check-In", "Check-In");
+    }
+
+    function shortClueChartLabel(label) {
+      var raw = String(label || "");
+      var match = raw.match(/^Challenge\s+([A-Z]+)\s+(Arrive|Complete)$/);
+      if (match) {
+        return match[1] + (match[2] === "Arrive" ? " Arr." : " Left");
+      }
+
+      return raw
+        .replace("Starting Line Complete", "Start Done")
+        .replace("Origin Airport", "Airport")
+        .replace("Destination Airport", "Landed")
+        .replace("Flight Departure", "Flight")
+        .replace("Pit Stop", "Pitstop");
+    }
+
+    function timelineColumnWeight(col) {
+      if (!col) { return 1; }
+      if (col.key === "departure" || col.key === "startingLine" || col.key === "landed" || /^finish\d+$/.test(col.key) || col.key === "checkIn") {
+        return 0.84;
+      }
+      if (col.key === "flight") {
+        return 0.98;
+      }
+      if (col.isTransport) {
+        return 1.22;
+      }
+      return 0.92;
+    }
+
+    function timelineCellFontSizeRem(value, baseSize, isTransport, sectionColumnCount) {
+      var size = baseSize || 0.72;
+      var text = String(value == null ? "" : value);
+      var len = text.length;
+
+      if (isTransport) {
+        if (len >= 7) { size *= 0.98; }
+        if (len >= 9) { size *= 0.94; }
+        if (len >= 11) { size *= 0.90; }
+        if (len >= 13) { size *= 0.86; }
+        if (len >= 15) { size *= 0.80; }
+        if (sectionColumnCount >= 10) { size *= 0.96; }
+        if (sectionColumnCount >= 13) { size *= 0.92; }
+      } else {
+        if (len >= 9) { size *= 0.98; }
+        if (len >= 12) { size *= 0.94; }
+      }
+
+      return Math.max(0.48, Math.min(size, baseSize || size));
+    }
+
+    function timelineColumnGroups(columns) {
+      var groups = [];
+
+      for (var i = 0; i < columns.length;) {
+        var col = columns[i];
+        var groupCols = [col];
+
+        if (col.subLabel) {
+          var j = i + 1;
+          while (j < columns.length && columns[j].group === col.group && columns[j].subLabel) {
+            groupCols.push(columns[j]);
+            j += 1;
+          }
+          i = j;
+        } else {
+          i += 1;
+        }
+
+        var weight = groupCols.reduce(function (sum, c) {
+          return sum + timelineColumnWeight(c);
+        }, 0);
+
+        groups.push({
+          label: col.group || col.label,
+          columns: groupCols,
+          weight: weight
+        });
+      }
+
+      return groups;
+    }
+
+    function timelinePackedSections(columns, teamCount) {
+      var groups = timelineColumnGroups(columns);
+      var maxWeight = teamCount > 40 ? 8.6 : teamCount > 28 ? 9.4 : 10.6;
+      var sections = [];
+      var current = [];
+      var currentWeight = 0;
+
+      groups.forEach(function (group) {
+        if (current.length > 0 && currentWeight + group.weight > maxWeight) {
+          sections.push(current);
+          current = [];
+          currentWeight = 0;
+        }
+
+        current.push(group);
+        currentWeight += group.weight;
+      });
+
+      if (current.length > 0) {
+        sections.push(current);
+      }
+
+      return sections.map(function (sectionGroups) {
+        var sectionColumns = [];
+        sectionGroups.forEach(function (g) {
+          sectionColumns = sectionColumns.concat(g.columns);
+        });
+        return {
+          groups: sectionGroups,
+          columns: sectionColumns
+        };
+      });
+    }
+
+    function timelineSectionSizing(sectionColumnCount) {
+      var fontSize = 0.82;
+      var headFontSize = 0.72;
+      var padX = 7;
+      var padY = 7;
+      var rankWidth = 42;
+
+      if (sectionColumnCount >= 9) {
+        fontSize = 0.76;
+        headFontSize = 0.66;
+        padX = 6;
+        padY = 6;
+        rankWidth = 38;
+      }
+      if (sectionColumnCount >= 12) {
+        fontSize = 0.70;
+        headFontSize = 0.60;
+        padX = 5;
+        padY = 5;
+        rankWidth = 35;
+      }
+      if (sectionColumnCount >= 15) {
+        fontSize = 0.64;
+        headFontSize = 0.55;
+        padX = 4;
+        padY = 4;
+        rankWidth = 32;
+      }
+
+      return {
+        fontSize: fontSize,
+        headFontSize: headFontSize,
+        padX: padX,
+        padY: padY,
+        rankWidth: rankWidth
+      };
+    }
+
+    function legTimelineChartHtml(results, labelsOverride, titleOverride, isFinalOverride) {
+      if (!results || results.length === 0) { return ""; }
+
+      var labels = labelsOverride || clueChartLabels();
+      var stopCount = timelineStopCountFromLabels(labels);
+      var finalLeg = isFinalOverride == null ? isFinalLeg() : !!isFinalOverride;
+      var activeResults = results.slice();
+      var flightMap = timelineFlightNumberMap(activeResults);
+      var finalRank = {};
+      activeResults.forEach(function (r, i) { finalRank[r.team] = i + 1; });
+
+      var columns = [];
+      function addColumn(key, label, clockFn, valueFn, finalSort, options) {
+        options = options || {};
+        columns.push({
+          key: key,
+          label: label,
+          clockFn: clockFn,
+          valueFn: valueFn,
+          finalSort: !!finalSort,
+          group: options.group || label,
+          subLabel: options.subLabel || "",
+          isTransport: !!options.isTransport
+        });
+      }
+
+      addColumn("departure", "Departure", function (r) { return r.startClock; }, function (r) { return formatRaceTimeCompact(r.startClock); }, false, { group: "Departure" });
+
+      if (labels.indexOf("Starting Line Complete") >= 0) {
+        addColumn("startingLine", "Start Done", function (r) { return milestoneClock(r, "Starting Line Complete"); }, function (r) {
+          var c = milestoneClock(r, "Starting Line Complete");
+          return c == null ? "—" : formatRaceTimeCompact(c);
+        }, false, { group: "Start Done" });
+      }
+
+      addColumn("toAirport", "Airport", function (r) { return milestoneClock(r, "Origin Airport"); }, function (r) { return timelineDetail(r, "toAirport"); }, false, { group: "Airport", isTransport: true });
+      addColumn("flight", "Flight #", function (r) { return timelineFlightDepartClock(r); }, function (r) { return timelineFlightLabel(r, flightMap); }, false, { group: "Flight #" });
+      addColumn("landed", "Landed", function (r) { return milestoneClock(r, "Destination Airport"); }, function (r) {
+        var c = milestoneClock(r, "Destination Airport");
+        return c == null ? "—" : formatRaceTimeCompact(c);
+      }, false, { group: "Landed" });
+
+      if (stopCount > 0) {
+        addColumn("fromAirport", stopLetter(0), function (r) { return milestoneClock(r, challengeArriveLabel(0)); }, function (r) { return timelineDetail(r, "fromAirport"); }, false, { group: stopLetter(0), subLabel: "Arrive", isTransport: true });
+      }
+
+      for (var i = 0; i < stopCount; i++) {
+        (function (index) {
+          var currentLetter = stopLetter(index);
+          addColumn("finish" + index, "Left " + currentLetter, function (r) { return milestoneClock(r, challengeCompleteLabel(index)); }, function (r) {
+            var c = milestoneClock(r, challengeCompleteLabel(index));
+            return c == null ? "—" : formatRaceTimeCompact(c);
+          }, false, { group: currentLetter, subLabel: "Left" });
+
+          var isLastStop = index === stopCount - 1;
+          var nextLabel = isLastStop ? (finalLeg ? "Finish" : "Pitstop") : stopLetter(index + 1);
+          addColumn("after" + index, nextLabel, function (r) {
+            return isLastStop ? r.checkInClock : milestoneClock(r, challengeArriveLabel(index + 1));
+          }, function (r) { return timelineDetail(r, "afterStop", index); }, false, {
+            group: nextLabel,
+            subLabel: isLastStop ? "" : "Arrive",
+            isTransport: true
+          });
+        })(i);
+      }
+
+      addColumn("checkIn", finalLeg ? "Finish" : "Check-In", function (r) { return r.checkInClock; }, function (r) { return formatRaceTimeCompact(r.checkInClock); }, true, { group: finalLeg ? "Finish Time" : "Check-In" });
+
+      var previousRank = {};
+      activeResults.forEach(function (record, index) {
+        var seedRank = index + 1;
+        if (placementHistory[record.team] && placementHistory[record.team].length > 1) {
+          var hist = placementHistory[record.team];
+          for (var h = hist.length - 2; h >= 0; h--) {
+            if (hist[h] != null) { seedRank = hist[h]; break; }
+          }
+        }
+        previousRank[record.team] = seedRank;
+      });
+
+      var columnRows = columns.map(function (col) {
+        var entries = activeResults.map(function (record, originalIndex) {
+          var clock = col.clockFn(record);
+          if (clock == null) { clock = (record.checkInClock || 0) + 999999 + originalIndex; }
+          return {
+            team: record.team,
+            record: record,
+            clock: Math.round(clock),
+            value: col.valueFn(record),
+            originalIndex: originalIndex
+          };
+        });
+
+        entries.sort(function (a, b) {
+          if (a.clock !== b.clock) { return a.clock - b.clock; }
+          if (col.finalSort) {
+            var fa = finalRank[a.team] || 999;
+            var fb = finalRank[b.team] || 999;
+            if (fa !== fb) { return fa - fb; }
+          }
+          var pa = previousRank[a.team] != null ? previousRank[a.team] : 999;
+          var pb = previousRank[b.team] != null ? previousRank[b.team] : 999;
+          if (pa !== pb) { return pa - pb; }
+          return String(a.team).localeCompare(String(b.team));
+        });
+
+        entries.forEach(function (entry, index) {
+          previousRank[entry.team] = index + 1;
+        });
+
+        return { column: col, entries: entries };
+      });
+
+      var columnRowByKey = {};
+      columnRows.forEach(function (colData) {
+        columnRowByKey[colData.column.key] = colData;
+      });
+
+      var sections = timelinePackedSections(columns, activeResults.length);
+      var html = '<div class="time-chart-card">';
+      html += '<div class="time-chart-title">Detailed Time Chart</div>';
+
+      sections.forEach(function (section, sectionIndex) {
+        var sectionColumnCount = section.columns.length + 1;
+        var sizing = timelineSectionSizing(sectionColumnCount);
+        var timeChartStyle = '--tc-font-size:' + sizing.fontSize + 'rem;--tc-head-font-size:' + sizing.headFontSize + 'rem;--tc-pad-x:' + sizing.padX + 'px;--tc-pad-y:' + sizing.padY + 'px;--tc-rank-w:' + sizing.rankWidth + 'px;';
+        var sectionRows = section.columns.map(function (col) { return columnRowByKey[col.key]; });
+        var totalWeight = 0.62;
+        section.columns.forEach(function (col) { totalWeight += timelineColumnWeight(col); });
+
+        html += '<div class="time-chart-section" style="' + timeChartStyle + '">';
+        if (sections.length > 1) {
+          html += '<div class="time-chart-section-label">Timeline ' + (sectionIndex + 1) + ' / ' + sections.length + '</div>';
+        }
+
+        html += '<div class="time-chart-wrap"><table class="time-chart" role="table" aria-label="Detailed leg time chart section ' + (sectionIndex + 1) + '">';
+        html += '<colgroup><col style="width:' + ((0.62 / totalWeight) * 100).toFixed(3) + '%">';
+        section.columns.forEach(function (col) {
+          html += '<col style="width:' + ((timelineColumnWeight(col) / totalWeight) * 100).toFixed(3) + '%">';
+        });
+        html += '</colgroup>';
+
+        var topHeader = '<tr><th class="rank-head group-head" rowspan="2">#</th>';
+        var bottomHeader = '<tr>';
+
+        section.groups.forEach(function (group) {
+          var hasSubHeaders = group.columns.some(function (col) { return !!col.subLabel; });
+          if (group.columns.length > 1 || hasSubHeaders) {
+            topHeader += '<th class="group-head" colspan="' + group.columns.length + '">' + escapeHtml(shortTimelineHeader(group.label)) + '</th>';
+            group.columns.forEach(function (col) {
+              bottomHeader += '<th class="sub-head">' + escapeHtml(col.subLabel || shortTimelineHeader(col.label)) + '</th>';
+            });
+          } else {
+            topHeader += '<th class="group-head" rowspan="2">' + escapeHtml(shortTimelineHeader(group.label || group.columns[0].label)) + '</th>';
+          }
+        });
+
+        topHeader += '</tr>';
+        bottomHeader += '</tr>';
+        html += '<thead>' + topHeader + bottomHeader + '</thead><tbody>';
+
+        for (var rowIndex = 0; rowIndex < activeResults.length; rowIndex++) {
+          html += '<tr><td class="rank-cell">' + (rowIndex + 1) + '</td>';
+          sectionRows.forEach(function (colData) {
+            var entry = colData.entries[rowIndex];
+            var color = teamColor(entry.team);
+            var textColor = contrastTextColor(color);
+            var value = entry.value == null || entry.value === "" ? "—" : String(entry.value);
+            var cellFontSize = timelineCellFontSizeRem(value, sizing.fontSize, !!colData.column.isTransport, sectionColumnCount);
+            var extraStyle = 'font-size:' + cellFontSize.toFixed(3) + 'rem;';
+            if (colData.column.isTransport) {
+              extraStyle += 'letter-spacing:-0.025em;';
+            } else {
+              extraStyle += 'letter-spacing:-0.01em;';
+            }
+            html += '<td class="time-chart-cell" title="' + escapeHtml(entry.team + ' · ' + colData.column.label) + '" style="background:' + color + ';color:' + textColor + ';' + extraStyle + '">' + escapeHtml(value) + '</td>';
+          });
+          html += '</tr>';
+        }
+
+        html += '</tbody></table></div></div>';
+      });
+
+      html += '</div>';
+      return html;
+    }
+
     function clueByClueChartHtml(results, labelsOverride, titleOverride) {
       if (!results || results.length === 0) {
         return "";
@@ -9413,8 +10013,8 @@
       var legendWidth = teamCount > 24 ? 220 : 260;
       var width = 1040;
       var chartWidth = width - chartLeft - legendWidth - 48;
-      var labelFontSize = labelCount <= 12 ? 10 : labelCount <= 18 ? 9 : labelCount <= 26 ? 8 : 7;
-      var labelAngle = labelCount <= 14 ? -40 : labelCount <= 24 ? -48 : -55;
+      var labelFontSize = labelCount <= 12 ? 11 : labelCount <= 18 ? 9.5 : labelCount <= 26 ? 8 : labelCount <= 38 ? 6.8 : 5.8;
+      var labelAngle = labelCount <= 14 ? -35 : labelCount <= 24 ? -44 : -52;
       var pointSize = labelCount > 24 || teamCount > 24 ? 7 : labelCount > 18 || teamCount > 16 ? 8 : 10;
       var lineWidth = labelCount > 24 || teamCount > 24 ? 2.6 : labelCount > 18 || teamCount > 16 ? 3.2 : 4;
       var rowGap = teamCount <= 8 ? 50 : teamCount <= 12 ? 42 : teamCount <= 25 ? 30 : teamCount <= 38 ? 22 : 17;
@@ -9541,8 +10141,9 @@
       labels.forEach(function (label, index) {
         var x = xScale(index);
         var labelY = chartTop - 9;
+        var displayLabel = shortClueChartLabel(label);
         svg += '<circle cx="' + x + '" cy="' + chartTop + '" r="1.7" fill="#bdbdbd"/>';
-        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="start" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(label) + '</text>';
+        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="middle" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(displayLabel) + '</text>';
       });
 
       activeResults.forEach(function (r) {
@@ -9595,6 +10196,7 @@
       var events = [];
       var presenceSegments = [];
       var milestones = [];
+      var timelineDetails = { toAirport: null, fromAirport: null, afterStops: [] };
       var teamStartClock = currentLegStartClocks[name] != null ? currentLegStartClocks[name] : legStartClock;
 
       function currentClockForTeam() {
@@ -9638,6 +10240,7 @@
       }
 
       var toAirportPick = chooseTeamTransport(name, airportStartTransportOptions);
+      timelineDetails.toAirport = toAirportPick.method;
       addEvent("Travel to origin airport by " + toAirportPick.method, toAirportPick.time);
 
       var originAirportArrivalClock = currentClockForTeam();
@@ -9671,6 +10274,7 @@
       );
 
       var fromAirportPick = chooseTeamTransport(name, airportEndTransportOptions);
+      timelineDetails.fromAirport = fromAirportPick.method;
       addEvent("Travel from destination airport by " + fromAirportPick.method, fromAirportPick.time);
 
       legStops.forEach(function (stop, index) {
@@ -9692,6 +10296,7 @@
         addMilestoneToList(milestones, challengeCompleteLabel(index), currentClockForTeam(), "sequential");
 
         var transportPick = chooseTeamTransport(name, legTransportOptions[index]);
+        timelineDetails.afterStops[index] = transportPick.method;
         addEvent("Travel after stop " + (index + 1) + " by " + transportPick.method, transportPick.time);
       });
 
@@ -9715,7 +10320,9 @@
         cashRemaining: money[name],
         events: events,
         presenceSegments: presenceSegments,
-        milestones: milestones
+        milestones: milestones,
+        flightRoute: rivalRoute,
+        timelineDetails: timelineDetails
       };
     }
 
@@ -9816,7 +10423,10 @@
       teamLegRecords = {};
       teamCashSpentThisLeg = {};
       playerLegMilestones = [];
+      playerLegLog = [];
+      playerLegTimelineDetails = {};
       lastCompletedLegClueData = null;
+      legHistory = [];
       raceClock = 0;
       legStartClock = 0;
       nextLegDepartureGap = 0;
@@ -9854,6 +10464,7 @@
       legStartClock = raceClock;
       playerLegMilestones = [];
       playerLegLog = [];
+      playerLegTimelineDetails = { toAirport: null, fromAirport: null, afterStops: [] };
       addPlayerMilestone(legNum === 1 ? "Starting Line" : "Pit Start", legStartClock, "averageTie");
 
       currentLegStartClocks = {};
@@ -10052,10 +10663,12 @@
       addRaceMinutes(opt.time);
 
       if (specialTransportMode === "toAirport") {
+        playerLegTimelineDetails.toAirport = opt.method;
         playerLegLog.push({ type: "transport", label: "To Airport: " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
         addPlayerMilestone("Origin Airport", raceClock, "sequential");
         showFlightScreen();
       } else if (specialTransportMode === "fromAirport") {
+        playerLegTimelineDetails.fromAirport = opt.method;
         playerLegLog.push({ type: "transport", label: "From Airport: " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
         autoCompleteChallengeAndShowTransport();
       }
@@ -10192,6 +10805,7 @@
     function chooseTransport(opt) {
       spendTeamMoney(playerTeam, opt.cost);
       addRaceMinutes(opt.time);
+      playerLegTimelineDetails.afterStops[currentStop] = opt.method;
       playerLegLog.push({ type: "transport", label: opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
       currentStop = currentStop + 1;
       currentChallenge = null;
@@ -10278,7 +10892,9 @@
     function chooseStartingLineTransport(opt) {
       spendTeamMoney(playerTeam, opt.cost);
       addRaceMinutes(opt.time);
+      playerLegTimelineDetails.toAirport = opt.method;
       playerLegLog.push({ type: "transport", label: "To Airport: " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
+      addPlayerMilestone("Origin Airport", raceClock, "sequential");
       showFlightScreen();
     }
 
@@ -10446,6 +11062,7 @@
       var savedLabels = clueChartLabels();
       var savedTitle = (isFinalLeg() ? "Final Leg" : "Leg " + legNum) + ": " + route;
       legHistory.push({ legNum: legNum, route: route, labels: savedLabels, results: results, isFinal: isFinalLeg(), title: savedTitle });
+      var timeChart = "<br>" + legTimelineChartHtml(results, savedLabels, savedTitle, isFinalLeg());
       var clueChart = "<br>" + clueByClueChartHtml(results, savedLabels, savedTitle);
       var chart = "<br><strong>Placement Chart</strong>" + placementChartHtml();
 
@@ -10457,7 +11074,9 @@
           "<br><br>🏆 <strong>" + escapeHtml(winner) + "</strong> has crossed the final mat and wins The Amazing Race!" +
           (winner === playerTeam ? "<br><strong>That is you. You won the whole race!</strong>" : "") +
           "<br><br>The race is complete." +
-          "<br><strong>Clue-by-Clue Charts — All Legs</strong>" + allLegsChartHtml() +
+          timeChart +
+          clueChart +
+          "<br><strong>Leg Charts — All Legs</strong>" + allLegsChartHtml() +
           "<br><strong>Placement Chart</strong>" + placementChartHtml();
 
         renderResults("🏆 Final Leg: " + route, finalBody, "New Game", resetToStart, "newGame");
@@ -10474,6 +11093,7 @@
           "<br>No team has been eliminated." +
           "<br>Teams left: " + remainingTeams.length +
           ' · Your cash: <span class="cash-pill">$' + money[playerTeam] + "</span>" +
+          timeChart +
           clueChart +
           chart;
 
@@ -10490,6 +11110,7 @@
           legRecapHtml() +
           routeTrail +
           "<br>You finished last on Leg " + legNum + " and have been eliminated." +
+          timeChart +
           clueChart +
           chart;
 
@@ -10518,6 +11139,7 @@
         "<br><strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last and is eliminated." +
         "<br>Teams left: " + remainingTeams.length +
         ' · Your cash: <span class="cash-pill">$' + money[playerTeam] + "</span>" +
+        timeChart +
         clueChart +
         chart;
 
@@ -10545,6 +11167,7 @@
         html += "<br><details><summary style=\"cursor:pointer;color:var(--amber);font-weight:800;" +
           "padding:8px 0;font-size:0.95rem;letter-spacing:0.04em;\">&#9654; " +
           escapeHtml(legLabel) + ": " + escapeHtml(entry.route) + "</summary>" +
+          legTimelineChartHtml(entry.results, entry.labels, entry.title, entry.isFinal) +
           clueByClueChartHtml(entry.results, entry.labels, entry.title) +
           "</details>";
       });
@@ -10775,7 +11398,7 @@
           routeHistoryHtml() +
           "<br><strong>Final Standings</strong>" +
           eliminationOrderHtml(winner) +
-          "<br><strong>Clue-by-Clue Charts — All Legs</strong>" + allLegsChartHtml() +
+          "<br><strong>Leg Charts — All Legs</strong>" + allLegsChartHtml() +
           "<br><strong>Placement Chart</strong>" + placementChartHtml();
 
         renderResults(title, body, "New Game", resetToStart, "newGame");
@@ -10826,7 +11449,10 @@
       playerTeam = null;
       remainingTeams = [];
       playerLegMilestones = [];
+      playerLegLog = [];
+      playerLegTimelineDetails = {};
       lastCompletedLegClueData = null;
+      legHistory = [];
       showScreen("start");
     }
 
@@ -10889,6 +11515,7 @@
         teamCashSpentThisLeg: teamCashSpentThisLeg,
         playerLegMilestones: playerLegMilestones,
         playerLegLog: playerLegLog,
+        playerLegTimelineDetails: playerLegTimelineDetails,
         lastCompletedLegClueData: lastCompletedLegClueData,
         legHistory: legHistory,
 
@@ -10984,6 +11611,7 @@
       teamCashSpentThisLeg = state.teamCashSpentThisLeg || {};
       playerLegMilestones = state.playerLegMilestones || [];
       playerLegLog = state.playerLegLog || [];
+      playerLegTimelineDetails = state.playerLegTimelineDetails || {};
       lastCompletedLegClueData = state.lastCompletedLegClueData || null;
       legHistory = state.legHistory || [];
 
