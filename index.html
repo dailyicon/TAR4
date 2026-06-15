@@ -342,6 +342,7 @@
       to { transform: rotate(360deg); }
     }
 
+
     /* ── MENU BUTTON ────────────────────────────────────────── */
 
     #topMenuBtn {
@@ -1281,6 +1282,171 @@
       }
 
       .transport-remove-btn { width: 100%; }
+    }
+
+
+    /* ── START SCREEN ANIMATIONS ────────────────────────────── */
+
+    @keyframes heroEntrance {
+      from { opacity: 0; transform: translateY(28px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes badgeEntrance {
+      0%   { opacity: 0; transform: scale(0.5) rotate(-20deg); }
+      70%  { transform: scale(1.08) rotate(3deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    @keyframes titleEntrance {
+      from { opacity: 0; transform: translateY(14px); letter-spacing: 0.12em; }
+      to   { opacity: 1; transform: translateY(0);    letter-spacing: -0.02em; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes borderPulse {
+      0%, 100% { border-color: rgba(255, 31, 53, 0.30); box-shadow: 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 0 rgba(255,31,53,0); }
+      50%       { border-color: rgba(255, 31, 53, 0.65); box-shadow: 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 32px 4px rgba(255,31,53,0.12); }
+    }
+
+    @keyframes badgeGlow {
+      0%, 100% { box-shadow: 0 0 0 4px rgba(255,31,53,0.15), 0 0 0 8px rgba(255,31,53,0.06), 0 20px 40px rgba(0,0,0,0.5); }
+      50%       { box-shadow: 0 0 0 6px rgba(255,31,53,0.28), 0 0 0 14px rgba(255,31,53,0.10), 0 20px 40px rgba(0,0,0,0.5), 0 0 40px 8px rgba(255,31,53,0.15); }
+    }
+
+    @keyframes titleShimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    @keyframes floatDot {
+      0%   { transform: translateY(0)   opacity: 0.3; }
+      50%  { transform: translateY(-18px); }
+      100% { transform: translateY(0)   opacity: 0.3; }
+    }
+
+    @keyframes particleFloat {
+      0%   { transform: translate(0, 0)      opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)); opacity: 0; }
+    }
+
+    @keyframes scanline {
+      0%   { transform: translateY(-100%); }
+      100% { transform: translateY(100vh); }
+    }
+
+    /* Hero card entrance + persistent border pulse */
+    #start .hero-card {
+      animation:
+        heroEntrance 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both,
+        borderPulse 3.5s ease-in-out 1.5s infinite;
+    }
+
+    /* Globe badge: pop-in then persistent glow */
+    #start .logo-badge {
+      animation:
+        badgeEntrance 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both,
+        badgeGlow 3s ease-in-out 1.2s infinite;
+    }
+
+    /* Title: slides up, then gets a slow shimmer sweep */
+    #start h1 {
+      animation: titleEntrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+      background: linear-gradient(
+        90deg,
+        var(--cream) 0%,
+        var(--cream) 35%,
+        rgba(255,209,102,0.9) 48%,
+        var(--cream) 61%,
+        var(--cream) 100%
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation:
+        titleEntrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both,
+        titleShimmer 4s linear 1.4s infinite;
+    }
+
+    /* Tagline */
+    #start p {
+      animation: fadeUp 0.5s ease 0.75s both;
+    }
+
+    /* Buttons stagger in */
+    #start button:first-of-type {
+      animation: fadeUp 0.5s ease 0.9s both;
+    }
+
+    #start #startLoadBtn {
+      animation: fadeUp 0.5s ease 1.05s both;
+    }
+
+    /* Floating particles behind the hero card */
+    #start::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(255,31,53,0.6) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,184,0,0.4) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,31,53,0.4) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,245,230,0.3) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,31,53,0.5) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,184,0,0.5) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,245,230,0.25) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,31,53,0.35) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,184,0,0.35) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,31,53,0.45) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,245,230,0.2) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,184,0,0.3) 1px, transparent 1px);
+      background-size:
+        17% 22%, 23% 31%, 31% 18%, 19% 27%,
+        37% 24%, 13% 35%, 28% 19%, 41% 28%,
+        15% 33%, 26% 16%, 34% 29%, 22% 21%;
+      background-position:
+        8% 15%,  24% 72%, 55% 28%, 78% 61%,
+        42% 88%, 91% 19%, 67% 44%, 13% 55%,
+        83% 82%, 48% 7%,  31% 91%, 70% 35%;
+      animation: particleDrift 18s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes particleDrift {
+      0%   { background-position:
+        8% 15%,  24% 72%, 55% 28%, 78% 61%,
+        42% 88%, 91% 19%, 67% 44%, 13% 55%,
+        83% 82%, 48% 7%,  31% 91%, 70% 35%; }
+      100% { background-position:
+        8% 5%,   24% 62%, 55% 18%, 78% 51%,
+        42% 78%, 91% 9%,  67% 34%, 13% 45%,
+        83% 72%, 48% -3%, 31% 81%, 70% 25%; }
+    }
+
+    /* Scanline sweep across the hero card for broadcast feel */
+    #start .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(255,255,255,0.03) 50%,
+        transparent 100%
+      );
+      height: 40%;
+      top: 0;
+      pointer-events: none;
+      animation: scanline 5s linear 1.5s infinite;
+      border-radius: inherit;
     }
 
   </style>
@@ -6241,6 +6407,7 @@
     var teamLegRecords = {};
     var teamCashSpentThisLeg = {};
     var playerLegMilestones = [];
+    var playerLegLog = [];
     var lastCompletedLegClueData = null;
     var legHistory = [];  // [{legNum, route, labels, results}] — one entry per completed leg
 
@@ -9601,8 +9768,20 @@
       showRoster();
     }
 
+    function teamColorForPlayer() {
+      return (teamColors && playerTeam && teamColors[playerTeam])
+        ? teamColors[playerTeam]
+        : "var(--red)";
+    }
+
     function showRoster() {
-      document.getElementById("rosterTeam").textContent = playerTeam;
+      var myColor = teamColorForPlayer();
+      var rosterTitle = document.getElementById("rosterTeam");
+      rosterTitle.innerHTML =
+        '<span style="display:inline-block;width:16px;height:16px;border-radius:4px;'
+        + 'background:' + myColor + ';margin-right:10px;vertical-align:middle;'
+        + 'box-shadow:0 0 8px ' + myColor + ';"></span>'
+        + escapeHtml(playerTeam);
       document.getElementById("rosterCash").textContent = "Cash: $" + STARTING_MONEY;
 
       var box = document.getElementById("skillList");
@@ -9674,6 +9853,7 @@
       raceClock = nextLegStartClocks[playerTeam];
       legStartClock = raceClock;
       playerLegMilestones = [];
+      playerLegLog = [];
       addPlayerMilestone(legNum === 1 ? "Starting Line" : "Pit Start", legStartClock, "averageTie");
 
       currentLegStartClocks = {};
@@ -9872,9 +10052,11 @@
       addRaceMinutes(opt.time);
 
       if (specialTransportMode === "toAirport") {
+        playerLegLog.push({ type: "transport", label: "To Airport: " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
         addPlayerMilestone("Origin Airport", raceClock, "sequential");
         showFlightScreen();
       } else if (specialTransportMode === "fromAirport") {
+        playerLegLog.push({ type: "transport", label: "From Airport: " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
         autoCompleteChallengeAndShowTransport();
       }
     }
@@ -9897,6 +10079,10 @@
 
       addRaceMinutes(route.totalFromAirportArrival);
       addPlayerMilestone("Destination Airport", route.finalArrivalClock, "averageLanding");
+      playerLegLog.push({ type: "flight",
+        label: "Flight: " + legOrigin.name + " \u2192 " + legDest.name
+          + (route.connections > 0 ? " (" + route.connections + " connection" + (route.connections > 1 ? "s" : "") + ")" : " (direct)"),
+        duration: route.totalFromAirportArrival, cost: 0, clock: raceClock });
 
       var msg = "";
 
@@ -10006,6 +10192,7 @@
     function chooseTransport(opt) {
       spendTeamMoney(playerTeam, opt.cost);
       addRaceMinutes(opt.time);
+      playerLegLog.push({ type: "transport", label: opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
       currentStop = currentStop + 1;
       currentChallenge = null;
 
@@ -10045,6 +10232,7 @@
       var departureClock = arrivalClock + adjusted;
       addRaceMinutes(adjusted);
       addPlayerMilestone("Starting Line Complete", raceClock, "sequential");
+      playerLegLog.push({ type: "challenge", label: "Starting Line (" + escapeHtml(startingLineChallenge.skill) + ")", duration: adjusted, cost: 0, clock: raceClock });
 
       // Update h1
       var titleEl = document.getElementById("raceScreenTitle");
@@ -10090,6 +10278,7 @@
     function chooseStartingLineTransport(opt) {
       spendTeamMoney(playerTeam, opt.cost);
       addRaceMinutes(opt.time);
+      playerLegLog.push({ type: "transport", label: "To Airport: " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
       showFlightScreen();
     }
 
@@ -10263,6 +10452,7 @@
       if (isFinalLeg()) {
         var winner = results[0].team;
         var finalBody = standingsHtml(results, null) +
+          legRecapHtml() +
           routeTrail +
           "<br><br>🏆 <strong>" + escapeHtml(winner) + "</strong> has crossed the final mat and wins The Amazing Race!" +
           (winner === playerTeam ? "<br><strong>That is you. You won the whole race!</strong>" : "") +
@@ -10278,6 +10468,7 @@
 
       if (legIsNonElim) {
         var nonElimBody = standingsHtml(results, null) +
+          legRecapHtml() +
           routeTrail +
           "<br><strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last, but this is a NON-ELIMINATION leg!" +
           "<br>No team has been eliminated." +
@@ -10296,6 +10487,7 @@
 
       if (lastPlaceTeam === playerTeam) {
         var body2 = standingsHtml(results, lastPlaceTeam) +
+          legRecapHtml() +
           routeTrail +
           "<br>You finished last on Leg " + legNum + " and have been eliminated." +
           clueChart +
@@ -10321,6 +10513,7 @@
       }
 
       var body3 = standingsHtml(results, lastPlaceTeam) +
+        legRecapHtml() +
         routeTrail +
         "<br><strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last and is eliminated." +
         "<br>Teams left: " + remainingTeams.length +
@@ -10355,6 +10548,81 @@
           clueByClueChartHtml(entry.results, entry.labels, entry.title) +
           "</details>";
       });
+      return html;
+    }
+
+
+    function legRecapHtml() {
+      if (!playerLegLog || playerLegLog.length === 0) { return ""; }
+
+      var totalMin = raceTime || 1;
+      var cashSpent = teamCashSpentThisLeg[playerTeam] || 0;
+
+      var transportMin = 0, challengeMin = 0, flightMin = 0;
+      playerLegLog.forEach(function(e) {
+        if (e.type === "transport") { transportMin += e.duration; }
+        else if (e.type === "challenge") { challengeMin += e.duration; }
+        else if (e.type === "flight") { flightMin += e.duration; }
+      });
+
+      var typeColors = { transport: "var(--cyan)", challenge: "var(--amber)", flight: "var(--red)" };
+
+      var html = "<details style=\"margin-top:14px;\">"
+        + "<summary style=\"cursor:pointer;color:var(--amber);font-weight:800;"
+        + "padding:8px 0;font-size:0.95rem;letter-spacing:0.04em;list-style:none;\">"
+        + "&#9654; Your Leg Recap</summary>";
+
+      html += "<div style=\"margin-top:10px;background:rgba(0,0,0,0.25);border-radius:10px;padding:14px;\">";
+
+      // Stat row
+      html += "<div style=\"display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;\">";
+      [
+        { label: "Total", val: formatDuration(totalMin), color: "var(--cream)" },
+        { label: "Flights", val: formatDuration(flightMin), color: "var(--red)" },
+        { label: "Transport", val: formatDuration(transportMin), color: "var(--cyan)" },
+        { label: "Challenges", val: formatDuration(challengeMin), color: "var(--amber)" }
+      ].forEach(function(s) {
+        html += "<div style=\"text-align:center;\">"
+          + "<div style=\"color:var(--muted);font-size:0.68rem;font-weight:700;text-transform:uppercase;"
+          + "letter-spacing:0.08em;margin-bottom:3px;\">" + s.label + "</div>"
+          + "<div style=\"font-weight:800;font-size:0.92rem;color:" + s.color + ";\">" + s.val + "</div>"
+          + "</div>";
+      });
+      html += "</div>";
+
+      // Cash row
+      html += "<div style=\"margin-bottom:12px;padding:8px 12px;background:rgba(0,224,154,0.07);"
+        + "border-radius:7px;border-left:2px solid var(--green);font-size:0.88rem;\">"
+        + "<span style=\"color:var(--muted)\">Cash spent: </span>"
+        + "<strong style=\"color:var(--green)\">$" + cashSpent + "</strong>"
+        + "<span style=\"color:var(--muted);margin-left:12px;\">Remaining: </span>"
+        + "<strong style=\"color:var(--green)\">$" + (money[playerTeam] || 0) + "</strong>"
+        + "</div>";
+
+      // Timeline
+      html += "<div style=\"font-size:0.82rem;font-weight:700;text-transform:uppercase;"
+        + "letter-spacing:0.08em;color:var(--muted);margin-bottom:8px;\">Timeline</div>";
+
+      playerLegLog.forEach(function(e) {
+        var color = typeColors[e.type] || "var(--muted)";
+        var pct = Math.max(2, Math.round((e.duration / totalMin) * 100));
+        html += "<div style=\"display:flex;align-items:center;gap:10px;padding:7px 0;"
+          + "border-bottom:1px solid rgba(255,255,255,0.06);\">"
+          + "<div style=\"width:3px;height:32px;border-radius:2px;background:" + color + ";flex-shrink:0;\"></div>"
+          + "<div style=\"flex:1;min-width:0;\">"
+          + "<div style=\"overflow-wrap:anywhere;font-size:0.88rem;\">" + escapeHtml(e.label) + "</div>"
+          + "<div style=\"color:var(--muted);font-size:0.78rem;margin-top:1px;\">"
+          + formatDuration(e.duration)
+          + (e.cost > 0 ? " &middot; <span style=\"color:var(--green)\">-$" + e.cost + "</span>" : "")
+          + "</div></div>"
+          + "<div style=\"text-align:right;flex-shrink:0;\">"
+          + "<div style=\"width:56px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-left:auto;\">"
+          + "<div style=\"height:100%;width:" + pct + "%;background:" + color + ";border-radius:2px;\"></div></div>"
+          + "<div style=\"color:var(--muted);font-size:0.72rem;margin-top:2px;\">" + pct + "%</div>"
+          + "</div></div>";
+      });
+
+      html += "</div></details>";
       return html;
     }
 
@@ -10620,6 +10888,7 @@
         teamLegRecords: teamLegRecords,
         teamCashSpentThisLeg: teamCashSpentThisLeg,
         playerLegMilestones: playerLegMilestones,
+        playerLegLog: playerLegLog,
         lastCompletedLegClueData: lastCompletedLegClueData,
         legHistory: legHistory,
 
@@ -10714,6 +10983,7 @@
       teamLegRecords = state.teamLegRecords || {};
       teamCashSpentThisLeg = state.teamCashSpentThisLeg || {};
       playerLegMilestones = state.playerLegMilestones || [];
+      playerLegLog = state.playerLegLog || [];
       lastCompletedLegClueData = state.lastCompletedLegClueData || null;
       legHistory = state.legHistory || [];
 
@@ -11333,8 +11603,15 @@
 
       if (raceIsInProgress() && hideOn.indexOf(id) === -1) {
         btn.style.display = "block";
+        var color = (typeof teamColorForPlayer === "function") ? teamColorForPlayer() : "var(--red)";
+        var cash = (money && playerTeam) ? "$" + money[playerTeam] : "";
+        var legLabel = (typeof isFinalLeg === "function" && isFinalLeg()) ? "Final" : "Leg " + (legNum || 1);
+        btn.innerHTML = '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;'
+          + 'background:' + color + ';margin-right:6px;vertical-align:middle;"></span>'
+          + '☰ ' + legLabel + (cash ? ' · ' + cash : '');
       } else {
         btn.style.display = "none";
+        btn.innerHTML = "☰ Menu";
       }
     }
 
