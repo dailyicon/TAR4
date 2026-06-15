@@ -548,7 +548,8 @@
       align-items: baseline;
       gap: 12px;
       border-bottom: 1px solid var(--line);
-      padding: 8px 0;
+      border-left: 3px solid transparent;
+      padding: 8px 0 8px 10px;
       line-height: 1.35;
       font-size: 0.92rem;
     }
@@ -596,10 +597,26 @@
     .presence-event {
       margin: 5px 0;
       padding-left: 12px;
-      border-left: 2px solid rgba(255, 184, 0, 0.4);
+      border-left: 3px solid rgba(255, 184, 0, 0.4);
       overflow-wrap: anywhere;
       font-size: 0.9rem;
       color: var(--muted);
+    }
+
+    .team-presence-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 4px 5px 0 0;
+      padding: 4px 8px 4px 7px;
+      border: 1px solid var(--line);
+      border-left: 3px solid currentColor;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.035);
+      color: var(--cream);
+      font-size: 0.84rem;
+      line-height: 1.1;
+      white-space: nowrap;
     }
 
     .challenge-summary {
@@ -674,6 +691,177 @@
     }
 
     .chart th:first-child, .chart td:first-child { text-align: left; }
+
+
+    /* ── PLACEMENT CHART REDESIGN ──────────────────────────── */
+
+    .placement-chart-card {
+      background: linear-gradient(160deg, rgba(31, 8, 13, 0.96) 0%, rgba(13, 3, 5, 0.96) 100%);
+      border: 1px solid rgba(255, 245, 230, 0.12);
+      border-left: 3px solid var(--red);
+      border-radius: var(--r-lg);
+      padding: 16px;
+      margin-top: 14px;
+      overflow: hidden;
+      text-align: left;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 16px 40px rgba(0,0,0,0.24);
+    }
+
+    .placement-chart-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .placement-chart-title {
+      color: var(--amber);
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .placement-chart-subtitle {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-top: 3px;
+    }
+
+    .placement-chart-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid rgba(255, 245, 230, 0.12);
+      border-radius: var(--r-md);
+      background: rgba(0, 0, 0, 0.22);
+    }
+
+    .placement-chart {
+      width: 100%;
+      min-width: 560px;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    .placement-chart th,
+    .placement-chart td {
+      padding: 10px 11px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.075);
+      white-space: nowrap;
+    }
+
+    .placement-chart th {
+      background: rgba(255,255,255,0.045);
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 900;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .placement-chart tbody tr {
+      background: rgba(255,255,255,0.018);
+    }
+
+    .placement-chart tbody tr:nth-child(even) {
+      background: rgba(255,255,255,0.035);
+    }
+
+    .placement-chart tbody tr:hover {
+      background: rgba(255, 184, 0, 0.07);
+    }
+
+    .placement-chart tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .placement-chart .placement-team-cell {
+      min-width: 155px;
+      text-align: left;
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: #18070b;
+      box-shadow: 10px 0 18px rgba(0,0,0,0.22);
+    }
+
+    .placement-chart th.placement-team-cell {
+      z-index: 2;
+      background: #160608;
+    }
+
+    .placement-team-chip-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .placement-team-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.12);
+    }
+
+    .placement-team-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--cream);
+    }
+
+    .placement-rank-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 30px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.075);
+      color: var(--cream);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .placement-rank-pill.first {
+      color: #111;
+      background: var(--amber);
+      border-color: rgba(255, 184, 0, 0.65);
+      box-shadow: 0 0 16px rgba(255, 184, 0, 0.16);
+    }
+
+    .placement-rank-pill.empty {
+      color: rgba(255, 245, 230, 0.32);
+      background: transparent;
+      border-color: rgba(255,255,255,0.06);
+    }
+
+    .placement-rank-pill.latest {
+      outline: 2px solid rgba(0, 229, 255, 0.28);
+      outline-offset: 1px;
+    }
+
+    .placement-avg {
+      color: var(--cyan);
+      font-weight: 900;
+    }
+
+    .placement-chart tr.player-row .placement-team-name,
+    .placement-chart tr.player-row .placement-avg {
+      color: var(--amber);
+    }
+
+    .placement-chart tr.player-row {
+      background: rgba(255, 184, 0, 0.075);
+    }
 
     /* ── MENU ───────────────────────────────────────────────── */
 
@@ -1250,201 +1438,6 @@
 
     .time-chart .rank-head { background: #111; color: var(--cream); box-shadow: none; }
 
-
-    /* ── LEG RECAP — clean post-leg story card ───────────────── */
-
-    .leg-recap-details {
-      margin-top: 16px;
-      background: linear-gradient(160deg, rgba(31, 8, 13, 0.95), rgba(13, 3, 5, 0.92));
-      border: 1px solid rgba(255, 245, 230, 0.12);
-      border-left: 3px solid var(--amber);
-      border-radius: var(--r-lg);
-      overflow: hidden;
-      box-shadow: 0 14px 36px rgba(0,0,0,0.28);
-    }
-
-    .leg-recap-details summary {
-      cursor: pointer;
-      list-style: none;
-      color: var(--amber);
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-size: 0.85rem;
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(255, 245, 230, 0.08);
-      background: rgba(255, 184, 0, 0.05);
-    }
-
-    .leg-recap-details summary::-webkit-details-marker { display: none; }
-
-    .leg-recap-body { padding: 16px; }
-
-    .leg-recap-headline {
-      display: grid;
-      grid-template-columns: 1.15fr 1fr;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .leg-recap-hero,
-    .leg-recap-money {
-      background: rgba(0,0,0,0.24);
-      border: 1px solid rgba(255,245,230,0.10);
-      border-radius: var(--r-md);
-      padding: 13px 14px;
-    }
-
-    .leg-recap-kicker {
-      color: var(--muted);
-      font-size: 0.66rem;
-      font-weight: 900;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-
-    .leg-recap-big {
-      color: var(--cream);
-      font-size: 1.5rem;
-      font-weight: 900;
-      line-height: 1;
-      letter-spacing: -0.02em;
-    }
-
-    .leg-recap-small {
-      margin-top: 5px;
-      color: var(--muted);
-      font-size: 0.78rem;
-      line-height: 1.35;
-      font-weight: 700;
-    }
-
-    .leg-recap-money-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .leg-recap-money-pill {
-      background: rgba(0, 224, 154, 0.08);
-      border: 1px solid rgba(0, 224, 154, 0.18);
-      border-radius: var(--r-sm);
-      padding: 8px 10px;
-    }
-
-    .leg-recap-money-pill strong {
-      display: block;
-      color: var(--green);
-      font-size: 1rem;
-      line-height: 1.1;
-    }
-
-    .leg-recap-stats {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 9px;
-      margin-bottom: 16px;
-    }
-
-    .leg-recap-stat {
-      background: rgba(0,0,0,0.18);
-      border: 1px solid rgba(255,245,230,0.09);
-      border-radius: var(--r-md);
-      padding: 11px 12px;
-      min-width: 0;
-    }
-
-    .leg-recap-stat.transport { border-left: 2px solid var(--cyan); }
-    .leg-recap-stat.flight { border-left: 2px solid var(--red); }
-    .leg-recap-stat.challenge { border-left: 2px solid var(--amber); }
-
-    .leg-recap-stat-value {
-      font-size: 1.04rem;
-      font-weight: 900;
-      line-height: 1.1;
-    }
-
-    .leg-recap-section-title {
-      color: var(--muted);
-      font-size: 0.72rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.11em;
-      margin: 4px 0 10px;
-    }
-
-    .leg-recap-route {
-      display: grid;
-      gap: 8px;
-    }
-
-    .leg-recap-item {
-      display: grid;
-      grid-template-columns: 36px minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: center;
-      background: rgba(0,0,0,0.18);
-      border: 1px solid rgba(255,245,230,0.08);
-      border-radius: var(--r-md);
-      padding: 10px 12px;
-    }
-
-    .leg-recap-item.transport { border-left: 3px solid var(--cyan); }
-    .leg-recap-item.flight { border-left: 3px solid var(--red); }
-    .leg-recap-item.challenge { border-left: 3px solid var(--amber); }
-
-    .leg-recap-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      display: grid;
-      place-items: center;
-      background: rgba(255,245,230,0.08);
-      border: 1px solid rgba(255,245,230,0.10);
-      font-size: 0.94rem;
-      flex-shrink: 0;
-    }
-
-    .leg-recap-main { min-width: 0; }
-
-    .leg-recap-label {
-      color: var(--cream);
-      font-size: 0.9rem;
-      font-weight: 900;
-      line-height: 1.22;
-      overflow-wrap: anywhere;
-    }
-
-    .leg-recap-meta {
-      margin-top: 3px;
-      color: var(--muted);
-      font-size: 0.76rem;
-      line-height: 1.35;
-      font-weight: 700;
-    }
-
-    .leg-recap-cost { color: var(--green); }
-
-    .leg-recap-duration {
-      color: var(--cream);
-      font-size: 0.88rem;
-      font-weight: 900;
-      white-space: nowrap;
-      padding: 6px 9px;
-      background: rgba(255,245,230,0.08);
-      border: 1px solid rgba(255,245,230,0.10);
-      border-radius: 999px;
-    }
-
-    @media (max-width: 760px) {
-      .leg-recap-headline,
-      .leg-recap-stats { grid-template-columns: 1fr; }
-      .leg-recap-item { grid-template-columns: 32px minmax(0, 1fr); }
-      .leg-recap-duration { grid-column: 2; justify-self: start; margin-top: -2px; }
-    }
-
     .time-chart .group-head {
       font-size: var(--tc-head-font-size, 0.72rem);
       vertical-align: middle;
@@ -1953,8 +1946,8 @@
           <div class="setting-card">
             <label>Challenge Time Range</label>
             <div class="range-pair">
-              <input id="settingChallengeMinTime" type="number" min="1" max="240" step="1" aria-label="Minimum base challenge time">
-              <input id="settingChallengeMaxTime" type="number" min="1" max="240" step="1" aria-label="Maximum base challenge time">
+              <input id="settingChallengeMinTime" type="number" min="1" max="1440" step="1" aria-label="Minimum base challenge time">
+              <input id="settingChallengeMaxTime" type="number" min="1" max="1440" step="1" aria-label="Maximum base challenge time">
             </div>
             <div class="setting-help">Base minutes for each challenge before skill level modifies the time.</div>
           </div>
@@ -7518,6 +7511,7 @@
       teams.forEach(function (name) {
         var btn = document.createElement("button");
         btn.className = "team-btn";
+        btn.style.borderLeftColor = teamColor(name);
         btn.textContent = name;
         btn.onclick = function () { selectTeam(name); };
         list.appendChild(btn);
@@ -7682,7 +7676,10 @@
         return "None";
       }
 
-      return names.map(escapeHtml).join(", ");
+      return names.map(function (name) {
+        var color = teamColor(name);
+        return '<span class="team-presence-chip" style="border-left-color:' + escapeHtml(color) + ';">' + escapeHtml(name) + '</span>';
+      }).join("");
     }
 
     function eventListHtml(events, verb) {
@@ -7692,7 +7689,8 @@
 
       var html = "";
       events.forEach(function (event) {
-        html += '<div class="presence-event">' +
+        var color = teamColor(event.team);
+        html += '<div class="presence-event" style="border-left-color:' + escapeHtml(color) + ';">' +
           escapeHtml(event.team) + " " + verb + " " + formatRaceTimeOnly(event.clock) +
           "</div>";
       });
@@ -7825,7 +7823,7 @@
         var clock = currentLegStartClocks[team] != null ? currentLegStartClocks[team] : raceClock;
         var youClass = team === playerTeam ? " you" : "";
 
-        html += '<div class="departure-row' + youClass + '">';
+        html += '<div class="departure-row' + youClass + '" style="border-left-color:' + escapeHtml(teamColor(team)) + ';">';
         html += '<span class="departure-team">' + escapeHtml(team) + '</span>';
         html += '<span class="departure-time">' + formatRaceDateTime(clock) + '</span>';
         html += '</div>';
@@ -8236,8 +8234,8 @@
       settings.maxStopsPerLeg = clampNumber(isNaN(settings.maxStopsPerLeg) ? DEFAULT_RACE_SETTINGS.maxStopsPerLeg : settings.maxStopsPerLeg, 1, 20);
       settings.finalMinStopsPerLeg = clampNumber(isNaN(settings.finalMinStopsPerLeg) ? DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg : settings.finalMinStopsPerLeg, 1, 25);
       settings.finalMaxStopsPerLeg = clampNumber(isNaN(settings.finalMaxStopsPerLeg) ? DEFAULT_RACE_SETTINGS.finalMaxStopsPerLeg : settings.finalMaxStopsPerLeg, 1, 25);
-      settings.challengeMinTime = clampNumber(isNaN(settings.challengeMinTime) ? DEFAULT_RACE_SETTINGS.challengeMinTime : settings.challengeMinTime, 1, 240);
-      settings.challengeMaxTime = clampNumber(isNaN(settings.challengeMaxTime) ? DEFAULT_RACE_SETTINGS.challengeMaxTime : settings.challengeMaxTime, 1, 240);
+      settings.challengeMinTime = clampNumber(isNaN(settings.challengeMinTime) ? DEFAULT_RACE_SETTINGS.challengeMinTime : settings.challengeMinTime, 1, 1440);
+      settings.challengeMaxTime = clampNumber(isNaN(settings.challengeMaxTime) ? DEFAULT_RACE_SETTINGS.challengeMaxTime : settings.challengeMaxTime, 1, 1440);
       var validScalings = ["1.0","0.667","0.5","0.333","custom"];
       if (settings.gapScaling == null || validScalings.indexOf(String(settings.gapScaling)) === -1) {
         settings.gapScaling = DEFAULT_RACE_SETTINGS.gapScaling;
@@ -9873,14 +9871,16 @@
 
       var map = {};
       flights.forEach(function (flight, index) {
-        map[flight.key] = "F" + (index + 1);
+        map[flight.key] = index + 1;
       });
       return map;
     }
 
-    function timelineFlightLabel(record, flightMap) {
+    function timelineFlightLabel(record, flightMap, useLongLabel) {
       var key = timelineFlightKey(record);
-      return key && flightMap && flightMap[key] ? flightMap[key] : "F?";
+      var num = key && flightMap && flightMap[key] ? flightMap[key] : null;
+      if (!num) { return useLongLabel ? "Flight ?" : "F?"; }
+      return useLongLabel ? ("Flight " + num) : ("F" + num);
     }
 
     function contrastTextColor(hex) {
@@ -9983,6 +9983,7 @@
       var finalLeg = isFinalOverride == null ? isFinalLeg() : !!isFinalOverride;
       var activeResults = results.slice();
       var flightMap = timelineFlightNumberMap(activeResults);
+      var useLongFlightLabels = false;
       var finalRank = {};
       activeResults.forEach(function (r, i) { finalRank[r.team] = i + 1; });
 
@@ -10011,7 +10012,7 @@
       }
 
       addColumn("toAirport", "Airport", function (r) { return milestoneClock(r, "Origin Airport"); }, function (r) { return timelineDetail(r, "toAirport"); }, false, { group: "Airport", isTransport: true });
-      addColumn("flight", "Flight #", function (r) { return timelineFlightArrivalClock(r); }, function (r) { return timelineFlightLabel(r, flightMap); }, false, { group: "Flight #" });
+      addColumn("flight", "Flight #", function (r) { return timelineFlightArrivalClock(r); }, function (r) { return timelineFlightLabel(r, flightMap, useLongFlightLabels); }, false, { group: "Flight #" });
       addColumn("landed", "Landed", function (r) { return milestoneClock(r, "Destination Airport"); }, function (r) {
         var c = milestoneClock(r, "Destination Airport");
         return c == null ? "—" : formatRaceTimeCompact(c);
@@ -10042,6 +10043,11 @@
       }
 
       addColumn("checkIn", finalLeg ? "Finish" : "Check-In", function (r) { return r.checkInClock; }, function (r) { return formatRaceTimeCompact(r.checkInClock); }, true, { group: finalLeg ? "Finish Time" : "Check-In" });
+
+      var teamCountForChart = activeResults.length;
+      var columnCount = columns.length + 1;
+      var densityScore = columnCount + Math.max(0, teamCountForChart - 12) * 0.45;
+      useLongFlightLabels = densityScore <= 14 && teamCountForChart <= 16;
 
       var previousRank = {};
       activeResults.forEach(function (record, index) {
@@ -10088,9 +10094,6 @@
         return { column: col, entries: entries };
       });
 
-      var teamCountForChart = activeResults.length;
-      var columnCount = columns.length + 1;
-      var densityScore = columnCount + Math.max(0, teamCountForChart - 12) * 0.45;
       var fontSize = 0.76;
       var headFontSize = 0.68;
       var padX = 8;
@@ -10862,34 +10865,17 @@
     }
 
     function chooseSpecialTransport(opt) {
-      var eventStartClock = raceClock;
       spendTeamMoney(playerTeam, opt.cost);
       addRaceMinutes(opt.time);
 
       if (specialTransportMode === "toAirport") {
         playerLegTimelineDetails.toAirport = opt.method;
-        playerLegLog.push({
-          type: "transport",
-          label: "To Airport: " + opt.method.trim(),
-          duration: opt.time,
-          cost: opt.cost,
-          startClock: eventStartClock,
-          endClock: raceClock,
-          clock: raceClock
-        });
+        playerLegLog.push({ type: "transport", label: "To Airport: " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
         addPlayerMilestone("Origin Airport", raceClock, "sequential");
         showFlightScreen();
       } else if (specialTransportMode === "fromAirport") {
         playerLegTimelineDetails.fromAirport = opt.method;
-        playerLegLog.push({
-          type: "transport",
-          label: "From Airport: " + opt.method.trim(),
-          duration: opt.time,
-          cost: opt.cost,
-          startClock: eventStartClock,
-          endClock: raceClock,
-          clock: raceClock
-        });
+        playerLegLog.push({ type: "transport", label: "From Airport: " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
         autoCompleteChallengeAndShowTransport();
       }
     }
@@ -10912,18 +10898,10 @@
 
       addRaceMinutes(route.totalFromAirportArrival);
       addPlayerMilestone("Destination Airport", route.finalArrivalClock, "averageLanding");
-      playerLegLog.push({
-        type: "flight",
+      playerLegLog.push({ type: "flight",
         label: "Flight: " + legOrigin.name + " \u2192 " + legDest.name
           + (route.connections > 0 ? " (" + route.connections + " connection" + (route.connections > 1 ? "s" : "") + ")" : " (direct)"),
-        duration: route.totalFromAirportArrival,
-        cost: 0,
-        startClock: airportArrivalClock,
-        departClock: route.firstDepartClock,
-        landClock: route.finalArrivalClock,
-        endClock: raceClock,
-        clock: raceClock
-      });
+        duration: route.totalFromAirportArrival, cost: 0, clock: raceClock });
 
       var msg = "";
 
@@ -10972,17 +10950,6 @@
 
       addRaceMinutes(adjusted);
       addPlayerMilestone(challengeCompleteLabel(currentStop), raceClock, "sequential");
-      playerLegLog.push({
-        type: "challenge",
-        label: "Challenge " + stopLetter(currentStop) + " [" + stop.skill + "]",
-        duration: adjusted,
-        cost: 0,
-        skill: stop.skill,
-        level: level,
-        startClock: arrivalClock,
-        endClock: raceClock,
-        clock: raceClock
-      });
       showRace();
     }
 
@@ -11043,22 +11010,10 @@
     }
 
     function chooseTransport(opt) {
-      var eventStartClock = raceClock;
-      var nextLabel = currentStop >= totalStopsThisLeg - 1
-        ? (isFinalLeg() ? "To Finish Line" : "To Pit Stop")
-        : "To Challenge " + stopLetter(currentStop + 1);
       spendTeamMoney(playerTeam, opt.cost);
       addRaceMinutes(opt.time);
       playerLegTimelineDetails.afterStops[currentStop] = opt.method;
-      playerLegLog.push({
-        type: "transport",
-        label: nextLabel + ": " + opt.method.trim(),
-        duration: opt.time,
-        cost: opt.cost,
-        startClock: eventStartClock,
-        endClock: raceClock,
-        clock: raceClock
-      });
+      playerLegLog.push({ type: "transport", label: opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
       currentStop = currentStop + 1;
       currentChallenge = null;
 
@@ -11099,17 +11054,7 @@
       var departureClock = arrivalClock + adjusted;
       addRaceMinutes(adjusted);
       addPlayerMilestone("Starting Line Complete", raceClock, "sequential");
-      playerLegLog.push({
-        type: "challenge",
-        label: "Starting Line [" + startingLineChallenge.skill + "]",
-        duration: adjusted,
-        cost: 0,
-        skill: startingLineChallenge.skill,
-        level: level,
-        startClock: arrivalClock,
-        endClock: raceClock,
-        clock: raceClock
-      });
+      playerLegLog.push({ type: "challenge", label: "Starting Line (" + escapeHtml(startingLineChallenge.skill) + ")", duration: adjusted, cost: 0, clock: raceClock });
 
       // Update h1
       var titleEl = document.getElementById("raceScreenTitle");
@@ -11153,19 +11098,10 @@
     // Called when the player picks transport after the Starting Line challenge.
     // Deducts cost, advances clock, then goes straight to the flight screen.
     function chooseStartingLineTransport(opt) {
-      var eventStartClock = raceClock;
       spendTeamMoney(playerTeam, opt.cost);
       addRaceMinutes(opt.time);
       playerLegTimelineDetails.toAirport = opt.method;
-      playerLegLog.push({
-        type: "transport",
-        label: "To Airport: " + opt.method.trim(),
-        duration: opt.time,
-        cost: opt.cost,
-        startClock: eventStartClock,
-        endClock: raceClock,
-        clock: raceClock
-      });
+      playerLegLog.push({ type: "transport", label: "To Airport: " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
       addPlayerMilestone("Origin Airport", raceClock, "sequential");
       showFlightScreen();
     }
@@ -11184,10 +11120,10 @@
 
         rows += "<div" + style + ">" +
           (i + 1) + ". " + escapeHtml(r.team) +
+          " · " + formatRaceTimeOnly(r.checkInClock) +
           (isElim ? ' <span style="color:var(--red);font-size:0.8rem;font-weight:900;' +
             'letter-spacing:0.06em;background:rgba(255,31,53,0.14);border:1px solid rgba(255,31,53,0.4);' +
             'border-radius:4px;padding:1px 6px;vertical-align:middle;">ELIM</span>' : "") +
-          " · " + formatRaceTimeOnly(r.checkInClock) +
           "</div>";
       });
 
@@ -11216,8 +11152,16 @@
       };
     }
 
+    function placementRankPill(value, isLatest) {
+      if (value == null) {
+        return '<span class="placement-rank-pill empty">—</span>';
+      }
+      var cls = 'placement-rank-pill' + (value === 1 ? ' first' : '') + (isLatest ? ' latest' : '');
+      return '<span class="' + cls + '">' + value + '</span>';
+    }
+
     function placementChartHtml() {
-      // Use the longest history across all teams so post-elimination simulation legs show
+      // Use the longest history across all teams so post-elimination simulation legs show.
       var allTeamNames = Object.keys(placementHistory);
       if (allTeamNames.length === 0) { return ""; }
 
@@ -11229,7 +11173,7 @@
 
       if (numLegs === 0) { return ""; }
 
-      // Sort teams: best average first, then by most recent placement
+      // Sort teams: best current placement first, then most recent activity.
       var displayTeams = (teams && teams.length ? teams : allTeamNames).slice();
       displayTeams.sort(function (a, b) {
         var la = lastPlacement(a);
@@ -11238,24 +11182,35 @@
         return lb.leg - la.leg;
       });
 
-      var html = '<div style="overflow-x:auto;"><table class="chart"><thead><tr><th>Team</th>';
-      for (var l = 1; l <= numLegs; l++) { html += "<th>L" + l + "</th>"; }
-      html += "<th>Avg</th></tr></thead><tbody>";
+      var html = '<div class="placement-chart-card">';
+      html += '<div class="placement-chart-head"><div>';
+      html += '<div class="placement-chart-title">Placement Chart</div>';
+      html += '<div class="placement-chart-subtitle">Season placements after ' + numLegs + ' leg' + (numLegs === 1 ? '' : 's') + '.</div>';
+      html += '</div></div>';
+      html += '<div class="placement-chart-wrap"><table class="placement-chart" role="table" aria-label="Season placement chart"><thead><tr>';
+      html += '<th class="placement-team-cell">Team</th>';
+      for (var l = 1; l <= numLegs; l++) { html += '<th>L' + l + '</th>'; }
+      html += '<th>Avg</th></tr></thead><tbody>';
 
       displayTeams.forEach(function (name) {
         var h = (placementHistory[name] || []).slice();
-        // Pad to numLegs so every row has the same number of cells
         while (h.length < numLegs) { h.push(null); }
         var nums = h.filter(function (x) { return x != null; });
-        var avg = nums.length ? (nums.reduce(function (s, x) { return s + x; }, 0) / nums.length).toFixed(1) : "";
+        var avg = nums.length ? (nums.reduce(function (s, x) { return s + x; }, 0) / nums.length).toFixed(1) : "—";
         var isYou = (name === playerTeam);
-        var rowStyle = isYou ? " style=\"color:#ffd166;font-weight:bold;\"" : "";
-        html += "<tr" + rowStyle + "><td>" + escapeHtml(truncateName(name, 14)) + "</td>";
-        h.forEach(function (p) { html += "<td>" + (p == null ? "" : p) + "</td>"; });
-        html += "<td>" + avg + "</td></tr>";
+        var teamCol = teamColor(name);
+        html += '<tr' + (isYou ? ' class="player-row"' : '') + '>';
+        html += '<td class="placement-team-cell"><div class="placement-team-chip-line">';
+        html += '<span class="placement-team-dot" style="background:' + escapeHtml(teamCol) + ';"></span>';
+        html += '<span class="placement-team-name">' + escapeHtml(truncateName(name, 18)) + '</span>';
+        html += '</div></td>';
+        h.forEach(function (p, idx) {
+          html += '<td>' + placementRankPill(p, idx === numLegs - 1 && p != null) + '</td>';
+        });
+        html += '<td class="placement-avg">' + escapeHtml(avg) + '</td></tr>';
       });
 
-      html += "</tbody></table></div>";
+      html += '</tbody></table></div></div>';
       return html;
     }
 
@@ -11336,7 +11291,7 @@
       legHistory.push({ legNum: legNum, route: route, labels: savedLabels, results: results, isFinal: isFinalLeg(), title: savedTitle });
       var timeChart = "<br>" + legTimelineChartHtml(results, savedLabels, savedTitle, isFinalLeg());
       var clueChart = "<br>" + clueByClueChartHtml(results, savedLabels, savedTitle);
-      var chart = "<br><strong>Placement Chart</strong>" + placementChartHtml();
+      var chart = "<br>" + placementChartHtml();
 
       if (isFinalLeg()) {
         var winner = results[0].team;
@@ -11349,7 +11304,7 @@
           timeChart +
           clueChart +
           "<br><strong>Leg Charts — All Legs</strong>" + allLegsChartHtml() +
-          "<br><strong>Placement Chart</strong>" + placementChartHtml();
+          "<br>" + placementChartHtml();
 
         renderResults("🏆 Final Leg: " + route, finalBody, "New Game", resetToStart, "newGame");
         return;
@@ -11447,114 +11402,77 @@
     }
 
 
-    function legRecapTypeLabel(type) {
-      if (type === "transport") { return "Transport"; }
-      if (type === "flight") { return "Flight"; }
-      if (type === "challenge") { return "Challenge"; }
-      return "Race Step";
-    }
-
-    function legRecapIcon(type) {
-      if (type === "transport") { return "➜"; }
-      if (type === "flight") { return "✈"; }
-      if (type === "challenge") { return "◆"; }
-      return "•";
-    }
-
-    function legRecapEventClockText(e) {
-      var start = e.startClock != null ? e.startClock : null;
-      var end = e.endClock != null ? e.endClock : (e.clock != null ? e.clock : null);
-      var pieces = [];
-
-      if (start != null && end != null && start !== end) {
-        pieces.push(formatRaceTimeOnly(start) + " → " + formatRaceTimeOnly(end));
-      } else if (end != null) {
-        pieces.push("Finished " + formatRaceTimeOnly(end));
-      }
-
-      if (e.type === "flight" && e.departClock != null && e.landClock != null) {
-        pieces.push("Boarded " + formatRaceTimeOnly(e.departClock) + " · Landed " + formatRaceTimeOnly(e.landClock));
-      }
-
-      return pieces.join("<br>");
-    }
-
-    function legRecapCostHtml(e) {
-      if (!e || !e.cost || e.cost <= 0) { return ""; }
-      return ' · <span class="leg-recap-cost">-$' + e.cost + '</span>';
-    }
-
     function legRecapHtml() {
       if (!playerLegLog || playerLegLog.length === 0) { return ""; }
 
       var totalMin = raceTime || 1;
       var cashSpent = teamCashSpentThisLeg[playerTeam] || 0;
-      var remainingCash = money[playerTeam] || 0;
 
       var transportMin = 0, challengeMin = 0, flightMin = 0;
-      var transportCount = 0, challengeCount = 0, flightCount = 0;
-
       playerLegLog.forEach(function(e) {
-        if (e.type === "transport") { transportMin += e.duration; transportCount += 1; }
-        else if (e.type === "challenge") { challengeMin += e.duration; challengeCount += 1; }
-        else if (e.type === "flight") { flightMin += e.duration; flightCount += 1; }
+        if (e.type === "transport") { transportMin += e.duration; }
+        else if (e.type === "challenge") { challengeMin += e.duration; }
+        else if (e.type === "flight") { flightMin += e.duration; }
       });
 
-      var html = '<details class="leg-recap-details" open>' +
-        '<summary>▶ Your Leg Recap</summary>' +
-        '<div class="leg-recap-body">';
+      var typeColors = { transport: "var(--cyan)", challenge: "var(--amber)", flight: "var(--red)" };
 
-      html += '<div class="leg-recap-headline">' +
-        '<div class="leg-recap-hero">' +
-          '<div class="leg-recap-kicker">Total leg time</div>' +
-          '<div class="leg-recap-big">' + formatDuration(totalMin) + '</div>' +
-          '<div class="leg-recap-small">Finished at ' + formatRaceTimeOnly(raceClock) + '</div>' +
-        '</div>' +
-        '<div class="leg-recap-money">' +
-          '<div class="leg-recap-kicker">Money check</div>' +
-          '<div class="leg-recap-money-grid">' +
-            '<div class="leg-recap-money-pill"><div class="leg-recap-kicker">Spent</div><strong>$' + cashSpent + '</strong></div>' +
-            '<div class="leg-recap-money-pill"><div class="leg-recap-kicker">Left</div><strong>$' + remainingCash + '</strong></div>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
+      var html = "<details style=\"margin-top:14px;\">"
+        + "<summary style=\"cursor:pointer;color:var(--amber);font-weight:800;"
+        + "padding:8px 0;font-size:0.95rem;letter-spacing:0.04em;list-style:none;\">"
+        + "&#9654; Your Leg Recap</summary>";
 
-      html += '<div class="leg-recap-stats">';
+      html += "<div style=\"margin-top:10px;background:rgba(0,0,0,0.25);border-radius:10px;padding:14px;\">";
+
+      // Stat row
+      html += "<div style=\"display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;\">";
       [
-        { cls: "flight", label: "Flights", value: formatDuration(flightMin), count: flightCount },
-        { cls: "transport", label: "Transport", value: formatDuration(transportMin), count: transportCount },
-        { cls: "challenge", label: "Challenges", value: formatDuration(challengeMin), count: challengeCount }
+        { label: "Total", val: formatDuration(totalMin), color: "var(--cream)" },
+        { label: "Flights", val: formatDuration(flightMin), color: "var(--red)" },
+        { label: "Transport", val: formatDuration(transportMin), color: "var(--cyan)" },
+        { label: "Challenges", val: formatDuration(challengeMin), color: "var(--amber)" }
       ].forEach(function(s) {
-        html += '<div class="leg-recap-stat ' + s.cls + '">' +
-          '<div class="leg-recap-kicker">' + s.label + '</div>' +
-          '<div class="leg-recap-stat-value">' + s.value + '</div>' +
-          '<div class="leg-recap-small">' + s.count + ' step' + (s.count === 1 ? '' : 's') + '</div>' +
-        '</div>';
+        html += "<div style=\"text-align:center;\">"
+          + "<div style=\"color:var(--muted);font-size:0.68rem;font-weight:700;text-transform:uppercase;"
+          + "letter-spacing:0.08em;margin-bottom:3px;\">" + s.label + "</div>"
+          + "<div style=\"font-weight:800;font-size:0.92rem;color:" + s.color + ";\">" + s.val + "</div>"
+          + "</div>";
       });
-      html += '</div>';
+      html += "</div>";
 
-      html += '<div class="leg-recap-section-title">Route timeline</div>';
-      html += '<div class="leg-recap-route">';
+      // Cash row
+      html += "<div style=\"margin-bottom:12px;padding:8px 12px;background:rgba(0,224,154,0.07);"
+        + "border-radius:7px;border-left:2px solid var(--green);font-size:0.88rem;\">"
+        + "<span style=\"color:var(--muted)\">Cash spent: </span>"
+        + "<strong style=\"color:var(--green)\">$" + cashSpent + "</strong>"
+        + "<span style=\"color:var(--muted);margin-left:12px;\">Remaining: </span>"
+        + "<strong style=\"color:var(--green)\">$" + (money[playerTeam] || 0) + "</strong>"
+        + "</div>";
+
+      // Timeline
+      html += "<div style=\"font-size:0.82rem;font-weight:700;text-transform:uppercase;"
+        + "letter-spacing:0.08em;color:var(--muted);margin-bottom:8px;\">Timeline</div>";
 
       playerLegLog.forEach(function(e) {
-        var type = e.type || "step";
-        var safeType = type === "transport" || type === "flight" || type === "challenge" ? type : "step";
-        var clockText = legRecapEventClockText(e);
-        var meta = legRecapTypeLabel(type) +
-          (clockText ? ' · ' + clockText : '') +
-          legRecapCostHtml(e);
-
-        html += '<div class="leg-recap-item ' + safeType + '">' +
-          '<div class="leg-recap-icon">' + legRecapIcon(type) + '</div>' +
-          '<div class="leg-recap-main">' +
-            '<div class="leg-recap-label">' + escapeHtml(e.label || legRecapTypeLabel(type)) + '</div>' +
-            '<div class="leg-recap-meta">' + meta + '</div>' +
-          '</div>' +
-          '<div class="leg-recap-duration">' + formatDuration(e.duration || 0) + '</div>' +
-        '</div>';
+        var color = typeColors[e.type] || "var(--muted)";
+        var pct = Math.max(2, Math.round((e.duration / totalMin) * 100));
+        html += "<div style=\"display:flex;align-items:center;gap:10px;padding:7px 0;"
+          + "border-bottom:1px solid rgba(255,255,255,0.06);\">"
+          + "<div style=\"width:3px;height:32px;border-radius:2px;background:" + color + ";flex-shrink:0;\"></div>"
+          + "<div style=\"flex:1;min-width:0;\">"
+          + "<div style=\"overflow-wrap:anywhere;font-size:0.88rem;\">" + escapeHtml(e.label) + "</div>"
+          + "<div style=\"color:var(--muted);font-size:0.78rem;margin-top:1px;\">"
+          + formatDuration(e.duration)
+          + (e.cost > 0 ? " &middot; <span style=\"color:var(--green)\">-$" + e.cost + "</span>" : "")
+          + "</div></div>"
+          + "<div style=\"text-align:right;flex-shrink:0;\">"
+          + "<div style=\"width:56px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-left:auto;\">"
+          + "<div style=\"height:100%;width:" + pct + "%;background:" + color + ";border-radius:2px;\"></div></div>"
+          + "<div style=\"color:var(--muted);font-size:0.72rem;margin-top:2px;\">" + pct + "%</div>"
+          + "</div></div>";
       });
 
-      html += '</div></div></details>';
+      html += "</div></details>";
       return html;
     }
 
@@ -11709,7 +11627,7 @@
           "<br><strong>Final Standings</strong>" +
           eliminationOrderHtml(winner) +
           "<br><strong>Leg Charts — All Legs</strong>" + allLegsChartHtml() +
-          "<br><strong>Placement Chart</strong>" + placementChartHtml();
+          "<br>" + placementChartHtml();
 
         renderResults(title, body, "New Game", resetToStart, "newGame");
       }, 30);
