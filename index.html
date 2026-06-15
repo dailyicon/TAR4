@@ -1218,15 +1218,16 @@
     .time-chart th {
       background: #111;
       color: var(--cream);
-      letter-spacing: 0.015em;
+      letter-spacing: 0.005em;
       text-transform: uppercase;
       font-size: var(--tc-head-font-size, 0.72rem);
-      box-shadow: inset 0 -2px 0 rgba(255, 184, 0, 0.45);
-      line-height: 0.98;
-      white-space: normal;
-      overflow-wrap: anywhere;
-      word-break: break-word;
+      box-shadow: none;
+      line-height: 1;
+      white-space: nowrap;
+      overflow-wrap: normal;
+      word-break: normal;
       text-overflow: clip;
+      overflow: hidden;
     }
 
     .time-chart .rank-head,
@@ -1235,11 +1236,19 @@
       width: var(--tc-rank-w, 44px);
       background: #f3f3f3;
       color: #111;
-      font-size: calc(var(--tc-font-size, 0.78rem) + 0.12rem);
+      font-size: calc(var(--tc-font-size, 0.78rem) + 0.03rem);
       box-shadow: 2px 0 0 rgba(0,0,0,0.35);
+      text-align: center;
+      vertical-align: middle;
+      line-height: 1;
+      padding-left: 0;
+      padding-right: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      font-variant-numeric: tabular-nums;
     }
 
-    .time-chart .rank-head { background: #111; color: var(--cream); }
+    .time-chart .rank-head { background: #111; color: var(--cream); box-shadow: none; }
 
     .time-chart .group-head {
       font-size: var(--tc-head-font-size, 0.72rem);
@@ -1265,11 +1274,12 @@
       text-overflow: clip;
       max-width: none;
       vertical-align: middle;
-      line-height: 1.02;
-      white-space: normal;
-      overflow-wrap: anywhere;
-      word-break: break-word;
-      hyphens: auto;
+      line-height: 1;
+      white-space: nowrap;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: none;
+      font-variant-numeric: tabular-nums;
     }
 
     /* ── CLUE CHART ─────────────────────────────────────────── */
@@ -1991,7 +2001,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 12;
+    var SAVE_VERSION = 13;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -6461,6 +6471,34 @@
       if (s === "custom") { return isNaN(customVal) ? 0.5 : Math.max(0, Math.min(1, customVal)); }
       return 0.5;
     }
+
+    function rollChallengeBaseTime() {
+      return randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME);
+    }
+
+    function challengeBaseForTeam(stop, teamName) {
+      if (!stop) { return rollChallengeBaseTime(); }
+      if (!stop.teamBases || typeof stop.teamBases !== "object") {
+        stop.teamBases = {};
+      }
+      var key = teamName || "Team";
+      if (stop.teamBases[key] == null || isNaN(parseInt(stop.teamBases[key], 10))) {
+        stop.teamBases[key] = rollChallengeBaseTime();
+      }
+      return parseInt(stop.teamBases[key], 10);
+    }
+
+    function startingLineBaseForTeam(teamName) {
+      if (!startingLineChallenge) { return rollChallengeBaseTime(); }
+      if (!startingLineChallenge.teamBases || typeof startingLineChallenge.teamBases !== "object") {
+        startingLineChallenge.teamBases = {};
+      }
+      var key = teamName || "Team";
+      if (startingLineChallenge.teamBases[key] == null || isNaN(parseInt(startingLineChallenge.teamBases[key], 10))) {
+        startingLineChallenge.teamBases[key] = rollChallengeBaseTime();
+      }
+      return parseInt(startingLineChallenge.teamBases[key], 10);
+    }
     var START_PRESENCE_WINDOW = 0;
     var AIRPORT_EXIT_PRESENCE_WINDOW = 5;
     var PITSTOP_PRESENCE_WINDOW = 240;
@@ -9640,14 +9678,14 @@
 
       var map = {};
       flights.forEach(function (flight, index) {
-        map[flight.key] = "Flight " + (index + 1);
+        map[flight.key] = "F" + (index + 1);
       });
       return map;
     }
 
     function timelineFlightLabel(record, flightMap) {
       var key = timelineFlightKey(record);
-      return key && flightMap && flightMap[key] ? flightMap[key] : "Flight ?";
+      return key && flightMap && flightMap[key] ? flightMap[key] : "F?";
     }
 
     function contrastTextColor(hex) {
@@ -9709,12 +9747,13 @@
       var density = Math.max(1, (columnCount / 12)) * Math.max(1, (teamCount || 1) / 12);
 
       if (isTransport) {
-        if (len >= 7) { size *= 0.97; }
-        if (len >= 9) { size *= 0.94; }
-        if (len >= 11) { size *= 0.90; }
-        if (len >= 13) { size *= 0.86; }
-        if (len >= 15) { size *= 0.81; }
-        if (len >= 18) { size *= 0.76; }
+        if (len >= 7) { size *= 0.95; }
+        if (len >= 9) { size *= 0.90; }
+        if (len >= 11) { size *= 0.84; }
+        if (len >= 13) { size *= 0.78; }
+        if (len >= 15) { size *= 0.72; }
+        if (len >= 18) { size *= 0.66; }
+        if (/\s/.test(text)) { size *= 0.93; }
       } else {
         if (len >= 9) { size *= 0.97; }
         if (len >= 12) { size *= 0.93; }
@@ -9724,20 +9763,21 @@
       if (density >= 3.0) { size *= 0.90; }
       if (density >= 4.0) { size *= 0.86; }
 
-      return Math.max(0.34, Math.min(size, baseSize || size));
+      return Math.max(0.30, Math.min(size, baseSize || size));
     }
 
     function timelineHeaderFontSizeRem(label, baseSize, columnCount, teamCount) {
       var size = baseSize || 0.62;
       var len = String(label == null ? "" : label).length;
       var density = Math.max(1, (columnCount / 12)) * Math.max(1, (teamCount || 1) / 12);
-      if (len >= 6) { size *= 0.96; }
-      if (len >= 8) { size *= 0.92; }
-      if (len >= 10) { size *= 0.88; }
-      if (density >= 2.0) { size *= 0.92; }
-      if (density >= 3.0) { size *= 0.87; }
-      if (density >= 4.0) { size *= 0.82; }
-      return Math.max(0.30, size);
+      if (len >= 4) { size *= 0.98; }
+      if (len >= 6) { size *= 0.94; }
+      if (len >= 8) { size *= 0.90; }
+      if (len >= 10) { size *= 0.86; }
+      if (density >= 2.0) { size *= 0.90; }
+      if (density >= 3.0) { size *= 0.85; }
+      if (density >= 4.0) { size *= 0.80; }
+      return Math.max(0.28, size);
     }
 
     function legTimelineChartHtml(results, labelsOverride, titleOverride, isFinalOverride) {
@@ -9951,7 +9991,7 @@
           var cellFontSize = timelineCellFontSizeRem(value, fontSize, !!colData.column.isTransport, columnCount, teamCountForChart);
           var extraStyle = 'font-size:' + cellFontSize.toFixed(3) + 'rem;';
           if (colData.column.isTransport) {
-            extraStyle += 'letter-spacing:-0.03em;';
+            extraStyle += 'letter-spacing:-0.035em;white-space:nowrap;';
           } else {
             extraStyle += 'letter-spacing:-0.01em;white-space:nowrap;';
           }
@@ -10185,7 +10225,8 @@
       var slEndClock = teamStartClock + START_PRESENCE_WINDOW;
       if (legNum === 1 && startingLineChallenge) {
         var slLvl = skills[name][startingLineChallenge.skill] || randomLevel();
-        var slTime = Math.max(1, Math.round(startingLineChallenge.base * skillMultiplier(slLvl)));
+        var slBase = startingLineBaseForTeam(name);
+        var slTime = Math.max(1, Math.round(slBase * skillMultiplier(slLvl)));
         slEndClock = teamStartClock + slTime;
       }
 
@@ -10246,7 +10287,8 @@
         var stopArrivalClock = currentClockForTeam();
         addMilestoneToList(milestones, challengeArriveLabel(index), stopArrivalClock, "sequential");
         var lvl = skills[name][stop.skill];
-        var challengeTime = Math.max(1, Math.round(stop.base * skillMultiplier(lvl)));
+        var base = challengeBaseForTeam(stop, name);
+        var challengeTime = Math.max(1, Math.round(base * skillMultiplier(lvl)));
         var stopDepartureClock = stopArrivalClock + challengeTime;
 
         addPresenceSegment(
@@ -10479,7 +10521,8 @@
 
         legStops.push({
           skill: skill,
-          base: base
+          base: base,
+          teamBases: {}
         });
 
         legTransportOptions.push(makeTransportOptionsForSegment());
@@ -10488,7 +10531,7 @@
       // Leg 1: create the Starting Line challenge BEFORE building rivals
       if (legNum === 1) {
         var slSkill = SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)];
-        startingLineChallenge = { skill: slSkill, base: randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME) };
+        startingLineChallenge = { skill: slSkill, base: randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME), teamBases: {} };
       } else {
         startingLineChallenge = null;
       }
@@ -10689,7 +10732,8 @@
     function autoCompleteChallengeAndShowTransport() {
       var stop = legStops[currentStop];
       var level = skills[playerTeam][stop.skill];
-      var adjusted = Math.max(1, Math.round(stop.base * skillMultiplier(level)));
+      var base = challengeBaseForTeam(stop, playerTeam);
+      var adjusted = Math.max(1, Math.round(base * skillMultiplier(level)));
       var arrivalClock = raceClock;
       var departureClock = raceClock + adjusted;
       var locationName = "Challenge " + stopLetter(currentStop);
@@ -10806,7 +10850,8 @@
         return;
       }
       var level = skills[playerTeam][startingLineChallenge.skill] || randomLevel();
-      var adjusted = Math.max(1, Math.round(startingLineChallenge.base * skillMultiplier(level)));
+      var base = startingLineBaseForTeam(playerTeam);
+      var adjusted = Math.max(1, Math.round(base * skillMultiplier(level)));
       var arrivalClock = raceClock;
       var departureClock = arrivalClock + adjusted;
       addRaceMinutes(adjusted);
@@ -11268,7 +11313,8 @@
       for (var i = 0; i < totalStopsThisLeg; i++) {
         legStops.push({
           skill: SKILL_TYPES[Math.floor(Math.random() * SKILL_TYPES.length)],
-          base:  randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME)
+          base:  randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME),
+          teamBases: {}
         });
         legTransportOptions.push(makeTransportOptionsForSegment());
       }
