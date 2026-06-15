@@ -2076,7 +2076,7 @@
       <div class="logo-badge">🌎</div>
       <h1>The Amazing Race</h1>
       <p>Race around the world, manage your cash, choose your transport, and survive each leg.</p>
-      <button onclick="openCustomization()">New Race (NOTE: Huge Update in Locations happening right now so it's messy)</button>
+      <button onclick="openCustomization()">New Race</button>
       <br>
       <button id="startLoadBtn" class="secondary-btn" onclick="openSaveManager('start')">Save Manager</button>
     </div>
@@ -2519,7 +2519,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 14;
+    var SAVE_VERSION = 15;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -6936,6 +6936,76 @@
       legGapHours: 36,
       raceSeed: ""
     };
+
+
+    var DESIGNED_LEG_CITIES = [
+      {
+        key: "LONDON",
+        displayName: "London, United Kingdom",
+        airportName: "London Heathrow Airport",
+        airportShortName: "Heathrow",
+        locations: [
+          "Big Ben",
+          "Buckingham Palace",
+          "Tower of London",
+          "Tower Bridge",
+          "London Eye",
+          "British Museum",
+          "Westminster Abbey",
+          "St Paul's Cathedral",
+          "Trafalgar Square",
+          "Piccadilly Circus",
+          "Hyde Park",
+          "Kensington Palace",
+          "Natural History Museum",
+          "Victoria and Albert Museum",
+          "Camden Market",
+          "Covent Garden",
+          "Shakespeare's Globe",
+          "Tate Modern",
+          "Borough Market",
+          "The Shard",
+          "Royal Albert Hall",
+          "Houses of Parliament",
+          "Greenwich Park",
+          "Cutty Sark",
+          "Notting Hill"
+        ]
+      },
+      {
+        key: "PARIS",
+        displayName: "Paris, France",
+        airportName: "Paris Charles de Gaulle Airport",
+        airportShortName: "Charles de Gaulle",
+        locations: [
+          "Eiffel Tower",
+          "Louvre Museum",
+          "Notre-Dame Cathedral",
+          "Arc de Triomphe",
+          "Champs-Élysées",
+          "Sacré-Cœur Basilica",
+          "Montmartre",
+          "Musée d'Orsay",
+          "Sainte-Chapelle",
+          "Luxembourg Gardens",
+          "Palais Garnier",
+          "Place de la Concorde",
+          "Tuileries Garden",
+          "Centre Pompidou",
+          "Panthéon",
+          "Les Invalides",
+          "Seine River",
+          "Pont Alexandre III",
+          "Place des Vosges",
+          "Le Marais",
+          "Catacombs of Paris",
+          "Musée de l'Orangerie",
+          "Galeries Lafayette",
+          "La Défense Grande Arche",
+          "Père Lachaise Cemetery"
+        ]
+      }
+    ];
     var raceSettings = null;
     var FLIGHT_CHAOS_PROFILES = {
       calm: { label: "Calm", delayChance: 0.10, delayScale: 0.65 },
@@ -7080,6 +7150,10 @@
     var currentCity = null;
     var legOrigin = null;
     var legDest = null;
+    var legStartLocation = null;
+    var legPitStopLocation = null;
+    var currentCityStartLocation = null;
+    var currentCityStartCityKey = null;
     var activeFlightRoute = null;
     var flightResolved = false;
     var legIsNonElim = false;
@@ -8221,12 +8295,176 @@
       return isFinalLeg() ? "Final Leg" : "Leg " + legNum;
     }
 
+    function designedCityDefinition(value) {
+      var key = null;
+      if (typeof value === "string") {
+        key = value;
+      } else if (value && value.key) {
+        key = value.key;
+      } else if (value && value.name) {
+        key = value.name;
+      }
+
+      if (!key) { return null; }
+      key = String(key).toUpperCase();
+
+      for (var i = 0; i < DESIGNED_LEG_CITIES.length; i++) {
+        if (DESIGNED_LEG_CITIES[i].key === key) {
+          return DESIGNED_LEG_CITIES[i];
+        }
+      }
+      return null;
+    }
+
+    function designedCityKeyForLegIndex(index) {
+      if (!DESIGNED_LEG_CITIES || DESIGNED_LEG_CITIES.length === 0) {
+        return null;
+      }
+      var safeIndex = ((index % DESIGNED_LEG_CITIES.length) + DESIGNED_LEG_CITIES.length) % DESIGNED_LEG_CITIES.length;
+      return DESIGNED_LEG_CITIES[safeIndex].key;
+    }
+
+    function designedCityObject(key) {
+      var def = designedCityDefinition(key);
+      if (!def) {
+        return ensureCityCoords(WORLD_CITIES[randomIndex(WORLD_CITIES.length)]);
+      }
+      return ensureCityCoords(cityByName(def.key) || { name: def.key });
+    }
+
+    function cityDisplayName(city) {
+      if (!city || !city.name) {
+        return "Unknown City";
+      }
+      var def = designedCityDefinition(city);
+      return def ? def.displayName : city.name;
+    }
+
     function cityAirportName(city) {
       if (!city || !city.name) {
         return "Unknown Airport";
       }
+      var def = designedCityDefinition(city);
+      return def ? def.airportName : city.name + " Airport";
+    }
 
-      return city.name + " Airport";
+    function cityAirportShortName(city) {
+      if (!city || !city.name) {
+        return "Airport";
+      }
+      var def = designedCityDefinition(city);
+      return def ? def.airportShortName : cityAirportName(city);
+    }
+
+    function legRouteDisplayName() {
+      return cityDisplayName(legOrigin) + " → " + cityDisplayName(legDest);
+    }
+
+    function drawLocationsForCity(cityOrKey, count) {
+      var def = designedCityDefinition(cityOrKey);
+      var source = def && Array.isArray(def.locations) ? def.locations.slice() : [];
+      var needed = Math.max(0, parseInt(count, 10) || 0);
+      var result = [];
+
+      if (source.length === 0) {
+        for (var i = 0; i < needed; i++) {
+          result.push("Location " + (i + 1));
+        }
+        return result;
+      }
+
+      while (result.length < needed) {
+        var shuffled = shuffledCopy(source);
+        shuffled.forEach(function (name) {
+          if (result.length < needed) {
+            result.push(name);
+          }
+        });
+      }
+      return result;
+    }
+
+    function compactLocationName(name, maxLen) {
+      var text = String(name || "").replace(/\s+/g, " ").trim();
+      var limit = maxLen || 16;
+      if (text.length <= limit) {
+        return text;
+      }
+      return text.slice(0, Math.max(1, limit - 1)).trim() + "…";
+    }
+
+    function locationNameForStopIndex(index, locationData) {
+      if (locationData && locationData.stops && locationData.stops[index]) {
+        return locationData.stops[index];
+      }
+      var stop = legStops && legStops[index] ? legStops[index] : null;
+      return (stop && stop.locationName) ? stop.locationName : "Challenge " + stopLetter(index);
+    }
+
+    function pitStopDisplayName(locationData) {
+      if (locationData && locationData.pitstop) {
+        return locationData.pitstop;
+      }
+      return legPitStopLocation || (isFinalLeg() ? "Finish Line" : "Pit Stop");
+    }
+
+    function startLocationDisplayName(locationData) {
+      if (locationData && locationData.start) {
+        return locationData.start;
+      }
+      return legStartLocation || (legNum === 1 ? "Starting Line" : "Pit Start");
+    }
+
+    function currentLegLocationData() {
+      return {
+        start: legStartLocation || "",
+        pitstop: legPitStopLocation || "",
+        originKey: legOrigin && legOrigin.name ? legOrigin.name : "",
+        destKey: legDest && legDest.name ? legDest.name : "",
+        originDisplay: cityDisplayName(legOrigin),
+        destDisplay: cityDisplayName(legDest),
+        originAirport: cityAirportName(legOrigin),
+        destAirport: cityAirportName(legDest),
+        stops: (legStops || []).map(function (stop, index) {
+          return stop && stop.locationName ? stop.locationName : "Challenge " + stopLetter(index);
+        })
+      };
+    }
+
+    function chartStopHeader(index, locationData) {
+      return compactLocationName(locationNameForStopIndex(index, locationData), 13);
+    }
+
+    function chartPitstopHeader(finalLeg, locationData) {
+      return compactLocationName(pitStopDisplayName(locationData) || (finalLeg ? "Finish" : "Pitstop"), 13);
+    }
+
+    function clueMilestoneDisplayLabel(label, locationData) {
+      if (label === "Starting Line" || label === "Pit Start") {
+        return compactLocationName(startLocationDisplayName(locationData), 18);
+      }
+      if (label === "Starting Line Complete") {
+        return "Start Done";
+      }
+      if (label === "Origin Airport") {
+        return compactLocationName(locationData && locationData.originAirport ? locationData.originAirport : cityAirportName(legOrigin), 18);
+      }
+      if (label === "Destination Airport") {
+        return compactLocationName(locationData && locationData.destAirport ? locationData.destAirport : cityAirportName(legDest), 18);
+      }
+      if (label === "Pit Stop" || label === "Finish Line") {
+        return compactLocationName(pitStopDisplayName(locationData), 18);
+      }
+
+      var arrive = /^Challenge ([A-Z]+) Arrive$/.exec(label || "");
+      if (arrive) {
+        return compactLocationName(locationNameForStopIndex(arrive[1].charCodeAt(0) - 65, locationData), 16) + " Arrive";
+      }
+      var complete = /^Challenge ([A-Z]+) Complete$/.exec(label || "");
+      if (complete) {
+        return compactLocationName(locationNameForStopIndex(complete[1].charCodeAt(0) - 65, locationData), 16) + " Done";
+      }
+      return label;
     }
 
     function transportButtonHtml(opt) {
@@ -10349,7 +10587,7 @@
       return Math.max(0.28, size);
     }
 
-    function legTimelineChartHtml(results, labelsOverride, titleOverride, isFinalOverride) {
+    function legTimelineChartHtml(results, labelsOverride, titleOverride, isFinalOverride, locationData) {
       if (!results || results.length === 0) { return ""; }
 
       var labels = labelsOverride || clueChartLabels();
@@ -10393,19 +10631,19 @@
       }, false, { group: "Landed" });
 
       if (stopCount > 0) {
-        addColumn("fromAirport", stopLetter(0), function (r) { return milestoneClock(r, challengeArriveLabel(0)); }, function (r) { return timelineDetail(r, "fromAirport"); }, false, { group: stopLetter(0), subLabel: "Arrive", isTransport: true });
+        addColumn("fromAirport", chartStopHeader(0, locationData), function (r) { return milestoneClock(r, challengeArriveLabel(0)); }, function (r) { return timelineDetail(r, "fromAirport"); }, false, { group: chartStopHeader(0, locationData), subLabel: "Arrive", isTransport: true });
       }
 
       for (var i = 0; i < stopCount; i++) {
         (function (index) {
-          var currentLetter = stopLetter(index);
+          var currentLetter = chartStopHeader(index, locationData);
           addColumn("finish" + index, "Left " + currentLetter, function (r) { return milestoneClock(r, challengeCompleteLabel(index)); }, function (r) {
             var c = milestoneClock(r, challengeCompleteLabel(index));
             return c == null ? "—" : formatRaceTimeCompact(c);
           }, false, { group: currentLetter, subLabel: "Left" });
 
           var isLastStop = index === stopCount - 1;
-          var nextLabel = isLastStop ? (finalLeg ? "Finish" : "Pitstop") : stopLetter(index + 1);
+          var nextLabel = isLastStop ? chartPitstopHeader(finalLeg, locationData) : chartStopHeader(index + 1, locationData);
           addColumn("after" + index, nextLabel, function (r) {
             return isLastStop ? r.checkInClock : milestoneClock(r, challengeArriveLabel(index + 1));
           }, function (r) { return timelineDetail(r, "afterStop", index); }, false, {
@@ -10577,7 +10815,7 @@
       return html;
     }
 
-    function clueByClueChartHtml(results, labelsOverride, titleOverride) {
+    function clueByClueChartHtml(results, labelsOverride, titleOverride, locationData) {
       if (!results || results.length === 0) {
         return "";
       }
@@ -10591,7 +10829,7 @@
       var legendWidth = teamCount > 24 ? 220 : 260;
       var width = 1040;
       var chartWidth = width - chartLeft - legendWidth - 48;
-      var labelFontSize = labelCount <= 12 ? 10 : labelCount <= 18 ? 9 : labelCount <= 26 ? 8 : 7;
+      var labelFontSize = labelCount <= 12 ? 9 : labelCount <= 18 ? 8 : labelCount <= 26 ? 7 : 6;
       var labelAngle = labelCount <= 14 ? -40 : labelCount <= 24 ? -48 : -55;
       var pointSize = labelCount > 24 || teamCount > 24 ? 7 : labelCount > 18 || teamCount > 16 ? 8 : 10;
       var lineWidth = labelCount > 24 || teamCount > 24 ? 2.6 : labelCount > 18 || teamCount > 16 ? 3.2 : 4;
@@ -10708,7 +10946,7 @@
       svg += '<div class="clue-chart-title">Clue-by-Clue Chart</div>';
       svg += '<svg width="100%" height="auto" viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="xMidYMin meet" role="img" aria-label="Clue-by-clue placement chart">';
       svg += '<rect x="0" y="0" width="' + width + '" height="' + height + '" fill="#ffffff"/>';
-      svg += '<text x="' + (width / 2) + '" y="28" text-anchor="middle" class="axis-label" font-size="20">' + safeSvgText(titleOverride || (currentLegLabel() + ': ' + legOrigin.name + ' \u2192 ' + legDest.name)) + '</text>';
+      svg += '<text x="' + (width / 2) + '" y="28" text-anchor="middle" class="axis-label" font-size="20">' + safeSvgText(titleOverride || (currentLegLabel() + ': ' + legRouteDisplayName())) + '</text>';
 
       for (var rnk = 1; rnk <= teamCount; rnk++) {
         var y = yScale(rnk);
@@ -10720,7 +10958,7 @@
         var x = xScale(index);
         var labelY = chartTop - 9;
         svg += '<circle cx="' + x + '" cy="' + chartTop + '" r="1.7" fill="#bdbdbd"/>';
-        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="start" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(label) + '</text>';
+        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="start" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(clueMilestoneDisplayLabel(label, locationData)) + '</text>';
       });
 
       activeResults.forEach(function (r) {
@@ -10790,7 +11028,8 @@
         });
       }
 
-      var startLabel = legNum === 1 ? "Starting Line" : "Pit Start";
+      var startMilestoneLabel = legNum === 1 ? "Starting Line" : "Pit Start";
+      var startDisplayLabel = legNum === 1 ? (legStartLocation || "Starting Line") : (legStartLocation || "Pit Start");
 
       // Leg 1 only: rivals complete a Starting Line challenge before heading to airport
       // Calculate challenge time first so we can set the correct presence window
@@ -10808,18 +11047,18 @@
         startLocationKey(),
         teamStartClock,
         slEndClock,
-        startLabel
+        startDisplayLabel
       );
-      addMilestoneToList(milestones, startLabel, teamStartClock, "averageTie");
+      addMilestoneToList(milestones, startMilestoneLabel, teamStartClock, "averageTie");
 
       if (legNum === 1 && startingLineChallenge) {
-        addEvent("Starting Line challenge", slTime);
+        addEvent("Starting Line challenge at " + (legStartLocation || "Starting Line"), slTime);
         addMilestoneToList(milestones, "Starting Line Complete", currentClockForTeam(), "sequential");
       }
 
       var toAirportPick = chooseTeamTransport(name, airportStartTransportOptions);
       timelineDetails.toAirport = toAirportPick.method;
-      addEvent("Travel to origin airport by " + toAirportPick.method, toAirportPick.time);
+      addEvent("Travel to " + cityAirportName(legOrigin) + " by " + toAirportPick.method, toAirportPick.time);
 
       var originAirportArrivalClock = currentClockForTeam();
       addMilestoneToList(milestones, "Origin Airport", originAirportArrivalClock, "sequential");
@@ -10853,7 +11092,7 @@
 
       var fromAirportPick = chooseTeamTransport(name, airportEndTransportOptions);
       timelineDetails.fromAirport = fromAirportPick.method;
-      addEvent("Travel from destination airport by " + fromAirportPick.method, fromAirportPick.time);
+      addEvent("Travel to " + locationNameForStopIndex(0) + " by " + fromAirportPick.method, fromAirportPick.time);
 
       legStops.forEach(function (stop, index) {
         var stopArrivalClock = currentClockForTeam();
@@ -10868,15 +11107,16 @@
           stopLocationKey(index),
           stopArrivalClock,
           stopDepartureClock,
-          "Challenge " + stopLetter(index)
+          stop.locationName || ("Challenge " + stopLetter(index))
         );
 
-        addEvent("Complete " + stop.skill + " challenge", challengeTime);
+        addEvent("Complete " + (stop.locationName || ("Challenge " + stopLetter(index))) + " " + stop.skill + " challenge", challengeTime);
         addMilestoneToList(milestones, challengeCompleteLabel(index), currentClockForTeam(), "sequential");
 
         var transportPick = chooseTeamTransport(name, legTransportOptions[index]);
         timelineDetails.afterStops[index] = transportPick.method;
-        addEvent("Travel after stop " + (index + 1) + " by " + transportPick.method, transportPick.time);
+        var nextLocationName = index >= legStops.length - 1 ? pitStopDisplayName() : locationNameForStopIndex(index + 1);
+        addEvent("Travel to " + nextLocationName + " by " + transportPick.method, transportPick.time);
       });
 
       var pitstopArrivalClock = currentClockForTeam();
@@ -10887,7 +11127,7 @@
         pitstopLocationKey(),
         pitstopArrivalClock,
         pitstopArrivalClock + PITSTOP_PRESENCE_WINDOW,
-        "Pit Stop"
+        pitStopDisplayName()
       );
 
       return {
@@ -10911,13 +11151,14 @@
       }
 
       if (routeHistory.length === 0 && legOrigin) {
-        routeHistory.push(legOrigin.name);
+        routeHistory.push(cityDisplayName(legOrigin));
       }
 
       var lastCity = routeHistory[routeHistory.length - 1];
 
-      if (lastCity !== legDest.name) {
-        routeHistory.push(legDest.name);
+      var legDestDisplay = cityDisplayName(legDest);
+      if (lastCity !== legDestDisplay) {
+        routeHistory.push(legDestDisplay);
       }
     }
 
@@ -10944,7 +11185,7 @@
     }
 
     function legRouteTitle(prefix) {
-      return prefix + ": " + legOrigin.name + " → " + legDest.name;
+      return prefix + ": " + legRouteDisplayName();
     }
 
     function selectTeam(name) {
@@ -11015,6 +11256,10 @@
       restoredFlightResultHtml = "";
       activeFlightRoute = null;
       flightResolved = false;
+      legStartLocation = null;
+      legPitStopLocation = null;
+      currentCityStartLocation = null;
+      currentCityStartCityKey = null;
       FLIGHT_DELAY_MAP = {};
       skills = {};
 
@@ -11025,8 +11270,10 @@
         skills[name] = name === playerTeam ? playerRolledSkills : makeStartingSkillProfile(name, false);
       });
 
-      currentCity = ensureCityCoords(WORLD_CITIES[randomIndex(WORLD_CITIES.length)]);
-      routeHistory.push(currentCity.name);
+      currentCity = designedCityObject(designedCityKeyForLegIndex(0));
+      currentCityStartLocation = null;
+      currentCityStartCityKey = currentCity && currentCity.name ? currentCity.name : null;
+      routeHistory.push(cityDisplayName(currentCity));
       startLeg();
     }
 
@@ -11072,18 +11319,23 @@
 
       legIsNonElim = !isFinalLeg() && raceRandom() < NON_ELIM_CHANCE;
 
-      currentCity = resolveCityObject(currentCity) || ensureCityCoords(WORLD_CITIES[randomIndex(WORLD_CITIES.length)]);
-
-      var dest;
-
-      do {
-        dest = ensureCityCoords(WORLD_CITIES[randomIndex(WORLD_CITIES.length)]);
-      } while (dest.name === currentCity.name);
-
+      var originKey = designedCityKeyForLegIndex(legNum - 1);
+      var destKey = designedCityKeyForLegIndex(legNum);
+      currentCity = designedCityObject(originKey);
       legOrigin = currentCity;
-      legDest = dest;
+      legDest = designedCityObject(destKey);
       activeFlightRoute = null;
       FLIGHT_DELAY_MAP = {};
+
+      if (currentCityStartLocation && currentCityStartCityKey === legOrigin.name) {
+        legStartLocation = currentCityStartLocation;
+      } else {
+        legStartLocation = drawLocationsForCity(legOrigin.name, 1)[0];
+      }
+      currentCityStartCityKey = legOrigin.name;
+
+      var destinationLocationPicks = drawLocationsForCity(legDest.name, totalStopsThisLeg + 1);
+      legPitStopLocation = destinationLocationPicks[totalStopsThisLeg] || (isFinalLeg() ? "Finish Line" : "Pit Stop");
 
       legStops = [];
 
@@ -11094,7 +11346,8 @@
         legStops.push({
           skill: skill,
           base: base,
-          teamBases: {}
+          teamBases: {},
+          locationName: destinationLocationPicks[i] || ("Challenge " + stopLetter(i))
         });
 
         legTransportOptions.push(makeTransportOptionsForSegment());
@@ -11138,7 +11391,11 @@
         presenceReportHtml(startLocationKey(), raceClock, null) +
         "<br>" +
         (isFinalLeg() ? "<strong>Three teams remain. First to the final mat wins.</strong><br><br>" : "") +
-        "Starting City: <strong>" + escapeHtml(legOrigin.name) + "</strong><br>" +
+        "Starting City: <strong>" + escapeHtml(cityDisplayName(legOrigin)) + "</strong><br>" +
+        "Starting Location: <strong>" + escapeHtml(legStartLocation || (legNum === 1 ? "Starting Line" : "Pit Start")) + "</strong><br>" +
+        "Origin Airport: <strong>" + escapeHtml(cityAirportName(legOrigin)) + "</strong><br>" +
+        "Destination: <strong>" + escapeHtml(cityDisplayName(legDest)) + "</strong><br>" +
+        "Destination Airport: <strong>" + escapeHtml(cityAirportName(legDest)) + "</strong><br>" +
         "<br>Teams Remaining: <strong>" + remainingTeams.length + "</strong><br>" +
         'Your Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
@@ -11156,7 +11413,7 @@
           '<div>' +
             '<div style="color:var(--amber);font-size:0.72rem;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:3px;">' + escapeHtml(currentLegLabel()) + '</div>' +
             '<div style="font-size:1.15rem;font-weight:800;letter-spacing:0.02em;">' +
-              escapeHtml(legOrigin ? legOrigin.name : "") + ' <span style="color:var(--red);">→</span> ' + escapeHtml(legDest ? legDest.name : "") +
+              escapeHtml(legOrigin ? cityDisplayName(legOrigin) : "") + ' <span style="color:var(--red);">→</span> ' + escapeHtml(legDest ? cityDisplayName(legDest) : "") +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -11214,7 +11471,8 @@
         raceClockHeader() +
         presenceReportHtml(startLocationKey(), raceClock, null) +
         "<br>" +
-        "Travel from the Pit Start in <strong>" + escapeHtml(legOrigin.name) + "</strong><br>" +
+        "Travel from <strong>" + escapeHtml(legStartLocation || "Pit Start") + "</strong><br>" +
+        "in <strong>" + escapeHtml(cityDisplayName(legOrigin)) + "</strong><br>" +
         "to <strong>" + escapeHtml(cityAirportName(legOrigin)) + "</strong>.<br><br>" +
         'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
@@ -11231,7 +11489,8 @@
         presenceReportHtml(destinationAirportLocationKey(), raceClock, null) +
         "<br>" +
         "Travel from <strong>" + escapeHtml(cityAirportName(legDest)) + "</strong><br>" +
-        "to your first location in <strong>" + escapeHtml(legDest.name) + "</strong>.<br><br>" +
+        "to <strong>" + escapeHtml(locationNameForStopIndex(0)) + "</strong><br>" +
+        "in <strong>" + escapeHtml(cityDisplayName(legDest)) + "</strong>.<br><br>" +
         'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
       renderSpecialTransportOptions(airportEndTransportOptions);
@@ -11244,12 +11503,12 @@
 
       if (specialTransportMode === "toAirport") {
         playerLegTimelineDetails.toAirport = opt.method;
-        playerLegLog.push({ type: "transport", label: "To Airport: " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
+        playerLegLog.push({ type: "transport", label: "To " + cityAirportName(legOrigin) + ": " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
         addPlayerMilestone("Origin Airport", raceClock, "sequential");
         showFlightScreen();
       } else if (specialTransportMode === "fromAirport") {
         playerLegTimelineDetails.fromAirport = opt.method;
-        playerLegLog.push({ type: "transport", label: "From Airport: " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
+        playerLegLog.push({ type: "transport", label: "To " + locationNameForStopIndex(0) + ": " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
         autoCompleteChallengeAndShowTransport();
       }
     }
@@ -11273,7 +11532,7 @@
       addRaceMinutes(route.totalFromAirportArrival);
       addPlayerMilestone("Destination Airport", route.finalArrivalClock, "averageLanding");
       playerLegLog.push({ type: "flight",
-        label: "Flight: " + legOrigin.name + " \u2192 " + legDest.name
+        label: "Flight: " + cityDisplayName(legOrigin) + " \u2192 " + cityDisplayName(legDest)
           + (route.connections > 0 ? " (" + route.connections + " connection" + (route.connections > 1 ? "s" : "") + ")" : " (direct)"),
         duration: route.totalFromAirportArrival, cost: 0, clock: raceClock });
 
@@ -11308,7 +11567,7 @@
       var adjusted = Math.max(1, Math.round(base * skillMultiplier(level)));
       var arrivalClock = raceClock;
       var departureClock = raceClock + adjusted;
-      var locationName = "Challenge " + stopLetter(currentStop);
+      var locationName = stop.locationName || ("Challenge " + stopLetter(currentStop));
 
       addPlayerMilestone(challengeArriveLabel(currentStop), arrivalClock, "sequential");
 
@@ -11324,6 +11583,7 @@
 
       addRaceMinutes(adjusted);
       addPlayerMilestone(challengeCompleteLabel(currentStop), raceClock, "sequential");
+      playerLegLog.push({ type: "challenge", label: locationName + " (" + stop.skill + ")", duration: adjusted, cost: 0, clock: raceClock });
       showRace();
     }
 
@@ -11357,7 +11617,7 @@
           : presenceReportHtml(stopLocationKey(currentStop), raceClock, null)) +
         challengeHtml +
         "<br>" +
-        currentLegLabel() + " · " + escapeHtml(legDest.name) + "<br>" +
+        currentLegLabel() + " · " + escapeHtml(cityDisplayName(legDest)) + "<br>" +
         'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
       var optionsForThisSegment = optionsWithEmergencyWalkForTeam(legTransportOptions[currentStop], playerTeam);
@@ -11386,8 +11646,11 @@
     function chooseTransport(opt) {
       spendTeamMoney(playerTeam, opt.cost);
       addRaceMinutes(opt.time);
+      var nextLocationName = currentStop >= totalStopsThisLeg - 1
+        ? pitStopDisplayName()
+        : locationNameForStopIndex(currentStop + 1);
       playerLegTimelineDetails.afterStops[currentStop] = opt.method;
-      playerLegLog.push({ type: "transport", label: opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
+      playerLegLog.push({ type: "transport", label: "To " + nextLocationName + ": " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
       currentStop = currentStop + 1;
       currentChallenge = null;
 
@@ -11408,8 +11671,8 @@
         raceClockHeader() +
         "<br><br>" +
         (finalLeg
-          ? "You have reached the Finish Line in <strong>" + escapeHtml(legDest.name) + "</strong>.<br><br>"
-          : "You have reached the Pit Stop in <strong>" + escapeHtml(legDest.name) + "</strong>.<br><br>") +
+          ? "You have reached the Finish Line at <strong>" + escapeHtml(pitStopDisplayName()) + "</strong><br>in <strong>" + escapeHtml(cityDisplayName(legDest)) + "</strong>.<br><br>"
+          : "You have reached the Pit Stop at <strong>" + escapeHtml(pitStopDisplayName()) + "</strong><br>in <strong>" + escapeHtml(cityDisplayName(legDest)) + "</strong>.<br><br>") +
         'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span><br><br>" +
         (finalLeg ? "Check in to reveal the winner." : "Check in to see the leg results.");
 
@@ -11428,11 +11691,11 @@
       var departureClock = arrivalClock + adjusted;
       addRaceMinutes(adjusted);
       addPlayerMilestone("Starting Line Complete", raceClock, "sequential");
-      playerLegLog.push({ type: "challenge", label: "Starting Line (" + escapeHtml(startingLineChallenge.skill) + ")", duration: adjusted, cost: 0, clock: raceClock });
+      playerLegLog.push({ type: "challenge", label: (legStartLocation || "Starting Line") + " (" + startingLineChallenge.skill + ")", duration: adjusted, cost: 0, clock: raceClock });
 
       // Update h1
       var titleEl = document.getElementById("raceScreenTitle");
-      if (titleEl) { titleEl.textContent = "Starting Line"; }
+      if (titleEl) { titleEl.textContent = legStartLocation || "Starting Line"; }
 
       var challengeHtml =
         '<div class="challenge-summary">' +
@@ -11449,7 +11712,8 @@
         arrivalLine +
         presenceReportHtml(startLocationKey(), arrivalClock, departureClock) +
         challengeHtml +
-        "<br>" + currentLegLabel() + " · " + escapeHtml(legDest.name) + "<br>" +
+        "<br>Starting Location: <strong>" + escapeHtml(legStartLocation || "Starting Line") + "</strong><br>" +
+        currentLegLabel() + " · " + escapeHtml(cityDisplayName(legDest)) + "<br>" +
         'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
       // Show the real airport transport options — same as showTransportToAirport
@@ -11475,7 +11739,7 @@
       spendTeamMoney(playerTeam, opt.cost);
       addRaceMinutes(opt.time);
       playerLegTimelineDetails.toAirport = opt.method;
-      playerLegLog.push({ type: "transport", label: "To Airport: " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
+      playerLegLog.push({ type: "transport", label: "To " + cityAirportName(legOrigin) + ": " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
       addPlayerMilestone("Origin Airport", raceClock, "sequential");
       showFlightScreen();
     }
@@ -11687,7 +11951,7 @@
     }
 
     function showLegResults() {
-      var route = legOrigin.name + " → " + legDest.name;
+      var route = legRouteDisplayName();
       var results = [];
 
       remainingTeams.forEach(function (name) {
@@ -11744,10 +12008,13 @@
       lastCompletedLegClueData = results;
       var savedLabels = clueChartLabels();
       var savedTitle = (isFinalLeg() ? "Final Leg" : "Leg " + legNum) + ": " + route;
-      legHistory.push({ legNum: legNum, route: route, labels: savedLabels, results: results, isFinal: isFinalLeg(), title: savedTitle });
-      var timeChart = legTimelineChartHtml(results, savedLabels, savedTitle, isFinalLeg());
-      var clueChart = clueByClueChartHtml(results, savedLabels, savedTitle);
+      var savedLocations = currentLegLocationData();
+      legHistory.push({ legNum: legNum, route: route, labels: savedLabels, results: results, isFinal: isFinalLeg(), title: savedTitle, locations: savedLocations });
+      var timeChart = legTimelineChartHtml(results, savedLabels, savedTitle, isFinalLeg(), savedLocations);
+      var clueChart = clueByClueChartHtml(results, savedLabels, savedTitle, savedLocations);
       var chart = placementChartHtml();
+      currentCityStartLocation = legPitStopLocation;
+      currentCityStartCityKey = legDest && legDest.name ? legDest.name : null;
 
       if (isFinalLeg()) {
         var winner = results[0].team;
@@ -11850,6 +12117,8 @@
 
     function nextLeg() {
       currentCity = legDest;
+      currentCityStartLocation = legPitStopLocation;
+      currentCityStartCityKey = legDest && legDest.name ? legDest.name : null;
       legNum = legNum + 1;
       raceClock = nextLegStartClocks[playerTeam] != null ? nextLegStartClocks[playerTeam] : nextLegStartClock;
       startLeg();
@@ -11869,8 +12138,8 @@
         html += "<br><details><summary style=\"cursor:pointer;color:var(--amber);font-weight:800;" +
           "padding:8px 0;font-size:0.95rem;letter-spacing:0.04em;\">&#9654; " +
           escapeHtml(legLabel) + ": " + escapeHtml(entry.route) + "</summary>" +
-          legTimelineChartHtml(entry.results, entry.labels, entry.title, entry.isFinal) +
-          clueByClueChartHtml(entry.results, entry.labels, entry.title) +
+          legTimelineChartHtml(entry.results, entry.labels, entry.title, entry.isFinal, entry.locations) +
+          clueByClueChartHtml(entry.results, entry.labels, entry.title, entry.locations) +
           "</details>";
       });
       return html;
@@ -11964,18 +12233,23 @@
 
       legIsNonElim = !isTheFinalLeg && raceRandom() < NON_ELIM_CHANCE;
 
-      currentCity = resolveCityObject(currentCity) ||
-        ensureCityCoords(WORLD_CITIES[randomIndex(WORLD_CITIES.length)]);
-
-      var dest;
-      do {
-        dest = ensureCityCoords(WORLD_CITIES[randomIndex(WORLD_CITIES.length)]);
-      } while (dest.name === currentCity.name);
-
+      var originKey = designedCityKeyForLegIndex(legNum - 1);
+      var destKey = designedCityKeyForLegIndex(legNum);
+      currentCity = designedCityObject(originKey);
       legOrigin = currentCity;
-      legDest   = dest;
+      legDest   = designedCityObject(destKey);
       activeFlightRoute = null;
       FLIGHT_DELAY_MAP  = {};
+
+      if (currentCityStartLocation && currentCityStartCityKey === legOrigin.name) {
+        legStartLocation = currentCityStartLocation;
+      } else {
+        legStartLocation = drawLocationsForCity(legOrigin.name, 1)[0];
+      }
+      currentCityStartCityKey = legOrigin.name;
+
+      var destinationLocationPicks = drawLocationsForCity(legDest.name, totalStopsThisLeg + 1);
+      legPitStopLocation = destinationLocationPicks[totalStopsThisLeg] || (isTheFinalLeg ? "Finish Line" : "Pit Stop");
 
       legStops = [];
       legTransportOptions = [];
@@ -11985,7 +12259,8 @@
         legStops.push({
           skill: SKILL_TYPES[randomIndex(SKILL_TYPES.length)],
           base:  randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME),
-          teamBases: {}
+          teamBases: {},
+          locationName: destinationLocationPicks[i] || ("Challenge " + stopLetter(i))
         });
         legTransportOptions.push(makeTransportOptionsForSegment());
       }
@@ -12015,10 +12290,11 @@
       updateRouteHistoryForCompletedLeg();
 
       // Store leg chart data for full-race replay
-      var simRoute = legOrigin.name + " → " + legDest.name;
+      var simRoute = legRouteDisplayName();
       var simLabels = clueChartLabels();
       var simTitle = (isTheFinalLeg ? "Final Leg" : "Leg " + legNum) + ": " + simRoute;
-      legHistory.push({ legNum: legNum, route: simRoute, labels: simLabels, results: results, isFinal: isTheFinalLeg, title: simTitle });
+      var simLocations = currentLegLocationData();
+      legHistory.push({ legNum: legNum, route: simRoute, labels: simLabels, results: results, isFinal: isTheFinalLeg, title: simTitle, locations: simLocations });
 
       // Advance departure clocks
       var winnerClock = results[0].checkInClock;
@@ -12029,6 +12305,8 @@
       });
 
       currentCity = legDest;
+      currentCityStartLocation = legPitStopLocation;
+      currentCityStartCityKey = legDest && legDest.name ? legDest.name : null;
 
       // Final leg: return winner immediately, don't eliminate anyone
       if (isTheFinalLeg) {
@@ -12205,6 +12483,10 @@
         currentCity: currentCity,
         legOrigin: legOrigin,
         legDest: legDest,
+        legStartLocation: legStartLocation,
+        legPitStopLocation: legPitStopLocation,
+        currentCityStartLocation: currentCityStartLocation,
+        currentCityStartCityKey: currentCityStartCityKey,
         activeFlightRoute: activeFlightRoute,
         flightResolved: flightResolved,
         legIsNonElim: legIsNonElim,
@@ -12267,6 +12549,10 @@
       state.playerLegLog = Array.isArray(state.playerLegLog) ? state.playerLegLog : [];
       state.playerLegTimelineDetails = state.playerLegTimelineDetails && typeof state.playerLegTimelineDetails === "object" ? state.playerLegTimelineDetails : {};
       state.legHistory = Array.isArray(state.legHistory) ? state.legHistory : [];
+      state.legStartLocation = state.legStartLocation || null;
+      state.legPitStopLocation = state.legPitStopLocation || null;
+      state.currentCityStartLocation = state.currentCityStartLocation || null;
+      state.currentCityStartCityKey = state.currentCityStartCityKey || null;
 
       if (state.activeRaceSeed == null) {
         state.activeRaceSeed = state.raceSettings.raceSeed || "";
@@ -12343,6 +12629,10 @@
       currentCity = resolveCityObject(state.currentCity);
       legOrigin = resolveCityObject(state.legOrigin);
       legDest = resolveCityObject(state.legDest);
+      legStartLocation = state.legStartLocation || null;
+      legPitStopLocation = state.legPitStopLocation || null;
+      currentCityStartLocation = state.currentCityStartLocation || null;
+      currentCityStartCityKey = state.currentCityStartCityKey || null;
 
       if (!currentCity && legOrigin) {
         currentCity = legOrigin;
@@ -12350,6 +12640,13 @@
 
       if (!legOrigin && currentCity) {
         legOrigin = currentCity;
+      }
+
+      if (!legStartLocation && legOrigin) {
+        legStartLocation = drawLocationsForCity(legOrigin.name, 1)[0];
+      }
+      if (!legPitStopLocation && legDest) {
+        legPitStopLocation = drawLocationsForCity(legDest.name, 1)[0];
       }
 
       activeFlightRoute = state.activeFlightRoute || null;
