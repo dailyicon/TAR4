@@ -120,6 +120,25 @@
       text-shadow: 0 0 60px rgba(255, 31, 53, 0.4), 0 4px 24px rgba(0,0,0,0.6);
     }
 
+    .fit-long-title {
+      font-size: clamp(1.55rem, 6vw, 3.35rem);
+      line-height: 0.98;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      hyphens: auto;
+    }
+
+    .transport-prompt {
+      display: block;
+      color: var(--amber);
+      font-size: 0.86rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      overflow-wrap: anywhere;
+    }
+
     h2, h3 { font-weight: 700; margin: 0 0 10px; }
 
     p {
@@ -1722,12 +1741,13 @@
       text-transform: uppercase;
       font-size: var(--tc-head-font-size, 0.72rem);
       box-shadow: none;
-      line-height: 1;
-      white-space: nowrap;
-      overflow-wrap: normal;
+      line-height: 0.95;
+      white-space: normal;
+      overflow-wrap: anywhere;
       word-break: normal;
       text-overflow: clip;
-      overflow: hidden;
+      overflow: visible;
+      hyphens: auto;
     }
 
     .time-chart .rank-head,
@@ -2478,17 +2498,17 @@
 
   <div id="specialTransport" class="screen">
     <span class="screen-label">Travel Choice</span>
-    <h1 id="specialTransportTitle"></h1>
+    <h1 id="specialTransportTitle" class="fit-long-title"></h1>
     <div class="status" id="specialTransportStatus"></div>
     <div class="status">
-      Choose your transport:
+      <span id="specialTransportPrompt" class="transport-prompt">Choose your transport:</span>
       <div id="specialTransportList"></div>
     </div>
   </div>
 
   <div id="flight" class="screen">
     <span class="screen-label">Flight</span>
-    <h1>✈️ Flight</h1>
+    <h1 id="flightTitle" class="fit-long-title">Flight</h1>
     <div class="status" id="flightBody"></div>
     <div class="status" id="flightResult"></div>
     <button id="flightBtn" onclick="showTransportFromAirport()">Leave Airport</button>
@@ -2496,10 +2516,10 @@
 
   <div id="race" class="screen">
     <span class="screen-label">Route Info</span>
-    <h1 id="raceScreenTitle">Travel On</h1>
+    <h1 id="raceScreenTitle" class="fit-long-title">Travel On</h1>
     <div class="status" id="raceStatus"></div>
     <div class="status">
-      Choose your transport:
+      <span id="transportPrompt" class="transport-prompt">Choose your transport:</span>
       <div id="transportList"></div>
     </div>
   </div>
@@ -2519,7 +2539,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 15;
+    var SAVE_VERSION = 16;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -6940,72 +6960,501 @@
 
     var DESIGNED_LEG_CITIES = [
       {
-        key: "LONDON",
-        displayName: "London, United Kingdom",
-        airportName: "London Heathrow Airport",
-        airportShortName: "Heathrow",
-        locations: [
-          "Big Ben",
-          "Buckingham Palace",
-          "Tower of London",
-          "Tower Bridge",
-          "London Eye",
-          "British Museum",
-          "Westminster Abbey",
-          "St Paul's Cathedral",
-          "Trafalgar Square",
-          "Piccadilly Circus",
-          "Hyde Park",
-          "Kensington Palace",
-          "Natural History Museum",
-          "Victoria and Albert Museum",
-          "Camden Market",
-          "Covent Garden",
-          "Shakespeare's Globe",
-          "Tate Modern",
-          "Borough Market",
-          "The Shard",
-          "Royal Albert Hall",
-          "Houses of Parliament",
-          "Greenwich Park",
-          "Cutty Sark",
-          "Notting Hill"
-        ]
+            "key": "LONDON",
+            "displayName": "London, United Kingdom",
+            "airportName": "London Heathrow Airport",
+            "airportShortName": "Heathrow",
+            "locations": [
+                  "Big Ben",
+                  "Buckingham Palace",
+                  "Tower of London",
+                  "Tower Bridge",
+                  "London Eye",
+                  "British Museum",
+                  "Westminster Abbey",
+                  "St Paul's Cathedral",
+                  "Trafalgar Square",
+                  "Piccadilly Circus",
+                  "Hyde Park",
+                  "Kensington Palace",
+                  "Natural History Museum",
+                  "Victoria and Albert Museum",
+                  "Camden Market",
+                  "Covent Garden",
+                  "Shakespeare's Globe",
+                  "Tate Modern",
+                  "Borough Market",
+                  "The Shard",
+                  "Royal Albert Hall",
+                  "Houses of Parliament",
+                  "Greenwich Park",
+                  "Cutty Sark",
+                  "Notting Hill"
+            ]
       },
       {
-        key: "PARIS",
-        displayName: "Paris, France",
-        airportName: "Paris Charles de Gaulle Airport",
-        airportShortName: "Charles de Gaulle",
-        locations: [
-          "Eiffel Tower",
-          "Louvre Museum",
-          "Notre-Dame Cathedral",
-          "Arc de Triomphe",
-          "Champs-Élysées",
-          "Sacré-Cœur Basilica",
-          "Montmartre",
-          "Musée d'Orsay",
-          "Sainte-Chapelle",
-          "Luxembourg Gardens",
-          "Palais Garnier",
-          "Place de la Concorde",
-          "Tuileries Garden",
-          "Centre Pompidou",
-          "Panthéon",
-          "Les Invalides",
-          "Seine River",
-          "Pont Alexandre III",
-          "Place des Vosges",
-          "Le Marais",
-          "Catacombs of Paris",
-          "Musée de l'Orangerie",
-          "Galeries Lafayette",
-          "La Défense Grande Arche",
-          "Père Lachaise Cemetery"
-        ]
+            "key": "PARIS",
+            "displayName": "Paris, France",
+            "airportName": "Paris Charles de Gaulle Airport",
+            "airportShortName": "Charles de Gaulle",
+            "locations": [
+                  "Eiffel Tower",
+                  "Louvre Museum",
+                  "Notre-Dame Cathedral",
+                  "Arc de Triomphe",
+                  "Champs-Élysées",
+                  "Sacré-Cœur Basilica",
+                  "Montmartre",
+                  "Musée d'Orsay",
+                  "Sainte-Chapelle",
+                  "Luxembourg Gardens",
+                  "Palais Garnier",
+                  "Place de la Concorde",
+                  "Tuileries Garden",
+                  "Centre Pompidou",
+                  "Panthéon",
+                  "Les Invalides",
+                  "Seine River",
+                  "Pont Alexandre III",
+                  "Place des Vosges",
+                  "Le Marais",
+                  "Catacombs of Paris",
+                  "Musée de l'Orangerie",
+                  "Galeries Lafayette",
+                  "La Défense Grande Arche",
+                  "Père Lachaise Cemetery"
+            ]
+      },
+      {
+            "key": "NEW YORK",
+            "displayName": "New York City, United States",
+            "airportName": "John F. Kennedy International Airport",
+            "airportShortName": "JFK",
+            "locations": [
+                  "Statue of Liberty",
+                  "Times Square",
+                  "Central Park",
+                  "Empire State Building",
+                  "Brooklyn Bridge",
+                  "Metropolitan Museum of Art",
+                  "One World Observatory",
+                  "9/11 Memorial & Museum",
+                  "Rockefeller Center",
+                  "Grand Central Terminal",
+                  "New York Public Library",
+                  "Bryant Park",
+                  "High Line",
+                  "Chelsea Market",
+                  "Washington Square Park",
+                  "Fifth Avenue",
+                  "St Patrick's Cathedral",
+                  "Museum of Modern Art",
+                  "American Museum of Natural History",
+                  "Coney Island",
+                  "Battery Park",
+                  "DUMBO",
+                  "Flatiron Building",
+                  "Yankee Stadium",
+                  "Chinatown"
+            ]
+      },
+      {
+            "key": "SAO PAULO",
+            "displayName": "São Paulo, Brazil",
+            "airportName": "São Paulo/Guarulhos International Airport",
+            "airportShortName": "Guarulhos",
+            "locations": [
+                  "Paulista Avenue",
+                  "São Paulo Museum of Art (MASP)",
+                  "Ibirapuera Park",
+                  "Municipal Market of São Paulo",
+                  "São Paulo Cathedral",
+                  "Pinacoteca do Estado",
+                  "Liberdade",
+                  "Beco do Batman",
+                  "Theatro Municipal",
+                  "Pátio do Colégio",
+                  "Farol Santander",
+                  "Copan Building",
+                  "Sé Square",
+                  "Allianz Parque",
+                  "Morumbi Stadium",
+                  "Rua Oscar Freire",
+                  "Jardim Botânico de São Paulo",
+                  "Instituto Butantan",
+                  "Museu do Futebol",
+                  "Mosteiro de São Bento",
+                  "Edifício Itália",
+                  "Parque da Independência",
+                  "Museu do Ipiranga",
+                  "Vila Madalena",
+                  "Avenida Brigadeiro Faria Lima"
+            ]
+      },
+      {
+            "key": "MEXICO CITY",
+            "displayName": "Mexico City, Mexico",
+            "airportName": "Mexico City International Airport",
+            "airportShortName": "Benito Juárez",
+            "locations": [
+                  "Zócalo",
+                  "Metropolitan Cathedral",
+                  "Templo Mayor",
+                  "Palacio de Bellas Artes",
+                  "Chapultepec Castle",
+                  "Chapultepec Park",
+                  "National Museum of Anthropology",
+                  "Frida Kahlo Museum",
+                  "Xochimilco",
+                  "Coyoacán",
+                  "Angel of Independence",
+                  "Paseo de la Reforma",
+                  "Soumaya Museum",
+                  "Alameda Central",
+                  "Monument to the Revolution",
+                  "Basilica of Our Lady of Guadalupe",
+                  "National Palace",
+                  "Garibaldi Square",
+                  "Roma Norte",
+                  "Condesa",
+                  "UNAM Central Library",
+                  "Estadio Azteca",
+                  "San Ángel",
+                  "Torre Latinoamericana",
+                  "Ciudadela Market"
+            ]
+      },
+      {
+            "key": "CAIRO",
+            "displayName": "Cairo, Egypt",
+            "airportName": "Cairo International Airport",
+            "airportShortName": "Cairo International",
+            "locations": [
+                  "Pyramids of Giza",
+                  "Great Sphinx of Giza",
+                  "Egyptian Museum",
+                  "Khan el-Khalili",
+                  "Cairo Citadel",
+                  "Mosque of Muhammad Ali",
+                  "Al-Azhar Mosque",
+                  "Coptic Cairo",
+                  "Hanging Church",
+                  "Cairo Tower",
+                  "Nile Corniche",
+                  "Al-Muizz Street",
+                  "Sultan Hassan Mosque",
+                  "Ibn Tulun Mosque",
+                  "Museum of Islamic Art",
+                  "Tahrir Square",
+                  "National Museum of Egyptian Civilization",
+                  "Bab Zuweila",
+                  "Al-Azhar Park",
+                  "Gezira Island",
+                  "Abdeen Palace",
+                  "Baron Empain Palace",
+                  "Mosque-Madrasa of al-Rifai",
+                  "City of the Dead",
+                  "Pharaonic Village"
+            ]
+      },
+      {
+            "key": "JOHANNESBURG",
+            "displayName": "Johannesburg, South Africa",
+            "airportName": "O. R. Tambo International Airport",
+            "airportShortName": "O. R. Tambo",
+            "locations": [
+                  "Apartheid Museum",
+                  "Constitution Hill",
+                  "Gold Reef City",
+                  "Soweto",
+                  "Nelson Mandela Square",
+                  "Maboneng Precinct",
+                  "Johannesburg Zoo",
+                  "Walter Sisulu National Botanical Garden",
+                  "Cradle of Humankind",
+                  "Hector Pieterson Museum",
+                  "Mandela House",
+                  "Vilakazi Street",
+                  "Market Theatre",
+                  "Neighbourgoods Market",
+                  "Carlton Centre",
+                  "Wits Art Museum",
+                  "Johannesburg Botanical Gardens",
+                  "Zoo Lake",
+                  "Melville",
+                  "Rosebank Art & Craft Market",
+                  "Sandton City",
+                  "FNB Stadium",
+                  "Orlando Towers",
+                  "Origins Centre Museum",
+                  "Mary Fitzgerald Square"
+            ]
+      },
+      {
+            "key": "MADRID",
+            "displayName": "Madrid, Spain",
+            "airportName": "Adolfo Suárez Madrid-Barajas Airport",
+            "airportShortName": "Madrid-Barajas",
+            "locations": [
+                  "Royal Palace of Madrid",
+                  "Prado Museum",
+                  "Retiro Park",
+                  "Puerta del Sol",
+                  "Plaza Mayor",
+                  "Gran Vía",
+                  "Thyssen-Bornemisza Museum",
+                  "Reina Sofía Museum",
+                  "Temple of Debod",
+                  "Santiago Bernabéu Stadium",
+                  "Mercado de San Miguel",
+                  "Almudena Cathedral",
+                  "Cibeles Palace",
+                  "Plaza de Cibeles",
+                  "Puerta de Alcalá",
+                  "El Rastro Market",
+                  "Casa de Campo",
+                  "Sorolla Museum",
+                  "Matadero Madrid",
+                  "Atocha Station",
+                  "Plaza de España",
+                  "Barrio de Las Letras",
+                  "Chueca",
+                  "Malasaña",
+                  "Las Ventas Bullring"
+            ]
+      },
+      {
+            "key": "ISTANBUL",
+            "displayName": "Istanbul, Turkey",
+            "airportName": "Istanbul Airport",
+            "airportShortName": "Istanbul Airport",
+            "locations": [
+                  "Hagia Sophia",
+                  "Blue Mosque",
+                  "Topkapi Palace",
+                  "Grand Bazaar",
+                  "Basilica Cistern",
+                  "Galata Tower",
+                  "Süleymaniye Mosque",
+                  "Dolmabahçe Palace",
+                  "Spice Bazaar",
+                  "Taksim Square",
+                  "Istiklal Avenue",
+                  "Bosphorus Bridge",
+                  "Ortaköy Mosque",
+                  "Chora Church",
+                  "Sultanahmet Square",
+                  "Gülhane Park",
+                  "Maiden's Tower",
+                  "Eminönü",
+                  "Balat",
+                  "Pierre Loti Hill",
+                  "Rumeli Fortress",
+                  "Istanbul Archaeological Museums",
+                  "Çamlıca Tower",
+                  "Beyoğlu",
+                  "Kadıköy"
+            ]
+      },
+      {
+            "key": "NEW DELHI",
+            "displayName": "New Delhi, India",
+            "airportName": "Indira Gandhi International Airport",
+            "airportShortName": "Indira Gandhi",
+            "locations": [
+                  "India Gate",
+                  "Red Fort",
+                  "Qutub Minar",
+                  "Humayun's Tomb",
+                  "Lotus Temple",
+                  "Akshardham",
+                  "Jama Masjid",
+                  "Raj Ghat",
+                  "Rashtrapati Bhavan",
+                  "Connaught Place",
+                  "Chandni Chowk",
+                  "Lodhi Garden",
+                  "Jantar Mantar",
+                  "National Museum",
+                  "Gurudwara Bangla Sahib",
+                  "Agrasen ki Baoli",
+                  "Dilli Haat",
+                  "Hauz Khas Village",
+                  "Safdarjung Tomb",
+                  "National Gallery of Modern Art",
+                  "Purana Qila",
+                  "Lajpat Nagar Market",
+                  "Sarojini Nagar Market",
+                  "Khan Market",
+                  "Nehru Planetarium"
+            ]
+      },
+      {
+            "key": "TOKYO",
+            "displayName": "Tokyo, Japan",
+            "airportName": "Tokyo Haneda Airport",
+            "airportShortName": "Haneda",
+            "locations": [
+                  "Shibuya Crossing",
+                  "Tokyo Tower",
+                  "Senso-ji Temple",
+                  "Tokyo Skytree",
+                  "Meiji Shrine",
+                  "Shinjuku Gyoen",
+                  "Imperial Palace",
+                  "Tsukiji Outer Market",
+                  "Akihabara",
+                  "Harajuku Takeshita Street",
+                  "Ueno Park",
+                  "Tokyo National Museum",
+                  "Roppongi Hills",
+                  "Odaiba",
+                  "Ginza",
+                  "Yoyogi Park",
+                  "teamLab Planets",
+                  "Tokyo Disneyland",
+                  "Tokyo Dome",
+                  "Sumida River",
+                  "Kabukicho",
+                  "Asakusa",
+                  "Nakamise Street",
+                  "Hamarikyu Gardens",
+                  "Ryogoku Kokugikan"
+            ]
+      },
+      {
+            "key": "BANGKOK",
+            "displayName": "Bangkok, Thailand",
+            "airportName": "Suvarnabhumi Airport",
+            "airportShortName": "Suvarnabhumi",
+            "locations": [
+                  "Grand Palace",
+                  "Wat Arun",
+                  "Wat Pho",
+                  "Chatuchak Weekend Market",
+                  "Khao San Road",
+                  "Jim Thompson House",
+                  "Lumphini Park",
+                  "MBK Center",
+                  "Siam Paragon",
+                  "Asiatique The Riverfront",
+                  "Chinatown Yaowarat",
+                  "Erawan Shrine",
+                  "Wat Saket",
+                  "Wat Traimit",
+                  "Terminal 21",
+                  "ICONSIAM",
+                  "Bangkok National Museum",
+                  "Democracy Monument",
+                  "Victory Monument",
+                  "Chao Phraya River",
+                  "Pak Khlong Talat",
+                  "Ratchada Train Night Market",
+                  "Benjakitti Park",
+                  "Queen Sirikit National Convention Center",
+                  "Sathorn Sky Bar"
+            ]
+      },
+      {
+            "key": "SYDNEY",
+            "displayName": "Sydney, Australia",
+            "airportName": "Sydney Kingsford Smith Airport",
+            "airportShortName": "Kingsford Smith",
+            "locations": [
+                  "Sydney Opera House",
+                  "Sydney Harbour Bridge",
+                  "Bondi Beach",
+                  "Darling Harbour",
+                  "The Rocks",
+                  "Royal Botanic Garden Sydney",
+                  "Taronga Zoo",
+                  "Circular Quay",
+                  "Manly Beach",
+                  "Queen Victoria Building",
+                  "Sydney Tower Eye",
+                  "Hyde Park Barracks",
+                  "Art Gallery of New South Wales",
+                  "Museum of Contemporary Art Australia",
+                  "Luna Park Sydney",
+                  "Mrs Macquarie's Chair",
+                  "Barangaroo Reserve",
+                  "Chinese Garden of Friendship",
+                  "St Mary's Cathedral",
+                  "Australian Museum",
+                  "Paddy's Markets",
+                  "Bronte Beach",
+                  "Coogee Beach",
+                  "Watsons Bay",
+                  "Sydney Fish Market"
+            ]
+      },
+      {
+            "key": "MOSCOW",
+            "displayName": "Moscow, Russia",
+            "airportName": "Sheremetyevo International Airport",
+            "airportShortName": "Sheremetyevo",
+            "locations": [
+                  "Red Square",
+                  "Saint Basil's Cathedral",
+                  "Moscow Kremlin",
+                  "Bolshoi Theatre",
+                  "GUM",
+                  "Tretyakov Gallery",
+                  "Arbat Street",
+                  "Cathedral of Christ the Saviour",
+                  "Gorky Park",
+                  "VDNKh",
+                  "Moscow Metro",
+                  "Zaryadye Park",
+                  "Sparrow Hills",
+                  "Novodevichy Convent",
+                  "State Historical Museum",
+                  "Pushkin Museum",
+                  "Ostankino Tower",
+                  "Moscow State University",
+                  "Luzhniki Stadium",
+                  "Kolomenskoye",
+                  "Izmailovsky Market",
+                  "Tsaritsyno Museum Reserve",
+                  "Patriarch's Ponds",
+                  "Muzeon Park",
+                  "Victory Park"
+            ]
+      },
+      {
+            "key": "DUBAI",
+            "displayName": "Dubai, UAE",
+            "airportName": "Dubai International Airport",
+            "airportShortName": "Dubai International",
+            "locations": [
+                  "Burj Khalifa",
+                  "Dubai Mall",
+                  "Dubai Fountain",
+                  "Palm Jumeirah",
+                  "Burj Al Arab",
+                  "Dubai Marina",
+                  "Jumeirah Beach",
+                  "Dubai Creek",
+                  "Gold Souk",
+                  "Spice Souk",
+                  "Museum of the Future",
+                  "Dubai Frame",
+                  "Atlantis The Palm",
+                  "Madinat Jumeirah",
+                  "Global Village",
+                  "Miracle Garden",
+                  "Dubai Desert Conservation Reserve",
+                  "Al Fahidi Historical Neighbourhood",
+                  "Jumeirah Mosque",
+                  "Dubai Opera",
+                  "Skydive Dubai",
+                  "Ain Dubai",
+                  "Mall of the Emirates",
+                  "Ski Dubai",
+                  "La Mer"
+            ]
       }
-    ];
+];
     var raceSettings = null;
     var FLIGHT_CHAOS_PROFILES = {
       calm: { label: "Calm", delayChance: 0.10, delayScale: 0.65 },
@@ -8432,37 +8881,37 @@
     }
 
     function chartStopHeader(index, locationData) {
-      return compactLocationName(locationNameForStopIndex(index, locationData), 13);
+      return locationNameForStopIndex(index, locationData);
     }
 
     function chartPitstopHeader(finalLeg, locationData) {
-      return compactLocationName(pitStopDisplayName(locationData) || (finalLeg ? "Finish" : "Pitstop"), 13);
+      return pitStopDisplayName(locationData) || (finalLeg ? "Finish" : "Pitstop");
     }
 
     function clueMilestoneDisplayLabel(label, locationData) {
       if (label === "Starting Line" || label === "Pit Start") {
-        return compactLocationName(startLocationDisplayName(locationData), 18);
+        return startLocationDisplayName(locationData);
       }
       if (label === "Starting Line Complete") {
-        return "Start Done";
+        return "Challenge Finish";
       }
       if (label === "Origin Airport") {
-        return compactLocationName(locationData && locationData.originAirport ? locationData.originAirport : cityAirportName(legOrigin), 18);
+        return locationData && locationData.originAirport ? locationData.originAirport : cityAirportName(legOrigin);
       }
       if (label === "Destination Airport") {
-        return compactLocationName(locationData && locationData.destAirport ? locationData.destAirport : cityAirportName(legDest), 18);
+        return locationData && locationData.destAirport ? locationData.destAirport : cityAirportName(legDest);
       }
       if (label === "Pit Stop" || label === "Finish Line") {
-        return compactLocationName(pitStopDisplayName(locationData), 18);
+        return pitStopDisplayName(locationData);
       }
 
       var arrive = /^Challenge ([A-Z]+) Arrive$/.exec(label || "");
       if (arrive) {
-        return compactLocationName(locationNameForStopIndex(arrive[1].charCodeAt(0) - 65, locationData), 16) + " Arrive";
+        return locationNameForStopIndex(arrive[1].charCodeAt(0) - 65, locationData);
       }
       var complete = /^Challenge ([A-Z]+) Complete$/.exec(label || "");
       if (complete) {
-        return compactLocationName(locationNameForStopIndex(complete[1].charCodeAt(0) - 65, locationData), 16) + " Done";
+        return "Challenge Finish";
       }
       return label;
     }
@@ -8473,6 +8922,31 @@
         '<span class="meta-money">$' + opt.cost + '</span>' +
         '<span class="meta-time">' + formatDuration(opt.time) + '</span>' +
         '</span>';
+    }
+
+    function setTransportPromptText(elementId, destinationName) {
+      var el = document.getElementById(elementId);
+      if (!el) { return; }
+      el.textContent = "Travel to " + (destinationName || "next location") + ":";
+    }
+
+    function currentRaceTransportTargetName() {
+      if (currentStop >= totalStopsThisLeg - 1) {
+        return pitStopDisplayName();
+      }
+      return locationNameForStopIndex(currentStop + 1);
+    }
+
+    function updateFlightScreenTitleAndButton() {
+      var titleEl = document.getElementById("flightTitle");
+      if (titleEl) {
+        titleEl.textContent = cityAirportName(legOrigin);
+      }
+
+      var btn = document.getElementById("flightBtn");
+      if (btn) {
+        btn.textContent = "Leave " + cityAirportShortName(legDest);
+      }
     }
 
     function shuffledCopy(arr) {
@@ -10519,18 +10993,7 @@
     }
 
     function compactChartLabel(label) {
-      var txt = shortTimelineHeader(label);
-      return txt
-        .replace("Check-In", "Chk")
-        .replace("Pitstop", "Pits")
-        .replace("Landed", "Land")
-        .replace("Airport", "Air")
-        .replace("Departure", "Dep")
-        .replace("Depart", "Dep")
-        .replace("Flight", "Flt")
-        .replace("Finish", "Fin")
-        .replace("Arrive", "Arr")
-        .replace("Left", "Left");
+      return shortTimelineHeader(label);
     }
 
     function timelineColumnWeight(col) {
@@ -10581,10 +11044,14 @@
       if (len >= 6) { size *= 0.94; }
       if (len >= 8) { size *= 0.90; }
       if (len >= 10) { size *= 0.86; }
+      if (len >= 14) { size *= 0.80; }
+      if (len >= 18) { size *= 0.72; }
+      if (len >= 24) { size *= 0.64; }
+      if (len >= 30) { size *= 0.56; }
       if (density >= 2.0) { size *= 0.90; }
       if (density >= 3.0) { size *= 0.85; }
       if (density >= 4.0) { size *= 0.80; }
-      return Math.max(0.28, size);
+      return Math.max(0.20, size);
     }
 
     function legTimelineChartHtml(results, labelsOverride, titleOverride, isFinalOverride, locationData) {
@@ -10631,16 +11098,16 @@
       }, false, { group: "Landed" });
 
       if (stopCount > 0) {
-        addColumn("fromAirport", chartStopHeader(0, locationData), function (r) { return milestoneClock(r, challengeArriveLabel(0)); }, function (r) { return timelineDetail(r, "fromAirport"); }, false, { group: chartStopHeader(0, locationData), subLabel: "Arrive", isTransport: true });
+        addColumn("fromAirport", chartStopHeader(0, locationData), function (r) { return milestoneClock(r, challengeArriveLabel(0)); }, function (r) { return timelineDetail(r, "fromAirport"); }, false, { group: chartStopHeader(0, locationData), subLabel: "Travel", isTransport: true });
       }
 
       for (var i = 0; i < stopCount; i++) {
         (function (index) {
           var currentLetter = chartStopHeader(index, locationData);
-          addColumn("finish" + index, "Left " + currentLetter, function (r) { return milestoneClock(r, challengeCompleteLabel(index)); }, function (r) {
+          addColumn("finish" + index, "Challenge Finish", function (r) { return milestoneClock(r, challengeCompleteLabel(index)); }, function (r) {
             var c = milestoneClock(r, challengeCompleteLabel(index));
             return c == null ? "—" : formatRaceTimeCompact(c);
-          }, false, { group: currentLetter, subLabel: "Left" });
+          }, false, { group: currentLetter, subLabel: "Challenge Finish" });
 
           var isLastStop = index === stopCount - 1;
           var nextLabel = isLastStop ? chartPitstopHeader(finalLeg, locationData) : chartStopHeader(index + 1, locationData);
@@ -10648,7 +11115,7 @@
             return isLastStop ? r.checkInClock : milestoneClock(r, challengeArriveLabel(index + 1));
           }, function (r) { return timelineDetail(r, "afterStop", index); }, false, {
             group: nextLabel,
-            subLabel: isLastStop ? "" : "Arrive",
+            subLabel: "Travel",
             isTransport: true
           });
         })(i);
@@ -10821,6 +11288,12 @@
       }
 
       var labels = labelsOverride || clueChartLabels();
+      var displayLabels = labels.map(function (label) {
+        return clueMilestoneDisplayLabel(label, locationData);
+      });
+      var maxDisplayLabelLength = displayLabels.reduce(function (max, label) {
+        return Math.max(max, String(label || "").length);
+      }, 0);
       var activeResults = results.slice();
       var teamCount = activeResults.length;
       var labelCount = labels.length;
@@ -10830,6 +11303,11 @@
       var width = 1040;
       var chartWidth = width - chartLeft - legendWidth - 48;
       var labelFontSize = labelCount <= 12 ? 9 : labelCount <= 18 ? 8 : labelCount <= 26 ? 7 : 6;
+      if (maxDisplayLabelLength >= 18) { labelFontSize *= 0.88; }
+      if (maxDisplayLabelLength >= 24) { labelFontSize *= 0.78; }
+      if (maxDisplayLabelLength >= 30) { labelFontSize *= 0.70; }
+      if (maxDisplayLabelLength >= 36) { labelFontSize *= 0.62; }
+      labelFontSize = Math.max(3.4, labelFontSize);
       var labelAngle = labelCount <= 14 ? -40 : labelCount <= 24 ? -48 : -55;
       var pointSize = labelCount > 24 || teamCount > 24 ? 7 : labelCount > 18 || teamCount > 16 ? 8 : 10;
       var lineWidth = labelCount > 24 || teamCount > 24 ? 2.6 : labelCount > 18 || teamCount > 16 ? 3.2 : 4;
@@ -10958,7 +11436,7 @@
         var x = xScale(index);
         var labelY = chartTop - 9;
         svg += '<circle cx="' + x + '" cy="' + chartTop + '" r="1.7" fill="#bdbdbd"/>';
-        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="start" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize + '">' + safeSvgText(clueMilestoneDisplayLabel(label, locationData)) + '</text>';
+        svg += '<text x="' + x + '" y="' + labelY + '" text-anchor="start" dominant-baseline="middle" transform="rotate(' + labelAngle + ' ' + x + ' ' + labelY + ')" class="axis-label" font-size="' + labelFontSize.toFixed(2) + '">' + safeSvgText(displayLabels[index]) + '</text>';
       });
 
       activeResults.forEach(function (r) {
@@ -11028,8 +11506,7 @@
         });
       }
 
-      var startMilestoneLabel = legNum === 1 ? "Starting Line" : "Pit Start";
-      var startDisplayLabel = legNum === 1 ? (legStartLocation || "Starting Line") : (legStartLocation || "Pit Start");
+      var startLabel = legNum === 1 ? "Starting Line" : "Pit Start";
 
       // Leg 1 only: rivals complete a Starting Line challenge before heading to airport
       // Calculate challenge time first so we can set the correct presence window
@@ -11047,18 +11524,18 @@
         startLocationKey(),
         teamStartClock,
         slEndClock,
-        startDisplayLabel
+        startLabel
       );
-      addMilestoneToList(milestones, startMilestoneLabel, teamStartClock, "averageTie");
+      addMilestoneToList(milestones, startLabel, teamStartClock, "averageTie");
 
       if (legNum === 1 && startingLineChallenge) {
-        addEvent("Starting Line challenge at " + (legStartLocation || "Starting Line"), slTime);
+        addEvent("Starting Line challenge", slTime);
         addMilestoneToList(milestones, "Starting Line Complete", currentClockForTeam(), "sequential");
       }
 
       var toAirportPick = chooseTeamTransport(name, airportStartTransportOptions);
       timelineDetails.toAirport = toAirportPick.method;
-      addEvent("Travel to " + cityAirportName(legOrigin) + " by " + toAirportPick.method, toAirportPick.time);
+      addEvent("Travel to origin airport by " + toAirportPick.method, toAirportPick.time);
 
       var originAirportArrivalClock = currentClockForTeam();
       addMilestoneToList(milestones, "Origin Airport", originAirportArrivalClock, "sequential");
@@ -11092,7 +11569,7 @@
 
       var fromAirportPick = chooseTeamTransport(name, airportEndTransportOptions);
       timelineDetails.fromAirport = fromAirportPick.method;
-      addEvent("Travel to " + locationNameForStopIndex(0) + " by " + fromAirportPick.method, fromAirportPick.time);
+      addEvent("Travel from destination airport by " + fromAirportPick.method, fromAirportPick.time);
 
       legStops.forEach(function (stop, index) {
         var stopArrivalClock = currentClockForTeam();
@@ -11107,16 +11584,15 @@
           stopLocationKey(index),
           stopArrivalClock,
           stopDepartureClock,
-          stop.locationName || ("Challenge " + stopLetter(index))
+          "Challenge " + stopLetter(index)
         );
 
-        addEvent("Complete " + (stop.locationName || ("Challenge " + stopLetter(index))) + " " + stop.skill + " challenge", challengeTime);
+        addEvent("Complete " + stop.skill + " challenge", challengeTime);
         addMilestoneToList(milestones, challengeCompleteLabel(index), currentClockForTeam(), "sequential");
 
         var transportPick = chooseTeamTransport(name, legTransportOptions[index]);
         timelineDetails.afterStops[index] = transportPick.method;
-        var nextLocationName = index >= legStops.length - 1 ? pitStopDisplayName() : locationNameForStopIndex(index + 1);
-        addEvent("Travel to " + nextLocationName + " by " + transportPick.method, transportPick.time);
+        addEvent("Travel after stop " + (index + 1) + " by " + transportPick.method, transportPick.time);
       });
 
       var pitstopArrivalClock = currentClockForTeam();
@@ -11127,7 +11603,7 @@
         pitstopLocationKey(),
         pitstopArrivalClock,
         pitstopArrivalClock + PITSTOP_PRESENCE_WINDOW,
-        pitStopDisplayName()
+        "Pit Stop"
       );
 
       return {
@@ -11367,7 +11843,7 @@
       flightResolved = false;
       restoredFlightResultHtml = "";
       document.getElementById("flightResult").innerHTML = "";
-      document.getElementById("flightBtn").textContent = "Leave Airport";
+      updateFlightScreenTitleAndButton();
 
       showScreen("legIntro");
     }
@@ -11403,6 +11879,7 @@
     }
 
     function renderFlightBody() {
+      updateFlightScreenTitleAndButton();
       var distKm = (legOrigin && legDest) ? distanceKmBetweenCities(legOrigin.name, legDest.name) : 0;
       var estFlightMin = distKm ? flightTimeMinutesBetweenDistance(distKm) : null;
       var chaosLabel = currentFlightChaosProfile().label;
@@ -11466,7 +11943,8 @@
     function showTransportToAirport() {
       specialTransportMode = "toAirport";
 
-      document.getElementById("specialTransportTitle").textContent = "Travel to Airport";
+      document.getElementById("specialTransportTitle").textContent = cityAirportName(legOrigin);
+      setTransportPromptText("specialTransportPrompt", cityAirportName(legOrigin));
       document.getElementById("specialTransportStatus").innerHTML =
         raceClockHeader() +
         presenceReportHtml(startLocationKey(), raceClock, null) +
@@ -11483,7 +11961,8 @@
     function showTransportFromAirport() {
       specialTransportMode = "fromAirport";
 
-      document.getElementById("specialTransportTitle").textContent = "Leave Airport";
+      document.getElementById("specialTransportTitle").textContent = cityAirportName(legDest);
+      setTransportPromptText("specialTransportPrompt", locationNameForStopIndex(0));
       document.getElementById("specialTransportStatus").innerHTML =
         raceClockHeader() +
         presenceReportHtml(destinationAirportLocationKey(), raceClock, null) +
@@ -11620,6 +12099,7 @@
         currentLegLabel() + " · " + escapeHtml(cityDisplayName(legDest)) + "<br>" +
         'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
 
+      setTransportPromptText("transportPrompt", currentRaceTransportTargetName());
       var optionsForThisSegment = optionsWithEmergencyWalkForTeam(legTransportOptions[currentStop], playerTeam);
       var list = document.getElementById("transportList");
       list.innerHTML = "";
@@ -11718,6 +12198,7 @@
 
       // Show the real airport transport options — same as showTransportToAirport
       // but rendered inline on the race screen so the player picks their transport here
+      setTransportPromptText("transportPrompt", cityAirportName(legOrigin));
       var list = document.getElementById("transportList");
       list.innerHTML = "";
       var opts = optionsWithEmergencyWalkForTeam(airportStartTransportOptions, playerTeam);
@@ -12013,8 +12494,6 @@
       var timeChart = legTimelineChartHtml(results, savedLabels, savedTitle, isFinalLeg(), savedLocations);
       var clueChart = clueByClueChartHtml(results, savedLabels, savedTitle, savedLocations);
       var chart = placementChartHtml();
-      currentCityStartLocation = legPitStopLocation;
-      currentCityStartCityKey = legDest && legDest.name ? legDest.name : null;
 
       if (isFinalLeg()) {
         var winner = results[0].team;
@@ -12117,8 +12596,6 @@
 
     function nextLeg() {
       currentCity = legDest;
-      currentCityStartLocation = legPitStopLocation;
-      currentCityStartCityKey = legDest && legDest.name ? legDest.name : null;
       legNum = legNum + 1;
       raceClock = nextLegStartClocks[playerTeam] != null ? nextLegStartClocks[playerTeam] : nextLegStartClock;
       startLeg();
@@ -12483,10 +12960,6 @@
         currentCity: currentCity,
         legOrigin: legOrigin,
         legDest: legDest,
-        legStartLocation: legStartLocation,
-        legPitStopLocation: legPitStopLocation,
-        currentCityStartLocation: currentCityStartLocation,
-        currentCityStartCityKey: currentCityStartCityKey,
         activeFlightRoute: activeFlightRoute,
         flightResolved: flightResolved,
         legIsNonElim: legIsNonElim,
@@ -12549,10 +13022,6 @@
       state.playerLegLog = Array.isArray(state.playerLegLog) ? state.playerLegLog : [];
       state.playerLegTimelineDetails = state.playerLegTimelineDetails && typeof state.playerLegTimelineDetails === "object" ? state.playerLegTimelineDetails : {};
       state.legHistory = Array.isArray(state.legHistory) ? state.legHistory : [];
-      state.legStartLocation = state.legStartLocation || null;
-      state.legPitStopLocation = state.legPitStopLocation || null;
-      state.currentCityStartLocation = state.currentCityStartLocation || null;
-      state.currentCityStartCityKey = state.currentCityStartCityKey || null;
 
       if (state.activeRaceSeed == null) {
         state.activeRaceSeed = state.raceSettings.raceSeed || "";
@@ -12629,10 +13098,6 @@
       currentCity = resolveCityObject(state.currentCity);
       legOrigin = resolveCityObject(state.legOrigin);
       legDest = resolveCityObject(state.legDest);
-      legStartLocation = state.legStartLocation || null;
-      legPitStopLocation = state.legPitStopLocation || null;
-      currentCityStartLocation = state.currentCityStartLocation || null;
-      currentCityStartCityKey = state.currentCityStartCityKey || null;
 
       if (!currentCity && legOrigin) {
         currentCity = legOrigin;
@@ -12640,13 +13105,6 @@
 
       if (!legOrigin && currentCity) {
         legOrigin = currentCity;
-      }
-
-      if (!legStartLocation && legOrigin) {
-        legStartLocation = drawLocationsForCity(legOrigin.name, 1)[0];
-      }
-      if (!legPitStopLocation && legDest) {
-        legPitStopLocation = drawLocationsForCity(legDest.name, 1)[0];
       }
 
       activeFlightRoute = state.activeFlightRoute || null;
