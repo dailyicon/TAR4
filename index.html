@@ -1677,7 +1677,7 @@
       margin-top: 10px;
     }
 
-    /* ── CITY WEIGHT EDITOR ─────────────────────────────────── */
+    /* ── ROUTE / SHEET EDITORS ───────────────────────────────── */
 
     .city-weight-editor-card {
       margin-top: 14px;
@@ -1720,6 +1720,142 @@
       font-size: 0.82rem;
       line-height: 1.45;
       margin-top: 10px;
+    }
+
+    .route-editor-card {
+      margin-top: 14px;
+      background: rgba(13, 3, 5, 0.5);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      padding: 14px;
+      text-align: left;
+    }
+
+    .route-editor-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .route-editor-header strong {
+      color: var(--amber);
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .route-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .route-grid .full { grid-column: 1 / -1; }
+
+    .route-editor {
+      min-height: 210px;
+      max-height: 460px;
+      resize: vertical;
+      white-space: pre;
+      overflow: auto;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      tab-size: 2;
+    }
+
+    .route-editor-hidden {
+      display: none;
+    }
+
+    .route-picker-bar {
+      display: grid;
+      grid-template-columns: minmax(170px, 0.75fr) minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: stretch;
+      margin-bottom: 12px;
+    }
+
+    .route-pick-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .route-pick-row {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--r-sm);
+      padding: 9px 10px;
+    }
+
+    .route-row-index {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: rgba(255, 184, 0, 0.12);
+      border: 1px solid rgba(255, 184, 0, 0.35);
+      color: var(--amber);
+      font-weight: 900;
+      font-size: 0.82rem;
+    }
+
+    .route-row-title {
+      color: var(--text);
+      font-size: 0.92rem;
+      font-weight: 900;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .route-row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    .route-empty {
+      border: 1px dashed rgba(255, 184, 0, 0.28);
+      border-radius: var(--r-sm);
+      padding: 18px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+      background: rgba(255, 184, 0, 0.04);
+    }
+
+    .route-editor-note {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      margin-top: 10px;
+    }
+
+    .route-editor-card.is-auto {
+      border-color: rgba(255, 184, 0, 0.18);
+    }
+
+    .route-editor-card.is-auto .route-custom-only {
+      opacity: 0.42;
+    }
+
+    .route-editor-card.is-auto .route-pick-list,
+    .route-editor-card.is-auto .route-picker-bar {
+      pointer-events: none;
     }
 
     /* ── TEAM COLORS ────────────────────────────────────────── */
@@ -2458,26 +2594,60 @@
       <div class="setup-section">
         <div class="section-heading">
           <div>
-            <div class="section-kicker">Route Odds</div>
-            <h2 class="section-title">City leg weights</h2>
-            <div class="section-copy">Give every designed city a leg-selection weight from 1 to 5. The race still avoids repeats until a pool is exhausted, but higher-weight cities are more likely to appear earlier in that no-repeat shuffle.</div>
+            <div class="section-kicker">Route Builder</div>
+            <h2 class="section-title">Route customization</h2>
+            <div class="section-copy">Choose whether the season uses the private weighted city pool or a custom city order. Non-elims do not need exact leg numbers: the custom route simply feeds normal legs in order, and the finale jumps to the chosen U.S. finish city whenever the final-team trigger happens.</div>
           </div>
         </div>
 
-        <div class="city-weight-editor-card">
-          <div class="city-weight-editor-header">
+        <div id="routeEditorCard" class="route-editor-card">
+          <div class="route-editor-header">
             <div>
-              <strong>City Weight Sheet</strong>
-              <div class="setting-help">Format each row like <strong>Paris, France = 5</strong>. Blank values or invalid values become the default weight of 3. U.S. cities only affect the starting city and finale pools.</div>
+              <strong>Season Route</strong>
+              <div class="setting-help">Auto keeps the hidden city-weight system. Custom lets you pick a U.S. start, an ordered non-U.S. route list, and a U.S. finale.</div>
             </div>
             <div class="mini-button-row">
-              <button class="mini-btn" type="button" onclick="fillCityWeightsBlankTemplate()">Blank Template</button>
-              <button class="mini-btn" type="button" onclick="fillCityWeightsCurrentTemplate()">Current Values</button>
-              <button class="mini-btn" type="button" onclick="resetCityWeightsToDefault()">Reset to 3</button>
+              <button class="mini-btn" type="button" onclick="fillSuggestedCustomRoute()">Suggested Route</button>
+              <button class="mini-btn" type="button" onclick="clearCustomRoute()">Clear Route</button>
             </div>
           </div>
-          <textarea id="cityWeightEditor" class="city-weight-editor" spellcheck="false" placeholder="Paris, France = 5"></textarea>
-          <div id="cityWeightNote" class="city-weight-note"></div>
+
+          <div class="route-grid">
+            <div class="setting-card full">
+              <label for="settingRouteMode">Route Mode</label>
+              <select id="settingRouteMode" onchange="updateRouteEditorVisibility();renderCustomizationSummary();">
+                <option value="auto">Auto - hidden weighted city pool</option>
+                <option value="custom">Custom - use my route order</option>
+              </select>
+              <div class="setting-help">Auto is the current default behavior. Custom still respects U.S. start/finale rules.</div>
+            </div>
+
+            <div class="setting-card route-custom-only">
+              <label for="customRouteStartSelect">Starting City</label>
+              <select id="customRouteStartSelect" onchange="updateRouteEditorNote();renderCustomizationSummary();"></select>
+              <div class="setting-help">United States only. This is the starting city before Leg 1.</div>
+            </div>
+
+            <div class="setting-card route-custom-only">
+              <label for="customRouteFinaleSelect">Finale City</label>
+              <select id="customRouteFinaleSelect" onchange="updateRouteEditorNote();renderCustomizationSummary();"></select>
+              <div class="setting-help">United States only. The finale uses this city whenever the race reaches the final-team trigger.</div>
+            </div>
+
+            <div class="setting-card full route-custom-only">
+              <label for="customRouteAddSelect">Normal Leg Route</label>
+              <div class="route-picker-bar">
+                <input id="customRouteSearch" type="text" placeholder="Search city..." oninput="renderCustomRouteAddSelect(currentCustomRouteKeys())">
+                <select id="customRouteAddSelect"></select>
+                <button class="mini-btn" type="button" onclick="addSelectedRouteCity()">Add City</button>
+              </div>
+              <div id="customRouteList" class="route-pick-list"></div>
+              <textarea id="customRouteEditor" class="route-editor route-editor-hidden" spellcheck="false" aria-hidden="true" tabindex="-1"></textarea>
+              <div class="setting-help">Choose non-U.S. cities from the dropdown, then use Move Up, Move Down, or Remove to set the route. These are used in order for normal legs. If the list runs out, the simulator fills the remaining route from the hidden weighted pool.</div>
+            </div>
+          </div>
+
+          <div id="routeEditorNote" class="route-editor-note"></div>
         </div>
       </div>
 
@@ -2653,7 +2823,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 30;
+    var SAVE_VERSION = 35;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -4152,6 +4322,174 @@
       },
       {
             "name": "DILI"
+      },
+      {
+            "name": "MUNICH"
+      },
+      {
+            "name": "ROTTERDAM"
+      },
+      {
+            "name": "UTRECHT"
+      },
+      {
+            "name": "SALZBURG"
+      },
+      {
+            "name": "INNSBRUCK"
+      },
+      {
+            "name": "DRESDEN"
+      },
+      {
+            "name": "LEIPZIG"
+      },
+      {
+            "name": "NUREMBERG"
+      },
+      {
+            "name": "GOTHENBURG"
+      },
+      {
+            "name": "AARHUS"
+      },
+      {
+            "name": "ANTWERP"
+      },
+      {
+            "name": "GHENT"
+      },
+      {
+            "name": "LILLE"
+      },
+      {
+            "name": "STRASBOURG"
+      },
+      {
+            "name": "MONTPELLIER"
+      },
+      {
+            "name": "BILBAO"
+      },
+      {
+            "name": "GRANADA"
+      },
+      {
+            "name": "SEVILLE SPAIN"
+      },
+      {
+            "name": "VERONA"
+      },
+      {
+            "name": "FLORENCE"
+      },
+      {
+            "name": "TURIN"
+      },
+      {
+            "name": "PISA"
+      },
+      {
+            "name": "SPLIT"
+      },
+      {
+            "name": "MOSTAR"
+      },
+      {
+            "name": "OHRID"
+      },
+      {
+            "name": "PLOVDIV"
+      },
+      {
+            "name": "CLUJ-NAPOCA"
+      },
+      {
+            "name": "LVIV"
+      },
+      {
+            "name": "KOTOR"
+      },
+      {
+            "name": "TROMSO"
+      },
+      {
+            "name": "MOMBASA"
+      },
+      {
+            "name": "FEZ"
+      },
+      {
+            "name": "ESSAOUIRA"
+      },
+      {
+            "name": "LUXOR"
+      },
+      {
+            "name": "ASWAN"
+      },
+      {
+            "name": "CHEFCHAOUEN"
+      },
+      {
+            "name": "STONE TOWN"
+      },
+      {
+            "name": "VALPARAISO"
+      },
+      {
+            "name": "USHUAIA"
+      },
+      {
+            "name": "IQUITOS"
+      },
+      {
+            "name": "SUCRE"
+      },
+      {
+            "name": "SALTA"
+      },
+      {
+            "name": "KANAZAWA"
+      },
+      {
+            "name": "KYOTO"
+      },
+      {
+            "name": "HIROSHIMA"
+      },
+      {
+            "name": "NAGOYA"
+      },
+      {
+            "name": "SIEM REAP"
+      },
+      {
+            "name": "LUANG PRABANG"
+      },
+      {
+            "name": "GEORGE TOWN"
+      },
+      {
+            "name": "RIO DE JANEIRO"
+      },
+      {
+            "name": "DETROIT"
+      },
+      {
+            "name": "NEW ORLEANS"
+      },
+      {
+            "name": "SAN JOSE CA"
+      },
+      {
+            "name": "QUEBEC CITY"
+      },
+      {
+            "name": "JAIPUR"
+      },
+      {
+            "name": "LIVERPOOL"
       },
       {
             "name": "PHUKET"
@@ -6984,6 +7322,342 @@
                 "lon": 98.3975,
                 "population": 77610,
                 "match_name": "Phuket"
+          },
+          "MUNICH": {
+                          "lat": 48.1372,
+                          "lon": 11.5755,
+                          "population": 2606021,
+                          "match_name": "Munich"
+          },
+          "ROTTERDAM": {
+                          "lat": 51.9225,
+                          "lon": 4.4792,
+                          "population": 1007050,
+                          "match_name": "Rotterdam"
+          },
+          "UTRECHT": {
+                          "lat": 52.0907,
+                          "lon": 5.1214,
+                          "population": 640000,
+                          "match_name": "Utrecht"
+          },
+          "SALZBURG": {
+                          "lat": 47.8014,
+                          "lon": 13.0458,
+                          "population": 155416,
+                          "match_name": "Salzburg"
+          },
+          "INNSBRUCK": {
+                          "lat": 47.2683,
+                          "lon": 11.3933,
+                          "population": 132493,
+                          "match_name": "Innsbruck"
+          },
+          "DRESDEN": {
+                          "lat": 51.0493,
+                          "lon": 13.7384,
+                          "population": 790400,
+                          "match_name": "Dresden"
+          },
+          "LEIPZIG": {
+                          "lat": 51.34,
+                          "lon": 12.375,
+                          "population": 624689,
+                          "match_name": "Leipzig"
+          },
+          "NUREMBERG": {
+                          "lat": 49.4539,
+                          "lon": 11.0775,
+                          "population": 535939,
+                          "match_name": "Nuremberg"
+          },
+          "GOTHENBURG": {
+                          "lat": 57.7072,
+                          "lon": 11.9668,
+                          "population": 617360,
+                          "match_name": "Gothenburg"
+          },
+          "AARHUS": {
+                          "lat": 56.1572,
+                          "lon": 10.2107,
+                          "population": 285273,
+                          "match_name": "Aarhus"
+          },
+          "ANTWERP": {
+                          "lat": 51.2211,
+                          "lon": 4.3997,
+                          "population": 529247,
+                          "match_name": "Antwerp"
+          },
+          "GHENT": {
+                          "lat": 51.0536,
+                          "lon": 3.7253,
+                          "population": 265086,
+                          "match_name": "Ghent"
+          },
+          "LILLE": {
+                          "lat": 50.6278,
+                          "lon": 3.0583,
+                          "population": 236710,
+                          "match_name": "Lille"
+          },
+          "STRASBOURG": {
+                          "lat": 48.5833,
+                          "lon": 7.7458,
+                          "population": 484157,
+                          "match_name": "Strasbourg"
+          },
+          "MONTPELLIER": {
+                          "lat": 43.6119,
+                          "lon": 3.8772,
+                          "population": 299096,
+                          "match_name": "Montpellier"
+          },
+          "BILBAO": {
+                          "lat": 43.2627,
+                          "lon": -2.9253,
+                          "population": 346096,
+                          "match_name": "Bilbao"
+          },
+          "GRANADA": {
+                          "lat": 37.1781,
+                          "lon": -3.6008,
+                          "population": 232462,
+                          "match_name": "Granada"
+          },
+          "SEVILLE SPAIN": {
+                          "lat": 37.39,
+                          "lon": -5.99,
+                          "population": 681998,
+                          "match_name": "Seville"
+          },
+          "VERONA": {
+                          "lat": 45.4386,
+                          "lon": 10.9928,
+                          "population": 258031,
+                          "match_name": "Verona"
+          },
+          "FLORENCE": {
+                          "lat": 43.7714,
+                          "lon": 11.2542,
+                          "population": 708357,
+                          "match_name": "Florence"
+          },
+          "TURIN": {
+                          "lat": 45.0703,
+                          "lon": 7.6869,
+                          "population": 870952,
+                          "match_name": "Turin"
+          },
+          "PISA": {
+                          "lat": 43.7156,
+                          "lon": 10.4017,
+                          "population": 90957,
+                          "match_name": "Pisa"
+          },
+          "SPLIT": {
+                          "lat": 43.51,
+                          "lon": 16.44,
+                          "population": 178102,
+                          "match_name": "Split"
+          },
+          "MOSTAR": {
+                          "lat": 43.3433,
+                          "lon": 17.8078,
+                          "population": 105797,
+                          "match_name": "Mostar"
+          },
+          "OHRID": {
+                          "lat": 41.1172,
+                          "lon": 20.8019,
+                          "population": 55749,
+                          "match_name": "Ohrid"
+          },
+          "PLOVDIV": {
+                          "lat": 42.15,
+                          "lon": 24.75,
+                          "population": 347851,
+                          "match_name": "Plovdiv"
+          },
+          "CLUJ-NAPOCA": {
+                          "lat": 46.7667,
+                          "lon": 23.5833,
+                          "population": 286598,
+                          "match_name": "Cluj-Napoca"
+          },
+          "LVIV": {
+                          "lat": 49.8425,
+                          "lon": 24.0322,
+                          "population": 717273,
+                          "match_name": "Lviv"
+          },
+          "KOTOR": {
+                          "lat": 42.425,
+                          "lon": 18.7717,
+                          "population": 13510,
+                          "match_name": "Kotor"
+          },
+          "TROMSO": {
+                          "lat": 69.6492,
+                          "lon": 18.9553,
+                          "population": 77200,
+                          "match_name": "Tromso"
+          },
+          "MOMBASA": {
+                          "lat": -4.05,
+                          "lon": 39.6667,
+                          "population": 1208333,
+                          "match_name": "Mombasa"
+          },
+          "FEZ": {
+                          "lat": 34.0433,
+                          "lon": -5.0033,
+                          "population": 1112072,
+                          "match_name": "Fez"
+          },
+          "ESSAOUIRA": {
+                          "lat": 31.5131,
+                          "lon": -9.7697,
+                          "population": 77966,
+                          "match_name": "Essaouira"
+          },
+          "LUXOR": {
+                          "lat": 25.6967,
+                          "lon": 32.6444,
+                          "population": 506588,
+                          "match_name": "Luxor"
+          },
+          "ASWAN": {
+                          "lat": 24.0889,
+                          "lon": 32.8997,
+                          "population": 275587,
+                          "match_name": "Aswan"
+          },
+          "CHEFCHAOUEN": {
+                          "lat": 35.1714,
+                          "lon": -5.2697,
+                          "population": 42786,
+                          "match_name": "Chefchaouen"
+          },
+          "STONE TOWN": {
+                          "lat": -6.1622,
+                          "lon": 39.1911,
+                          "population": 162000,
+                          "match_name": "Stone Town"
+          },
+          "VALPARAISO": {
+                          "lat": -33.0458,
+                          "lon": -71.6197,
+                          "population": 296655,
+                          "match_name": "Valparaiso"
+          },
+          "USHUAIA": {
+                          "lat": -54.8019,
+                          "lon": -68.3031,
+                          "population": 79000,
+                          "match_name": "Ushuaia"
+          },
+          "IQUITOS": {
+                          "lat": -3.7492,
+                          "lon": -73.2539,
+                          "population": 377609,
+                          "match_name": "Iquitos"
+          },
+          "SUCRE": {
+                          "lat": -19.0333,
+                          "lon": -65.2627,
+                          "population": 360544,
+                          "match_name": "Sucre"
+          },
+          "SALTA": {
+                          "lat": -24.7883,
+                          "lon": -65.4106,
+                          "population": 618375,
+                          "match_name": "Salta"
+          },
+          "KANAZAWA": {
+                          "lat": 36.5611,
+                          "lon": 136.6564,
+                          "population": 462479,
+                          "match_name": "Kanazawa"
+          },
+          "KYOTO": {
+                          "lat": 35.0117,
+                          "lon": 135.7683,
+                          "population": 1463723,
+                          "match_name": "Kyoto"
+          },
+          "HIROSHIMA": {
+                          "lat": 34.3914,
+                          "lon": 132.4519,
+                          "population": 1198021,
+                          "match_name": "Hiroshima"
+          },
+          "NAGOYA": {
+                          "lat": 35.1833,
+                          "lon": 136.9,
+                          "population": 2295638,
+                          "match_name": "Nagoya"
+          },
+          "SIEM REAP": {
+                          "lat": 13.3622,
+                          "lon": 103.8597,
+                          "population": 245494,
+                          "match_name": "Siem Reap"
+          },
+          "LUANG PRABANG": {
+                          "lat": 19.8833,
+                          "lon": 102.1333,
+                          "population": 47378,
+                          "match_name": "Luang Prabang"
+          },
+          "GEORGE TOWN": {
+                          "lat": 5.4145,
+                          "lon": 100.3292,
+                          "population": 708127,
+                          "match_name": "George Town"
+          },
+          "RIO DE JANEIRO": {
+                          "lat": -22.9068,
+                          "lon": -43.1729,
+                          "population": 12280000,
+                          "match_name": "Rio de Janeiro"
+          },
+          "DETROIT": {
+                          "lat": 42.3314,
+                          "lon": -83.0458,
+                          "population": 3670000,
+                          "match_name": "Detroit"
+          },
+          "NEW ORLEANS": {
+                          "lat": 29.9511,
+                          "lon": -90.0715,
+                          "population": 1030000,
+                          "match_name": "New Orleans"
+          },
+          "SAN JOSE CA": {
+                          "lat": 37.3382,
+                          "lon": -121.8863,
+                          "population": 2000000,
+                          "match_name": "San Jose"
+          },
+          "QUEBEC CITY": {
+                          "lat": 46.8139,
+                          "lon": -71.208,
+                          "population": 840000,
+                          "match_name": "Quebec City"
+          },
+          "JAIPUR": {
+                          "lat": 26.9124,
+                          "lon": 75.7873,
+                          "population": 4100000,
+                          "match_name": "Jaipur"
+          },
+          "LIVERPOOL": {
+                          "lat": 53.4084,
+                          "lon": -2.9916,
+                          "population": 864122,
+                          "match_name": "Liverpool"
           }
     };
 
@@ -7540,8 +8214,68 @@
         "SALVADOR": 1,
         "SAN JUAN": 1,
         "SANTA MARTA": 1,
-        "SANTIAGO": 3
-      }
+        "SANTIAGO": 3,
+        "MUNICH": 2,
+        "ROTTERDAM": 2,
+        "UTRECHT": 1,
+        "SALZBURG": 1,
+        "INNSBRUCK": 1,
+        "DRESDEN": 1,
+        "LEIPZIG": 1,
+        "NUREMBERG": 1,
+        "GOTHENBURG": 1,
+        "AARHUS": 1,
+        "ANTWERP": 1,
+        "GHENT": 1,
+        "LILLE": 1,
+        "STRASBOURG": 1,
+        "MONTPELLIER": 1,
+        "BILBAO": 1,
+        "GRANADA": 1,
+        "SEVILLE SPAIN": 2,
+        "VERONA": 1,
+        "FLORENCE": 2,
+        "TURIN": 1,
+        "PISA": 1,
+        "SPLIT": 2,
+        "MOSTAR": 1,
+        "OHRID": 1,
+        "PLOVDIV": 1,
+        "CLUJ-NAPOCA": 1,
+        "LVIV": 1,
+        "KOTOR": 1,
+        "TROMSO": 1,
+        "MOMBASA": 1,
+        "FEZ": 1,
+        "ESSAOUIRA": 1,
+        "LUXOR": 1,
+        "ASWAN": 1,
+        "CHEFCHAOUEN": 1,
+        "STONE TOWN": 1,
+        "VALPARAISO": 1,
+        "USHUAIA": 1,
+        "IQUITOS": 1,
+        "SUCRE": 1,
+        "SALTA": 1,
+        "KANAZAWA": 1,
+        "KYOTO": 2,
+        "HIROSHIMA": 2,
+        "NAGOYA": 1,
+        "SIEM REAP": 1,
+        "LUANG PRABANG": 1,
+        "GEORGE TOWN": 1,
+        "RIO DE JANEIRO": 3,
+        "DETROIT": 2,
+        "NEW ORLEANS": 2,
+        "SAN JOSE CA": 2,
+        "QUEBEC CITY": 2,
+        "JAIPUR": 1,
+        "LIVERPOOL": 1
+      },
+      routeMode: "auto",
+      customRouteStartKey: "",
+      customRouteDestinationKeys: [],
+      customRouteFinaleKey: ""
     };
 
 
@@ -23091,7 +23825,1855 @@
                   "Cousiño Palace",
                   "Persa Bio Bío"
             ]
-      }
+      },
+      {
+            "key": "MUNICH",
+            "displayName": "Munich, Germany",
+            "airportName": "Munich Airport",
+            "airportShortName": "Munich",
+            "locations": [
+                        "Marienplatz",
+                        "Neuschwanstein Castle",
+                        "English Garden",
+                        "Nymphenburg Palace",
+                        "BMW Museum",
+                        "Olympiapark Munich",
+                        "Munich Residenz",
+                        "Viktualienmarkt",
+                        "Frauenkirche Munich",
+                        "Hofbräuhaus München",
+                        "Deutsches Museum",
+                        "Asam Church",
+                        "Odeonsplatz",
+                        "Karlsplatz Stachus",
+                        "Allianz Arena",
+                        "St Peter's Church Munich",
+                        "Lenbachhaus",
+                        "Königsplatz",
+                        "Bavarian National Museum",
+                        "Eisbachwelle",
+                        "Isar River",
+                        "Theresienwiese",
+                        "Alter Peter Tower",
+                        "Sendlinger Tor",
+                        "Schloss Blutenburg"
+            ]
+},
+      {
+            "key": "ROTTERDAM",
+            "displayName": "Rotterdam, Netherlands",
+            "airportName": "Rotterdam The Hague Airport",
+            "airportShortName": "Rotterdam The Hague",
+            "locations": [
+                        "Erasmus Bridge",
+                        "Markthal Rotterdam",
+                        "Cube Houses",
+                        "Euromast",
+                        "Old Harbor Rotterdam",
+                        "Rotterdam Central Station",
+                        "Maritime Museum Rotterdam",
+                        "Museum Boijmans Van Beuningen",
+                        "Kunsthal Rotterdam",
+                        "Delfshaven",
+                        "Witte de Withstraat",
+                        "Depot Boijmans Van Beuningen",
+                        "SS Rotterdam",
+                        "Fenix Food Factory",
+                        "Kop van Zuid",
+                        "Hotel New York Rotterdam",
+                        "Het Park",
+                        "Luchtsingel",
+                        "Laurenskerk Rotterdam",
+                        "Witte Huis Rotterdam",
+                        "Blijdorp Zoo",
+                        "Katendrecht",
+                        "Plaswijckpark",
+                        "Schouwburgplein",
+                        "Trompenburg Gardens"
+            ]
+},
+      {
+            "key": "UTRECHT",
+            "displayName": "Utrecht, Netherlands",
+            "airportName": "Amsterdam Schiphol Airport",
+            "airportShortName": "Schiphol",
+            "locations": [
+                        "Dom Tower of Utrecht",
+                        "Oudegracht",
+                        "Rietveld Schröder House",
+                        "Museum Speelklok",
+                        "Utrecht Central Station",
+                        "Centraal Museum",
+                        "St Martin's Cathedral Utrecht",
+                        "TivoliVredenburg",
+                        "Miffy Museum",
+                        "Botanical Gardens Utrecht",
+                        "Neude Square",
+                        "Hoog Catharijne",
+                        "Griftpark",
+                        "Wilhelminapark Utrecht",
+                        "Janskerkhof",
+                        "Louis Hartlooper Complex",
+                        "Sonnenborgh Observatory",
+                        "Lombok Utrecht",
+                        "Zadelstraat",
+                        "Railway Museum Utrecht",
+                        "Paushuize",
+                        "Kasteel de Haar",
+                        "Ledig Erf",
+                        "Twijnstraat",
+                        "Pandhof Domkerk"
+            ]
+},
+      {
+            "key": "SALZBURG",
+            "displayName": "Salzburg, Austria",
+            "airportName": "Salzburg Airport W. A. Mozart",
+            "airportShortName": "Salzburg",
+            "locations": [
+                        "Hohensalzburg Fortress",
+                        "Mirabell Palace and Gardens",
+                        "Salzburg Cathedral",
+                        "Getreidegasse",
+                        "Mozart's Birthplace",
+                        "Mozart Residence",
+                        "Hellbrunn Palace",
+                        "Residenzplatz",
+                        "St Peter's Abbey Salzburg",
+                        "Salzburg Old Town",
+                        "Kapuzinerberg",
+                        "Mönchsberg",
+                        "Museum der Moderne Salzburg",
+                        "Nonnberg Abbey",
+                        "Makartsteg Bridge",
+                        "Haus der Natur",
+                        "Salzburg Marionette Theatre",
+                        "Augustiner Bräu Kloster Mülln",
+                        "Leopoldskron Palace",
+                        "Salzach River",
+                        "Mozartplatz",
+                        "Kollegienkirche",
+                        "Stiegl-Brauwelt",
+                        "Mirabellgarten Pegasus Fountain",
+                        "Untersberg"
+            ]
+},
+      {
+            "key": "INNSBRUCK",
+            "displayName": "Innsbruck, Austria",
+            "airportName": "Innsbruck Airport",
+            "airportShortName": "Innsbruck",
+            "locations": [
+                        "Golden Roof",
+                        "Nordkette",
+                        "Innsbruck Old Town",
+                        "Imperial Palace Innsbruck",
+                        "Ambras Castle",
+                        "Bergisel Ski Jump",
+                        "Maria-Theresien-Strasse",
+                        "Hofkirche Innsbruck",
+                        "Tyrolean Folk Art Museum",
+                        "Innsbruck Cathedral",
+                        "Hungerburgbahn",
+                        "Alpenzoo Innsbruck",
+                        "Triumphal Arch Innsbruck",
+                        "Wilten Basilica",
+                        "Swarovski Crystal Worlds",
+                        "Tyrolean State Museum",
+                        "River Inn Promenade",
+                        "Market Hall Innsbruck",
+                        "Olympiaworld Innsbruck",
+                        "Patscherkofel",
+                        "Stadtturm Innsbruck",
+                        "Helbling House",
+                        "Ottoburg",
+                        "Court Garden Innsbruck",
+                        "Seegrube"
+            ]
+},
+      {
+            "key": "DRESDEN",
+            "displayName": "Dresden, Germany",
+            "airportName": "Dresden Airport",
+            "airportShortName": "Dresden",
+            "locations": [
+                        "Dresden Frauenkirche",
+                        "Zwinger Palace",
+                        "Semperoper",
+                        "Dresden Castle",
+                        "Brühl's Terrace",
+                        "Fürstenzug",
+                        "Old Masters Picture Gallery",
+                        "Green Vault",
+                        "Dresden Cathedral",
+                        "Albertinum",
+                        "Dresden Neustadt",
+                        "Pillnitz Palace",
+                        "Grosser Garten Dresden",
+                        "Yenidze",
+                        "Blue Wonder Bridge",
+                        "Kunsthofpassage",
+                        "Elbe River Dresden",
+                        "Transparent Factory",
+                        "Dresden Panometer",
+                        "Japanese Palace",
+                        "Theaterplatz Dresden",
+                        "Procession of Princes",
+                        "Dresden Transport Museum",
+                        "Loschwitz",
+                        "Pfunda Molkerei"
+            ]
+},
+      {
+            "key": "LEIPZIG",
+            "displayName": "Leipzig, Germany",
+            "airportName": "Leipzig/Halle Airport",
+            "airportShortName": "Leipzig/Halle",
+            "locations": [
+                        "Monument to the Battle of the Nations",
+                        "St Thomas Church Leipzig",
+                        "St Nicholas Church Leipzig",
+                        "Leipzig Market Square",
+                        "Leipzig Zoo",
+                        "Mädler Passage",
+                        "Bach Museum Leipzig",
+                        "Gewandhaus Leipzig",
+                        "Augustusplatz",
+                        "Museum of Fine Arts Leipzig",
+                        "Auerbachs Keller",
+                        "Leipzig Panometer",
+                        "Clara-Zetkin Park",
+                        "Old City Hall Leipzig",
+                        "New Town Hall Leipzig",
+                        "Spinnerei Leipzig",
+                        "Grassi Museum",
+                        "Karl-Liebknecht-Strasse",
+                        "Cospudener See",
+                        "Leipzig Botanical Garden",
+                        "Federal Administrative Court",
+                        "Mendelssohn House",
+                        "Moritzbastei",
+                        "Leipzig Hauptbahnhof",
+                        "Plagwitz"
+            ]
+},
+      {
+            "key": "NUREMBERG",
+            "displayName": "Nuremberg, Germany",
+            "airportName": "Nuremberg Airport",
+            "airportShortName": "Nuremberg",
+            "locations": [
+                        "Nuremberg Castle",
+                        "Hauptmarkt Nuremberg",
+                        "Frauenkirche Nuremberg",
+                        "Schöner Brunnen",
+                        "Albrecht Dürer House",
+                        "Documentation Center Nazi Party Rally Grounds",
+                        "Germanisches Nationalmuseum",
+                        "St Lorenz Church",
+                        "St Sebaldus Church",
+                        "Handwerkerhof Nuremberg",
+                        "Nuremberg Toy Museum",
+                        "Nuremberg Old Town",
+                        "Weinstadel",
+                        "Maxbrücke",
+                        "Kettensteg",
+                        "Nuremberg Zoo",
+                        "Way of Human Rights",
+                        "New Museum Nuremberg",
+                        "Nuremberg Trials Memorium",
+                        "Tiergärtnertorplatz",
+                        "Pegnitz River",
+                        "Nuremberg City Walls",
+                        "Ehekarussell Fountain",
+                        "Nassauer Haus",
+                        "Luitpoldhain"
+            ]
+},
+      {
+            "key": "GOTHENBURG",
+            "displayName": "Gothenburg, Sweden",
+            "airportName": "Göteborg Landvetter Airport",
+            "airportShortName": "Landvetter",
+            "locations": [
+                        "Liseberg",
+                        "Universeum",
+                        "Gothenburg Archipelago",
+                        "Haga Gothenburg",
+                        "Feskekôrka",
+                        "Slottsskogen",
+                        "Gothenburg Museum of Art",
+                        "Avenyn",
+                        "Gothenburg Botanical Garden",
+                        "Skansen Kronan",
+                        "Gothenburg Opera",
+                        "Maritiman",
+                        "Nordstan",
+                        "Masthugg Church",
+                        "Götaplatsen",
+                        "Kungsportsavenyen",
+                        "Röda Sten Konsthall",
+                        "Palmhuset",
+                        "Kronhuset",
+                        "Volvo Museum",
+                        "Stora Saluhallen",
+                        "Gustav Adolfs Torg",
+                        "Eriksberg",
+                        "Älvsborg Fortress",
+                        "Delsjön"
+            ]
+},
+      {
+            "key": "AARHUS",
+            "displayName": "Aarhus, Denmark",
+            "airportName": "Aarhus Airport",
+            "airportShortName": "Aarhus",
+            "locations": [
+                        "ARoS Aarhus Art Museum",
+                        "Den Gamle By",
+                        "Moesgaard Museum",
+                        "Aarhus Cathedral",
+                        "Dokk1",
+                        "Marselisborg Palace",
+                        "Tivoli Friheden",
+                        "Aarhus Botanical Garden",
+                        "Latin Quarter Aarhus",
+                        "Aarhus City Hall",
+                        "The Infinite Bridge",
+                        "Møllestien",
+                        "Aarhus Theatre",
+                        "Musikhuset Aarhus",
+                        "Godsbanen",
+                        "Aarhus Harbour",
+                        "Salling Rooftop",
+                        "Marselisborg Deer Park",
+                        "Aarhus University Park",
+                        "Viking Museum Aarhus",
+                        "Aarhus Street Food",
+                        "Mindeparken",
+                        "Women's Museum Denmark",
+                        "Ballehage Beach",
+                        "Riis Skov"
+            ]
+},
+      {
+            "key": "ANTWERP",
+            "displayName": "Antwerp, Belgium",
+            "airportName": "Antwerp International Airport",
+            "airportShortName": "Antwerp",
+            "locations": [
+                        "Grote Markt Antwerp",
+                        "Cathedral of Our Lady Antwerp",
+                        "Antwerp Central Station",
+                        "MAS Museum",
+                        "Rubenshuis",
+                        "Plantin-Moretus Museum",
+                        "Meir",
+                        "Het Steen",
+                        "Antwerp Zoo",
+                        "Red Star Line Museum",
+                        "Museum aan de Stroom",
+                        "Port House Antwerp",
+                        "Museum Mayer van den Bergh",
+                        "Vlaeykensgang",
+                        "St Charles Borromeo Church",
+                        "Diamond District Antwerp",
+                        "ModeMuseum Antwerp",
+                        "Groenplaats",
+                        "Eilandje",
+                        "Park Spoor Noord",
+                        "Middelheim Museum",
+                        "Royal Museum of Fine Arts Antwerp",
+                        "Antwerp City Hall",
+                        "Zurenborg",
+                        "Scheldt Quays"
+            ]
+},
+      {
+            "key": "GHENT",
+            "displayName": "Ghent, Belgium",
+            "airportName": "Brussels Airport",
+            "airportShortName": "Brussels",
+            "locations": [
+                        "Gravensteen Castle",
+                        "Saint Bavo's Cathedral",
+                        "Ghent Altarpiece",
+                        "Graslei",
+                        "Korenlei",
+                        "Belfry of Ghent",
+                        "Saint Nicholas Church Ghent",
+                        "Korenmarkt",
+                        "Patershol",
+                        "Vrijdagmarkt",
+                        "STAM Ghent City Museum",
+                        "Museum of Fine Arts Ghent",
+                        "Design Museum Gent",
+                        "Graffiti Street Ghent",
+                        "Citadelpark",
+                        "Ghent Town Hall",
+                        "St Michael's Bridge",
+                        "Portus Ganda",
+                        "SMAK",
+                        "Great Butchers' Hall",
+                        "Ghent University Botanical Garden",
+                        "Werregarenstraat",
+                        "Rabot Towers",
+                        "Baudelopark",
+                        "Blaarmeersen"
+            ]
+},
+      {
+            "key": "LILLE",
+            "displayName": "Lille, France",
+            "airportName": "Lille Airport",
+            "airportShortName": "Lille",
+            "locations": [
+                        "Grand Place Lille",
+                        "Vieux-Lille",
+                        "Palais des Beaux-Arts de Lille",
+                        "La Vieille Bourse",
+                        "Lille Cathedral",
+                        "Citadel of Lille",
+                        "Wazemmes Market",
+                        "Hospice Comtesse Museum",
+                        "Porte de Paris Lille",
+                        "Lille Flandres Station",
+                        "Lille Europe Station",
+                        "La Piscine Museum Roubaix",
+                        "Euralille",
+                        "Place Rihour",
+                        "Rue de Béthune",
+                        "Jardin Vauban",
+                        "Zoo de Lille",
+                        "Opéra de Lille",
+                        "Chamber of Commerce Belfry",
+                        "Maison natale Charles de Gaulle",
+                        "Lille Natural History Museum",
+                        "Gare Saint Sauveur",
+                        "Parc Jean-Baptiste Lebas",
+                        "Rue Esquermoise",
+                        "Lille Town Hall Belfry"
+            ]
+},
+      {
+            "key": "STRASBOURG",
+            "displayName": "Strasbourg, France",
+            "airportName": "Strasbourg Airport",
+            "airportShortName": "Strasbourg",
+            "locations": [
+                        "Strasbourg Cathedral",
+                        "La Petite France",
+                        "Palais Rohan Strasbourg",
+                        "Barrage Vauban",
+                        "Ponts Couverts",
+                        "Place Kléber",
+                        "European Parliament Strasbourg",
+                        "Parc de l'Orangerie",
+                        "Alsatian Museum",
+                        "Strasbourg Museum of Modern and Contemporary Art",
+                        "Maison Kammerzell",
+                        "Saint Thomas Church Strasbourg",
+                        "Gutenberg Square",
+                        "Neustadt Strasbourg",
+                        "Grande Île",
+                        "Strasbourg Christmas Market",
+                        "Tomi Ungerer Museum",
+                        "Rhine Palace",
+                        "Place Broglie",
+                        "Botanical Gardens Strasbourg",
+                        "Historical Museum of Strasbourg",
+                        "Vauban Dam Terrace",
+                        "Ill River",
+                        "Aubette 1928",
+                        "Rue des Grandes Arcades"
+            ]
+},
+      {
+            "key": "MONTPELLIER",
+            "displayName": "Montpellier, France",
+            "airportName": "Montpellier-Méditerranée Airport",
+            "airportShortName": "Montpellier",
+            "locations": [
+                        "Place de la Comédie",
+                        "Montpellier Cathedral",
+                        "Promenade du Peyrou",
+                        "Arc de Triomphe Montpellier",
+                        "Fabre Museum",
+                        "Antigone District",
+                        "Jardin des Plantes Montpellier",
+                        "Porte du Peyrou",
+                        "Esplanade Charles de Gaulle",
+                        "Montpellier Zoological Park",
+                        "Château de Flaugergues",
+                        "Le Corum",
+                        "Aquarium Mare Nostrum",
+                        "Odysseum",
+                        "Saint-Roch Church Montpellier",
+                        "Marché du Lez",
+                        "Place Royale du Peyrou",
+                        "Carré Sainte-Anne",
+                        "Mikvé Médiéval",
+                        "Faculté de Médecine Montpellier",
+                        "Rue de l'Ancien Courrier",
+                        "Port Marianne",
+                        "La Panacée",
+                        "Comédie Opera House",
+                        "Pic Saint-Loup"
+            ]
+},
+      {
+            "key": "BILBAO",
+            "displayName": "Bilbao, Spain",
+            "airportName": "Bilbao Airport",
+            "airportShortName": "Bilbao",
+            "locations": [
+                        "Guggenheim Museum Bilbao",
+                        "Casco Viejo Bilbao",
+                        "Plaza Nueva Bilbao",
+                        "Ribera Market",
+                        "Zubizuri Bridge",
+                        "Bilbao Fine Arts Museum",
+                        "Azkuna Zentroa",
+                        "Santiago Cathedral Bilbao",
+                        "Arriaga Theatre",
+                        "San Mamés Stadium",
+                        "Funicular de Artxanda",
+                        "Doña Casilda Park",
+                        "Bilbao Estuary",
+                        "Moyua Square",
+                        "La Salve Bridge",
+                        "Gran Vía Bilbao",
+                        "Basilica of Begoña",
+                        "Euskalduna Palace",
+                        "Bilbao City Hall",
+                        "Maritime Museum Bilbao",
+                        "Alhóndiga Bilbao",
+                        "Atxuri Station",
+                        "Arenal Gardens",
+                        "Ensanche Bilbao",
+                        "Mount Artxanda"
+            ]
+},
+      {
+            "key": "GRANADA",
+            "displayName": "Granada, Spain",
+            "airportName": "Federico García Lorca Granada Airport",
+            "airportShortName": "Granada",
+            "locations": [
+                        "Alhambra",
+                        "Generalife",
+                        "Albaicín",
+                        "Mirador de San Nicolás",
+                        "Granada Cathedral",
+                        "Royal Chapel of Granada",
+                        "Sacromonte",
+                        "Carrera del Darro",
+                        "Paseo de los Tristes",
+                        "Plaza Nueva Granada",
+                        "Monastery of Saint Jerome",
+                        "Basilica of San Juan de Dios",
+                        "Alcaicería",
+                        "Corral del Carbón",
+                        "Carmen de los Mártires",
+                        "Science Park Granada",
+                        "Cartuja Monastery",
+                        "El Bañuelo",
+                        "Plaza Bib-Rambla",
+                        "Hammam Al Ándalus Granada",
+                        "Sierra Nevada",
+                        "Realejo",
+                        "San Jerónimo Church",
+                        "Granada Charterhouse",
+                        "Palace of Charles V"
+            ]
+},
+      {
+            "key": "SEVILLE SPAIN",
+            "displayName": "Seville, Spain",
+            "airportName": "Seville Airport",
+            "airportShortName": "Seville",
+            "locations": [
+                        "Seville Cathedral",
+                        "Real Alcázar of Seville",
+                        "Plaza de España Seville",
+                        "Giralda",
+                        "Barrio Santa Cruz",
+                        "Metropol Parasol",
+                        "Triana",
+                        "Torre del Oro",
+                        "Maria Luisa Park",
+                        "Archivo de Indias",
+                        "Casa de Pilatos",
+                        "Plaza de Toros de la Maestranza",
+                        "Setas de Sevilla",
+                        "Alameda de Hércules",
+                        "Basilica of La Macarena",
+                        "Museum of Fine Arts Seville",
+                        "Palacio de las Dueñas",
+                        "Hospital de los Venerables",
+                        "Isla Mágica",
+                        "Arenal District",
+                        "Puente de Triana",
+                        "Royal Tobacco Factory",
+                        "San Telmo Palace",
+                        "Mercado de Triana",
+                        "Guadalquivir Riverfront"
+            ]
+},
+      {
+            "key": "VERONA",
+            "displayName": "Verona, Italy",
+            "airportName": "Verona Villafranca Airport",
+            "airportShortName": "Verona",
+            "locations": [
+                        "Verona Arena",
+                        "Juliet's House",
+                        "Piazza delle Erbe",
+                        "Piazza Bra",
+                        "Castelvecchio",
+                        "Ponte Pietra",
+                        "Torre dei Lamberti",
+                        "Basilica di San Zeno Maggiore",
+                        "Piazza dei Signori Verona",
+                        "Arche Scaligere",
+                        "Roman Theatre Verona",
+                        "Giusti Garden",
+                        "Castel San Pietro",
+                        "Verona Cathedral",
+                        "Porta Borsari",
+                        "Ponte Scaligero",
+                        "Sant'Anastasia",
+                        "Via Mazzini Verona",
+                        "Lamberti Tower",
+                        "San Fermo Maggiore",
+                        "Porta Leoni",
+                        "Adige River Verona",
+                        "Museo di Castelvecchio",
+                        "Piazzale Castel San Pietro",
+                        "Loggia del Consiglio"
+            ]
+},
+      {
+            "key": "FLORENCE",
+            "displayName": "Florence, Italy",
+            "airportName": "Florence Airport",
+            "airportShortName": "Florence",
+            "locations": [
+                        "Florence Cathedral",
+                        "Uffizi Gallery",
+                        "Ponte Vecchio",
+                        "Piazza della Signoria",
+                        "Palazzo Vecchio",
+                        "Accademia Gallery",
+                        "Pitti Palace",
+                        "Boboli Gardens",
+                        "Basilica of Santa Croce",
+                        "Basilica of Santa Maria Novella",
+                        "Piazzale Michelangelo",
+                        "Mercato Centrale Florence",
+                        "Giotto's Bell Tower",
+                        "Baptistery of St John Florence",
+                        "San Lorenzo Market",
+                        "Medici Chapels",
+                        "Bargello Museum",
+                        "Palazzo Strozzi",
+                        "Oltrarno",
+                        "Santo Spirito Florence",
+                        "San Miniato al Monte",
+                        "Loggia dei Lanzi",
+                        "Vasari Corridor",
+                        "Arno River Florence",
+                        "Riccardi Medici Palace"
+            ]
+},
+      {
+            "key": "TURIN",
+            "displayName": "Turin, Italy",
+            "airportName": "Turin Airport",
+            "airportShortName": "Turin",
+            "locations": [
+                        "Mole Antonelliana",
+                        "Egyptian Museum Turin",
+                        "Piazza Castello Turin",
+                        "Royal Palace of Turin",
+                        "Turin Cathedral",
+                        "National Cinema Museum",
+                        "Piazza San Carlo",
+                        "Parco del Valentino",
+                        "Palazzo Madama Turin",
+                        "Basilica of Superga",
+                        "Porta Palatina",
+                        "Lingotto",
+                        "Juventus Stadium",
+                        "Museo Nazionale dell'Automobile",
+                        "Quadrilatero Romano",
+                        "Via Roma Turin",
+                        "Galleria Subalpina",
+                        "Borgo Medievale Turin",
+                        "Turin Shroud Chapel",
+                        "Piazza Vittorio Veneto",
+                        "Po River Turin",
+                        "Castello del Valentino",
+                        "Palatine Towers",
+                        "Turin Porta Nuova",
+                        "Gran Madre di Dio"
+            ]
+},
+      {
+            "key": "PISA",
+            "displayName": "Pisa, Italy",
+            "airportName": "Pisa International Airport",
+            "airportShortName": "Pisa",
+            "locations": [
+                        "Leaning Tower of Pisa",
+                        "Piazza dei Miracoli",
+                        "Pisa Cathedral",
+                        "Baptistery of Pisa",
+                        "Camposanto Monumentale",
+                        "Piazza dei Cavalieri",
+                        "Santa Maria della Spina",
+                        "Museo dell'Opera del Duomo Pisa",
+                        "Palazzo della Carovana",
+                        "Borgo Stretto",
+                        "Arno River Pisa",
+                        "National Museum of San Matteo",
+                        "Botanical Garden of Pisa",
+                        "Tuttomondo Mural",
+                        "Corso Italia Pisa",
+                        "Lungarni di Pisa",
+                        "Knights Square",
+                        "Pisa City Walls",
+                        "Church of San Michele in Borgo",
+                        "Palazzo Blu",
+                        "Marina di Pisa",
+                        "Piazza Garibaldi Pisa",
+                        "Ponte di Mezzo",
+                        "University of Pisa",
+                        "San Paolo a Ripa d'Arno"
+            ]
+},
+      {
+            "key": "SPLIT",
+            "displayName": "Split, Croatia",
+            "airportName": "Split Airport",
+            "airportShortName": "Split",
+            "locations": [
+                        "Diocletian's Palace",
+                        "Riva Split",
+                        "Cathedral of Saint Domnius",
+                        "Marjan Hill",
+                        "Peristyle Square",
+                        "Pjaca Split",
+                        "Fruit Square Split",
+                        "Bačvice Beach",
+                        "Mestrovic Gallery",
+                        "Klis Fortress",
+                        "Split Old Town",
+                        "Golden Gate Split",
+                        "Temple of Jupiter Split",
+                        "Green Market Split",
+                        "Republic Square Split",
+                        "Split Archaeological Museum",
+                        "Ivan Meštrović Crikvine",
+                        "Froggyland",
+                        "Prokurative",
+                        "West Bank Split",
+                        "Marjan Forest Park",
+                        "Bene Beach",
+                        "Sustipan",
+                        "Poljud Stadium",
+                        "Matejuška"
+            ]
+},
+      {
+            "key": "MOSTAR",
+            "displayName": "Mostar, Bosnia and Herzegovina",
+            "airportName": "Mostar International Airport",
+            "airportShortName": "Mostar",
+            "locations": [
+                        "Stari Most",
+                        "Old Bazaar Mostar",
+                        "Koski Mehmed Pasha Mosque",
+                        "Neretva River",
+                        "Crooked Bridge Mostar",
+                        "Mostar Old Town",
+                        "Partisan Memorial Cemetery",
+                        "Spanish Square Mostar",
+                        "Biscevic House",
+                        "Muslibegovic House",
+                        "Mostar Peace Bell Tower",
+                        "Karađoz Bey Mosque",
+                        "Mepas Mall",
+                        "Old Bridge Museum",
+                        "Sniper Tower Mostar",
+                        "Blagaj Tekke",
+                        "Buna River Spring",
+                        "Fortica Skywalk",
+                        "Mostar Gymnasium",
+                        "Rade Bitange Street",
+                        "Lučki Bridge",
+                        "Mostar City Park",
+                        "Hum Mountain Cross",
+                        "Herzegovina Museum",
+                        "Coppersmith Street Mostar"
+            ]
+},
+      {
+            "key": "OHRID",
+            "displayName": "Ohrid, North Macedonia",
+            "airportName": "Ohrid St. Paul the Apostle Airport",
+            "airportShortName": "Ohrid",
+            "locations": [
+                        "Lake Ohrid",
+                        "Church of St John at Kaneo",
+                        "Ohrid Old Town",
+                        "Samuel's Fortress",
+                        "Ancient Theatre of Ohrid",
+                        "Church of Saint Sophia Ohrid",
+                        "Plaošnik",
+                        "Monastery of Saint Naum",
+                        "Bay of Bones Museum",
+                        "Ohrid Boardwalk",
+                        "Kaneo Beach",
+                        "Robev Family House",
+                        "Ohrid Bazaar",
+                        "Port of Ohrid",
+                        "Cuba Libre Beach",
+                        "Galičica National Park",
+                        "Labino Beach",
+                        "Church of Saints Clement and Panteleimon",
+                        "Ali Pasha Mosque Ohrid",
+                        "Chinar Tree Ohrid",
+                        "Upper Gate Ohrid",
+                        "Ohrid Icon Gallery",
+                        "Saraište Beach",
+                        "Radožda",
+                        "Trpejca"
+            ]
+},
+      {
+            "key": "PLOVDIV",
+            "displayName": "Plovdiv, Bulgaria",
+            "airportName": "Plovdiv Airport",
+            "airportShortName": "Plovdiv",
+            "locations": [
+                        "Ancient Theatre of Philippopolis",
+                        "Plovdiv Old Town",
+                        "Kapana District",
+                        "Roman Stadium of Plovdiv",
+                        "Nebet Tepe",
+                        "Alyosha Monument Plovdiv",
+                        "Regional Ethnographic Museum Plovdiv",
+                        "Dzhumaya Mosque",
+                        "Tsar Simeon Garden",
+                        "Singing Fountains Plovdiv",
+                        "Hisar Kapia",
+                        "Bishop's Basilica of Philippopolis",
+                        "Plovdiv Regional Historical Museum",
+                        "Balabanov House",
+                        "Main Street Plovdiv",
+                        "Ancient Forum of Philippopolis",
+                        "Museum of Natural Sciences Plovdiv",
+                        "Small Basilica Plovdiv",
+                        "Sahat Tepe",
+                        "Bunardzhik Hill",
+                        "Rahat Tepe",
+                        "Ivan Vazov National Library Plovdiv",
+                        "Danov Hill",
+                        "International Fair Plovdiv",
+                        "Maritsa River Plovdiv"
+            ]
+},
+      {
+            "key": "CLUJ-NAPOCA",
+            "displayName": "Cluj-Napoca, Romania",
+            "airportName": "Cluj Avram Iancu International Airport",
+            "airportShortName": "Cluj",
+            "locations": [
+                        "Union Square Cluj-Napoca",
+                        "St Michael's Church Cluj",
+                        "Central Park Cluj-Napoca",
+                        "Cluj-Napoca Botanical Garden",
+                        "Cetățuia Park",
+                        "Tailors' Bastion Cluj",
+                        "National Museum of Transylvanian History",
+                        "Matthias Corvinus House",
+                        "Cluj Arena",
+                        "Avram Iancu Square",
+                        "Dormition Cathedral Cluj-Napoca",
+                        "Museum Square Cluj",
+                        "Banffy Palace",
+                        "Hoia Forest",
+                        "Ethnographic Museum of Transylvania",
+                        "Iulius Mall Cluj",
+                        "Someșul Mic River",
+                        "Reformed Church Cluj",
+                        "Piarist Church Cluj",
+                        "National Theatre Cluj-Napoca",
+                        "Fabrica de Pensule",
+                        "Turda Salt Mine",
+                        "Feleacu Hill",
+                        "Házsongárd Cemetery",
+                        "Babeș-Bolyai University"
+            ]
+},
+      {
+            "key": "LVIV",
+            "displayName": "Lviv, Ukraine",
+            "airportName": "Lviv Danylo Halytskyi International Airport",
+            "airportShortName": "Lviv",
+            "locations": [
+                        "Rynok Square Lviv",
+                        "Lviv Opera House",
+                        "High Castle Park",
+                        "Armenian Cathedral of Lviv",
+                        "Lviv Latin Cathedral",
+                        "Dominican Church Lviv",
+                        "Boim Chapel",
+                        "Potocki Palace Lviv",
+                        "Lychakiv Cemetery",
+                        "Museum-Arsenal Lviv",
+                        "House of Scientists Lviv",
+                        "Market Square Town Hall",
+                        "Bernardine Church Lviv",
+                        "Italian Courtyard Lviv",
+                        "Lviv Coffee Mining Manufacture",
+                        "Shevchenkivskyi Hai",
+                        "Stryiskyi Park",
+                        "Prospekt Svobody",
+                        "St George's Cathedral Lviv",
+                        "Lviv National Art Gallery",
+                        "Virmenska Street",
+                        "Pharmacy Museum Lviv",
+                        "Beer Cultural Experience Center",
+                        "Lviv Railway Station",
+                        "Kryivka"
+            ]
+},
+      {
+            "key": "KOTOR",
+            "displayName": "Kotor, Montenegro",
+            "airportName": "Tivat Airport",
+            "airportShortName": "Tivat",
+            "locations": [
+                        "Kotor Old Town",
+                        "Kotor Fortress",
+                        "Bay of Kotor",
+                        "St Tryphon Cathedral",
+                        "Kotor City Walls",
+                        "Sea Gate Kotor",
+                        "Maritime Museum of Montenegro",
+                        "Church of St Nicholas Kotor",
+                        "Square of Arms Kotor",
+                        "San Giovanni Fortress",
+                        "Gurdic Gate",
+                        "North Gate Kotor",
+                        "Perast",
+                        "Our Lady of the Rocks",
+                        "Lovćen National Park",
+                        "Kotor Cats Museum",
+                        "Kampana Tower",
+                        "St Luke's Church Kotor",
+                        "Kotor Market",
+                        "Dobrota Promenade",
+                        "Vrmac Ridge",
+                        "Blue Cave Montenegro",
+                        "Prcanj",
+                        "Kotor Serpentine",
+                        "Boka Bay Viewpoint"
+            ]
+},
+      {
+            "key": "TROMSO",
+            "displayName": "Tromsø, Norway",
+            "airportName": "Tromsø Airport",
+            "airportShortName": "Tromsø",
+            "locations": [
+                        "Arctic Cathedral",
+                        "Fjellheisen Cable Car",
+                        "Polaria",
+                        "Tromsø Bridge",
+                        "Tromsø University Museum",
+                        "Polar Museum Tromsø",
+                        "Tromsø Harbour",
+                        "Prestvannet Lake",
+                        "Tromsø Cathedral",
+                        "Telegrafbukta",
+                        "Northern Norway Art Museum",
+                        "Mack Brewery",
+                        "Storgata Tromsø",
+                        "Arctic-Alpine Botanic Garden",
+                        "Sommarøy",
+                        "Ersfjordbotn",
+                        "Kvaløya",
+                        "Tromsø Wilderness Centre",
+                        "Tromsø Ice Domes",
+                        "MS Polstjerna",
+                        "Roald Amundsen Monument Tromsø",
+                        "Tromsdalen",
+                        "Charlottenlund Park",
+                        "Tromsø Library",
+                        "Tromsøya Island"
+            ]
+},
+      {
+            "key": "MOMBASA",
+            "displayName": "Mombasa, Kenya",
+            "airportName": "Moi International Airport",
+            "airportShortName": "Moi",
+            "locations": [
+                        "Fort Jesus",
+                        "Old Town Mombasa",
+                        "Mombasa Tusks",
+                        "Haller Park",
+                        "Nyali Beach",
+                        "Diani Beach",
+                        "Mombasa Marine National Park",
+                        "Bombolulu Workshops",
+                        "Mamba Village Centre",
+                        "Bamburi Beach",
+                        "Likoni Ferry",
+                        "Mama Ngina Waterfront",
+                        "Shimba Hills National Reserve",
+                        "Jumba la Mtwana",
+                        "Mombasa Spice Market",
+                        "Nguuni Nature Sanctuary",
+                        "Wild Waters Mombasa",
+                        "Mombasa Train Station",
+                        "Swahili Cultural Centre",
+                        "Kongowea Market",
+                        "Mombasa Island",
+                        "Tudor Creek",
+                        "Nyali Bridge",
+                        "Leven House",
+                        "Shelly Beach"
+            ]
+},
+      {
+            "key": "FEZ",
+            "displayName": "Fez, Morocco",
+            "airportName": "Fès-Saïs Airport",
+            "airportShortName": "Fès-Saïs",
+            "locations": [
+                        "Fes el Bali",
+                        "Chouara Tannery",
+                        "Al Quaraouiyine University",
+                        "Bou Inania Madrasa",
+                        "Bab Bou Jeloud",
+                        "Al-Attarine Madrasa",
+                        "Nejjarine Museum",
+                        "Royal Palace of Fez",
+                        "Jnan Sbil Gardens",
+                        "Mellah Fez",
+                        "Merenid Tombs",
+                        "Dar Batha Museum",
+                        "Seffarine Square",
+                        "Zaouia Moulay Idriss II",
+                        "Fes Medina",
+                        "Borj Nord",
+                        "Rcif Square",
+                        "Talaa Kebira",
+                        "Talaa Seghira",
+                        "Henna Souk Fez",
+                        "Andalusian Mosque",
+                        "Place Seffarine",
+                        "Sahrij Madrasa",
+                        "Fes Pottery Quarter",
+                        "Bab Semmarine"
+            ]
+},
+      {
+            "key": "ESSAOUIRA",
+            "displayName": "Essaouira, Morocco",
+            "airportName": "Essaouira-Mogador Airport",
+            "airportShortName": "Mogador",
+            "locations": [
+                        "Essaouira Medina",
+                        "Skala de la Ville",
+                        "Essaouira Ramparts",
+                        "Essaouira Beach",
+                        "Moulay Hassan Square",
+                        "Essaouira Port",
+                        "Skala du Port",
+                        "Sidi Mohammed ben Abdallah Museum",
+                        "Jewish Quarter Essaouira",
+                        "Essaouira Citadel",
+                        "Fish Market Essaouira",
+                        "Bab Doukkala Essaouira",
+                        "Place Chrib Atay",
+                        "Essaouira Clock Tower",
+                        "Diabat",
+                        "Bordj El Berod",
+                        "Mogador Island",
+                        "Essaouira Art Galleries",
+                        "Bay of Essaouira",
+                        "Gnaoua Music Sites",
+                        "Sidi Kaouki",
+                        "Thuya Wood Workshops",
+                        "Souk Jdid Essaouira",
+                        "Essaouira Mellah",
+                        "Bab Sbaa"
+            ]
+},
+      {
+            "key": "LUXOR",
+            "displayName": "Luxor, Egypt",
+            "airportName": "Luxor International Airport",
+            "airportShortName": "Luxor",
+            "locations": [
+                        "Karnak Temple",
+                        "Luxor Temple",
+                        "Valley of the Kings",
+                        "Valley of the Queens",
+                        "Hatshepsut Temple",
+                        "Colossi of Memnon",
+                        "Luxor Museum",
+                        "Medinet Habu",
+                        "Ramesseum",
+                        "Deir el-Medina",
+                        "Avenue of Sphinxes",
+                        "Luxor West Bank",
+                        "Mummification Museum",
+                        "Tombs of the Nobles Luxor",
+                        "Temple of Seti I Luxor",
+                        "Luxor Corniche",
+                        "Winter Palace Luxor",
+                        "Banana Island Luxor",
+                        "Nile Felucca Luxor",
+                        "Karnak Open-Air Museum",
+                        "Howard Carter House",
+                        "Luxor Souk",
+                        "Dra Abu el-Naga",
+                        "Qurna Village",
+                        "Temple of Khonsu"
+            ]
+},
+      {
+            "key": "ASWAN",
+            "displayName": "Aswan, Egypt",
+            "airportName": "Aswan International Airport",
+            "airportShortName": "Aswan",
+            "locations": [
+                        "Philae Temple",
+                        "Aswan High Dam",
+                        "Unfinished Obelisk",
+                        "Nubian Museum",
+                        "Elephantine Island",
+                        "Aswan Botanical Garden",
+                        "Nubian Village",
+                        "Aga Khan Mausoleum",
+                        "Tombs of the Nobles Aswan",
+                        "Monastery of St Simeon",
+                        "Kitchener's Island",
+                        "Aswan Souk",
+                        "Nile Corniche Aswan",
+                        "Felucca on the Nile",
+                        "Temple of Kalabsha",
+                        "Sehel Island",
+                        "Famine Stela",
+                        "Qubbet el-Hawa",
+                        "Aswan Old Cataract Hotel",
+                        "Abu Simbel Temples",
+                        "Kom Ombo Temple",
+                        "Aswan Railway Station",
+                        "Nile Museum Aswan",
+                        "West Bank Aswan",
+                        "Nubian House Museum"
+            ]
+},
+      {
+            "key": "CHEFCHAOUEN",
+            "displayName": "Chefchaouen, Morocco",
+            "airportName": "Sania Ramel Airport",
+            "airportShortName": "Tétouan",
+            "locations": [
+                        "Chefchaouen Medina",
+                        "Outa el Hammam Square",
+                        "Kasbah Museum Chefchaouen",
+                        "Spanish Mosque Chefchaouen",
+                        "Ras El Maa Waterfall",
+                        "Blue Streets of Chefchaouen",
+                        "Grand Mosque Chefchaouen",
+                        "Bab El Ain",
+                        "Talassemtane National Park",
+                        "Chefchaouen Souk",
+                        "Rif Mountains",
+                        "Place El Haouta",
+                        "Kasbah Gardens Chefchaouen",
+                        "Ras El Maa River",
+                        "Lina Ryad Rooftops",
+                        "Akchour Waterfalls",
+                        "God's Bridge Akchour",
+                        "Bouzafer Mosque",
+                        "Chefchaouen City Walls",
+                        "Bab Souk",
+                        "Sidi Abdelhamid Viewpoint",
+                        "Plaza Uta el-Hammam",
+                        "Rue Targui",
+                        "Blue Pearl Alleys",
+                        "Jebel el-Kelaa"
+            ]
+},
+      {
+            "key": "STONE TOWN",
+            "displayName": "Stone Town, Tanzania",
+            "airportName": "Abeid Amani Karume International Airport",
+            "airportShortName": "Zanzibar",
+            "locations": [
+                        "House of Wonders",
+                        "Old Fort Zanzibar",
+                        "Forodhani Gardens",
+                        "Darajani Market",
+                        "Freddie Mercury House",
+                        "Stone Town Alleys",
+                        "Christ Church Cathedral Zanzibar",
+                        "Sultan's Palace Zanzibar",
+                        "Zanzibar Doors",
+                        "Old Slave Market",
+                        "Shangani",
+                        "Hamamni Persian Baths",
+                        "Zanzibar Spice Market",
+                        "St Joseph's Cathedral Zanzibar",
+                        "Mizingani Seafront",
+                        "Zanzibar Ferry Terminal",
+                        "People's Palace Museum",
+                        "Jaws Corner",
+                        "Kelele Square",
+                        "Kiponda",
+                        "Malindi Mosque Zanzibar",
+                        "Zanzibar Curio Shops",
+                        "Forodhani Night Market",
+                        "Mnazi Mmoja",
+                        "Zanzibar National Museum"
+            ]
+},
+      {
+            "key": "VALPARAISO",
+            "displayName": "Valparaíso, Chile",
+            "airportName": "Arturo Merino Benítez International Airport",
+            "airportShortName": "Santiago",
+            "locations": [
+                        "Cerro Alegre",
+                        "Cerro Concepción",
+                        "Valparaíso Port",
+                        "La Sebastiana",
+                        "Ascensor Reina Victoria",
+                        "Plaza Sotomayor",
+                        "Paseo Yugoslavo",
+                        "Paseo Gervasoni",
+                        "Valparaíso Street Art",
+                        "Muelle Prat",
+                        "Baburizza Palace",
+                        "Ascensor Artillería",
+                        "Paseo 21 de Mayo",
+                        "Valparaíso Cathedral",
+                        "Ex Cárcel Cultural Park",
+                        "Cerro Polanco",
+                        "Plaza Aníbal Pinto",
+                        "El Peral Lift",
+                        "Sotomayor Square",
+                        "Valparaíso Naval Museum",
+                        "Cerro Bellavista",
+                        "Open Sky Museum Valparaíso",
+                        "Caleta Portales",
+                        "Playa Ancha",
+                        "Mercado Cardonal"
+            ]
+},
+      {
+            "key": "USHUAIA",
+            "displayName": "Ushuaia, Argentina",
+            "airportName": "Malvinas Argentinas International Airport",
+            "airportShortName": "Ushuaia",
+            "locations": [
+                        "Tierra del Fuego National Park",
+                        "Beagle Channel",
+                        "Les Eclaireurs Lighthouse",
+                        "Martial Glacier",
+                        "End of the World Train",
+                        "Ushuaia Port",
+                        "Museo del Fin del Mundo",
+                        "Laguna Esmeralda",
+                        "Plaza Malvinas Ushuaia",
+                        "Ushuaia Maritime Museum",
+                        "Bahía Lapataia",
+                        "Cerro Castor",
+                        "Isla Martillo",
+                        "Harberton Ranch",
+                        "Ushuaia Sign",
+                        "Presidio de Ushuaia",
+                        "Paseo de los Artesanos Ushuaia",
+                        "Beagle Channel Boat Pier",
+                        "Ensenada Zaratiegui",
+                        "Laguna Negra Ushuaia",
+                        "Alakush Visitor Center",
+                        "Bahía Encerrada",
+                        "Yamana Museum",
+                        "Ushuaia Waterfront",
+                        "Glaciar Vinciguerra"
+            ]
+},
+      {
+            "key": "IQUITOS",
+            "displayName": "Iquitos, Peru",
+            "airportName": "Coronel FAP Francisco Secada Vignetta International Airport",
+            "airportShortName": "Iquitos",
+            "locations": [
+                        "Belén Market",
+                        "Amazon River Iquitos",
+                        "Plaza de Armas Iquitos",
+                        "Iron House Iquitos",
+                        "Malecón Tarapacá",
+                        "Pilpintuwasi Butterfly Farm",
+                        "Quistococha Zoo",
+                        "Museum of Indigenous Amazonian Cultures",
+                        "Iquitos Cathedral",
+                        "Belén Floating Neighborhood",
+                        "Pacaya Samiria National Reserve",
+                        "Allpahuayo-Mishana National Reserve",
+                        "Amazon Rescue Center",
+                        "Manatee Rescue Center Iquitos",
+                        "Casa Morey",
+                        "Amazonian Manatee Rescue",
+                        "Nanay River",
+                        "Padre Cocha",
+                        "Iquitos Boulevard",
+                        "Puerto Masusa",
+                        "Fundo Pedrito",
+                        "Morro de Calzada Iquitos",
+                        "Ayapua Historic Ship Museum",
+                        "Amazon Boat Dock",
+                        "San Juan Bautista Market"
+            ]
+},
+      {
+            "key": "SUCRE",
+            "displayName": "Sucre, Bolivia",
+            "airportName": "Alcantarí International Airport",
+            "airportShortName": "Sucre",
+            "locations": [
+                        "Plaza 25 de Mayo Sucre",
+                        "Casa de la Libertad",
+                        "Recoleta Monastery Sucre",
+                        "Sucre Cathedral",
+                        "Cretaceous Park",
+                        "Cal Orck'o Dinosaur Tracks",
+                        "Tarabuco Market",
+                        "San Felipe Neri Convent",
+                        "La Recoleta Viewpoint",
+                        "Museo de Arte Indígena ASUR",
+                        "Sucre Central Market",
+                        "Glorieta Castle",
+                        "San Francisco Church Sucre",
+                        "Bolívar Park Sucre",
+                        "University of Saint Francis Xavier",
+                        "Sucre Historic Centre",
+                        "Metropolitan Cathedral Museum",
+                        "General Cemetery Sucre",
+                        "Museum of the Treasure",
+                        "Simon Bolivar Park",
+                        "La Merced Church Sucre",
+                        "Tanga Tanga",
+                        "7 Cascadas",
+                        "Sucre Textile Museum",
+                        "El Palacete del Guereo"
+            ]
+},
+      {
+            "key": "SALTA",
+            "displayName": "Salta, Argentina",
+            "airportName": "Martín Miguel de Güemes International Airport",
+            "airportShortName": "Salta",
+            "locations": [
+                        "Plaza 9 de Julio Salta",
+                        "Cathedral of Salta",
+                        "MAAM Museum",
+                        "San Bernardo Hill",
+                        "San Francisco Church Salta",
+                        "Cabildo of Salta",
+                        "Train to the Clouds",
+                        "Cerro San Bernardo Cable Car",
+                        "Salta Craft Market",
+                        "Guemes Monument Salta",
+                        "Convento San Bernardo",
+                        "Pajcha Museum",
+                        "Peñas of Balcarce Street",
+                        "Salta High Mountain Archaeology Museum",
+                        "Quebrada de San Lorenzo",
+                        "Cafayate Wine Region",
+                        "Salinas Grandes",
+                        "Cachi",
+                        "Museo Güemes",
+                        "El Tren a las Nubes Station",
+                        "San Lorenzo Ravine",
+                        "La Merced Church Salta",
+                        "Museum of Contemporary Art Salta",
+                        "Arias Rengel House",
+                        "July 9 Square Arcades"
+            ]
+},
+      {
+            "key": "KANAZAWA",
+            "displayName": "Kanazawa, Japan",
+            "airportName": "Komatsu Airport",
+            "airportShortName": "Komatsu",
+            "locations": [
+                        "Kenrokuen Garden",
+                        "Kanazawa Castle",
+                        "Higashi Chaya District",
+                        "Omicho Market",
+                        "21st Century Museum of Contemporary Art Kanazawa",
+                        "Nagamachi Samurai District",
+                        "Myoryuji Ninja Temple",
+                        "Oyama Shrine",
+                        "Kanazawa Station",
+                        "Gyokusen-inmaru Garden",
+                        "Nomura Samurai House",
+                        "Kazuemachi Chaya District",
+                        "D.T. Suzuki Museum",
+                        "Seisonkaku Villa",
+                        "Ishikawa Prefectural Museum of Art",
+                        "Kanazawa Phonograph Museum",
+                        "Teramachi Temple District",
+                        "Nishi Chaya District",
+                        "Kanazawa Yasue Gold Leaf Museum",
+                        "Korinbo",
+                        "Katamachi",
+                        "Asanogawa River",
+                        "Ishikawa Gate",
+                        "Shima Teahouse",
+                        "Kanazawa Noh Museum"
+            ]
+},
+      {
+            "key": "KYOTO",
+            "displayName": "Kyoto, Japan",
+            "airportName": "Kansai International Airport",
+            "airportShortName": "Kansai",
+            "locations": [
+                        "Fushimi Inari Taisha",
+                        "Kinkaku-ji",
+                        "Kiyomizu-dera",
+                        "Arashiyama Bamboo Grove",
+                        "Gion",
+                        "Nijō Castle",
+                        "Kyoto Imperial Palace",
+                        "Nishiki Market",
+                        "Philosopher's Path",
+                        "Ginkaku-ji",
+                        "Ryoan-ji",
+                        "Sanjusangen-do",
+                        "Yasaka Shrine",
+                        "Pontocho Alley",
+                        "To-ji Temple",
+                        "Heian Shrine",
+                        "Kyoto Station",
+                        "Maruyama Park Kyoto",
+                        "Kamo River",
+                        "Nanzen-ji",
+                        "Tenryu-ji",
+                        "Kyoto Tower",
+                        "Eikan-do",
+                        "Daigo-ji",
+                        "Kurama-dera"
+            ]
+},
+      {
+            "key": "HIROSHIMA",
+            "displayName": "Hiroshima, Japan",
+            "airportName": "Hiroshima Airport",
+            "airportShortName": "Hiroshima",
+            "locations": [
+                        "Hiroshima Peace Memorial Park",
+                        "Atomic Bomb Dome",
+                        "Hiroshima Peace Memorial Museum",
+                        "Hiroshima Castle",
+                        "Shukkei-en Garden",
+                        "Itsukushima Shrine",
+                        "Miyajima Island",
+                        "Hondori Shopping Street",
+                        "Mazda Museum",
+                        "Orizuru Tower",
+                        "Hiroshima Museum of Art",
+                        "Hiroshima Gokoku Shrine",
+                        "Hiroshima Bay",
+                        "Okonomimura",
+                        "Hiroshima City Manga Library",
+                        "Hijiyama Park",
+                        "Hiroshima Station",
+                        "Hiroshima National Peace Memorial Hall",
+                        "Peace Bell Hiroshima",
+                        "Children's Peace Monument",
+                        "Motoyasu River",
+                        "Hiroshima Prefectural Art Museum",
+                        "Mitaki-dera",
+                        "Hiroshima Botanical Garden",
+                        "Hiroshima Big Arch"
+            ]
+},
+      {
+            "key": "NAGOYA",
+            "displayName": "Nagoya, Japan",
+            "airportName": "Chubu Centrair International Airport",
+            "airportShortName": "Chubu Centrair",
+            "locations": [
+                        "Nagoya Castle",
+                        "Atsuta Shrine",
+                        "Osu Kannon",
+                        "Sakae District",
+                        "Nagoya TV Tower",
+                        "Oasis 21",
+                        "Toyota Commemorative Museum",
+                        "SCMAGLEV and Railway Park",
+                        "Port of Nagoya Public Aquarium",
+                        "Tokugawa Art Museum",
+                        "Shirotori Garden",
+                        "Nagoya City Science Museum",
+                        "Noritake Garden",
+                        "Higashiyama Zoo and Botanical Gardens",
+                        "Osu Shopping District",
+                        "Meijo Park",
+                        "Nagoya Station",
+                        "Midland Square",
+                        "Nagoya Noh Theater",
+                        "Hisaya Odori Park",
+                        "Tsuruma Park",
+                        "Arimatsu Old Town",
+                        "Legoland Japan",
+                        "Nagoya City Art Museum",
+                        "Endoji Shopping Street"
+            ]
+},
+      {
+            "key": "SIEM REAP",
+            "displayName": "Siem Reap, Cambodia",
+            "airportName": "Siem Reap Angkor International Airport",
+            "airportShortName": "Siem Reap Angkor",
+            "locations": [
+                        "Angkor Wat",
+                        "Bayon Temple",
+                        "Ta Prohm",
+                        "Angkor Thom",
+                        "Pub Street Siem Reap",
+                        "Old Market Siem Reap",
+                        "Angkor National Museum",
+                        "Banteay Srei",
+                        "Preah Khan Temple",
+                        "Tonlé Sap Lake",
+                        "Phnom Bakheng",
+                        "Cambodia Landmine Museum",
+                        "Artisans Angkor",
+                        "Wat Preah Prom Rath",
+                        "Siem Reap Night Market",
+                        "Kbal Spean",
+                        "Neak Pean",
+                        "Baphuon Temple",
+                        "Terrace of the Elephants",
+                        "Srah Srang",
+                        "Bakong Temple",
+                        "Roluos Group",
+                        "Phare Cambodian Circus",
+                        "Made in Cambodia Market",
+                        "West Baray"
+            ]
+},
+      {
+            "key": "LUANG PRABANG",
+            "displayName": "Luang Prabang, Laos",
+            "airportName": "Luang Prabang International Airport",
+            "airportShortName": "Luang Prabang",
+            "locations": [
+                        "Kuang Si Falls",
+                        "Mount Phousi",
+                        "Royal Palace Museum Luang Prabang",
+                        "Wat Xieng Thong",
+                        "Luang Prabang Night Market",
+                        "Pak Ou Caves",
+                        "Mekong River Luang Prabang",
+                        "Alms Giving Ceremony",
+                        "Wat Mai Suwannaphumaham",
+                        "Traditional Arts and Ethnology Centre",
+                        "UXO Lao Visitor Center",
+                        "Wat Visoun",
+                        "Wat Aham",
+                        "Bamboo Bridge Luang Prabang",
+                        "Ban Xang Hai",
+                        "Tad Sae Waterfall",
+                        "Phousi Hill",
+                        "Luang Prabang Morning Market",
+                        "Wat Manorom",
+                        "Ock Pop Tok Living Crafts Centre",
+                        "Nam Khan River",
+                        "Wat Pa Phai",
+                        "Wat Sene",
+                        "Elephant Village Sanctuary",
+                        "Luang Prabang Old Quarter"
+            ]
+},
+      {
+            "key": "GEORGE TOWN",
+            "displayName": "George Town, Malaysia",
+            "airportName": "Penang International Airport",
+            "airportShortName": "Penang",
+            "locations": [
+                        "George Town UNESCO Historic District",
+                        "Penang Street Art",
+                        "Kek Lok Si Temple",
+                        "Penang Hill",
+                        "Clan Jetties of Penang",
+                        "Cheong Fatt Tze Mansion",
+                        "Khoo Kongsi",
+                        "Fort Cornwallis",
+                        "Gurney Drive",
+                        "Little India George Town",
+                        "Kapitan Keling Mosque",
+                        "Armenian Street Penang",
+                        "Pinang Peranakan Mansion",
+                        "Penang State Museum",
+                        "Komtar Tower",
+                        "Chulia Street",
+                        "Love Lane Penang",
+                        "Dhammikarama Burmese Temple",
+                        "Wat Chaiyamangkalaram",
+                        "The Habitat Penang Hill",
+                        "Penang Botanic Gardens",
+                        "Queen Victoria Memorial Clock Tower",
+                        "Prangin Mall",
+                        "Esplanade George Town",
+                        "Batu Ferringhi"
+            ]
+},
+      {
+            "key": "RIO DE JANEIRO",
+            "displayName": "Rio de Janeiro, Brazil",
+            "airportName": "Rio de Janeiro/Galeão International Airport",
+            "airportShortName": "Galeão",
+            "locations": [
+                        "Christ the Redeemer",
+                        "Sugarloaf Mountain",
+                        "Copacabana Beach",
+                        "Ipanema Beach",
+                        "Selarón Steps",
+                        "Maracanã Stadium",
+                        "Museum of Tomorrow",
+                        "Lapa Arches",
+                        "Tijuca National Park",
+                        "Jardim Botânico do Rio de Janeiro",
+                        "Santa Teresa",
+                        "Rodrigo de Freitas Lagoon",
+                        "Rio de Janeiro Cathedral",
+                        "Pedra do Sal",
+                        "Theatro Municipal do Rio de Janeiro",
+                        "Parque Lage",
+                        "Sambadrome Marquês de Sapucaí",
+                        "Leblon Beach",
+                        "Barra da Tijuca",
+                        "Arpoador",
+                        "Feira de São Cristóvão",
+                        "Candelária Church",
+                        "Quinta da Boa Vista",
+                        "Vista Chinesa",
+                        "Niterói Contemporary Art Museum"
+            ]
+},
+      {
+            "key": "DETROIT",
+            "displayName": "Detroit, United States",
+            "airportName": "Detroit Metropolitan Wayne County Airport",
+            "airportShortName": "Detroit Metro",
+            "locations": [
+                        "Detroit Institute of Arts",
+                        "Motown Museum",
+                        "Ford Piquette Avenue Plant",
+                        "The Henry Ford Museum",
+                        "Belle Isle Park",
+                        "Guardian Building",
+                        "Detroit Riverwalk",
+                        "Campus Martius Park",
+                        "Eastern Market",
+                        "Comerica Park",
+                        "Fox Theatre Detroit",
+                        "Michigan Central Station",
+                        "Detroit Historical Museum",
+                        "Renaissance Center",
+                        "Greektown Detroit",
+                        "Little Caesars Arena",
+                        "Hart Plaza",
+                        "Charles H. Wright Museum",
+                        "Museum of Contemporary Art Detroit",
+                        "Fisher Building",
+                        "Belle Isle Aquarium",
+                        "Heidelberg Project",
+                        "Detroit Public Library",
+                        "Corktown",
+                        "Ambassador Bridge"
+            ]
+},
+      {
+            "key": "NEW ORLEANS",
+            "displayName": "New Orleans, United States",
+            "airportName": "Louis Armstrong New Orleans International Airport",
+            "airportShortName": "Louis Armstrong",
+            "locations": [
+                        "French Quarter",
+                        "Jackson Square",
+                        "St. Louis Cathedral",
+                        "Bourbon Street",
+                        "Frenchmen Street",
+                        "Garden District",
+                        "National WWII Museum",
+                        "City Park New Orleans",
+                        "Café du Monde",
+                        "Preservation Hall",
+                        "Audubon Park",
+                        "Audubon Zoo",
+                        "Mardi Gras World",
+                        "St. Charles Avenue Streetcar",
+                        "Magazine Street",
+                        "Lafayette Cemetery No. 1",
+                        "New Orleans Museum of Art",
+                        "French Market",
+                        "Louis Armstrong Park",
+                        "Steamboat Natchez",
+                        "Ogden Museum of Southern Art",
+                        "Crescent Park",
+                        "Bywater",
+                        "Tremé",
+                        "Caesars Superdome"
+            ]
+},
+      {
+            "key": "SAN JOSE CA",
+            "displayName": "San Jose, United States",
+            "airportName": "San José Mineta International Airport",
+            "airportShortName": "San José Mineta",
+            "locations": [
+                        "Winchester Mystery House",
+                        "Santana Row",
+                        "San Pedro Square Market",
+                        "Municipal Rose Garden",
+                        "Rosicrucian Egyptian Museum",
+                        "The Tech Interactive",
+                        "SAP Center",
+                        "Children’s Discovery Museum of San Jose",
+                        "San Jose Museum of Art",
+                        "Japantown San Jose",
+                        "Cathedral Basilica of St. Joseph",
+                        "Almaden Quicksilver County Park",
+                        "Happy Hollow Park & Zoo",
+                        "Kelley Park",
+                        "History Park San Jose",
+                        "Plaza de César Chávez",
+                        "Guadalupe River Park",
+                        "Lick Observatory",
+                        "Alum Rock Park",
+                        "Willow Glen",
+                        "Eastridge Center",
+                        "Little Saigon San Jose",
+                        "California Theatre",
+                        "Hayes Mansion",
+                        "Levi’s Stadium"
+            ]
+},
+      {
+            "key": "QUEBEC CITY",
+            "displayName": "Quebec City, Canada",
+            "airportName": "Québec City Jean Lesage International Airport",
+            "airportShortName": "Jean Lesage",
+            "locations": [
+                        "Old Quebec",
+                        "Château Frontenac",
+                        "Dufferin Terrace",
+                        "Plains of Abraham",
+                        "Montmorency Falls",
+                        "Petit-Champlain",
+                        "Place Royale",
+                        "Citadelle of Quebec",
+                        "Parliament Building of Quebec",
+                        "Notre-Dame de Québec Basilica-Cathedral",
+                        "Morrin Centre",
+                        "Musée de la civilisation",
+                        "Rue Saint-Jean",
+                        "Old Port of Quebec",
+                        "Observatoire de la Capitale",
+                        "Battlefields Park",
+                        "Fortifications of Quebec",
+                        "Grande Allée",
+                        "Île d’Orléans",
+                        "Sainte-Anne-de-Beaupré Shrine",
+                        "Musée national des beaux-arts du Québec",
+                        "Terrasse Pierre-Dugua-De Mons",
+                        "Aquarium du Québec",
+                        "Marché du Vieux-Port",
+                        "Porte Saint-Louis"
+            ]
+},
+      {
+            "key": "JAIPUR",
+            "displayName": "Jaipur, India",
+            "airportName": "Jaipur International Airport",
+            "airportShortName": "Jaipur",
+            "locations": [
+                        "Hawa Mahal",
+                        "Amber Fort",
+                        "City Palace Jaipur",
+                        "Jantar Mantar Jaipur",
+                        "Jal Mahal",
+                        "Nahargarh Fort",
+                        "Jaigarh Fort",
+                        "Albert Hall Museum",
+                        "Birla Mandir Jaipur",
+                        "Patrika Gate",
+                        "Johari Bazaar",
+                        "Bapu Bazaar",
+                        "Galtaji Temple",
+                        "Panna Meena ka Kund",
+                        "Chokhi Dhani",
+                        "Sisodia Rani Garden",
+                        "Rambagh Palace",
+                        "Govind Dev Ji Temple",
+                        "Central Park Jaipur",
+                        "World Trade Park Jaipur",
+                        "Jawahar Circle",
+                        "Nahargarh Biological Park",
+                        "Isarlat",
+                        "Tripolia Bazaar",
+                        "Jaipur Railway Station"
+            ]
+},
+      {
+            "key": "LIVERPOOL",
+            "displayName": "Liverpool, United Kingdom",
+            "airportName": "Liverpool John Lennon Airport",
+            "airportShortName": "Liverpool John Lennon",
+            "locations": [
+                        "Royal Albert Dock",
+                        "The Beatles Story",
+                        "Cavern Club",
+                        "Liverpool Cathedral",
+                        "Metropolitan Cathedral of Christ the King",
+                        "Anfield",
+                        "Goodison Park",
+                        "Museum of Liverpool",
+                        "Merseyside Maritime Museum",
+                        "Walker Art Gallery",
+                        "St George’s Hall",
+                        "Liverpool ONE",
+                        "Pier Head",
+                        "Royal Liver Building",
+                        "Tate Liverpool",
+                        "Sefton Park",
+                        "Chinatown Liverpool",
+                        "Baltic Triangle",
+                        "Strawberry Field",
+                        "Penny Lane",
+                        "Liverpool Central Library",
+                        "Liverpool Philharmonic Hall",
+                        "World Museum Liverpool",
+                        "Speke Hall",
+                        "Liverpool Waterfront"
+            ]
+}
 
 ];
     var raceSettings = null;
@@ -23333,6 +25915,21 @@
         return defaultColorForIndex(idx >= 0 ? idx : 0);
       }
       return teamColors[teamName];
+    }
+
+    function teamColorSnapshotForTeams(teamNames) {
+      var names = Array.isArray(teamNames) && teamNames.length ? teamNames.slice() : teams.slice();
+      var source = {};
+
+      if (raceSettings && raceSettings.teamColors && typeof raceSettings.teamColors === "object") {
+        Object.assign(source, raceSettings.teamColors);
+      }
+
+      if (teamColors && typeof teamColors === "object") {
+        Object.assign(source, teamColors);
+      }
+
+      return sanitizeTeamColors(source, names);
     }
 
     function readTeamColorEditor(teamNamesOverride) {
@@ -24557,6 +27154,280 @@
       renderCustomizationSummary();
     }
 
+
+    function cleanRouteMode(value) {
+      return value === "custom" ? "custom" : "auto";
+    }
+
+    function routeCityKeyForName(name) {
+      return cityWeightKeyForName(name);
+    }
+
+    function sanitizeRouteCityKey(key, predicate) {
+      var cleanKey = routeCityKeyForName(key);
+      if (!cleanKey) { return ""; }
+      if (predicate && !predicate(cleanKey)) { return ""; }
+      return cleanKey;
+    }
+
+    function sanitizeCustomRouteDestinationKeys(keys) {
+      var source = Array.isArray(keys) ? keys : [];
+      var seen = {};
+      var result = [];
+      source.forEach(function (rawKey) {
+        var key = sanitizeRouteCityKey(rawKey, function (candidate) { return !isUnitedStatesDesignedCity(candidate); });
+        if (key && !seen[key]) {
+          seen[key] = true;
+          result.push(key);
+        }
+      });
+      return result;
+    }
+
+    function sanitizeRouteSettings(source) {
+      var src = source || {};
+      return {
+        routeMode: cleanRouteMode(src.routeMode),
+        customRouteStartKey: sanitizeRouteCityKey(src.customRouteStartKey, isUnitedStatesDesignedCity),
+        customRouteDestinationKeys: sanitizeCustomRouteDestinationKeys(src.customRouteDestinationKeys),
+        customRouteFinaleKey: sanitizeRouteCityKey(src.customRouteFinaleKey, isUnitedStatesDesignedCity)
+      };
+    }
+
+    function routeDisplayNameForKey(key) {
+      var def = designedCityDefinition(key);
+      return def ? def.displayName : String(key || "");
+    }
+
+    function routeTextFromKeys(keys) {
+      return sanitizeCustomRouteDestinationKeys(keys || []).map(routeDisplayNameForKey).join("\n");
+    }
+
+    function parseRouteCityText(text) {
+      var keys = [];
+      String(text || "").split(/\r?\n/).forEach(function (line) {
+        var raw = line.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, "").trim();
+        if (!raw || raw.charAt(0) === "#") { return; }
+        var eqIndex = raw.lastIndexOf("=");
+        if (eqIndex !== -1) { raw = raw.slice(0, eqIndex).trim(); }
+        var key = routeCityKeyForName(raw);
+        if (key) { keys.push(key); }
+      });
+      return sanitizeCustomRouteDestinationKeys(keys);
+    }
+
+    function readRouteEditor() {
+      var modeEl = document.getElementById("settingRouteMode");
+      var startEl = document.getElementById("customRouteStartSelect");
+      var routeEl = document.getElementById("customRouteEditor");
+      var finaleEl = document.getElementById("customRouteFinaleSelect");
+
+      if (!modeEl) {
+        return sanitizeRouteSettings(raceSettings || DEFAULT_RACE_SETTINGS);
+      }
+
+      return sanitizeRouteSettings({
+        routeMode: modeEl.value,
+        customRouteStartKey: startEl ? startEl.value : "",
+        customRouteDestinationKeys: currentCustomRouteKeys(),
+        customRouteFinaleKey: finaleEl ? finaleEl.value : ""
+      });
+    }
+
+    function routeOptionHtml(predicate, selectedKey, emptyLabel, excludedKeys) {
+      var excluded = excludedKeys || {};
+      var keys = allDesignedCityKeys().filter(function (key) {
+        if (excluded[key] && key !== selectedKey) { return false; }
+        return predicate ? predicate(key) : true;
+      }).sort(function (a, b) {
+        return routeDisplayNameForKey(a).localeCompare(routeDisplayNameForKey(b));
+      });
+      var label = emptyLabel == null ? "Auto pick" : emptyLabel;
+      return '<option value="">' + escapeHtml(label) + '</option>' + keys.map(function (key) {
+        return '<option value="' + escapeHtml(key) + '"' + (key === selectedKey ? ' selected' : '') + '>' + escapeHtml(routeDisplayNameForKey(key)) + '</option>';
+      }).join("");
+    }
+
+    function renderRouteCitySelect(id, predicate, selectedKey) {
+      var el = document.getElementById(id);
+      if (!el) { return; }
+      el.innerHTML = routeOptionHtml(predicate, selectedKey || "", "Auto pick");
+    }
+
+    function customRouteKeysFromHiddenEditor() {
+      var routeEl = document.getElementById("customRouteEditor");
+      return parseRouteCityText(routeEl ? routeEl.value : "");
+    }
+
+    function currentCustomRouteKeys() {
+      var list = document.getElementById("customRouteList");
+      if (list) {
+        var rows = Array.prototype.slice.call(list.querySelectorAll("[data-city-key]"));
+        return sanitizeCustomRouteDestinationKeys(rows.map(function (row) { return row.getAttribute("data-city-key"); }));
+      }
+      return customRouteKeysFromHiddenEditor();
+    }
+
+    function setHiddenRouteEditorKeys(keys) {
+      var routeEl = document.getElementById("customRouteEditor");
+      if (routeEl) { routeEl.value = routeTextFromKeys(keys || []); }
+    }
+
+    function renderCustomRouteAddSelect(keys) {
+      var el = document.getElementById("customRouteAddSelect");
+      if (!el) { return; }
+      var filterEl = document.getElementById("customRouteSearch");
+      var query = filterEl ? filterEl.value.trim().toLowerCase() : "";
+      var selectedMap = {};
+      (keys || []).forEach(function (key) { selectedMap[key] = true; });
+      el.innerHTML = routeOptionHtml(
+        function (key) {
+          if (isUnitedStatesDesignedCity(key)) { return false; }
+          if (!query) { return true; }
+          return routeDisplayNameForKey(key).toLowerCase().indexOf(query) !== -1;
+        },
+        "",
+        query ? "Choose a matching city" : "Choose a non-U.S. city to add",
+        selectedMap
+      );
+      var enabled = settingValue("settingRouteMode", "auto") === "custom";
+      el.disabled = !enabled;
+      if (filterEl) { filterEl.disabled = !enabled; }
+    }
+
+    function renderCustomRouteList(keys) {
+      var list = document.getElementById("customRouteList");
+      var cleanKeys = sanitizeCustomRouteDestinationKeys(keys || []);
+      setHiddenRouteEditorKeys(cleanKeys);
+      renderCustomRouteAddSelect(cleanKeys);
+      if (!list) { return; }
+
+      if (!cleanKeys.length) {
+        list.innerHTML = '<div class="route-empty">No custom route cities yet. Use the dropdown above to add cities in the order the race should visit them.</div>';
+        updateRouteEditorVisibility();
+        updateRouteEditorNote();
+        return;
+      }
+
+      list.innerHTML = cleanKeys.map(function (key, index) {
+        return '<div class="route-pick-row" data-city-key="' + escapeHtml(key) + '">' +
+          '<div class="route-row-index">' + escapeHtml(index + 1) + '</div>' +
+          '<div class="route-row-title">' + escapeHtml(routeDisplayNameForKey(key)) + '</div>' +
+          '<div class="route-row-actions">' +
+            '<button class="mini-btn" type="button" onclick="moveCustomRouteCity(' + index + ', -1)"' + (index === 0 ? ' disabled' : '') + '>Up</button>' +
+            '<button class="mini-btn" type="button" onclick="moveCustomRouteCity(' + index + ', 1)"' + (index === cleanKeys.length - 1 ? ' disabled' : '') + '>Down</button>' +
+            '<button class="mini-btn" type="button" onclick="removeCustomRouteCity(' + index + ')">Remove</button>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+      updateRouteEditorVisibility();
+      updateRouteEditorNote();
+    }
+
+    function addSelectedRouteCity() {
+      var select = document.getElementById("customRouteAddSelect");
+      if (!select || !select.value) { return; }
+      var keys = currentCustomRouteKeys();
+      keys.push(select.value);
+      renderCustomRouteList(keys);
+      renderCustomizationSummary();
+    }
+
+    function removeCustomRouteCity(index) {
+      var keys = currentCustomRouteKeys();
+      if (index < 0 || index >= keys.length) { return; }
+      keys.splice(index, 1);
+      renderCustomRouteList(keys);
+      renderCustomizationSummary();
+    }
+
+    function moveCustomRouteCity(index, direction) {
+      var keys = currentCustomRouteKeys();
+      var nextIndex = index + direction;
+      if (index < 0 || index >= keys.length || nextIndex < 0 || nextIndex >= keys.length) { return; }
+      var temp = keys[index];
+      keys[index] = keys[nextIndex];
+      keys[nextIndex] = temp;
+      renderCustomRouteList(keys);
+      renderCustomizationSummary();
+    }
+
+    function renderRouteEditor(settings) {
+      var s = sanitizeRouteSettings(settings || raceSettings || DEFAULT_RACE_SETTINGS);
+      setSettingValue("settingRouteMode", s.routeMode);
+      renderRouteCitySelect("customRouteStartSelect", isUnitedStatesDesignedCity, s.customRouteStartKey);
+      renderRouteCitySelect("customRouteFinaleSelect", isUnitedStatesDesignedCity, s.customRouteFinaleKey);
+      renderCustomRouteList(s.customRouteDestinationKeys);
+      updateRouteEditorVisibility();
+      updateRouteEditorNote();
+    }
+
+    function suggestedCustomRouteKeys() {
+      return allDesignedCityKeys()
+        .filter(function (key) { return !isUnitedStatesDesignedCity(key); })
+        .sort(function (a, b) {
+          var weightDiff = cityWeightForKey(b) - cityWeightForKey(a);
+          if (weightDiff) { return weightDiff; }
+          return routeDisplayNameForKey(a).localeCompare(routeDisplayNameForKey(b));
+        })
+        .slice(0, 14);
+    }
+
+    function fillSuggestedCustomRoute() {
+      var modeEl = document.getElementById("settingRouteMode");
+      if (modeEl) { modeEl.value = "custom"; }
+      renderCustomRouteList(suggestedCustomRouteKeys());
+      updateRouteEditorVisibility();
+      renderCustomizationSummary();
+    }
+
+    function clearCustomRoute() {
+      renderCustomRouteList([]);
+      renderCustomizationSummary();
+    }
+
+    function updateRouteEditorVisibility() {
+      var card = document.getElementById("routeEditorCard");
+      var enabled = settingValue("settingRouteMode", "auto") === "custom";
+      if (card) { card.classList.toggle("is-auto", !enabled); }
+      ["customRouteStartSelect", "customRouteFinaleSelect", "customRouteSearch", "customRouteAddSelect"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) { el.disabled = !enabled; }
+      });
+      var list = document.getElementById("customRouteList");
+      if (list) {
+        Array.prototype.slice.call(list.querySelectorAll("button")).forEach(function (button) {
+          button.disabled = !enabled || button.hasAttribute("data-route-native-disabled");
+        });
+        // Re-render restores native Up/Down disabled states after toggling route mode.
+        if (enabled) {
+          var keys = currentCustomRouteKeys();
+          Array.prototype.slice.call(list.querySelectorAll(".route-pick-row")).forEach(function (row, index) {
+            var buttons = row.querySelectorAll("button");
+            if (buttons[0]) { buttons[0].disabled = index === 0; }
+            if (buttons[1]) { buttons[1].disabled = index === keys.length - 1; }
+            if (buttons[2]) { buttons[2].disabled = false; }
+          });
+        }
+      }
+      updateRouteEditorNote();
+    }
+
+    function updateRouteEditorNote() {
+      var note = document.getElementById("routeEditorNote");
+      if (!note) { return; }
+      var route = readRouteEditor();
+      if (route.routeMode !== "custom") {
+        note.innerHTML = "Auto route is active. The simulator uses the private weighted city list, starts in the U.S., keeps normal legs outside the U.S., and returns to the U.S. for the finale.";
+        return;
+      }
+      note.innerHTML = "Custom route active: " +
+        (route.customRouteStartKey ? "start in <strong>" + escapeHtml(routeDisplayNameForKey(route.customRouteStartKey)) + "</strong>" : "start from an auto-picked U.S. city") +
+        " · <strong>" + route.customRouteDestinationKeys.length + "</strong> normal route cit" + (route.customRouteDestinationKeys.length === 1 ? "y" : "ies") +
+        " · finale in " + (route.customRouteFinaleKey ? "<strong>" + escapeHtml(routeDisplayNameForKey(route.customRouteFinaleKey)) + "</strong>" : "an auto-picked U.S. city") +
+        ". Non-elims do not need exact leg slots; the route advances one destination per normal leg, then the finale city overrides the queue when the final-team trigger fires.";
+    }
+
     function weightedShuffledCityKeys(keys) {
       var pool = (keys || []).slice();
       var result = [];
@@ -24627,9 +27498,42 @@
       });
     }
 
+    function pushUniqueCityKey(list, seen, key) {
+      key = String(key || "").toUpperCase();
+      if (key && designedCityDefinition(key) && !seen[key]) {
+        list.push(key);
+        seen[key] = true;
+      }
+    }
+
+    function currentCustomRouteSettings() {
+      return sanitizeRouteSettings(raceSettings || DEFAULT_RACE_SETTINGS);
+    }
+
     function buildRandomSeasonCityOrder() {
       var unitedStatesKeys = weightedShuffledCityKeys(designedCityKeysWhere(isUnitedStatesDesignedCity));
       var internationalKeys = weightedShuffledCityKeys(designedCityKeysWhere(function (key) { return !isUnitedStatesDesignedCity(key); }));
+      var route = currentCustomRouteSettings();
+
+      // Custom route mode: start city + ordered non-U.S. route queue + weighted leftovers.
+      // The finale city is selected directly by seasonFinalDestinationKey(), so non-elims do
+      // not require exact route-slot planning.
+      if (route.routeMode === "custom") {
+        var order = [];
+        var seen = {};
+        var startKey = route.customRouteStartKey || unitedStatesKeys[0];
+        var finaleKey = route.customRouteFinaleKey || "";
+
+        pushUniqueCityKey(order, seen, startKey);
+        route.customRouteDestinationKeys.forEach(function (key) { pushUniqueCityKey(order, seen, key); });
+        internationalKeys.forEach(function (key) { pushUniqueCityKey(order, seen, key); });
+        unitedStatesKeys.forEach(function (key) {
+          if (key !== finaleKey) { pushUniqueCityKey(order, seen, key); }
+        });
+        pushUniqueCityKey(order, seen, finaleKey);
+
+        return order.length ? order : internationalKeys;
+      }
 
       // The season starts in the United States, then the regular race goes international.
       // Remaining U.S. cities stay at the back of the saved order so the finale can pull one later.
@@ -24658,6 +27562,10 @@
     }
 
     function seasonStartCityKey() {
+      var route = currentCustomRouteSettings();
+      if (route.routeMode === "custom" && route.customRouteStartKey) {
+        return route.customRouteStartKey;
+      }
       return pickSeasonKeyFromSubset(isUnitedStatesDesignedCity, 0, null) || designedCityKeyForLegIndex(0);
     }
 
@@ -24670,6 +27578,11 @@
     }
 
     function seasonFinalDestinationKey(avoidKey) {
+      var route = currentCustomRouteSettings();
+      if (route.routeMode === "custom" && route.customRouteFinaleKey && route.customRouteFinaleKey !== avoidKey) {
+        return route.customRouteFinaleKey;
+      }
+
       // Finales return to the United States. Offset by leg number so the finale city still varies
       // with the randomized saved order and season length.
       return pickSeasonKeyFromSubset(isUnitedStatesDesignedCity, legNum, avoidKey)
@@ -25200,7 +28113,11 @@
         finalTeamCount: parseInt(base.finalTeamCount, 10) || DEFAULT_RACE_SETTINGS.finalTeamCount,
         legGapHours: parseInt(base.legGapHours, 10) || DEFAULT_RACE_SETTINGS.legGapHours,
         raceSeed: base.raceSeed != null ? String(base.raceSeed) : "",
-        cityWeights: cloneCityWeights(base.cityWeights || {})
+        cityWeights: cloneCityWeights(base.cityWeights || {}),
+        routeMode: base.routeMode || "auto",
+        customRouteStartKey: base.customRouteStartKey || "",
+        customRouteDestinationKeys: Array.isArray(base.customRouteDestinationKeys) ? base.customRouteDestinationKeys.slice() : [],
+        customRouteFinaleKey: base.customRouteFinaleKey || ""
       };
     }
 
@@ -25261,6 +28178,11 @@
       settings.teamColors = Object.assign({}, settings.teamColors || {});
       settings.raceSeed = normalizeRaceSeed(settings.raceSeed);
       settings.cityWeights = sanitizeCityWeights(settings.cityWeights || {});
+      var routeSettings = sanitizeRouteSettings(settings);
+      settings.routeMode = routeSettings.routeMode;
+      settings.customRouteStartKey = routeSettings.customRouteStartKey;
+      settings.customRouteDestinationKeys = routeSettings.customRouteDestinationKeys;
+      settings.customRouteFinaleKey = routeSettings.customRouteFinaleKey;
 
       return settings;
     }
@@ -25336,7 +28258,11 @@
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
         skillTypes: readRawSkillNamesFromEditor(),
         customTeamSkills: readCustomTeamSkillEditor(),
-        cityWeights: readCityWeightsEditor()
+        cityWeights: readCityWeightsEditor(),
+        routeMode: readRouteEditor().routeMode,
+        customRouteStartKey: readRouteEditor().customRouteStartKey,
+        customRouteDestinationKeys: readRouteEditor().customRouteDestinationKeys,
+        customRouteFinaleKey: readRouteEditor().customRouteFinaleKey
       });
       var chaos = FLIGHT_CHAOS_PROFILES[preview.flightChaos] || FLIGHT_CHAOS_PROFILES.normal;
       var teamPreviewNames = sanitizeTeamNames(readRawTeamNamesFromEditor(), preview.teamCount);
@@ -25347,8 +28273,10 @@
         previewList += ", +" + (teamPreviewNames.length - 4) + " more";
       }
 
-      var weightCounts = cityWeightCounts(preview.cityWeights);
-      var weightedCities = allDesignedCityKeys().length - weightCounts[DEFAULT_CITY_WEIGHT];
+      var routePreview = sanitizeRouteSettings(preview);
+      var routeSummary = routePreview.routeMode === "custom"
+        ? "Custom route: <strong>" + routePreview.customRouteDestinationKeys.length + "</strong> planned normal cities"
+        : "Route: <strong>Auto weighted</strong>";
 
       box.innerHTML =
         "Season Settings: <strong>" + preview.teamCount + "</strong> teams · " +
@@ -25361,7 +28289,7 @@
         "Transport <strong>" + preview.minTransportOptions + "-" + preview.maxTransportOptions + "</strong> choices from <strong>" + preview.transportOptions.length + "</strong> options · " +
         "Flight chaos: <strong>" + escapeHtml(chaos.label) + "</strong> · " +
         (preview.raceSeed ? "Seed: <strong>" + escapeHtml(preview.raceSeed) + "</strong> · " : "") +
-        "City weights: <strong>" + weightedCities + "</strong> customized / <strong>" + allDesignedCityKeys().length + "</strong> cities · " +
+        routeSummary + " · " +
         "Skills: <strong>" + escapeHtml(modeLabel) + "</strong> / <strong>" + preview.skillTypes.length + "</strong> skills" +
         (preview.skillMode === "player_all" ? " / Your team all <strong>" + preview.playerAllSkillLevel + "</strong>" : "");
     }
@@ -25393,7 +28321,7 @@
       setSettingValue("settingFinalTeamCount", s.finalTeamCount != null ? s.finalTeamCount : DEFAULT_RACE_SETTINGS.finalTeamCount);
       setSettingValue("settingLegGapHours", s.legGapHours != null ? s.legGapHours : DEFAULT_RACE_SETTINGS.legGapHours);
       setSettingValue("settingRaceSeed", s.raceSeed || "");
-      renderCityWeightEditor(s.cityWeights);
+      renderRouteEditor(s);
       updateLegGapLabel();
       setSettingValue("settingSkillMode", s.skillMode);
       setSettingValue("settingPlayerAllSkillLevel", s.playerAllSkillLevel);
@@ -25409,7 +28337,7 @@
         "settingMinStops", "settingMaxStops", "settingFinalMinStops",
         "settingFinalMaxStops", "settingChallengeMinTime", "settingChallengeMaxTime",
         "settingMinTransportOptions", "settingMaxTransportOptions",
-        "settingFlightChaos", "settingFinalTeamCount", "settingLegGapHours", "settingRaceSeed", "settingSkillMode",
+        "settingFlightChaos", "settingFinalTeamCount", "settingLegGapHours", "settingRaceSeed", "settingRouteMode", "settingSkillMode",
         "settingPlayerAllSkillLevel", "settingSkillCount"
       ].forEach(function (id) {
         var el = document.getElementById(id);
@@ -25420,18 +28348,20 @@
         }
       });
 
-      var cityWeightEl = document.getElementById("cityWeightEditor");
-      if (cityWeightEl && !cityWeightEl.dataset.boundCityWeights) {
-        cityWeightEl.addEventListener("input", function () {
-          updateCityWeightNote();
-          renderCustomizationSummary();
-        });
-        cityWeightEl.addEventListener("change", function () {
-          updateCityWeightNote();
-          renderCustomizationSummary();
-        });
-        cityWeightEl.dataset.boundCityWeights = "1";
-      }
+      ["settingRouteMode", "customRouteStartSelect", "customRouteEditor", "customRouteFinaleSelect"].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el && !el.dataset.boundRouteEditor) {
+          el.addEventListener("input", function () {
+            updateRouteEditorVisibility();
+            renderCustomizationSummary();
+          });
+          el.addEventListener("change", function () {
+            updateRouteEditorVisibility();
+            renderCustomizationSummary();
+          });
+          el.dataset.boundRouteEditor = "1";
+        }
+      });
 
       var teamCountEl = document.getElementById("settingTeamCount");
       if (teamCountEl && !teamCountEl.dataset.boundTeamNameEditor) {
@@ -25503,7 +28433,11 @@
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
         skillTypes: readRawSkillNamesFromEditor(),
         customTeamSkills: readCustomTeamSkillEditor(),
-        cityWeights: readCityWeightsEditor()
+        cityWeights: readCityWeightsEditor(),
+        routeMode: readRouteEditor().routeMode,
+        customRouteStartKey: readRouteEditor().customRouteStartKey,
+        customRouteDestinationKeys: readRouteEditor().customRouteDestinationKeys,
+        customRouteFinaleKey: readRouteEditor().customRouteFinaleKey
       });
     }
 
@@ -25555,7 +28489,7 @@
       renderTeamNameEditor(teams);
       renderTeamColorEditor(raceSettings.teamColors);
       renderSkillNameEditor(raceSettings.skillTypes);
-      renderCityWeightEditor(raceSettings.cityWeights);
+      renderRouteEditor(raceSettings);
       updateSkillModePanels();
     }
 
@@ -28942,13 +31876,19 @@
 
     function getGameState(screenOverride) {
       var activeScreen = screenOverride || getActiveScreenId();
+      var savedTeamsForState = Array.isArray(teams) ? teams.slice() : [];
+      var settingsForSave = sanitizeRaceSettings(raceSettings || DEFAULT_RACE_SETTINGS);
+      settingsForSave.teamCount = savedTeamsForState.length || settingsForSave.teamCount;
+      settingsForSave.teamNames = savedTeamsForState.slice();
+      settingsForSave.teamColors = teamColorSnapshotForTeams(savedTeamsForState);
 
       return {
         version: SAVE_VERSION,
         savedAt: Date.now(),
         activeScreen: activeScreen,
-        raceSettings: sanitizeRaceSettings(raceSettings || DEFAULT_RACE_SETTINGS),
-        teams: teams.slice(),
+        raceSettings: settingsForSave,
+        teamColors: Object.assign({}, settingsForSave.teamColors || {}),
+        teams: savedTeamsForState,
 
         playerTeam: playerTeam,
         skills: skills,
@@ -29035,6 +31975,7 @@
 
       var originalVersion = saveVersionNumber(state);
       state.raceSettings = sanitizeRaceSettings(state.raceSettings || DEFAULT_RACE_SETTINGS);
+      state.teamColors = state.teamColors && typeof state.teamColors === "object" ? Object.assign({}, state.teamColors) : Object.assign({}, state.raceSettings.teamColors || {});
       state.teams = Array.isArray(state.teams) ? state.teams.slice() : [];
       state.remainingTeams = Array.isArray(state.remainingTeams) ? state.remainingTeams.slice() : [];
       state.legStops = Array.isArray(state.legStops) ? state.legStops : [];
@@ -29075,8 +32016,8 @@
       }
 
       raceSettings = sanitizeRaceSettings(state.raceSettings || DEFAULT_RACE_SETTINGS);
+      var savedTeamColors = Object.assign({}, (state.teamColors && typeof state.teamColors === "object") ? state.teamColors : (raceSettings.teamColors || {}));
       initializeRaceRandom(state.activeRaceSeed || raceSettings.raceSeed, state.raceRngState);
-      applyRaceSettingsToGlobals();
 
       var savedTeams = Array.isArray(state.teams) ? state.teams.slice() : [];
       var placementTeams = state.placementHistory ? Object.keys(state.placementHistory) : [];
@@ -29092,7 +32033,8 @@
       }
 
       raceSettings.teamCount = teams.length;
-      raceSettings.teamColors = sanitizeTeamColors(raceSettings.teamColors, teams);
+      raceSettings.teamNames = teams.slice();
+      raceSettings.teamColors = sanitizeTeamColors(savedTeamColors, teams);
       raceSettings.skillTypes = sanitizeSkillNames(raceSettings.skillTypes, raceSettings.skillCount);
       raceSettings.skillCount = raceSettings.skillTypes.length;
       raceSettings.customTeamSkills = sanitizeCustomSkillMatrix(raceSettings.customTeamSkills, teams, raceSettings.skillTypes);
@@ -29921,7 +32863,11 @@
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
         skillTypes: readRawSkillNamesFromEditor(),
         customTeamSkills: readCustomTeamSkillEditor(),
-        cityWeights: readCityWeightsEditor()
+        cityWeights: readCityWeightsEditor(),
+        routeMode: readRouteEditor().routeMode,
+        customRouteStartKey: readRouteEditor().customRouteStartKey,
+        customRouteDestinationKeys: readRouteEditor().customRouteDestinationKeys,
+        customRouteFinaleKey: readRouteEditor().customRouteFinaleKey
       });
     }
 
