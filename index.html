@@ -1832,6 +1832,19 @@
       font-variant-numeric: tabular-nums;
     }
 
+    .time-chart .fit-wrap-text {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      line-height: 1.04;
+      hyphens: auto;
+      text-overflow: clip;
+    }
+
+    .time-chart .fit-tight-time {
+      letter-spacing: -0.035em;
+    }
+
     /* ── CLUE CHART ─────────────────────────────────────────── */
 
     .clue-chart-card {
@@ -2569,7 +2582,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 27;
+    var SAVE_VERSION = 28;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -23879,8 +23892,91 @@
       return cleaned;
     }
 
+    function designedCityCountryName(value) {
+      var def = designedCityDefinition(value);
+      if (!def || !def.displayName) { return ""; }
+      var parts = String(def.displayName).split(",");
+      return parts.length > 1 ? parts[parts.length - 1].trim() : "";
+    }
+
+    function isUnitedStatesDesignedCity(value) {
+      return designedCityCountryName(value).toLowerCase() === "united states";
+    }
+
+    function designedCityKeysWhere(predicate) {
+      return allDesignedCityKeys().filter(function (key) {
+        return predicate(key);
+      });
+    }
+
     function buildRandomSeasonCityOrder() {
-      return shuffledCopy(allDesignedCityKeys());
+      var unitedStatesKeys = shuffledCopy(designedCityKeysWhere(isUnitedStatesDesignedCity));
+      var internationalKeys = shuffledCopy(designedCityKeysWhere(function (key) { return !isUnitedStatesDesignedCity(key); }));
+
+      // The season starts in the United States, then the regular race goes international.
+      // Remaining U.S. cities stay at the back of the saved order so the finale can pull one later.
+      if (unitedStatesKeys.length === 0) {
+        return internationalKeys;
+      }
+      return [unitedStatesKeys[0]].concat(internationalKeys, unitedStatesKeys.slice(1));
+    }
+
+    function seasonOrderedKeysFiltered(predicate) {
+      return sanitizeSeasonCityOrder(seasonCityOrder).filter(function (key) {
+        return predicate(key);
+      });
+    }
+
+    function pickSeasonKeyFromSubset(predicate, index, avoidKey) {
+      var keys = seasonOrderedKeysFiltered(predicate);
+      if (!keys.length) { return null; }
+      var safeIndex = ((index % keys.length) + keys.length) % keys.length;
+      var key = keys[safeIndex];
+
+      if (avoidKey && keys.length > 1 && key === avoidKey) {
+        key = keys[(safeIndex + 1) % keys.length];
+      }
+      return key;
+    }
+
+    function seasonStartCityKey() {
+      return pickSeasonKeyFromSubset(isUnitedStatesDesignedCity, 0, null) || designedCityKeyForLegIndex(0);
+    }
+
+    function seasonNonFinalDestinationKey(avoidKey) {
+      // Leg 1 uses the first international destination. Later non-final legs advance through
+      // the international-only order. This keeps regular race legs out of the United States.
+      return pickSeasonKeyFromSubset(function (key) { return !isUnitedStatesDesignedCity(key); }, legNum - 1, avoidKey)
+        || pickSeasonKeyFromSubset(function (key) { return key !== avoidKey; }, legNum, avoidKey)
+        || designedCityKeyForLegIndex(legNum);
+    }
+
+    function seasonFinalDestinationKey(avoidKey) {
+      // Finales return to the United States. Offset by leg number so the finale city still varies
+      // with the randomized saved order and season length.
+      return pickSeasonKeyFromSubset(isUnitedStatesDesignedCity, legNum, avoidKey)
+        || pickSeasonKeyFromSubset(function (key) { return key !== avoidKey; }, legNum, avoidKey)
+        || designedCityKeyForLegIndex(legNum);
+    }
+
+    function legCityKeysForCurrentLeg(finalOverride) {
+      var finalNow = finalOverride == null ? isFinalLeg() : !!finalOverride;
+      var originKey = null;
+
+      if (legNum === 1) {
+        originKey = seasonStartCityKey();
+      } else if (currentCity && currentCity.name) {
+        originKey = String(currentCity.name).toUpperCase();
+      } else {
+        originKey = designedCityKeyForLegIndex(legNum - 1);
+      }
+
+      var destKey = finalNow ? seasonFinalDestinationKey(originKey) : seasonNonFinalDestinationKey(originKey);
+      if (destKey === originKey) {
+        destKey = pickSeasonKeyFromSubset(function (key) { return key !== originKey && (finalNow ? isUnitedStatesDesignedCity(key) : !isUnitedStatesDesignedCity(key)); }, legNum + 1, originKey) || destKey;
+      }
+
+      return { originKey: originKey, destKey: destKey };
     }
 
     function designedCityKeyForLegIndex(index) {
@@ -26842,7 +26938,7 @@
         skills[name] = name === playerTeam ? playerRolledSkills : makeStartingSkillProfile(name, false);
       });
 
-      currentCity = designedCityObject(designedCityKeyForLegIndex(0));
+      currentCity = designedCityObject(seasonStartCityKey());
       currentCityStartLocation = null;
       currentCityStartCityKey = currentCity && currentCity.name ? currentCity.name : null;
       routeHistory.push(cityDisplayName(currentCity));
@@ -26891,8 +26987,9 @@
 
       legIsNonElim = !isFinalLeg() && raceRandom() < NON_ELIM_CHANCE;
 
-      var originKey = designedCityKeyForLegIndex(legNum - 1);
-      var destKey = designedCityKeyForLegIndex(legNum);
+      var legCityKeys = legCityKeysForCurrentLeg();
+      var originKey = legCityKeys.originKey;
+      var destKey = legCityKeys.destKey;
       currentCity = designedCityObject(originKey);
       legOrigin = currentCity;
       legDest = designedCityObject(destKey);
@@ -27528,17 +27625,41 @@
       }
       if (!basePx || !isFinite(basePx)) { return; }
 
-      el.style.fontSize = basePx + "px";
-      if (!el.clientWidth || !el.scrollWidth) { return; }
-
-      var minPx = el.tagName && el.tagName.toLowerCase() === "th" ? 3.0 : 2.8;
+      var text = (el.textContent || "").trim();
+      var isHeader = el.tagName && el.tagName.toLowerCase() === "th";
+      var looksLikeClock = /^\d{1,2}:\d{2}$/.test(text);
+      var minPx = isHeader ? 6.0 : (looksLikeClock ? 5.4 : 5.8);
       var currentPx = basePx;
       var guard = 0;
-      while (guard < 16 && el.scrollWidth > el.clientWidth + 1 && currentPx > minPx) {
-        var ratio = Math.max(0.55, Math.min(0.96, (el.clientWidth - 1) / Math.max(1, el.scrollWidth)));
+
+      el.classList.remove("fit-wrap-text", "fit-tight-time");
+      el.style.fontSize = basePx + "px";
+
+      if (!el.clientWidth || !el.scrollWidth) { return; }
+      if (el.scrollWidth <= el.clientWidth + 1) { return; }
+
+      if (looksLikeClock) {
+        el.classList.add("fit-tight-time");
+      }
+
+      // First pass: shrink only this exact overflowing cell, but keep a readable floor.
+      while (guard < 18 && el.scrollWidth > el.clientWidth + 1 && currentPx > minPx) {
+        var ratio = Math.max(0.72, Math.min(0.96, (el.clientWidth - 1) / Math.max(1, el.scrollWidth)));
         currentPx = Math.max(minPx, currentPx * ratio);
         el.style.fontSize = currentPx + "px";
         guard += 1;
+      }
+
+      // Second pass: for words/transport/location names that still cannot fit without becoming
+      // specks, allow only that cell to wrap. Short clock values stay one-line and shrink tighter.
+      if (!looksLikeClock && el.scrollWidth > el.clientWidth + 1) {
+        el.classList.add("fit-wrap-text");
+        guard = 0;
+        while (guard < 8 && el.scrollWidth > el.clientWidth + 1 && currentPx > minPx - 0.6) {
+          currentPx = Math.max(minPx - 0.6, currentPx * 0.94);
+          el.style.fontSize = currentPx + "px";
+          guard += 1;
+        }
       }
     }
 
@@ -27752,6 +27873,8 @@
 
     function nextLeg() {
       currentCity = legDest;
+      currentCityStartLocation = legPitStopLocation;
+      currentCityStartCityKey = legDest && legDest.name ? legDest.name : null;
       legNum = legNum + 1;
       raceClock = nextLegStartClocks[playerTeam] != null ? nextLegStartClocks[playerTeam] : nextLegStartClock;
       startLeg();
@@ -27866,8 +27989,9 @@
 
       legIsNonElim = !isTheFinalLeg && raceRandom() < NON_ELIM_CHANCE;
 
-      var originKey = designedCityKeyForLegIndex(legNum - 1);
-      var destKey = designedCityKeyForLegIndex(legNum);
+      var legCityKeys = legCityKeysForCurrentLeg(isTheFinalLeg);
+      var originKey = legCityKeys.originKey;
+      var destKey = legCityKeys.destKey;
       currentCity = designedCityObject(originKey);
       legOrigin = currentCity;
       legDest   = designedCityObject(destKey);
