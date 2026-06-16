@@ -1677,6 +1677,51 @@
       margin-top: 10px;
     }
 
+    /* ── CITY WEIGHT EDITOR ─────────────────────────────────── */
+
+    .city-weight-editor-card {
+      margin-top: 14px;
+      background: rgba(13, 3, 5, 0.5);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      padding: 14px;
+      text-align: left;
+    }
+
+    .city-weight-editor-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .city-weight-editor-header strong {
+      color: var(--amber);
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .city-weight-editor {
+      min-height: 260px;
+      max-height: 520px;
+      resize: vertical;
+      white-space: pre;
+      overflow: auto;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      tab-size: 2;
+    }
+
+    .city-weight-note {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      margin-top: 10px;
+    }
+
     /* ── TEAM COLORS ────────────────────────────────────────── */
 
     .team-color-editor {
@@ -2413,6 +2458,32 @@
       <div class="setup-section">
         <div class="section-heading">
           <div>
+            <div class="section-kicker">Route Odds</div>
+            <h2 class="section-title">City leg weights</h2>
+            <div class="section-copy">Give every designed city a leg-selection weight from 1 to 5. The race still avoids repeats until a pool is exhausted, but higher-weight cities are more likely to appear earlier in that no-repeat shuffle.</div>
+          </div>
+        </div>
+
+        <div class="city-weight-editor-card">
+          <div class="city-weight-editor-header">
+            <div>
+              <strong>City Weight Sheet</strong>
+              <div class="setting-help">Format each row like <strong>Paris, France = 5</strong>. Blank values or invalid values become the default weight of 3. U.S. cities only affect the starting city and finale pools.</div>
+            </div>
+            <div class="mini-button-row">
+              <button class="mini-btn" type="button" onclick="fillCityWeightsBlankTemplate()">Blank Template</button>
+              <button class="mini-btn" type="button" onclick="fillCityWeightsCurrentTemplate()">Current Values</button>
+              <button class="mini-btn" type="button" onclick="resetCityWeightsToDefault()">Reset to 3</button>
+            </div>
+          </div>
+          <textarea id="cityWeightEditor" class="city-weight-editor" spellcheck="false" placeholder="Paris, France = 5"></textarea>
+          <div id="cityWeightNote" class="city-weight-note"></div>
+        </div>
+      </div>
+
+      <div class="setup-section">
+        <div class="section-heading">
+          <div>
             <div class="section-kicker">Skills</div>
             <h2 class="section-title">Skill setup</h2>
             <div class="section-copy">Keep everyone randomized, give only your chosen team a fixed profile, or hand-edit the whole cast.</div>
@@ -2582,7 +2653,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 28;
+    var SAVE_VERSION = 30;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -6997,7 +7068,480 @@
       gapScalingCustom: 0.5,
       finalTeamCount: 3,
       legGapHours: 36,
-      raceSeed: ""
+      raceSeed: "",
+      cityWeights: {
+        "LONDON": 5,
+        "PARIS": 5,
+        "NEW YORK": 5,
+        "SAO PAULO": 5,
+        "MEXICO CITY": 4,
+        "CAIRO": 4,
+        "JOHANNESBURG": 4,
+        "MADRID": 4,
+        "ISTANBUL": 5,
+        "NEW DELHI": 4,
+        "TOKYO": 5,
+        "BANGKOK": 4,
+        "SYDNEY": 5,
+        "MOSCOW": 3,
+        "DUBAI": 4,
+        "STOCKHOLM": 4,
+        "MILAN": 3,
+        "LISBON": 4,
+        "CASABLANCA": 3,
+        "ADDIS ABABA": 3,
+        "HAVANA": 3,
+        "LOS ANGELES": 5,
+        "DALLAS": 5,
+        "SEOUL": 5,
+        "BEIJING": 5,
+        "ABIDJAN": 2,
+        "ACCRA": 3,
+        "ALGIERS": 3,
+        "BANJUL": 2,
+        "CAPE TOWN": 3,
+        "DAKAR": 3,
+        "DAR ES SALAAM": 3,
+        "GABORONE": 2,
+        "LAGOS": 3,
+        "KINSHASA": 2,
+        "LOME": 3,
+        "MARRAKECH": 2,
+        "NAIROBI": 3,
+        "TRIPOLI": 2,
+        "TUNIS": 3,
+        "ZANZIBAR": 3,
+        "ABU DHABI": 3,
+        "ANKARA": 2,
+        "BAGHDAD": 2,
+        "BAKU": 3,
+        "BANGALORE": 2,
+        "CHENGDU": 2,
+        "CHENNAI": 2,
+        "CHIANG MAI": 2,
+        "COLOMBO": 2,
+        "DA NANG": 2,
+        "DHAKA": 2,
+        "HANOI": 4,
+        "HO CHI MINH CITY": 2,
+        "HONG KONG": 4,
+        "HYDERABAD": 2,
+        "INCHEON": 2,
+        "ISLAMABAD": 2,
+        "JAKARTA": 3,
+        "JEDDAH": 2,
+        "JERUSALEM": 2,
+        "KATHMANDU": 2,
+        "KUALA LUMPUR": 3,
+        "KUWAIT CITY": 2,
+        "MANILA": 3,
+        "OSAKA": 2,
+        "SINGAPORE": 4,
+        "TAIPEI": 3,
+        "TSHKENT": 2,
+        "TBILISI": 2,
+        "TEHRAN": 2,
+        "TEL AVIV": 2,
+        "ULAANBAATAR": 2,
+        "VIENTIANE": 2,
+        "ABUJA": 1,
+        "AGADIR": 1,
+        "ALEXANDRIA": 2,
+        "ANTANANARIVO": 2,
+        "ASMARA": 1,
+        "BAMAKO": 2,
+        "BANGUI": 1,
+        "BISSAU": 1,
+        "BORG EL ARAB": 1,
+        "BRAZZAVILLE": 1,
+        "CONAKRY": 2,
+        "DJERBA": 1,
+        "DJIBOUTI": 1,
+        "DODOMA": 1,
+        "DURBAN": 1,
+        "FREETOWN": 2,
+        "GITEGA": 1,
+        "HARARE": 2,
+        "HURGHADA": 1,
+        "JUBA": 1,
+        "KAMPALA": 1,
+        "KHARTOUM": 1,
+        "KIGALI": 2,
+        "KILIMANJARO": 2,
+        "LIBREVILLE": 2,
+        "LILONGWE": 1,
+        "LUANDA": 2,
+        "LUSAKA": 2,
+        "MALABO": 1,
+        "MAPUTO": 1,
+        "MARSA ALAM": 1,
+        "MASERU": 1,
+        "MBABANE": 1,
+        "MOGADISHU": 2,
+        "MONROVIO": 1,
+        "MORONI": 1,
+        "N'JAMENA": 1,
+        "NIAMEY": 1,
+        "NOUAKCHOTT": 1,
+        "OUAGADOUGOU": 1,
+        "PORT LOUIS": 1,
+        "PORTO-NOVO": 2,
+        "PRAIA": 1,
+        "QUEENSTOWN": 1,
+        "RABAT": 2,
+        "SHAREM EL-SHEIKH": 1,
+        "SAO TOME": 2,
+        "TANGIER": 1,
+        "VICTORIA": 1,
+        "WINDHOEK": 2,
+        "YAMOUSSOUKRO": 1,
+        "YAOUNDE": 1,
+        "AHMEDABAD": 1,
+        "AMMAN": 2,
+        "ASHGABAT": 1,
+        "ASTANA": 1,
+        "BANDAR SERI BEGAWAN": 1,
+        "BEIRUT": 1,
+        "BISKEKH": 1,
+        "BUSAN": 2,
+        "CEBU": 2,
+        "CHANGSHA": 1,
+        "CHONGQING": 2,
+        "DALAMAN": 1,
+        "DAMASCUS": 2,
+        "DAMMAM": 1,
+        "DENPASAR": 1,
+        "DILI": 2,
+        "DOHA": 2,
+        "DUSHANBE": 1,
+        "FUKUOKA": 1,
+        "GUANGZHOU": 1,
+        "HAIKOU": 1,
+        "HARBIN": 1,
+        "IZMIR": 2,
+        "JEJU CITY": 1,
+        "KABUL": 2,
+        "KARACHI": 1,
+        "KOCHI": 1,
+        "KOLKATA": 2,
+        "KUNMING": 1,
+        "LAHORE": 1,
+        "LARNACA": 1,
+        "MAKASSAR": 1,
+        "MALE": 2,
+        "MANAMA": 1,
+        "MASHHAD": 1,
+        "MEDAN": 1,
+        "MEDINA": 2,
+        "MUHARRAQ": 1,
+        "MUMBAI": 3,
+        "MUSCAT": 2,
+        "NAHA": 1,
+        "NANJING": 1,
+        "NAYPYIDAW": 1,
+        "NHA TRANG": 1,
+        "NICOSIA": 1,
+        "NUR-SULTAN": 1,
+        "PHNOM PENH": 2,
+        "PHU QUOC": 2,
+        "PHUKET": 2,
+        "PUNE": 1,
+        "PYONGYANG": 1,
+        "QINGDAO": 1,
+        "RIYADH": 2,
+        "SANA'A": 1,
+        "SAPPORO": 1,
+        "SHANGHAI": 3,
+        "SHARJAH": 1,
+        "SHENYANG": 1,
+        "SHENZHEN": 1,
+        "SRI JAYAWARDENEPURA": 2,
+        "SURABAYA": 2,
+        "THIMPHU": 1,
+        "URUMQI": 1,
+        "WUHAN": 2,
+        "XI'AN": 1,
+        "YEREVAN": 2,
+        "ZHENGZHOU": 1,
+        "ALICANTE": 1,
+        "AMSTERDAM": 5,
+        "ANDORRA LA VELLA": 2,
+        "ATHENS": 4,
+        "BARCELONA": 3,
+        "BASEL": 1,
+        "BELFAST": 1,
+        "BELGRADE": 1,
+        "BERGEN": 2,
+        "BERLIN": 4,
+        "BERN": 3,
+        "BIRMINGHAM": 2,
+        "BOLOGNA": 1,
+        "BORDEAUX": 2,
+        "BRATISLAVA": 2,
+        "BRISTOL": 1,
+        "BRUSSLES": 4,
+        "BUCHAREST": 2,
+        "BUDAPEST": 3,
+        "CATANIA": 1,
+        "CHARLEROI": 1,
+        "CHISINAU": 1,
+        "COLOGNE": 2,
+        "COPENHAGEN": 3,
+        "CORK": 2,
+        "DUBLIN": 3,
+        "DUBROVNIK": 2,
+        "DUSSELDORF": 1,
+        "EDINBURGH": 3,
+        "FARO": 2,
+        "FRANKFURT": 5,
+        "GDANSK": 1,
+        "GENEVA": 2,
+        "GLASGOW": 2,
+        "GRAN CANARIA": 1,
+        "HAMBURG": 2,
+        "HELSINKI": 3,
+        "HERAKLION": 1,
+        "IBIZA": 2,
+        "KATOWICE": 1,
+        "KRAKOW": 3,
+        "KYIV": 3,
+        "LJUBLJANA": 2,
+        "LUXEMBOURG": 2,
+        "LYON": 2,
+        "MANCHESTER": 2,
+        "MARSEILLE": 2,
+        "MINSK": 1,
+        "MONACO": 2,
+        "MULHOUSE": 2,
+        "MALAGA": 1,
+        "NANTES": 1,
+        "NAPLES": 2,
+        "NICE": 2,
+        "OSLO": 3,
+        "PALERMO": 1,
+        "PALMA DE MALLORCA": 2,
+        "PODGORICA": 1,
+        "PORTO": 2,
+        "PRAGUE": 3,
+        "PRISTINA": 2,
+        "REYKJAVIK": 2,
+        "RIGA": 2,
+        "ROME": 4,
+        "SAINT PETERSBURG": 3,
+        "SARAJEVO": 2,
+        "SKOPJE": 1,
+        "SOFIA": 3,
+        "STUTTGART": 2,
+        "TALLINN": 2,
+        "TENERIFE": 1,
+        "THESSALONIKI": 2,
+        "TIRANA": 2,
+        "TOULOUSE": 1,
+        "VADUZ": 1,
+        "VALENCIA": 2,
+        "VALLETTA": 1,
+        "VATICAN CITY": 3,
+        "VENICE": 4,
+        "VIENNA": 4,
+        "VILNIUS": 2,
+        "WARSAW": 3,
+        "ZAGREB": 2,
+        "ZURICH": 4,
+        "ALBANY": 1,
+        "ALBUQUERQUE": 2,
+        "ANCHORAGE": 3,
+        "ANNAPOLIS": 1,
+        "ATLANTA": 5,
+        "AUGUSTA": 1,
+        "AUSTIN": 5,
+        "BALTIMORE": 3,
+        "BASSETERRE": 1,
+        "BATON ROUGE": 3,
+        "BELMOPON": 1,
+        "BISMARCK": 1,
+        "BOISE": 2,
+        "BOSTON": 4,
+        "BRIDGETOWN": 1,
+        "BUFFALO": 2,
+        "BURBANK": 1,
+        "CALGARY": 3,
+        "CANCUN": 3,
+        "CARSON CITY": 1,
+        "CASTRIES": 1,
+        "CHARLESTON": 2,
+        "CHARLOTTE": 2,
+        "CHEYENNE": 2,
+        "CHICAGO": 4,
+        "CINCINNATI": 3,
+        "CLEVELAND": 3,
+        "COLUMBIA": 1,
+        "COLUMBUS": 2,
+        "CONCORD": 1,
+        "DENVER": 3,
+        "DES MOINES": 2,
+        "DESTIN": 2,
+        "DOVER": 1,
+        "DURHAM": 2,
+        "EDMONTON": 1,
+        "ERIE": 2,
+        "FELIPE ANGELES": 2,
+        "PORT LAUDERDALE": 2,
+        "FORT MYERS": 2,
+        "FRANKFORT": 1,
+        "GUADALAJARA": 2,
+        "GUATEMALA CITY": 2,
+        "HARRISBURG": 1,
+        "HARTFORD": 1,
+        "HELENA": 2,
+        "HONOLULU": 4,
+        "HOUSTON": 3,
+        "INDIANAPOLIS": 3,
+        "JACKSON": 2,
+        "JACKSONVILLE": 2,
+        "JEFFERSON CITY": 2,
+        "JUNAEU": 1,
+        "KAHULUI": 1,
+        "KONA": 1,
+        "KANSAS CITY": 3,
+        "KINGSTON": 2,
+        "KINGSTOWN": 1,
+        "LANSING": 1,
+        "LAS VEGAS": 4,
+        "LEXINGTON": 2,
+        "LIHUE": 1,
+        "LINCOLN": 2,
+        "LITTLE ROCK": 1,
+        "LOS CABOS": 1,
+        "LOUISVILLE": 1,
+        "MADISON": 1,
+        "MANAGUA": 1,
+        "MEMPHIS": 2,
+        "MIAMI": 4,
+        "MILWUAKEE": 2,
+        "MINNEAPOLIS": 2,
+        "MONTEGO BAY": 2,
+        "MONTERREY": 2,
+        "MONTGOMERY": 2,
+        "MONTPELIER": 1,
+        "MONTREAL": 3,
+        "NASHVILLE": 3,
+        "NASSAU": 2,
+        "NEWARK": 2,
+        "OAKLAND": 1,
+        "OKLAHOMA CITY": 2,
+        "OLYMPIA": 1,
+        "ORANJESTAD": 1,
+        "ORLANDO": 3,
+        "OTTAWA": 2,
+        "PANAMA CITY": 3,
+        "PHILADELPHIA": 3,
+        "PHOENIX": 3,
+        "PIERRE": 1,
+        "PITTSBURGH": 2,
+        "PORT OF SPAIN": 2,
+        "PORT-AU-PRINCE": 2,
+        "PORTLAND": 2,
+        "PROVIDENCE": 1,
+        "PUERTO VALLARTA": 1,
+        "PUNTA CANA": 2,
+        "RALEIGH": 2,
+        "RENO": 1,
+        "RICHMOND": 2,
+        "ROSEAU": 1,
+        "SACRAMENTO": 3,
+        "SAINT GEORGE'S": 1,
+        "SAINT JOHN'S": 2,
+        "SAINT PAUL": 1,
+        "SALEM": 2,
+        "SALT LAKE CITY": 2,
+        "SAN ANTONIO": 2,
+        "SAN DIEGO": 2,
+        "SAN FRANCISCO": 4,
+        "SAN JOSE": 2,
+        "SAN MARINO": 2,
+        "SAN SALVADOR": 2,
+        "SANTA ANA": 1,
+        "SANTA FE": 2,
+        "SANTO DOMINGO": 2,
+        "SAVANNAH": 2,
+        "SEATTLE": 3,
+        "SEVILLE": 1,
+        "SIOUX FALLS": 2,
+        "SPRINGFIELD": 1,
+        "ST LOUIS": 2,
+        "TALLAHASSEE": 3,
+        "TAMPA": 2,
+        "TEGUCIGALPA": 1,
+        "TIJUANA": 3,
+        "TOLEDO": 1,
+        "TOPEKA": 1,
+        "TORONTO": 4,
+        "TRENTON": 1,
+        "VANCOUVER": 3,
+        "WASHINGTON DC": 4,
+        "WICHITA FALLS": 1,
+        "WINNIPEG": 2,
+        "ADELAIDE": 2,
+        "APIA": 2,
+        "AUCKLAND": 3,
+        "BRISBANE": 3,
+        "CAIRNS": 2,
+        "CANBERRA": 2,
+        "CHRISTCHURCH": 2,
+        "DARWIN": 2,
+        "FUNAFUTI": 2,
+        "GOLD COAST": 2,
+        "HAGATNA": 1,
+        "HOBART": 1,
+        "HONIARA": 1,
+        "MAJURO": 1,
+        "MELBOURNE": 3,
+        "NADI": 2,
+        "NGERULMUD": 1,
+        "NUKU'ALOFA": 2,
+        "PALIKIR": 1,
+        "PERTH": 2,
+        "PORT MORESBY": 3,
+        "PORT VILA": 2,
+        "SUVA": 1,
+        "TARAWA": 1,
+        "WELLINGTON": 2,
+        "YAREN": 1,
+        "AREQUIPA": 1,
+        "ASUNCION": 1,
+        "BARRANQUILLA": 1,
+        "BELEM": 1,
+        "BELO HORIZONTE": 1,
+        "BOGOTA": 3,
+        "BRASILIA": 2,
+        "BUENOS AIRES": 3,
+        "CALI": 2,
+        "CAMPINAS": 1,
+        "CARACAS": 3,
+        "CARTAGENA": 2,
+        "CURITIBA": 1,
+        "CUSCO": 3,
+        "CORDOBA": 1,
+        "FLORIANOPOLIS": 1,
+        "FORTALEZA": 1,
+        "GEORGETOWN": 2,
+        "GOIANIA": 1,
+        "GUAYAQUIL": 1,
+        "LA PAZ": 2,
+        "LIMA": 3,
+        "MEDELLIN": 2,
+        "MENDOZA": 1,
+        "MONTEVIDEO": 1,
+        "PARAMARIBO": 1,
+        "PEREIRA": 1,
+        "PORTO ALEGRE": 1,
+        "QUITO": 2,
+        "RECIFE": 2,
+        "SALVADOR": 1,
+        "SAN JUAN": 1,
+        "SANTA MARTA": 1,
+        "SANTIAGO": 3
+      }
     };
 
 
@@ -23865,6 +24409,180 @@
       return (DESIGNED_LEG_CITIES || []).map(function (city) { return city.key; }).filter(Boolean);
     }
 
+    var DEFAULT_CITY_WEIGHT = 3;
+
+    function normalizeCityWeightName(value) {
+      var text = String(value == null ? "" : value);
+      if (text.normalize) {
+        text = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      }
+      return text
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+    }
+
+    function sanitizeCityWeightValue(value) {
+      var parsed = parseInt(value, 10);
+      if (isNaN(parsed)) {
+        parsed = DEFAULT_CITY_WEIGHT;
+      }
+      return clampNumber(parsed, 1, 5);
+    }
+
+    function cityWeightKeyForName(name) {
+      var raw = String(name == null ? "" : name).trim();
+      if (!raw) { return null; }
+
+      var direct = designedCityDefinition(raw.toUpperCase());
+      if (direct) { return direct.key; }
+
+      var normalized = normalizeCityWeightName(raw);
+      for (var i = 0; i < DESIGNED_LEG_CITIES.length; i++) {
+        var def = DESIGNED_LEG_CITIES[i];
+        if (normalizeCityWeightName(def.displayName) === normalized || normalizeCityWeightName(def.key) === normalized) {
+          return def.key;
+        }
+      }
+      return null;
+    }
+
+    function sanitizeCityWeights(source) {
+      var result = {};
+      allDesignedCityKeys().forEach(function (key) {
+        result[key] = DEFAULT_CITY_WEIGHT;
+      });
+
+      if (!source || typeof source !== "object") {
+        return result;
+      }
+
+      Object.keys(source).forEach(function (rawKey) {
+        var key = cityWeightKeyForName(rawKey);
+        if (key) {
+          result[key] = sanitizeCityWeightValue(source[rawKey]);
+        }
+      });
+
+      return result;
+    }
+
+    function cloneCityWeights(source) {
+      return Object.assign({}, source || {});
+    }
+
+    function cityWeightForKey(key, sourceWeights) {
+      var cleanKey = String(key || "").toUpperCase();
+      var weights = sourceWeights || (raceSettings && raceSettings.cityWeights) || {};
+      var value = weights[cleanKey];
+      return sanitizeCityWeightValue(value == null ? DEFAULT_CITY_WEIGHT : value);
+    }
+
+    function cityWeightTemplateText(sourceWeights, blankValues) {
+      var weights = sanitizeCityWeights(sourceWeights || {});
+      return DESIGNED_LEG_CITIES.map(function (def) {
+        return def.displayName + " = " + (blankValues ? "" : cityWeightForKey(def.key, weights));
+      }).join("\n");
+    }
+
+    function parseCityWeightText(text) {
+      var result = {};
+      String(text || "").split(/\r?\n/).forEach(function (line) {
+        var raw = line.trim();
+        if (!raw || raw.charAt(0) === "#") { return; }
+        var eqIndex = raw.lastIndexOf("=");
+        if (eqIndex === -1) { return; }
+        var name = raw.slice(0, eqIndex).trim();
+        var value = raw.slice(eqIndex + 1).trim();
+        var key = cityWeightKeyForName(name);
+        if (key) {
+          result[key] = value === "" ? DEFAULT_CITY_WEIGHT : sanitizeCityWeightValue(value);
+        }
+      });
+      return result;
+    }
+
+    function readCityWeightsEditor() {
+      var editor = document.getElementById("cityWeightEditor");
+      if (!editor) {
+        return sanitizeCityWeights((raceSettings && raceSettings.cityWeights) || {});
+      }
+      return sanitizeCityWeights(parseCityWeightText(editor.value));
+    }
+
+    function cityWeightCounts(weights) {
+      var clean = sanitizeCityWeights(weights || {});
+      var counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      allDesignedCityKeys().forEach(function (key) {
+        counts[cityWeightForKey(key, clean)] += 1;
+      });
+      return counts;
+    }
+
+    function updateCityWeightNote(weights) {
+      var note = document.getElementById("cityWeightNote");
+      if (!note) { return; }
+      var counts = cityWeightCounts(weights || readCityWeightsEditor());
+      var total = allDesignedCityKeys().length;
+      var customized = total - counts[DEFAULT_CITY_WEIGHT];
+      note.innerHTML = "<strong>" + total + "</strong> designed cities · " +
+        "<strong>" + customized + "</strong> currently away from default 3 · " +
+        "Weight counts: 1× " + counts[1] + ", 2× " + counts[2] + ", 3× " + counts[3] + ", 4× " + counts[4] + ", 5× " + counts[5] + ".";
+    }
+
+    function renderCityWeightEditor(weights) {
+      var editor = document.getElementById("cityWeightEditor");
+      if (!editor) { return; }
+      var clean = sanitizeCityWeights(weights || {});
+      editor.value = cityWeightTemplateText(clean, false);
+      updateCityWeightNote(clean);
+    }
+
+    function fillCityWeightsBlankTemplate() {
+      var editor = document.getElementById("cityWeightEditor");
+      if (!editor) { return; }
+      editor.value = cityWeightTemplateText(readCityWeightsEditor(), true);
+      updateCityWeightNote();
+      renderCustomizationSummary();
+    }
+
+    function fillCityWeightsCurrentTemplate() {
+      renderCityWeightEditor(readCityWeightsEditor());
+      renderCustomizationSummary();
+    }
+
+    function resetCityWeightsToDefault() {
+      renderCityWeightEditor({});
+      renderCustomizationSummary();
+    }
+
+    function weightedShuffledCityKeys(keys) {
+      var pool = (keys || []).slice();
+      var result = [];
+
+      while (pool.length) {
+        var total = 0;
+        pool.forEach(function (key) {
+          total += cityWeightForKey(key);
+        });
+
+        var roll = raceRandom() * Math.max(1, total);
+        var pickedIndex = 0;
+        for (var i = 0; i < pool.length; i++) {
+          roll -= cityWeightForKey(pool[i]);
+          if (roll <= 0) {
+            pickedIndex = i;
+            break;
+          }
+        }
+
+        result.push(pool.splice(pickedIndex, 1)[0]);
+      }
+
+      return result;
+    }
+
     function sanitizeSeasonCityOrder(order) {
       var available = allDesignedCityKeys();
       var availableSet = {};
@@ -23910,8 +24628,8 @@
     }
 
     function buildRandomSeasonCityOrder() {
-      var unitedStatesKeys = shuffledCopy(designedCityKeysWhere(isUnitedStatesDesignedCity));
-      var internationalKeys = shuffledCopy(designedCityKeysWhere(function (key) { return !isUnitedStatesDesignedCity(key); }));
+      var unitedStatesKeys = weightedShuffledCityKeys(designedCityKeysWhere(isUnitedStatesDesignedCity));
+      var internationalKeys = weightedShuffledCityKeys(designedCityKeysWhere(function (key) { return !isUnitedStatesDesignedCity(key); }));
 
       // The season starts in the United States, then the regular race goes international.
       // Remaining U.S. cities stay at the back of the saved order so the finale can pull one later.
@@ -24481,7 +25199,8 @@
         gapScalingCustom: base.gapScalingCustom != null ? parseFloat(base.gapScalingCustom) : DEFAULT_RACE_SETTINGS.gapScalingCustom,
         finalTeamCount: parseInt(base.finalTeamCount, 10) || DEFAULT_RACE_SETTINGS.finalTeamCount,
         legGapHours: parseInt(base.legGapHours, 10) || DEFAULT_RACE_SETTINGS.legGapHours,
-        raceSeed: base.raceSeed != null ? String(base.raceSeed) : ""
+        raceSeed: base.raceSeed != null ? String(base.raceSeed) : "",
+        cityWeights: cloneCityWeights(base.cityWeights || {})
       };
     }
 
@@ -24541,6 +25260,7 @@
       settings.customTeamSkills = cloneCustomTeamSkills(settings.customTeamSkills || {});
       settings.teamColors = Object.assign({}, settings.teamColors || {});
       settings.raceSeed = normalizeRaceSeed(settings.raceSeed);
+      settings.cityWeights = sanitizeCityWeights(settings.cityWeights || {});
 
       return settings;
     }
@@ -24615,7 +25335,8 @@
         playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
         skillTypes: readRawSkillNamesFromEditor(),
-        customTeamSkills: readCustomTeamSkillEditor()
+        customTeamSkills: readCustomTeamSkillEditor(),
+        cityWeights: readCityWeightsEditor()
       });
       var chaos = FLIGHT_CHAOS_PROFILES[preview.flightChaos] || FLIGHT_CHAOS_PROFILES.normal;
       var teamPreviewNames = sanitizeTeamNames(readRawTeamNamesFromEditor(), preview.teamCount);
@@ -24625,6 +25346,9 @@
       if (teamPreviewNames.length > 4) {
         previewList += ", +" + (teamPreviewNames.length - 4) + " more";
       }
+
+      var weightCounts = cityWeightCounts(preview.cityWeights);
+      var weightedCities = allDesignedCityKeys().length - weightCounts[DEFAULT_CITY_WEIGHT];
 
       box.innerHTML =
         "Season Settings: <strong>" + preview.teamCount + "</strong> teams · " +
@@ -24637,6 +25361,7 @@
         "Transport <strong>" + preview.minTransportOptions + "-" + preview.maxTransportOptions + "</strong> choices from <strong>" + preview.transportOptions.length + "</strong> options · " +
         "Flight chaos: <strong>" + escapeHtml(chaos.label) + "</strong> · " +
         (preview.raceSeed ? "Seed: <strong>" + escapeHtml(preview.raceSeed) + "</strong> · " : "") +
+        "City weights: <strong>" + weightedCities + "</strong> customized / <strong>" + allDesignedCityKeys().length + "</strong> cities · " +
         "Skills: <strong>" + escapeHtml(modeLabel) + "</strong> / <strong>" + preview.skillTypes.length + "</strong> skills" +
         (preview.skillMode === "player_all" ? " / Your team all <strong>" + preview.playerAllSkillLevel + "</strong>" : "");
     }
@@ -24668,6 +25393,7 @@
       setSettingValue("settingFinalTeamCount", s.finalTeamCount != null ? s.finalTeamCount : DEFAULT_RACE_SETTINGS.finalTeamCount);
       setSettingValue("settingLegGapHours", s.legGapHours != null ? s.legGapHours : DEFAULT_RACE_SETTINGS.legGapHours);
       setSettingValue("settingRaceSeed", s.raceSeed || "");
+      renderCityWeightEditor(s.cityWeights);
       updateLegGapLabel();
       setSettingValue("settingSkillMode", s.skillMode);
       setSettingValue("settingPlayerAllSkillLevel", s.playerAllSkillLevel);
@@ -24693,6 +25419,19 @@
           el.dataset.boundCustomization = "1";
         }
       });
+
+      var cityWeightEl = document.getElementById("cityWeightEditor");
+      if (cityWeightEl && !cityWeightEl.dataset.boundCityWeights) {
+        cityWeightEl.addEventListener("input", function () {
+          updateCityWeightNote();
+          renderCustomizationSummary();
+        });
+        cityWeightEl.addEventListener("change", function () {
+          updateCityWeightNote();
+          renderCustomizationSummary();
+        });
+        cityWeightEl.dataset.boundCityWeights = "1";
+      }
 
       var teamCountEl = document.getElementById("settingTeamCount");
       if (teamCountEl && !teamCountEl.dataset.boundTeamNameEditor) {
@@ -24763,7 +25502,8 @@
         playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
         skillTypes: readRawSkillNamesFromEditor(),
-        customTeamSkills: readCustomTeamSkillEditor()
+        customTeamSkills: readCustomTeamSkillEditor(),
+        cityWeights: readCityWeightsEditor()
       });
     }
 
@@ -24815,6 +25555,7 @@
       renderTeamNameEditor(teams);
       renderTeamColorEditor(raceSettings.teamColors);
       renderSkillNameEditor(raceSettings.skillTypes);
+      renderCityWeightEditor(raceSettings.cityWeights);
       updateSkillModePanels();
     }
 
@@ -29179,7 +29920,8 @@
         playerAllSkillLevel: settingValue("settingPlayerAllSkillLevel", DEFAULT_RACE_SETTINGS.playerAllSkillLevel),
         skillCount: settingValue("settingSkillCount", DEFAULT_RACE_SETTINGS.skillCount),
         skillTypes: readRawSkillNamesFromEditor(),
-        customTeamSkills: readCustomTeamSkillEditor()
+        customTeamSkills: readCustomTeamSkillEditor(),
+        cityWeights: readCityWeightsEditor()
       });
     }
 
