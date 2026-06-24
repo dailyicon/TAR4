@@ -7371,7 +7371,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 50;
+    var SAVE_VERSION = 51;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -33359,11 +33359,7 @@
       }
     }
 
-    function openCustomization() {
-      if (!raceSettings) {
-    
-
-    /* ── V50 VIEWER FLOW FUNCTION OVERRIDES ─────────────────── */
+    /* ── V51 VIEWER FLOW FUNCTION OVERRIDES ─────────────────── */
 
     var SETUP_ACCORDION_STATE_KEY = "amazingRaceSimulatorSetupAccordionState";
 
@@ -33839,20 +33835,6 @@
       }
     }
 
-
-    raceSettings = cloneRaceSettings(DEFAULT_RACE_SETTINGS);
-      }
-
-      bindCustomizationFormEvents();
-      fillCustomizationForm(raceSettings);
-      var seedNames = (raceSettings && raceSettings.teamNames && raceSettings.teamNames.length) ? raceSettings.teamNames : (teams && teams.length ? teams : makeDefaultTeamNames(raceSettings.teamCount));
-      renderTeamNameEditor(seedNames);
-      renderPresetList();
-      renderTeamColorEditor(raceSettings.teamColors);
-      renderSkillNameEditor(raceSettings.skillTypes);
-      updateSkillModePanels();
-      showScreen("customize");
-    }
 
     function confirmCustomization() {
       raceSettings = readCustomizationForm();
