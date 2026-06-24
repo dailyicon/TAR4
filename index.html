@@ -5852,6 +5852,532 @@
       }
     }
 
+
+    /* ── V48 VIEWER EXPERIENCE PASS ───────────────────────────
+       Cleaner race context, thinner rows, less repetition, and a
+       calmer Amazing Race-style dark board hierarchy. */
+
+    :root {
+      --max-w: 1040px;
+      --race-bg: #151313;
+      --race-panel: #211c1b;
+      --race-panel-2: #2a2320;
+      --race-line: rgba(245, 235, 215, 0.16);
+      --race-line-strong: rgba(245, 235, 215, 0.28);
+      --race-text: #F5EBD7;
+      --race-muted: rgba(245, 235, 215, 0.68);
+      --race-red: #E13F2F;
+      --race-amber: #F3B545;
+      --race-blue: #63C5DF;
+    }
+
+    .screen.active { animation-duration: 0.12s; }
+
+    .race-header-strip {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      width: 100%;
+      margin: 0 0 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--race-line);
+      border-left: 4px solid var(--race-red);
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025));
+      color: var(--race-muted);
+      text-align: left;
+      font-size: 0.82rem;
+      font-weight: 850;
+      box-shadow: 0 10px 28px -22px rgba(0,0,0,0.7);
+    }
+
+    .race-header-route {
+      flex: 1 1 230px;
+      color: var(--race-text);
+      overflow-wrap: anywhere;
+      line-height: 1.15;
+    }
+
+    .race-header-time {
+      margin-left: auto;
+      color: var(--race-blue);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .race-header-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--race-line);
+      background: rgba(255,255,255,0.055);
+      color: var(--race-muted);
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .race-header-pill.leg { color: var(--race-amber); border-color: rgba(243,181,69,0.28); }
+    .race-header-pill.task { color: var(--race-blue); border-color: rgba(99,197,223,0.24); }
+    .race-header-pill.cash { color: #9BE08F; border-color: rgba(155,224,143,0.24); }
+
+    .race-clock-strip { display: none !important; }
+
+    .task-result-strip {
+      display: grid;
+      grid-template-columns: minmax(130px, 1fr) repeat(3, auto);
+      gap: 8px;
+      align-items: center;
+      margin: 8px 0;
+      padding: 8px 10px;
+      border: 1px solid var(--race-line);
+      border-left: 4px solid var(--race-amber);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      color: var(--race-muted);
+      text-align: left;
+      font-size: 0.82rem;
+      line-height: 1.15;
+    }
+
+    .task-result-strip.arrival-only {
+      grid-template-columns: minmax(130px, 1fr) auto;
+      border-left-color: var(--race-blue);
+    }
+
+    .task-result-title {
+      color: var(--race-text);
+      font-weight: 950;
+      overflow-wrap: anywhere;
+    }
+
+    .task-result-strip em {
+      color: var(--race-amber);
+      font-style: normal;
+      font-weight: 900;
+      margin-right: 3px;
+    }
+
+    .presence-report {
+      padding: 9px 10px !important;
+      background: rgba(255,255,255,0.035) !important;
+      border: 1px solid var(--race-line) !important;
+      border-left: 4px solid var(--race-blue) !important;
+      border-radius: 12px !important;
+    }
+
+    .presence-section { padding: 0 0 8px !important; }
+    .presence-section:last-child { padding-bottom: 0 !important; }
+    .presence-section + .presence-section {
+      padding-top: 8px !important;
+      border-top: 1px dashed rgba(245,235,215,0.14) !important;
+    }
+
+    .presence-section-title,
+    .departure-title,
+    .transport-prompt,
+    .flight-route-title,
+    .broadcast-panel-title,
+    .broadcast-details > summary {
+      color: var(--race-amber) !important;
+      font-size: 0.68rem !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.09em !important;
+      text-transform: uppercase !important;
+      margin: 0 0 6px !important;
+    }
+
+    .presence-table {
+      display: grid;
+      gap: 4px;
+    }
+
+    .presence-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      min-height: 30px;
+      padding: 5px 7px 5px 9px;
+      border: 1px solid rgba(245,235,215,0.09);
+      border-left: 3px solid var(--team-color, var(--race-blue));
+      border-radius: 8px;
+      background: rgba(0,0,0,0.10);
+    }
+
+    .presence-row.you,
+    .departure-row.you,
+    .broadcast-standing-row.you,
+    .placement-chart tr.player-row {
+      outline: 1px solid rgba(243,181,69,0.38);
+      background: rgba(243,181,69,0.075) !important;
+    }
+
+    .presence-row-team,
+    .departure-team,
+    .broadcast-team-line,
+    .placement-team-chip-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      color: var(--race-text);
+      font-weight: 850;
+      overflow: hidden;
+    }
+
+    .presence-row-time,
+    .departure-time {
+      color: var(--race-blue) !important;
+      font-size: 0.75rem !important;
+      font-weight: 900 !important;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .departure-list {
+      padding: 9px 10px !important;
+      background: rgba(255,255,255,0.035) !important;
+      border: 1px solid var(--race-line) !important;
+      border-left: 4px solid var(--race-amber) !important;
+      border-radius: 12px !important;
+    }
+
+    .departure-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .departure-title span:last-child {
+      color: var(--race-muted) !important;
+      border: 1px solid var(--race-line);
+      background: rgba(255,255,255,0.04);
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 0.66rem !important;
+      letter-spacing: 0.03em !important;
+    }
+
+    .departure-row {
+      display: grid !important;
+      grid-template-columns: 46px minmax(0, 1fr) auto !important;
+      align-items: center !important;
+      gap: 9px !important;
+      min-height: 34px !important;
+      margin-top: 5px !important;
+      padding: 5px 8px !important;
+      border: 1px solid rgba(245,235,215,0.10) !important;
+      border-left: 3px solid var(--team-color, var(--race-amber)) !important;
+      border-radius: 8px !important;
+      background: rgba(0,0,0,0.12) !important;
+    }
+
+    .departure-rank {
+      color: var(--race-amber) !important;
+      background: rgba(243,181,69,0.10) !important;
+      border: 1px solid rgba(243,181,69,0.22) !important;
+      border-radius: 999px !important;
+      padding: 3px 6px !important;
+      font-size: 0.72rem !important;
+      font-weight: 950 !important;
+      text-align: center;
+      line-height: 1;
+    }
+
+    .you-tag {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 4px;
+      padding: 2px 5px;
+      border-radius: 999px;
+      background: rgba(243,181,69,0.16);
+      border: 1px solid rgba(243,181,69,0.32);
+      color: var(--race-amber);
+      font-style: normal;
+      font-size: 0.58rem;
+      font-weight: 950;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      vertical-align: middle;
+    }
+
+    .leg-episode-card {
+      margin: 8px 0 10px;
+      padding: 15px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--race-line);
+      border-left: 5px solid var(--race-red);
+      background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
+      text-align: left;
+    }
+
+    .leg-episode-kicker {
+      color: var(--race-amber);
+      font-size: 0.72rem;
+      font-weight: 950;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .leg-episode-title {
+      color: var(--race-text);
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(1.25rem, 3.5vw, 2.15rem);
+      font-weight: 700;
+      line-height: 1.06;
+    }
+
+    .leg-episode-title span { color: var(--race-red); }
+
+    .leg-episode-sub {
+      margin-top: 4px;
+      color: var(--race-muted);
+      font-size: 0.88rem;
+      line-height: 1.25;
+    }
+
+    .leg-episode-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .leg-episode-meta span,
+    .setup-summary-strip span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--race-line);
+      background: rgba(255,255,255,0.045);
+      color: var(--race-muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .opt-btn {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      min-height: 40px !important;
+      padding: 7px 9px !important;
+      border-radius: 9px !important;
+      background: rgba(255,255,255,0.04) !important;
+      border: 1px solid var(--race-line) !important;
+      border-left: 3px solid rgba(99,197,223,0.32) !important;
+    }
+
+    .opt-btn:hover {
+      background: rgba(99,197,223,0.075) !important;
+      border-left-color: var(--race-blue) !important;
+      transform: translateX(2px) !important;
+    }
+
+    .transport-icon {
+      width: 24px !important;
+      height: 24px !important;
+      min-width: 24px !important;
+      border-radius: 7px !important;
+      background: rgba(255,255,255,0.055) !important;
+      border: 1px solid var(--race-line) !important;
+      font-size: 0.95rem !important;
+    }
+
+    .transport-name {
+      color: var(--race-text);
+      font-size: 0.86rem !important;
+      font-weight: 850;
+    }
+
+    .transport-meta.compact,
+    .transport-meta {
+      display: grid !important;
+      grid-template-columns: auto auto;
+      align-items: center;
+      gap: 5px !important;
+      min-width: 92px !important;
+      justify-content: end;
+    }
+
+    .meta-money,
+    .meta-time {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 39px;
+      padding: 3px 5px;
+      border-radius: 999px;
+      border: 1px solid var(--race-line);
+      background: rgba(0,0,0,0.14);
+      font-size: 0.72rem !important;
+      font-weight: 950 !important;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .meta-money { color: #9BE08F !important; }
+    .meta-time { color: var(--race-blue) !important; }
+
+    .airport-brief-card,
+    .flight-itinerary-card,
+    .flight-airport-summary,
+    .broadcast-panel,
+    .broadcast-details,
+    .placement-chart-card,
+    .time-chart-card,
+    .clue-chart-card,
+    .route-history,
+    .challenge-summary,
+    .panel-card,
+    .status {
+      background: rgba(255,255,255,0.04) !important;
+      border-color: var(--race-line) !important;
+      box-shadow: 0 12px 32px -24px rgba(0,0,0,0.75) !important;
+    }
+
+    .flight-itinerary-hero,
+    .airport-brief-main {
+      align-items: center;
+      gap: 10px;
+    }
+
+    .flight-hop {
+      background: rgba(0,0,0,0.12) !important;
+      border: 1px solid rgba(245,235,215,0.10) !important;
+      border-left: 3px solid var(--race-blue) !important;
+    }
+
+    .flight-hop-times {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .flight-time-box {
+      background: rgba(0,0,0,0.12) !important;
+      border-color: rgba(245,235,215,0.10) !important;
+      padding: 7px 8px !important;
+    }
+
+    .recap-story-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .recap-story-row > div {
+      min-width: 0;
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--race-line);
+      background: rgba(255,255,255,0.04);
+      border-left: 3px solid var(--race-amber);
+    }
+
+    .recap-story-row span {
+      display: block;
+      color: var(--race-muted);
+      font-size: 0.62rem;
+      font-weight: 950;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .recap-story-row strong {
+      color: var(--race-text);
+      font-size: 0.88rem;
+      line-height: 1.14;
+      overflow-wrap: anywhere;
+    }
+
+    .placement-chart th,
+    .placement-chart td {
+      padding: 6px 8px !important;
+      font-size: 0.78rem !important;
+    }
+
+    .placement-rank-pill {
+      min-width: 26px !important;
+      height: 21px !important;
+      padding: 0 6px !important;
+      font-size: 0.72rem !important;
+    }
+
+    .placement-team-cell {
+      min-width: 138px !important;
+    }
+
+    .time-chart th,
+    .time-chart td {
+      padding: 5px 6px !important;
+    }
+
+    .setup-summary-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .setup-summary-strip strong {
+      color: var(--race-text);
+      font-weight: 950;
+    }
+
+    .setup-summary-line {
+      margin-top: 7px;
+      color: var(--race-muted);
+      font-size: 0.82rem;
+      font-weight: 750;
+      line-height: 1.25;
+    }
+
+    #resultsButtons,
+    .action-row,
+    .stacked-actions,
+    .setup-sticky-actions {
+      gap: 8px !important;
+    }
+
+    #resultsButtons button:first-child,
+    .action-row button:first-child,
+    .stacked-actions button:first-child,
+    #legIntroBeginBtn,
+    #flightBtn,
+    #pitstop button {
+      box-shadow: 0 0 0 1px rgba(225,63,47,0.18), 0 12px 28px -12px rgba(225,63,47,0.55) !important;
+    }
+
+    @media (max-width: 760px) {
+      .race-header-strip,
+      .task-result-strip,
+      .departure-row,
+      .presence-row,
+      .recap-story-row,
+      .flight-hop-times {
+        grid-template-columns: 1fr !important;
+      }
+      .race-header-time,
+      .departure-time,
+      .presence-row-time {
+        margin-left: 0;
+        justify-self: start;
+      }
+      .transport-meta.compact,
+      .transport-meta {
+        justify-content: start;
+        min-width: 0 !important;
+      }
+      .recap-story-row { gap: 6px; }
+    }
+
   </style>
 </head>
 <body>
@@ -6368,7 +6894,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 47;
+    var SAVE_VERSION = 48;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -30411,8 +30937,40 @@
         .replace(/'/g, "&#039;");
     }
 
-    function raceClockHeader() {
-      return '<div class="race-clock-strip">⏱ Race Clock: <strong>' + formatRaceDateTime(raceClock) + "</strong></div>";
+    function currentRaceTaskLabel() {
+      var screen = document.querySelector ? document.querySelector(".screen.active") : null;
+      var activeId = screen && screen.id ? screen.id : "";
+      if (activeId === "legIntro") { return "Leg Start"; }
+      if (activeId === "flight") { return "Flights"; }
+      if (activeId === "pitstop") { return isFinalLeg() ? "Finish Line" : "Pit Stop"; }
+      if (specialTransportMode === "toAirport" || specialTransportMode === "fromAirport") { return "Route Info"; }
+      if (currentChallenge && currentChallenge.type === "detour") { return currentChallenge.pending ? "Detour" : "Detour Finish"; }
+      if (currentChallenge && currentChallenge.type === "challenge") { return "Challenge Finish"; }
+      if (currentStop != null && totalStopsThisLeg != null && currentStop < totalStopsThisLeg) { return "Route Info"; }
+      return "Race";
+    }
+
+    function raceHeaderCityText() {
+      if (legOrigin && legDest) {
+        return cityDisplayName(legOrigin) + " → " + cityDisplayName(legDest);
+      }
+      if (legDest) { return cityDisplayName(legDest); }
+      if (currentCity) { return cityDisplayName(currentCity); }
+      return "Race";
+    }
+
+    function raceClockHeader(taskOverride) {
+      var taskLabel = taskOverride || currentRaceTaskLabel();
+      var cashHtml = (money && playerTeam && money[playerTeam] != null)
+        ? '<span class="race-header-pill cash">$' + escapeHtml(money[playerTeam]) + '</span>'
+        : '';
+      return '<div class="race-header-strip" role="group" aria-label="Race context">' +
+        '<span class="race-header-pill leg">' + escapeHtml(currentLegLabel()) + '</span>' +
+        '<span class="race-header-route">' + escapeHtml(raceHeaderCityText()) + '</span>' +
+        '<span class="race-header-pill task">' + escapeHtml(taskLabel) + '</span>' +
+        cashHtml +
+        '<span class="race-header-time">' + escapeHtml(formatRaceDateTimeShort(raceClock)) + '</span>' +
+      '</div>';
     }
 
 
@@ -30461,23 +31019,36 @@
     }
 
     function raceContextStripHtml(extraHtml) {
-      var html = '<div class="race-context-strip">' +
-        '<span>' + currentLegLabel() + ' · <strong>' + escapeHtml(cityDisplayName(legDest)) + '</strong></span>' +
-        '<span>Cash <span class="cash-pill">$' + money[playerTeam] + '</span></span>';
-      if (extraHtml) { html += extraHtml; }
-      html += '</div>';
-      return html;
+      if (!extraHtml) { return ""; }
+      return '<div class="race-context-strip">' + extraHtml + '</div>';
     }
 
-    function timeWindowHtml(arrivalClock, departureClock) {
-      if (departureClock == null) {
-        return '<div class="time-window single"><div class="time-window-card"><div class="time-window-label">Arrived</div><div class="time-window-value">' + formatRaceDayTimeShort(arrivalClock) + '</div></div></div>';
+    function currentTaskResultTitle(fallback) {
+      if (currentChallenge) {
+        if (currentChallenge.type === "detour") {
+          return "Detour" + (currentChallenge.optionName ? ": " + currentChallenge.optionName : "");
+        }
+        if (currentChallenge.type === "challenge") {
+          return "Challenge" + (currentChallenge.skill ? ": " + currentChallenge.skill : "");
+        }
       }
-      return '<div class="time-window">' +
-        '<div class="time-window-card"><div class="time-window-label">Arrived</div><div class="time-window-value">' + formatRaceDayTimeShort(arrivalClock) + '</div></div>' +
-        '<div class="time-window-card"><div class="time-window-label">Finished</div><div class="time-window-value">' + formatRaceDayTimeShort(departureClock) + '</div></div>' +
-        '<div class="time-window-card"><div class="time-window-label">Task Time</div><div class="time-window-value">' + formatDuration(departureClock - arrivalClock) + '</div></div>' +
+      return fallback || "Task";
+    }
+
+    function timeWindowHtml(arrivalClock, departureClock, label) {
+      var title = currentTaskResultTitle(label);
+      if (departureClock == null) {
+        return '<div class="task-result-strip arrival-only">' +
+          '<span class="task-result-title">' + escapeHtml(title) + '</span>' +
+          '<span><em>Arrived</em> ' + formatRaceDayTimeShort(arrivalClock) + '</span>' +
         '</div>';
+      }
+      return '<div class="task-result-strip">' +
+        '<span class="task-result-title">' + escapeHtml(title) + '</span>' +
+        '<span><em>Arrived</em> ' + formatRaceDayTimeShort(arrivalClock) + '</span>' +
+        '<span><em>Finished</em> ' + formatRaceDayTimeShort(departureClock) + '</span>' +
+        '<span><em>Time</em> ' + formatDuration(departureClock - arrivalClock) + '</span>' +
+      '</div>';
     }
 
     function taskSummaryHtml(label, title, skill, level, duration) {
@@ -30510,11 +31081,18 @@
     }
 
     function legIntroOverviewHtml() {
-      return '<div class="leg-overview-grid">' +
-        '<div class="leg-overview-card" style="--overview-color:var(--cyan);"><div class="leg-overview-label">From</div><div class="leg-overview-value">' + escapeHtml(cityDisplayName(legOrigin)) + '</div><div class="leg-overview-sub">' + escapeHtml(legStartLocation || (legNum === 1 ? "Starting Line" : "Pit Start")) + '</div></div>' +
-        '<div class="leg-overview-card" style="--overview-color:var(--red);"><div class="leg-overview-label">To</div><div class="leg-overview-value">' + escapeHtml(cityDisplayName(legDest)) + '</div><div class="leg-overview-sub">via ' + escapeHtml(cityAirportName(legDest)) + '</div></div>' +
-        '<div class="leg-overview-card" style="--overview-color:var(--amber);"><div class="leg-overview-label">Teams</div><div class="leg-overview-value">' + remainingTeams.length + ' racing</div></div>' +
-        '<div class="leg-overview-card" style="--overview-color:var(--green);"><div class="leg-overview-label">Your Cash</div><div class="leg-overview-value">$' + money[playerTeam] + '</div></div>' +
+      var playerDepart = currentLegStartClocks && currentLegStartClocks[playerTeam] != null ? currentLegStartClocks[playerTeam] : raceClock;
+      var taskText = totalStopsThisLeg + " task" + (totalStopsThisLeg === 1 ? "" : "s");
+      return '<div class="leg-episode-card">' +
+        '<div class="leg-episode-kicker">' + escapeHtml(currentLegLabel()) + '</div>' +
+        '<div class="leg-episode-title">' + escapeHtml(cityDisplayName(legOrigin)) + ' <span>→</span> ' + escapeHtml(cityDisplayName(legDest)) + '</div>' +
+        '<div class="leg-episode-sub">' + escapeHtml(legStartLocation || (legNum === 1 ? "Starting Line" : "Pit Start")) + ' to ' + escapeHtml(legPitStopLocation || (isFinalLeg() ? "Finish Line" : "Pit Stop")) + '</div>' +
+        '<div class="leg-episode-meta">' +
+          '<span>' + remainingTeams.length + ' teams racing</span>' +
+          '<span>$' + money[playerTeam] + ' cash</span>' +
+          '<span>Departing ' + formatRaceDateTimeShort(playerDepart) + '</span>' +
+          '<span>' + escapeHtml(taskText) + '</span>' +
+        '</div>' +
       '</div>';
     }
 
@@ -30564,7 +31142,9 @@
       }
 
       prepared.sort(function (a, b) {
-        return a.time - b.time;
+        var costDiff = (Number(a.cost) || 0) - (Number(b.cost) || 0);
+        if (costDiff !== 0) { return costDiff; }
+        return (Number(a.time) || 0) - (Number(b.time) || 0);
       });
 
       return prepared;
@@ -30621,15 +31201,16 @@
 
     function teamNameListHtml(names) {
       if (!names || names.length === 0) {
-        return '<span class="empty-state">None</span>';
+        return '';
       }
 
       return names.map(function (name) {
         var color = teamColor(name);
-        return '<span class="team-presence-chip" style="--team-color:' + escapeHtml(color) + ';border-left-color:' + escapeHtml(color) + ';">' +
-          '<span class="chip-dot" style="background:' + escapeHtml(color) + ';"></span>' +
-          '<span>' + escapeHtml(name) + '</span>' +
-          '</span>';
+        var youClass = name === playerTeam ? " you" : "";
+        return '<div class="presence-row' + youClass + '" style="--team-color:' + escapeHtml(color) + ';border-left-color:' + escapeHtml(color) + ';">' +
+          '<span class="presence-row-team"><span class="chip-dot" style="background:' + escapeHtml(color) + ';"></span>' + escapeHtml(name) + '</span>' +
+          '<span class="presence-row-time">Here</span>' +
+          '</div>';
       }).join("");
     }
 
@@ -30641,9 +31222,10 @@
       var html = "";
       events.forEach(function (event) {
         var color = teamColor(event.team);
-        html += '<div class="presence-event" style="--team-color:' + escapeHtml(color) + ';border-left-color:' + escapeHtml(color) + ';">' +
-          '<span class="presence-event-team"><span class="chip-dot" style="background:' + escapeHtml(color) + ';"></span>' + escapeHtml(event.team) + '</span>' +
-          '<span class="presence-event-time">' + formatRaceDateTimeShort(event.clock) + '</span>' +
+        var youClass = event.team === playerTeam ? " you" : "";
+        html += '<div class="presence-row' + youClass + '" style="--team-color:' + escapeHtml(color) + ';border-left-color:' + escapeHtml(color) + ';">' +
+          '<span class="presence-row-team"><span class="chip-dot" style="background:' + escapeHtml(color) + ';"></span>' + escapeHtml(event.team) + '</span>' +
+          '<span class="presence-row-time">' + formatRaceDateTimeShort(event.clock) + '</span>' +
           "</div>";
       });
 
@@ -30653,7 +31235,7 @@
     function presenceSectionHtml(title, itemsHtml, count) {
       if (!itemsHtml) { return ""; }
       return '<div class="presence-section"><div class="presence-section-title">' + escapeHtml(title) + '</div>' +
-        '<div class="presence-content">' + itemsHtml + '</div></div>';
+        '<div class="presence-table">' + itemsHtml + '</div></div>';
     }
 
     function locationPresenceDetails(locationKey, arrivalClock, departureClock) {
@@ -30785,8 +31367,8 @@
 
         html += '<div class="departure-row' + youClass + '" style="--team-color:' + escapeHtml(color) + ';border-left-color:' + escapeHtml(color) + ';">';
         html += '<span class="departure-rank">' + ordinal(index + 1) + '</span>';
+        html += '<span class="departure-team"><span class="chip-dot" style="background:' + escapeHtml(color) + ';"></span>' + escapeHtml(team) + (team === playerTeam ? '<em class="you-tag">YOU</em>' : '') + '</span>';
         html += '<span class="departure-time">' + formatRaceDayTimeShort(clock) + '</span>';
-        html += '<span class="departure-team"><span class="chip-dot" style="background:' + escapeHtml(color) + ';"></span>' + escapeHtml(team) + '</span>';
         html += '</div>';
       });
 
@@ -31657,7 +32239,7 @@
         '<span class="transport-icon" aria-hidden="true">' + escapeHtml(icon) + '</span>' +
         '<span class="transport-name">' + escapeHtml(label) + '</span>' +
         '</span>' +
-        '<span class="transport-meta">' +
+        '<span class="transport-meta compact">' +
         '<span class="meta-money">$' + opt.cost + '</span>' +
         '<span class="meta-time">' + formatDuration(opt.time) + '</span>' +
         '</span>';
@@ -32175,22 +32757,17 @@
         : '<span class="setup-summary-seed muted">No replay seed</span>';
 
       box.innerHTML =
-        '<div class="setup-summary-hero-row">' +
-          '<div class="setup-summary-main-stat"><span>Teams</span><strong>' + preview.teamCount + '</strong></div>' +
-          '<div class="setup-summary-main-stat"><span>Money</span><strong>$' + preview.startingMoney + ' / +$' + preview.legStipend + '</strong></div>' +
-          '<div class="setup-summary-main-stat"><span>Tasks</span><strong>' + preview.minStopsPerLeg + '-' + preview.maxStopsPerLeg + ' normal · ' + preview.finalMinStopsPerLeg + '-' + preview.finalMaxStopsPerLeg + ' finale</strong></div>' +
-          '<div class="setup-summary-main-stat"><span>Route</span><strong>' + escapeHtml(routeLabel) + '</strong></div>' +
+        '<div class="setup-summary-strip">' +
+          '<span><strong>' + preview.teamCount + '</strong> teams</span>' +
+          '<span><strong>' + preview.skillTypes.length + '</strong> skills</span>' +
+          '<span><strong>' + preview.minStopsPerLeg + '-' + preview.maxStopsPerLeg + '</strong> normal tasks</span>' +
+          '<span><strong>' + preview.finalMinStopsPerLeg + '-' + preview.finalMaxStopsPerLeg + '</strong> finale tasks</span>' +
+          '<span><strong>' + escapeHtml(routeLabel) + '</strong></span>' +
+          '<span><strong>' + escapeHtml(chaos.label) + '</strong> flights</span>' +
+          '<span><strong>$' + preview.startingMoney + '</strong> start · <strong>+$' + preview.legStipend + '</strong> stipend</span>' +
         '</div>' +
-        '<div class="setup-summary-detail-row">' +
-          '<span>Non-elim <strong>' + Math.round(preview.nonElimChance * 100) + '%</strong></span>' +
-          '<span>Task time <strong>' + preview.challengeMinTime + '-' + preview.challengeMaxTime + 'm</strong></span>' +
-          '<span>Transport <strong>' + preview.minTransportOptions + '-' + preview.maxTransportOptions + ' of ' + preview.transportOptions.length + '</strong></span>' +
-          '<span>Flights <strong>' + escapeHtml(chaos.label) + '</strong></span>' +
-          '<span>Skills <strong>' + escapeHtml(modeLabel) + ' · ' + preview.skillTypes.length + '</strong></span>' +
-          seedHtml +
-        '</div>' +
-        '<div class="setup-summary-cast-line">Preview cast: <strong>' + escapeHtml(previewList || "Team 1") + '</strong></div>' +
-        (preview.skillMode === "player_all" ? '<div class="setup-summary-cast-line">Your selected team will start with all skills set to <strong>' + preview.playerAllSkillLevel + '</strong>.</div>' : '');
+        '<div class="setup-summary-line">' + escapeHtml(modeLabel) + ' · Non-elim ' + Math.round(preview.nonElimChance * 100) + '% · Transport choices ' + preview.minTransportOptions + '-' + preview.maxTransportOptions + ' · ' + (preview.raceSeed ? 'Seed: ' + escapeHtml(preview.raceSeed) : 'No replay seed') + '</div>';
+
     }
 
     function fillCustomizationForm(settings) {
@@ -34609,6 +35186,7 @@ svg += '</div>';
       legOrigin = currentCity;
       legDest = designedCityObject(destKey);
       activeFlightRoute = null;
+      specialTransportMode = null;
       FLIGHT_DELAY_MAP = {};
 
       if (currentCityStartLocation && currentCityStartCityKey === legOrigin.name) {
@@ -34661,7 +35239,7 @@ svg += '</div>';
       }
 
       document.getElementById("legIntroBody").innerHTML =
-        raceClockHeader() +
+        raceClockHeader("Leg Start") +
         (isFinalLeg() ? '<div class="info-strip-banner">Final leg. First to the final mat wins.</div>' : "") +
         legIntroOverviewHtml() +
         departureTimesHtml();
@@ -34676,13 +35254,14 @@ svg += '</div>';
       var chaosLabel = currentFlightChaosProfile().label;
 
       document.getElementById("flightBody").innerHTML =
+        raceClockHeader("Flights") +
         '<div class="airport-brief-card">' +
           '<div class="airport-brief-main">' +
             '<div class="airport-brief-icon">✈️</div>' +
             '<div>' +
               '<div class="airport-brief-kicker">' + escapeHtml(currentLegLabel()) + '</div>' +
               '<div class="airport-brief-route">' + escapeHtml(legOrigin ? cityDisplayName(legOrigin) : "") + ' <span>→</span> ' + escapeHtml(legDest ? cityDisplayName(legDest) : "") + '</div>' +
-              '<div class="airport-brief-sub">Arrive at the airport, then book the best route you can get.</div>' +
+              '' +
             '</div>' +
           '</div>' +
           '<div class="airport-brief-grid">' +
@@ -34723,7 +35302,7 @@ svg += '</div>';
       document.getElementById("specialTransportTitle").textContent = cityAirportName(legOrigin);
       setTransportPromptText("specialTransportPrompt", cityAirportName(legOrigin));
       document.getElementById("specialTransportStatus").innerHTML =
-        raceClockHeader() +
+        raceClockHeader("Route Info") +
         routeDirectiveHtml(legStartLocation || "Pit Start", cityAirportName(legOrigin), cityDisplayName(legOrigin)) +
         raceContextStripHtml();
 
@@ -34737,7 +35316,7 @@ svg += '</div>';
       document.getElementById("specialTransportTitle").textContent = cityAirportName(legDest);
       setTransportPromptText("specialTransportPrompt", locationNameForStopIndex(0));
       document.getElementById("specialTransportStatus").innerHTML =
-        raceClockHeader() +
+        raceClockHeader("Route Info") +
         presenceReportHtml(destinationAirportLocationKey(), raceClock, null) +
         routeDirectiveHtml(cityAirportName(legDest), locationNameForStopIndex(0), cityDisplayName(legDest)) +
         raceContextStripHtml();
@@ -34817,8 +35396,8 @@ svg += '</div>';
       };
 
       document.getElementById("raceStatus").innerHTML =
-        raceClockHeader() +
-        timeWindowHtml(raceClock, null) +
+        raceClockHeader("Detour") +
+        timeWindowHtml(raceClock, null, "Detour") +
         presenceReportHtml(stopLocationKey(currentStop), raceClock, null) +
         detourChoiceSummaryHtml(options) +
         raceContextStripHtml();
@@ -34933,6 +35512,7 @@ svg += '</div>';
       }
 
       document.getElementById("raceStatus").innerHTML =
+        raceClockHeader(currentChallenge && currentChallenge.stopIndex === currentStop ? "Task Finish" : "Route Info") +
         arrivalLine +
         (currentChallenge && currentChallenge.stopIndex === currentStop
           ? presenceReportHtml(stopLocationKey(currentStop), currentChallenge.arrivalClock, currentChallenge.departureClock)
@@ -34989,7 +35569,7 @@ svg += '</div>';
       document.getElementById("pitstopTitle").textContent = finalLeg ? "🏆 Finish Line" : "🏁 Pit Stop";
 
       document.getElementById("pitstopBody").innerHTML =
-        raceClockHeader() +
+        raceClockHeader(finalLeg ? "Finish Line" : "Pit Stop") +
         '<div class="route-history"><strong>' + (finalLeg ? "Finish Line" : "Pit Stop") + '</strong><div class="route-line"><span>' + escapeHtml(pitStopDisplayName()) + '</span><span class="route-context">in ' + escapeHtml(cityDisplayName(legDest)) + '</span></div></div>' +
         raceContextStripHtml() +
         '<div class="info-strip-banner">' + (finalLeg ? "Check in to reveal the winner." : "Check in to see the leg results.") + '</div>';
@@ -35018,6 +35598,7 @@ svg += '</div>';
       var arrivalLine = timeWindowHtml(arrivalClock, departureClock);
 
       document.getElementById("raceStatus").innerHTML =
+        raceClockHeader("Starting Line") +
         arrivalLine +
         presenceReportHtml(startLocationKey(), arrivalClock, departureClock) +
         raceContextStripHtml('<span>Start <strong>' + escapeHtml(legStartLocation || "Starting Line") + '</strong></span>');
@@ -35068,7 +35649,7 @@ svg += '</div>';
           '<div class="broadcast-place">' + ordinal(i + 1) + '</div>' +
           '<div class="broadcast-team-line">' +
             '<span class="broadcast-team-dot" style="background:' + escapeHtml(teamCol) + ';"></span>' +
-            '<span class="broadcast-team-name">' + escapeHtml(r.team) + '</span>' +
+            '<span class="broadcast-team-name">' + escapeHtml(r.team) + (isYou ? ' <em class="you-tag">YOU</em>' : '') + '</span>' +
           '</div>' +
           '<div class="broadcast-time-line">' + formatRaceDateTimeShort(r.checkInClock) +
             (isElim ? ' <span class="elim-badge">ELIM</span>' : '') +
@@ -35152,7 +35733,7 @@ svg += '</div>';
         html += '<tr' + (isYou ? ' class="player-row"' : '') + '>';
         html += '<td class="placement-team-cell"><div class="placement-team-chip-line">';
         html += '<span class="placement-team-dot" style="background:' + escapeHtml(teamCol) + ';"></span>';
-        html += '<span class="placement-team-name">' + escapeHtml(truncateName(name, 18)) + '</span>';
+        html += '<span class="placement-team-name">' + escapeHtml(truncateName(name, 18)) + (isYou ? ' <em class="you-tag">YOU</em>' : '') + '</span>';
         html += '</div></td>';
         h.forEach(function (p, idx) {
           html += '<td>' + placementRankPill(p, idx === numLegs - 1 && p != null) + '</td>';
@@ -35258,17 +35839,28 @@ svg += '</div>';
       '</div>';
       html += '</div>';
 
+      if (results.length) {
+        var winnerTeam = results[0] && results[0].team ? results[0].team : "—";
+        var lastTeam = opts.eliminatedTeam || (results[results.length - 1] && results[results.length - 1].team ? results[results.length - 1].team : "—");
+        html += '<div class="recap-story-row">' +
+          '<div><span>Winner</span><strong>' + escapeHtml(winnerTeam) + '</strong></div>' +
+          '<div><span>Your Result</span><strong>' + escapeHtml(playerPlace) + ' · ' + escapeHtml(finishTime) + '</strong></div>' +
+          '<div><span>Last Team</span><strong>' + escapeHtml(lastTeam) + '</strong></div>' +
+          '<div><span>Status</span><strong>' + escapeHtml(opts.statusKind === "danger" ? "Elimination" : (opts.statusKind === "warn" ? "Non-elimination" : "Complete")) + '</strong></div>' +
+        '</div>';
+      }
+
       if (opts.outcomeHtml) {
         html += '<div class="broadcast-outcome" style="--outcome-color:' + outcomeColor + ';">' + opts.outcomeHtml + '</div>';
       }
 
       html += '<div class="broadcast-grid">';
       html += '<section class="broadcast-panel" style="--panel-color:var(--amber);"><div class="broadcast-panel-title">Mat Standings</div>' + standingsHtml(results, opts.eliminatedTeam || null) + '</section>';
-      html += broadcastDetailsHtml('Your Leg Recap', legRecapHtml(), 'var(--cyan)', false);
+      html += broadcastDetailsHtml('Your Leg Recap', legRecapHtml(), 'var(--cyan)', true);
       html += '</div>';
 
       if (opts.routeTrail) {
-        html += broadcastDetailsHtml('Route Trail', opts.routeTrail, 'var(--green)', false);
+        html += broadcastDetailsHtml('Route Trail', opts.routeTrail, 'var(--green)', true);
       }
       if (opts.placementChart) {
         html += broadcastDetailsHtml('Placement Chart', opts.placementChart, 'var(--amber)', true);
@@ -35280,7 +35872,7 @@ svg += '</div>';
         html += broadcastDetailsHtml('Clue-by-Clue Chart', opts.clueChart, 'var(--cyan)', true);
       }
       if (opts.allLegsCharts) {
-        html += broadcastDetailsHtml('Leg Charts — All Legs', opts.allLegsCharts, 'var(--green)', false);
+        html += broadcastDetailsHtml('Leg Charts — All Legs', opts.allLegsCharts, 'var(--green)', true);
       }
       html += '</div>';
       return html;
@@ -35292,7 +35884,7 @@ svg += '</div>';
       html += '<div class="broadcast-subline">The whole season has reached the final mat.</div></div>';
       html += '<div class="broadcast-panel" style="--panel-color:var(--amber);">' + bodyHtml + '</div>';
       if (placementHtml) { html += broadcastDetailsHtml('Final Placement Chart', placementHtml, 'var(--amber)', true); }
-      if (allLegsHtml) { html += broadcastDetailsHtml('Leg Charts — All Legs', allLegsHtml, 'var(--green)', false); }
+      if (allLegsHtml) { html += broadcastDetailsHtml('Leg Charts — All Legs', allLegsHtml, 'var(--green)', true); }
       html += '</div>';
       return html;
     }
@@ -35629,7 +36221,7 @@ svg += '</div>';
           '<div>' +
             '<div class="leg-recap-event-title">' + escapeHtml(e.label) + '</div>' +
             '<div class="leg-recap-event-meta">' +
-              (e.clock != null ? formatRaceTimeOnly(e.clock) + ' · ' : '') +
+              (e.clock != null ? formatRaceDateTimeShort(e.clock) + ' · ' : '') +
               (e.cost > 0 ? '<span style="color:var(--green)">-$' + e.cost + '</span>' : '<span>No cost</span>') +
             '</div>' +
           '</div>' +
