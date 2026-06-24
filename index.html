@@ -5921,7 +5921,16 @@
 
     .race-header-pill.leg { color: var(--race-amber); border-color: rgba(243,181,69,0.28); }
     .race-header-pill.task { color: var(--race-blue); border-color: rgba(99,197,223,0.24); }
-    .race-header-pill.cash { color: #9BE08F; border-color: rgba(155,224,143,0.24); }
+    .race-header-pill.cash {
+      color: #9BE08F;
+      border-color: rgba(155,224,143,0.24);
+      font-size: 0.82rem !important;
+      font-weight: 850 !important;
+      padding: 4px 8px !important;
+      min-height: 24px !important;
+      line-height: 1 !important;
+      box-shadow: none !important;
+    }
 
     .race-clock-strip { display: none !important; }
 
@@ -6376,6 +6385,474 @@
         min-width: 0 !important;
       }
       .recap-story-row { gap: 6px; }
+    }
+
+
+
+    /* ── V50 VIEWER FLOW OVERHAUL ─────────────────────────────
+       Slimmer dock header, compact tables, task-card choices,
+       sticky setup actions, and cleaner all-screen scan rhythm. */
+
+    .race-header-strip {
+      position: sticky !important;
+      top: 8px !important;
+      z-index: 75 !important;
+      flex-wrap: nowrap !important;
+      gap: 5px !important;
+      min-height: 30px !important;
+      margin: 0 0 8px !important;
+      padding: 5px 7px !important;
+      border-left-width: 2px !important;
+      border-radius: 999px !important;
+      overflow-x: auto !important;
+      scrollbar-width: none;
+      backdrop-filter: blur(10px);
+      background: rgba(21, 19, 19, 0.92) !important;
+      box-shadow: 0 8px 24px -18px rgba(0,0,0,0.9) !important;
+    }
+    .race-header-strip::-webkit-scrollbar { display: none; }
+    .race-header-route {
+      flex: 0 1 auto !important;
+      min-width: min(320px, 42vw) !important;
+      max-width: 460px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      overflow-wrap: normal !important;
+    }
+    .race-header-pill,
+    .race-header-time {
+      min-height: 20px !important;
+      padding: 3px 7px !important;
+      font-size: 0.72rem !important;
+      line-height: 1 !important;
+      flex: 0 0 auto !important;
+    }
+    .race-header-pill.cash { font-size: 0.72rem !important; min-height: 20px !important; padding: 3px 7px !important; }
+
+    .presence-report {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 8px !important;
+      padding: 8px !important;
+    }
+    .presence-section {
+      padding: 0 !important;
+      border-top: none !important;
+    }
+    .presence-section + .presence-section { border-top: none !important; padding-top: 0 !important; }
+    .presence-section.present-section { grid-column: 1 / -1; }
+    .presence-section-title { margin-bottom: 4px !important; }
+    .presence-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-items: center;
+    }
+    .presence-chip-row .team-presence-chip {
+      margin: 0 !important;
+      padding: 3px 7px !important;
+      min-height: 22px !important;
+      background: rgba(0,0,0,0.13) !important;
+      border-color: rgba(245,235,215,0.10) !important;
+      font-size: 0.74rem !important;
+      font-weight: 850 !important;
+    }
+    .presence-table { gap: 3px !important; }
+    .presence-row {
+      min-height: 25px !important;
+      padding: 3px 6px 3px 8px !important;
+      border-radius: 7px !important;
+      gap: 8px !important;
+      font-size: 0.78rem !important;
+    }
+    .presence-row-time { font-size: 0.70rem !important; }
+
+    .departure-list.long .departure-table,
+    .leg-departure-scroll {
+      max-height: 390px;
+      overflow: auto;
+      padding-right: 2px;
+      scrollbar-color: rgba(243,181,69,0.5) rgba(255,255,255,0.04);
+    }
+    .departure-table {
+      display: grid;
+      gap: 3px;
+    }
+    .departure-head,
+    .departure-row {
+      display: grid !important;
+      grid-template-columns: 50px minmax(0, 1fr) 150px !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+    .departure-head {
+      padding: 0 7px 4px;
+      color: var(--race-muted);
+      font-size: 0.62rem;
+      font-weight: 950;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .departure-row {
+      min-height: 28px !important;
+      margin-top: 0 !important;
+      padding: 4px 7px !important;
+      border-radius: 7px !important;
+      font-size: 0.79rem !important;
+    }
+    .departure-rank { font-size: 0.68rem !important; padding: 2px 5px !important; }
+    .departure-time { text-align: right; }
+
+    .transport-choice-table {
+      display: grid;
+      gap: 4px;
+    }
+    .transport-table-head,
+    .transport-row-btn {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) 72px 72px !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+    .transport-table-head {
+      padding: 0 7px 2px;
+      color: var(--race-muted);
+      font-size: 0.62rem;
+      font-weight: 950;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: left;
+    }
+    .transport-table-head span:nth-child(2),
+    .transport-table-head span:nth-child(3) { text-align: right; }
+    .transport-row-btn {
+      width: 100% !important;
+      margin: 0 !important;
+      min-height: 34px !important;
+      padding: 5px 7px !important;
+      border: 1px solid var(--race-line) !important;
+      border-left: 3px solid rgba(99,197,223,0.35) !important;
+      border-radius: 8px !important;
+      background: rgba(255,255,255,0.04) !important;
+      color: var(--race-text) !important;
+      box-shadow: none !important;
+      text-align: left !important;
+      text-transform: none !important;
+      letter-spacing: 0 !important;
+      cursor: pointer;
+    }
+    .transport-row-btn::after { display: none !important; }
+    .transport-row-btn:hover:not(:disabled) {
+      transform: translateX(2px) !important;
+      background: rgba(99,197,223,0.09) !important;
+      border-left-color: var(--race-blue) !important;
+    }
+    .transport-row-btn:disabled {
+      opacity: 0.58 !important;
+      cursor: not-allowed !important;
+      filter: grayscale(0.18);
+    }
+    .transport-cell-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .transport-cell-icon {
+      width: 23px;
+      height: 23px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 7px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid var(--race-line);
+      flex: 0 0 auto;
+    }
+    .transport-cell-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 900;
+      font-size: 0.82rem;
+    }
+    .transport-cell-sub {
+      color: var(--race-red);
+      font-size: 0.68rem;
+      font-weight: 900;
+      margin-left: 6px;
+      white-space: nowrap;
+    }
+    .transport-cell-cost,
+    .transport-cell-time {
+      justify-self: end;
+      white-space: nowrap;
+      font-size: 0.76rem;
+      font-weight: 950;
+      font-variant-numeric: tabular-nums;
+    }
+    .transport-cell-cost { color: #9BE08F; }
+    .transport-cell-time { color: var(--race-blue); }
+
+    .route-history {
+      padding: 8px 10px !important;
+      border-left-width: 3px !important;
+    }
+    .route-history strong {
+      font-size: 0.64rem !important;
+      letter-spacing: 0.10em !important;
+      color: var(--race-blue) !important;
+    }
+    .route-line {
+      margin-top: 3px !important;
+      font-size: 0.86rem !important;
+      line-height: 1.2 !important;
+    }
+
+    .detour-task-card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 8px;
+    }
+    .detour-task-card {
+      min-height: 96px !important;
+      padding: 11px !important;
+      border-radius: 12px !important;
+      border: 1px solid var(--race-line) !important;
+      border-left: 4px solid var(--race-blue) !important;
+      background: rgba(255,255,255,0.045) !important;
+      box-shadow: none !important;
+      text-align: left !important;
+      color: var(--race-text) !important;
+    }
+    .detour-task-card:hover { background: rgba(99,197,223,0.09) !important; transform: translateY(-1px) !important; }
+    .detour-card-kicker {
+      color: var(--race-amber);
+      font-size: 0.64rem;
+      font-weight: 950;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .detour-card-title {
+      color: var(--race-text);
+      font-size: 1.03rem;
+      font-weight: 950;
+      line-height: 1.05;
+      overflow-wrap: anywhere;
+    }
+    .detour-card-meta {
+      margin-top: 7px;
+      color: var(--race-muted);
+      font-size: 0.76rem;
+      font-weight: 850;
+    }
+
+    .task-result-strip {
+      grid-template-columns: minmax(130px, 1fr) auto !important;
+      gap: 6px 10px !important;
+      padding: 6px 9px !important;
+      font-size: 0.78rem !important;
+    }
+    .task-result-strip span:not(.task-result-title) { white-space: nowrap; }
+
+    .pitstop-hero {
+      text-align: center;
+      padding: 18px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--race-line);
+      border-left: 5px solid var(--race-red);
+      background: radial-gradient(circle at 50% 0%, rgba(225,63,47,0.18), transparent 46%), rgba(255,255,255,0.045);
+    }
+    .pitstop-hero-kicker {
+      color: var(--race-amber);
+      font-size: 0.68rem;
+      font-weight: 950;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .pitstop-hero-title {
+      color: var(--race-text);
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(1.35rem, 4vw, 2.2rem);
+      line-height: 1.03;
+      font-weight: 750;
+    }
+    .pitstop-hero-sub {
+      margin-top: 7px;
+      color: var(--race-muted);
+      font-size: 0.88rem;
+      font-weight: 750;
+    }
+
+    .broadcast-results { gap: 10px !important; }
+    .broadcast-grid { align-items: start; }
+    .broadcast-hero { padding: 16px !important; }
+    .recap-story-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px !important; }
+    .broadcast-standing-row {
+      grid-template-columns: 40px minmax(0, 1fr) 150px !important;
+      min-height: 30px !important;
+      padding: 5px 8px !important;
+      font-size: 0.78rem !important;
+    }
+    .broadcast-time-line { font-size: 0.74rem !important; text-align: right; }
+    .broadcast-panel, .broadcast-details { padding: 10px !important; }
+    .broadcast-details > summary { min-height: 28px; }
+    .broadcast-details-toggle { min-width: 54px !important; padding: 4px 8px !important; }
+
+    .time-chart th,
+    .time-chart td {
+      padding: 3px 4px !important;
+      font-size: var(--tc-font-size, 0.72rem) !important;
+      line-height: 1.02 !important;
+    }
+    .time-chart .rank-head,
+    .time-chart .rank-cell { min-width: 36px !important; width: 36px !important; }
+    .time-chart-wrap,
+    .placement-chart-wrap {
+      overflow-x: auto !important;
+      position: relative;
+    }
+    .time-chart-card::after,
+    .placement-chart-card::after,
+    .clue-chart-card::after {
+      content: "Scroll sideways if needed →";
+      display: block;
+      margin-top: 5px;
+      color: var(--race-muted);
+      font-size: 0.66rem;
+      font-weight: 850;
+      text-align: right;
+      opacity: 0.75;
+    }
+
+    #customize .setup-progress-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin: 0 0 10px;
+      padding: 7px 9px;
+      border: 1px solid var(--race-line);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      color: var(--race-muted);
+      font-size: 0.72rem;
+      font-weight: 900;
+    }
+    #customize .setup-progress-strip span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid var(--race-line);
+      background: rgba(0,0,0,0.10);
+      white-space: nowrap;
+    }
+    #customize .setting-help {
+      font-size: 0.70rem !important;
+      line-height: 1.22 !important;
+      opacity: 0.72;
+    }
+    .setup-sticky-actions {
+      position: sticky !important;
+      bottom: 10px !important;
+      z-index: 80 !important;
+      margin-top: 12px !important;
+      padding: 8px !important;
+      border: 1px solid var(--race-line) !important;
+      border-radius: 999px !important;
+      background: rgba(21,19,19,0.94) !important;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 -8px 28px -20px rgba(0,0,0,0.9) !important;
+    }
+    .setup-sticky-actions button { padding: 9px 16px !important; min-height: 34px !important; }
+
+    .save-slot-grid.viewer-row-mode {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 6px !important;
+    }
+    .save-slot-grid.viewer-row-mode .save-slot-card {
+      display: grid;
+      grid-template-columns: minmax(150px, 0.85fr) minmax(0, 1.25fr) auto;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px !important;
+      border-radius: 10px !important;
+    }
+    .save-slot-grid.viewer-row-mode .save-slot-actions {
+      display: flex !important;
+      gap: 5px !important;
+      margin-top: 0 !important;
+    }
+    .save-slot-grid.viewer-row-mode .mini-btn { padding: 6px 9px !important; width: auto !important; }
+    .empty-state {
+      color: var(--race-muted) !important;
+      font-size: 0.78rem !important;
+      font-weight: 750 !important;
+      padding: 6px 0 !important;
+      opacity: 0.82;
+    }
+    .menu-race-brief {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+    .menu-race-brief > div {
+      min-width: 0;
+      padding: 8px 9px;
+      border: 1px solid var(--race-line);
+      border-left: 3px solid var(--race-blue);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      text-align: left;
+    }
+    .menu-race-brief span {
+      display: block;
+      color: var(--race-muted);
+      font-size: 0.62rem;
+      font-weight: 950;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .menu-race-brief strong { color: var(--race-text); font-size: 0.86rem; overflow-wrap: anywhere; }
+    button.secondary-btn,
+    .menu-btn:not(.gold) { opacity: 0.86; }
+    button:not(.secondary-btn):not(.mini-btn):not(.opt-btn):not(.transport-row-btn):not(.detour-task-card) {
+      font-weight: 950 !important;
+    }
+
+    @media (max-width: 760px) {
+      .race-header-strip { top: 6px !important; }
+      .race-header-route { min-width: 210px !important; max-width: 58vw !important; }
+      .presence-report,
+      .detour-task-card-grid,
+      .recap-story-row,
+      .menu-race-brief {
+        grid-template-columns: 1fr !important;
+      }
+      .departure-head,
+      .departure-row,
+      .transport-table-head,
+      .transport-row-btn,
+      .broadcast-standing-row {
+        grid-template-columns: 1fr !important;
+      }
+      .departure-time,
+      .transport-cell-cost,
+      .transport-cell-time,
+      .broadcast-time-line { justify-self: start; text-align: left; }
+      .setup-sticky-actions { border-radius: 14px !important; }
+      .save-slot-grid.viewer-row-mode .save-slot-card { grid-template-columns: 1fr; }
+      .save-slot-grid.viewer-row-mode .save-slot-actions { flex-wrap: wrap; }
     }
 
   </style>
@@ -6894,7 +7371,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 48;
+    var SAVE_VERSION = 50;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -31142,7 +31619,7 @@
       }
 
       prepared.sort(function (a, b) {
-        var costDiff = (Number(a.cost) || 0) - (Number(b.cost) || 0);
+        var costDiff = (Number(b.cost) || 0) - (Number(a.cost) || 0);
         if (costDiff !== 0) { return costDiff; }
         return (Number(a.time) || 0) - (Number(b.time) || 0);
       });
@@ -32884,7 +33361,486 @@
 
     function openCustomization() {
       if (!raceSettings) {
-        raceSettings = cloneRaceSettings(DEFAULT_RACE_SETTINGS);
+    
+
+    /* ── V50 VIEWER FLOW FUNCTION OVERRIDES ─────────────────── */
+
+    var SETUP_ACCORDION_STATE_KEY = "amazingRaceSimulatorSetupAccordionState";
+
+    function readSetupAccordionState() {
+      try {
+        var raw = localStorage.getItem(SETUP_ACCORDION_STATE_KEY);
+        var parsed = raw ? JSON.parse(raw) : {};
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function writeSetupAccordionState(state) {
+      try { localStorage.setItem(SETUP_ACCORDION_STATE_KEY, JSON.stringify(state || {})); } catch (e) {}
+    }
+
+    function rememberSetupAccordionState() {
+      if (!document || !document.querySelectorAll) { return; }
+      var state = readSetupAccordionState();
+      Array.prototype.forEach.call(document.querySelectorAll("#customize details.setup-accordion"), function (el) {
+        if (!el.id) { return; }
+        state[el.id] = !!el.open;
+      });
+      writeSetupAccordionState(state);
+    }
+
+    function applySetupAccordionState() {
+      var state = readSetupAccordionState();
+      Array.prototype.forEach.call(document.querySelectorAll("#customize details.setup-accordion"), function (el) {
+        if (!el.id) { return; }
+        if (Object.prototype.hasOwnProperty.call(state, el.id)) {
+          el.open = !!state[el.id];
+        }
+      });
+    }
+
+    function bindSetupAccordionMemory() {
+      Array.prototype.forEach.call(document.querySelectorAll("#customize details.setup-accordion"), function (el) {
+        if (el.dataset.boundSetupMemory) { return; }
+        el.addEventListener("toggle", rememberSetupAccordionState);
+        el.dataset.boundSetupMemory = "1";
+      });
+    }
+
+    function ensureSetupProgressStrip() {
+      var customize = document.getElementById("customize");
+      if (!customize) { return; }
+      var existing = document.getElementById("setupProgressStrip");
+      var html = '<span>Teams ✓</span><span>Route ✓</span><span>Skills ✓</span><span>Transport ✓</span><span>Presets optional</span>';
+      if (existing) {
+        existing.innerHTML = html;
+        return;
+      }
+      var strip = document.createElement("div");
+      strip.id = "setupProgressStrip";
+      strip.className = "setup-progress-strip";
+      strip.innerHTML = html;
+      var overview = customize.querySelector(".setup-overview-card");
+      if (overview && overview.parentNode) {
+        overview.parentNode.insertBefore(strip, overview);
+      }
+    }
+
+    function transportParts(opt) {
+      var methodText = String((opt && opt.method) || "").trim();
+      var pieces = methodText.split(/\s+/).filter(Boolean);
+      return {
+        icon: pieces.length > 1 ? pieces[0] : "➤",
+        name: pieces.length > 1 ? pieces.slice(1).join(" ") : (methodText || "Transport")
+      };
+    }
+
+    function renderTransportChoiceTable(list, options, chooseFn) {
+      if (!list) { return; }
+      list.innerHTML = "";
+      var optionsForPlayer = optionsWithEmergencyWalkForTeam(options || [], playerTeam);
+      var table = document.createElement("div");
+      table.className = "transport-choice-table";
+      table.innerHTML = '<div class="transport-table-head"><span>Transport</span><span>Cost</span><span>Time</span></div>';
+
+      optionsForPlayer.forEach(function (opt) {
+        var parts = transportParts(opt);
+        var disabled = opt.cost > money[playerTeam];
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "transport-row-btn";
+        btn.disabled = !!disabled;
+        btn.innerHTML =
+          '<span class="transport-cell-main"><span class="transport-cell-icon" aria-hidden="true">' + escapeHtml(parts.icon) + '</span>' +
+            '<span class="transport-cell-name">' + escapeHtml(parts.name) + '</span>' +
+            (disabled ? '<span class="transport-cell-sub">Need $' + escapeHtml(String(Math.max(0, opt.cost - money[playerTeam]))) + ' more</span>' : '') +
+          '</span>' +
+          '<span class="transport-cell-cost">$' + escapeHtml(String(opt.cost)) + '</span>' +
+          '<span class="transport-cell-time">' + escapeHtml(formatDuration(opt.time)) + '</span>';
+        if (!disabled) {
+          btn.onclick = function () { chooseFn(opt); };
+        }
+        table.appendChild(btn);
+      });
+      list.appendChild(table);
+    }
+
+    function renderSpecialTransportOptions(options) {
+      renderTransportChoiceTable(document.getElementById("specialTransportList"), options, chooseSpecialTransport);
+    }
+
+    function teamNameListHtml(names) {
+      if (!names || names.length === 0) { return ''; }
+      return '<div class="presence-chip-row">' + names.map(function (name) {
+        var color = teamColor(name);
+        var youClass = name === playerTeam ? " you" : "";
+        return '<span class="team-presence-chip' + youClass + '" style="color:' + escapeHtml(color) + ';">' +
+          '<span class="chip-dot" style="background:' + escapeHtml(color) + ';"></span>' +
+          '<span>' + escapeHtml(name) + '</span>' +
+        '</span>';
+      }).join("") + '</div>';
+    }
+
+    function presenceSectionHtml(title, itemsHtml, count) {
+      if (!itemsHtml) { return ""; }
+      var cls = title === "Teams Present at Arrival:" ? "presence-section present-section" : "presence-section";
+      return '<div class="' + cls + '"><div class="presence-section-title">' + escapeHtml(title) + '</div>' +
+        (title === "Teams Present at Arrival:" ? itemsHtml : '<div class="presence-table">' + itemsHtml + '</div>') +
+      '</div>';
+    }
+
+    function departureTimesHtml() {
+      var rows = remainingTeams.slice().sort(function (a, b) {
+        var ca = currentLegStartClocks[a] != null ? currentLegStartClocks[a] : raceClock;
+        var cb = currentLegStartClocks[b] != null ? currentLegStartClocks[b] : raceClock;
+        if (ca !== cb) { return ca - cb; }
+        if (legNum > 1) {
+          var pa = lastLegPlacement(a);
+          var pb = lastLegPlacement(b);
+          if (pa !== pb) { return pa - pb; }
+        }
+        return a.localeCompare(b);
+      });
+
+      var html = '<div class="departure-list' + (rows.length > 12 ? ' long' : '') + '">';
+      html += '<div class="departure-title"><span>Departure Times</span><span>' + rows.length + ' teams</span></div>';
+      html += '<div class="departure-table"><div class="departure-head"><span>#</span><span>Team</span><span>Departure</span></div>';
+      rows.forEach(function (team, index) {
+        var clock = currentLegStartClocks[team] != null ? currentLegStartClocks[team] : raceClock;
+        var youClass = team === playerTeam ? " you" : "";
+        var color = teamColor(team);
+        html += '<div class="departure-row' + youClass + '" style="--team-color:' + escapeHtml(color) + ';border-left-color:' + escapeHtml(color) + ';">' +
+          '<span class="departure-rank">' + ordinal(index + 1) + '</span>' +
+          '<span class="departure-team"><span class="chip-dot" style="background:' + escapeHtml(color) + ';"></span>' + escapeHtml(team) + (team === playerTeam ? '<em class="you-tag">YOU</em>' : '') + '</span>' +
+          '<span class="departure-time">' + formatRaceDayTimeShort(clock) + '</span>' +
+        '</div>';
+      });
+      html += '</div></div>';
+      return html;
+    }
+
+    function routeDirectiveHtml(fromText, toText, cityText) {
+      var city = cityText ? '<span class="route-context">' + escapeHtml(cityText) + '</span>' : '';
+      return '<div class="route-history"><strong>Route Info</strong><div class="route-line"><span>' + escapeHtml(fromText || "Current location") + '</span><span class="route-arrow">→</span><span>' + escapeHtml(toText || "Next location") + '</span>' + city + '</div></div>';
+    }
+
+    function renderDetourChoiceCards(list, options) {
+      if (!list) { return; }
+      list.innerHTML = '<div class="detour-task-card-grid"></div>';
+      var grid = list.querySelector(".detour-task-card-grid");
+      options.forEach(function (option, index) {
+        var level = skillLevelForTeam(playerTeam, option.skill);
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "detour-task-card";
+        btn.innerHTML = '<div class="detour-card-kicker">Detour Option ' + escapeHtml(String(index + 1)) + '</div>' +
+          '<div class="detour-card-title">' + escapeHtml(detourOptionDisplayName(option, index)) + '</div>' +
+          '<div class="detour-card-meta">' + escapeHtml(option.skill || "Skill") + ' · Level ' + escapeHtml(String(level)) + '</div>';
+        btn.onclick = function () { chooseDetourTask(index); };
+        grid.appendChild(btn);
+      });
+    }
+
+    function showDetourChoice() {
+      var stop = legStops[currentStop];
+      var locationName = stop && stop.locationName ? stop.locationName : "Detour " + stopLetter(currentStop);
+      var options = detourOptionsForStop(stop);
+      var titleEl = document.getElementById("raceScreenTitle");
+      if (titleEl) { titleEl.textContent = locationName; }
+
+      currentChallenge = {
+        stopIndex: currentStop,
+        type: "detour",
+        pending: true,
+        locationName: locationName
+      };
+
+      document.getElementById("raceStatus").innerHTML =
+        raceClockHeader("Detour") +
+        timeWindowHtml(raceClock, null, "Detour") +
+        presenceReportHtml(stopLocationKey(currentStop), raceClock, null);
+
+      var prompt = document.getElementById("transportPrompt");
+      if (prompt) { prompt.textContent = "Choose Detour"; }
+
+      renderDetourChoiceCards(document.getElementById("transportList"), options);
+      showScreen("race");
+    }
+
+    function showRace() {
+      if (currentChallenge && currentChallenge.type === "detour" && currentChallenge.pending) {
+        showDetourChoice();
+        return;
+      }
+      var locationName = currentChallenge ? currentChallenge.locationName : locationNameForStopIndex(currentStop);
+      var titleEl = document.getElementById("raceScreenTitle");
+      if (titleEl) { titleEl.textContent = locationName; }
+      var arrivalLine = "";
+      if (currentChallenge && currentChallenge.stopIndex === currentStop) {
+        arrivalLine = timeWindowHtml(currentChallenge.arrivalClock, currentChallenge.departureClock);
+      }
+      document.getElementById("raceStatus").innerHTML =
+        raceClockHeader(currentChallenge && currentChallenge.stopIndex === currentStop ? "Task Finish" : "Route Info") +
+        arrivalLine +
+        (currentChallenge && currentChallenge.stopIndex === currentStop
+          ? presenceReportHtml(stopLocationKey(currentStop), currentChallenge.arrivalClock, currentChallenge.departureClock)
+          : presenceReportHtml(stopLocationKey(currentStop), raceClock, null));
+      setTransportPromptText("transportPrompt", currentRaceTransportTargetName());
+      renderTransportChoiceTable(document.getElementById("transportList"), legTransportOptions[currentStop], chooseTransport);
+      showScreen("race");
+    }
+
+    function doStartingLineChallenge() {
+      if (!startingLineChallenge) {
+        showTransportToAirport();
+        return;
+      }
+      var level = skills[playerTeam][startingLineChallenge.skill] || randomLevel();
+      var base = startingLineBaseForTeam(playerTeam);
+      var adjusted = Math.max(1, Math.round(base * skillMultiplier(level)));
+      var arrivalClock = raceClock;
+      var departureClock = arrivalClock + adjusted;
+      addRaceMinutes(adjusted);
+      addPlayerMilestone("Starting Line Complete", raceClock, "sequential");
+      playerLegLog.push({ type: "challenge", label: (legStartLocation || "Starting Line") + " (" + startingLineChallenge.skill + ")", duration: adjusted, cost: 0, clock: raceClock });
+      var titleEl = document.getElementById("raceScreenTitle");
+      if (titleEl) { titleEl.textContent = legStartLocation || "Starting Line"; }
+      document.getElementById("raceStatus").innerHTML =
+        raceClockHeader("Starting Line") +
+        timeWindowHtml(arrivalClock, departureClock, "Starting Line") +
+        presenceReportHtml(startLocationKey(), arrivalClock, departureClock);
+      setTransportPromptText("transportPrompt", cityAirportName(legOrigin));
+      renderTransportChoiceTable(document.getElementById("transportList"), airportStartTransportOptions, chooseStartingLineTransport);
+      showScreen("race");
+    }
+
+    function showPitStopScreen() {
+      var finalLeg = isFinalLeg();
+      document.getElementById("pitstopTitle").textContent = finalLeg ? "🏆 Finish Line" : "🏁 Pit Stop";
+      document.getElementById("pitstopBody").innerHTML =
+        raceClockHeader(finalLeg ? "Finish Line" : "Pit Stop") +
+        '<div class="pitstop-hero"><div class="pitstop-hero-kicker">' + (finalLeg ? 'Final Mat' : 'Pit Stop') + '</div>' +
+          '<div class="pitstop-hero-title">' + escapeHtml(pitStopDisplayName()) + '</div>' +
+          '<div class="pitstop-hero-sub">' + escapeHtml(cityDisplayName(legDest)) + ' · ' + escapeHtml(formatRaceDateTimeShort(raceClock)) + '</div>' +
+        '</div>' +
+        '<div class="info-strip-banner">' + (finalLeg ? "Check in to reveal the winner." : "Check in to reveal the leg results.") + '</div>';
+      showScreen("pitstop");
+    }
+
+    function renderFlightBody() {
+      updateFlightScreenTitleAndButton();
+      var distKm = (legOrigin && legDest) ? distanceKmBetweenCities(legOrigin.name, legDest.name) : 0;
+      var estFlightMin = distKm ? flightTimeMinutesBetweenDistance(distKm) : null;
+      var chaosLabel = currentFlightChaosProfile().label;
+      document.getElementById("flightBody").innerHTML =
+        raceClockHeader("Flights") +
+        '<div class="airport-brief-card">' +
+          '<div class="airport-brief-main">' +
+            '<div class="airport-brief-icon">✈️</div>' +
+            '<div><div class="airport-brief-kicker">Ticket Itinerary</div>' +
+              '<div class="airport-brief-route">' + escapeHtml(legOrigin ? cityDisplayName(legOrigin) : "") + ' <span>→</span> ' + escapeHtml(legDest ? cityDisplayName(legDest) : "") + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="airport-brief-grid">' +
+            '<div><span>Distance</span><strong>' + (distKm ? distKm.toLocaleString() + " km" : "—") + '</strong></div>' +
+            '<div><span>Air Time</span><strong>' + (estFlightMin ? formatDuration(estFlightMin) : "—") + '</strong></div>' +
+            '<div><span>Flight Chaos</span><strong>' + escapeHtml(chaosLabel) + '</strong></div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    function standingsHtml(results, eliminatedTeam) {
+      var rows = "";
+      results.forEach(function (r, i) {
+        var isYou = (r.team === playerTeam);
+        var isElim = (r.team === eliminatedTeam);
+        var rowClass = "broadcast-standing-row" + (isYou ? " you" : "") + (isElim ? " eliminated" : "");
+        var teamCol = teamColor(r.team);
+        rows += '<div class="' + rowClass + '">' +
+          '<div class="broadcast-place">' + ordinal(i + 1) + '</div>' +
+          '<div class="broadcast-team-line"><span class="broadcast-team-dot" style="background:' + escapeHtml(teamCol) + ';"></span>' +
+            '<span class="broadcast-team-name">' + escapeHtml(r.team) + (isYou ? ' <em class="you-tag">YOU</em>' : '') + '</span></div>' +
+          '<div class="broadcast-time-line">' + formatRaceDateTimeShort(r.checkInClock) + (isElim ? ' <span class="elim-badge">ELIM</span>' : '') + '</div>' +
+        '</div>';
+      });
+      return '<div class="standings broadcast-standings">' + rows + '</div>';
+    }
+
+    function resultsBroadcastHtml(opts) {
+      opts = opts || {};
+      var results = opts.results || [];
+      var route = opts.route || "";
+      var playerSummary = playerResultSummary(results);
+      var playerRecord = playerSummary.record || {};
+      var playerPlace = playerSummary.place != null ? ordinal(playerSummary.place) : "—";
+      var finishTime = playerRecord.checkInClock != null ? formatRaceDateTimeShort(playerRecord.checkInClock) : "—";
+      var statusKind = opts.statusKind || "info";
+      var outcomeColor = statusKind === "danger" ? "var(--race-red)" : (statusKind === "good" ? "#9BE08F" : (statusKind === "warn" ? "var(--race-amber)" : "var(--race-blue)"));
+      var heroColor = teamColorForPlayer ? teamColorForPlayer() : "var(--race-red)";
+      var winnerTeam = results[0] && results[0].team ? results[0].team : "—";
+      var lastTeam = opts.eliminatedTeam || (results[results.length - 1] && results[results.length - 1].team ? results[results.length - 1].team : "—");
+      var statusText = statusKind === "danger" ? "Elimination" : (statusKind === "warn" ? "Non-elimination" : "Complete");
+
+      var html = '<div class="broadcast-results">';
+      html += '<div class="broadcast-hero" style="--hero-color:' + escapeHtml(heroColor) + ';">' +
+        '<div class="broadcast-kicker">' + escapeHtml(opts.kicker || currentLegLabel() + ' Episode Recap') + '</div>' +
+        '<h2 class="broadcast-route-title">' + escapeHtml(route) + '</h2>' +
+        '<div class="broadcast-subline">' + escapeHtml(opts.subtitle || 'The mat has been reached. Here is the leg story first, data second.') + '</div>' +
+        '<div class="broadcast-pill-row">' +
+          '<span class="broadcast-pill warn">Your result: ' + escapeHtml(playerPlace) + '</span>' +
+          '<span class="broadcast-pill info">Finish: ' + escapeHtml(finishTime) + '</span>' +
+          '<span class="broadcast-pill good">Cash: $' + escapeHtml(money[playerTeam] || 0) + '</span>' +
+          '<span class="broadcast-pill">Status: ' + escapeHtml(statusText) + '</span>' +
+        '</div></div>';
+
+      if (results.length) {
+        html += '<div class="recap-story-row">' +
+          '<div><span>Leg Winner</span><strong>' + escapeHtml(winnerTeam) + '</strong></div>' +
+          '<div><span>Your Leg</span><strong>' + escapeHtml(playerPlace) + ' · ' + escapeHtml(finishTime) + '</strong></div>' +
+          '<div><span>' + (opts.eliminatedTeam ? 'Eliminated' : 'Last Team') + '</span><strong>' + escapeHtml(lastTeam) + '</strong></div>' +
+          '<div><span>Teams Racing</span><strong>' + escapeHtml(String(results.length)) + '</strong></div>' +
+        '</div>';
+      }
+      if (opts.outcomeHtml) {
+        html += '<div class="broadcast-outcome" style="--outcome-color:' + outcomeColor + ';">' + opts.outcomeHtml + '</div>';
+      }
+      html += broadcastDetailsHtml('Your Leg Recap', legRecapHtml(), 'var(--race-blue)', true);
+      html += '<div class="broadcast-grid">';
+      html += '<section class="broadcast-panel" style="--panel-color:var(--race-amber);"><div class="broadcast-panel-title">Mat Standings</div>' + standingsHtml(results, opts.eliminatedTeam || null) + '</section>';
+      if (opts.routeTrail) { html += broadcastDetailsHtml('Route Trail', opts.routeTrail, 'var(--green)', true); }
+      html += '</div>';
+      if (opts.placementChart) { html += broadcastDetailsHtml('Placement Chart', opts.placementChart, 'var(--race-amber)', true); }
+      if (opts.timeChart) { html += broadcastDetailsHtml('Detailed Time Chart', opts.timeChart, 'var(--race-red)', true); }
+      if (opts.clueChart) { html += broadcastDetailsHtml('Clue-by-Clue Chart', opts.clueChart, 'var(--race-blue)', true); }
+      if (opts.allLegsCharts) { html += broadcastDetailsHtml('Leg Charts — All Legs', opts.allLegsCharts, 'var(--green)', true); }
+      html += '</div>';
+      return html;
+    }
+
+    function renderMenuScreen() {
+      var inRace = raceIsInProgress();
+      var statusHtml = "";
+      if (inRace) {
+        statusHtml = '<div class="menu-race-brief">' +
+          '<div><span>Your Team</span><strong>' + escapeHtml(playerTeam || "—") + '</strong></div>' +
+          '<div><span>Current Leg</span><strong>' + escapeHtml(isFinalLeg() ? "Final" : "Leg " + legNum) + '</strong></div>' +
+          '<div><span>Cash</span><strong>$' + escapeHtml(String(money[playerTeam] || 0)) + '</strong></div>' +
+          '<div><span>Teams Left</span><strong>' + escapeHtml(String(remainingTeams.length)) + '</strong></div>' +
+        '</div>' +
+        '<div class="menu-note">Auto Save: <strong>' + escapeHtml(formatSaveStamp(readSaveFromKey(AUTO_SAVE_KEY))) + '</strong></div>';
+      } else {
+        statusHtml = '<div class="empty-state">No race in progress. Auto Save: <strong>' + escapeHtml(formatSaveStamp(readSaveFromKey(AUTO_SAVE_KEY))) + '</strong></div>';
+      }
+      document.getElementById("menuStatus").innerHTML = statusHtml;
+      renderMenuButtons();
+    }
+
+    function renderPresetList() {
+      var container = document.getElementById("presetList");
+      var deleteBtn = document.getElementById("deletePresetBtn");
+      if (!container) { return; }
+      var presets = loadAllPresets();
+      container.innerHTML = "";
+      if (presets.length === 0) {
+        container.innerHTML = '<div class="empty-state">No presets saved yet.</div>';
+        if (deleteBtn) { deleteBtn.disabled = true; }
+        return;
+      }
+      presets.forEach(function(entry) {
+        var row = document.createElement("div");
+        row.className = "preset-row";
+        row.dataset.presetName = entry.name;
+        row.style.cssText = "display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:7px 9px;margin-bottom:5px;background:rgba(255,255,255,0.04);border:1px solid var(--race-line);border-left:3px solid transparent;border-radius:8px;cursor:pointer;";
+        var info = document.createElement("div");
+        info.style.cssText = "overflow-wrap:anywhere;text-align:left;";
+        var nameSpan = document.createElement("strong");
+        nameSpan.style.cssText = "color:var(--race-text);display:block;font-size:0.82rem;";
+        nameSpan.textContent = entry.name;
+        var dateSpan = document.createElement("span");
+        dateSpan.style.cssText = "color:var(--race-muted);font-size:0.70rem;";
+        dateSpan.textContent = entry.savedAt ? new Date(entry.savedAt).toLocaleString() : "";
+        info.appendChild(nameSpan); info.appendChild(dateSpan);
+        var loadBtn = document.createElement("button");
+        loadBtn.className = "mini-btn";
+        loadBtn.type = "button";
+        loadBtn.textContent = "Load";
+        loadBtn.onclick = function(e) { e.stopPropagation(); loadPreset(entry.name); };
+        row.appendChild(info); row.appendChild(loadBtn);
+        row.addEventListener("click", function() {
+          document.querySelectorAll(".preset-row").forEach(function(r) {
+            r.style.borderLeftColor = "transparent";
+            r.classList.remove("selected");
+          });
+          row.style.borderLeftColor = "var(--race-amber)";
+          row.classList.add("selected");
+          if (deleteBtn) { deleteBtn.disabled = false; }
+        });
+        container.appendChild(row);
+      });
+    }
+
+    function openCustomization() {
+      if (!raceSettings) { raceSettings = cloneRaceSettings(DEFAULT_RACE_SETTINGS); }
+      bindCustomizationFormEvents();
+      fillCustomizationForm(raceSettings);
+      var seedNames = (raceSettings && raceSettings.teamNames && raceSettings.teamNames.length) ? raceSettings.teamNames : (teams && teams.length ? teams : makeDefaultTeamNames(raceSettings.teamCount));
+      renderTeamNameEditor(seedNames);
+      renderPresetList();
+      renderTeamColorEditor(raceSettings.teamColors);
+      renderSkillNameEditor(raceSettings.skillTypes);
+      updateSkillModePanels();
+      ensureSetupProgressStrip();
+      bindSetupAccordionMemory();
+      applySetupAccordionState();
+      showScreen("customize");
+    }
+
+    function renderSaveManager() {
+      var body = document.getElementById("saveManagerBody");
+      var grid = document.getElementById("saveSlotGrid");
+      if (!body || !grid) { return; }
+      body.innerHTML = raceIsInProgress()
+        ? '<div class="empty-state">Choose a slot to save or load. Current race can be saved here.</div>'
+        : '<div class="empty-state">Load an existing save or start a new race.</div>';
+      grid.innerHTML = "";
+      grid.classList.add("viewer-row-mode");
+      for (var slot = 1; slot <= SAVE_SLOT_COUNT; slot++) {
+        (function(slotNumber) {
+          var state = readSaveFromKey(slotKey(slotNumber));
+          var card = document.createElement("div");
+          card.className = "save-slot-card";
+          var title = document.createElement("div");
+          title.innerHTML = '<strong>' + escapeHtml(saveSlotDisplayName(slotNumber)) + '</strong><div class="save-slot-meta">' + escapeHtml(state ? formatSaveStamp(state) : "Empty slot") + '</div>';
+          var summary = document.createElement("div");
+          summary.innerHTML = saveStateSummaryHtml(state);
+          var actions = document.createElement("div");
+          actions.className = "save-slot-actions";
+          [
+            { text: state ? "Overwrite" : "Save", disabled: !raceIsInProgress(), fn: function(){ saveManualSlot(slotNumber); renderSaveManager(); } },
+            { text: "Load", disabled: !state, fn: function(){ loadManualSlot(slotNumber); } },
+            { text: "Rename", disabled: false, fn: function(){ var current = saveSlotDisplayName(slotNumber); var nextName = prompt("Rename save slot:", current); if (nextName !== null) { setSaveSlotDisplayName(slotNumber, nextName); renderSaveManager(); } } },
+            { text: "Delete", disabled: !state, fn: function(){ if (confirm("Delete " + saveSlotDisplayName(slotNumber) + "?")) { localStorage.removeItem(slotKey(slotNumber)); renderSaveManager(); renderMenuButtons(); updateStartLoadButton(); } } }
+          ].forEach(function(def) {
+            var btn = document.createElement("button");
+            btn.className = "mini-btn";
+            btn.type = "button";
+            btn.textContent = def.text;
+            btn.disabled = !!def.disabled;
+            btn.onclick = def.fn;
+            actions.appendChild(btn);
+          });
+          card.appendChild(title);
+          card.appendChild(summary);
+          card.appendChild(actions);
+          grid.appendChild(card);
+        })(slot);
+      }
+    }
+
+
+    raceSettings = cloneRaceSettings(DEFAULT_RACE_SETTINGS);
       }
 
       bindCustomizationFormEvents();
@@ -35399,7 +36355,6 @@ svg += '</div>';
         raceClockHeader("Detour") +
         timeWindowHtml(raceClock, null, "Detour") +
         presenceReportHtml(stopLocationKey(currentStop), raceClock, null) +
-        detourChoiceSummaryHtml(options) +
         raceContextStripHtml();
 
       var prompt = document.getElementById("transportPrompt");
@@ -35685,7 +36640,7 @@ svg += '</div>';
 
     function placementRankPill(value, isLatest) {
       if (value == null) {
-        return '<span class="placement-rank-pill empty">—</span>';
+        return '';
       }
       var cls = 'placement-rank-pill' + (value === 1 ? ' first' : '') + (isLatest ? ' latest' : '');
       return '<span class="' + cls + '">' + value + '</span>';
