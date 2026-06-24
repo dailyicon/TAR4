@@ -6,33 +6,40 @@
   <title>The Amazing Race</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* ============================================================
-       THE AMAZING RACE — TV BROADCAST REDESIGN
-       Design language: bold, punchy, feels produced not generated
+       THE AMAZING RACE — TRAVEL POSTCARD REDESIGN
+       Design language: vintage airmail / passport / travel poster.
+       Bold primary palette (airmail red, marigold, travel blue) on
+       warm cream "postcard paper". Editorial serif display type
+       paired with a clean grotesque for UI/data. Signature motif:
+       the diagonal airmail stripe, used as a structural divider.
     ============================================================ */
 
     :root {
-      --void:        #0d0305;
-      --pit:         #160508;
-      --surface:     #1f080d;
-      --raise:       #2a0d13;
-      --card:        #1a0608;
-      --red:         #ff1f35;
-      --red-dark:    #c8001a;
-      --red-glow:    rgba(255, 31, 53, 0.18);
-      --amber:       #ffb800;
-      --amber-soft:  rgba(255, 184, 0, 0.14);
-      --cyan:        #00e5ff;
-      --cyan-soft:   rgba(0, 229, 255, 0.12);
-      --cream:       #fff5e6;
-      --muted:       rgba(255, 245, 230, 0.62);
-      --line:        rgba(255, 245, 230, 0.10);
-      --line-amber:  rgba(255, 184, 0, 0.28);
-      --green:       #00e09a;
-      --green-soft:  rgba(0, 224, 154, 0.12);
-      --shadow:      rgba(0, 0, 0, 0.55);
+      /* Core palette */
+      --void:        #EDE4CC;   /* page background wash (deepest) */
+      --pit:         #F5EFDD;   /* page background (postcard paper) */
+      --surface:     #FBF7EC;   /* raised surface */
+      --raise:       #FFFFFF;   /* hover raise */
+      --card:        #FFFCF5;   /* card fill */
+      --red:         #C8442D;   /* airmail red */
+      --red-dark:    #9C3320;
+      --red-glow:    rgba(200, 68, 45, 0.18);
+      --amber:       #D98324;   /* marigold, darkened slightly for AA text contrast */
+      --amber-soft:  rgba(217, 131, 36, 0.14);
+      --cyan:        #1F5C73;   /* travel blue (keeps --cyan name for compatibility) */
+      --cyan-soft:   rgba(31, 92, 115, 0.10);
+      --cream:       #2B2118;   /* primary ink (was light text on dark; now dark ink on light) */
+      --muted:       rgba(43, 33, 24, 0.62);
+      --line:        rgba(43, 33, 24, 0.14);
+      --line-amber:  rgba(217, 131, 36, 0.40);
+      --green:       #3F6B2F;   /* stamp green */
+      --green-soft:  rgba(63, 107, 47, 0.12);
+      --shadow:      rgba(43, 33, 24, 0.28);
+      --inset:       rgba(43, 33, 24, 0.055); /* replaces old rgba(0,0,0,0.3) inset tiles */
+      --paper:       #FFFCF5;
       --r-sm:   8px;
       --r-md:   14px;
       --r-lg:   20px;
@@ -44,11 +51,11 @@
     html { scroll-behavior: smooth; overflow-x: hidden; }
 
     body {
-      font-family: 'Chakra Petch', Arial, sans-serif;
-      font-weight: 600;
+      font-family: 'Space Grotesk', Arial, sans-serif;
+      font-weight: 500;
       font-size: 15px;
       color: var(--cream);
-      background: var(--void);
+      background: var(--pit);
       margin: 0;
       min-height: 100vh;
       overflow-x: hidden;
@@ -59,31 +66,27 @@
       text-align: center;
     }
 
-    /* Broadcast scan-line texture */
+    /* Faint lat/long dot-grid texture — reads as "map" without literal continents */
     body::after {
       content: "";
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.08) 2px,
-        rgba(0, 0, 0, 0.08) 4px
-      );
+      background-image: radial-gradient(circle, rgba(43,33,24,0.16) 1px, transparent 1px);
+      background-size: 26px 26px;
+      opacity: 0.55;
     }
 
-    /* Dramatic top spotlight */
+    /* Soft compass-ring glow top of page, replaces the old red spotlight */
     body::before {
       content: "";
       position: fixed;
       top: 0; left: 0; right: 0;
-      height: 420px;
-      background: radial-gradient(ellipse 70% 260px at 50% -60px,
-        rgba(255, 31, 53, 0.22) 0%,
-        rgba(255, 184, 0, 0.06) 55%,
+      height: 460px;
+      background: radial-gradient(ellipse 70% 280px at 50% -80px,
+        rgba(200, 68, 45, 0.10) 0%,
+        rgba(217, 131, 36, 0.06) 55%,
         transparent 100%);
       pointer-events: none;
       z-index: 0;
@@ -99,7 +102,7 @@
 
     .screen.active {
       display: block;
-      animation: tvIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+      animation: tvIn 0.26s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     @keyframes tvIn {
@@ -110,19 +113,21 @@
     /* ── TYPOGRAPHY ─────────────────────────────────────────── */
 
     h1 {
-      font-size: clamp(2.2rem, 7vw, 3.8rem);
-      font-weight: 900;
-      letter-spacing: -0.02em;
-      line-height: 0.95;
+      font-family: 'Fraunces', Georgia, serif;
+      font-optical-sizing: auto;
+      font-size: clamp(2.3rem, 7vw, 3.9rem);
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      line-height: 0.98;
       margin: 0 0 18px;
-      text-transform: uppercase;
+      text-transform: none;
       color: var(--cream);
-      text-shadow: 0 0 60px rgba(255, 31, 53, 0.4), 0 4px 24px rgba(0,0,0,0.6);
+      text-shadow: none;
     }
 
     .fit-long-title {
-      font-size: clamp(1.55rem, 6vw, 3.35rem);
-      line-height: 0.98;
+      font-size: clamp(1.5rem, 6vw, 3.1rem);
+      line-height: 1.02;
       overflow-wrap: anywhere;
       word-break: normal;
       hyphens: auto;
@@ -130,16 +135,22 @@
 
     .transport-prompt {
       display: block;
-      color: var(--amber);
+      color: var(--red);
       font-size: 0.86rem;
-      font-weight: 900;
+      font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       margin-bottom: 8px;
       overflow-wrap: anywhere;
+      font-family: 'Space Grotesk', Arial, sans-serif;
     }
 
-    h2, h3 { font-weight: 700; margin: 0 0 10px; }
+    h2, h3 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 600;
+      margin: 0 0 10px;
+      color: var(--cream);
+    }
 
     p {
       font-weight: 500;
@@ -149,124 +160,151 @@
 
     strong { font-weight: 700; color: var(--cream); }
 
-    /* ── BROADCAST CHYRON — the signature element ──────────── */
-    /* Bottom-left anchored, hard-edge label like a TV lower-third */
+    /* ── BROADCAST CHYRON → POSTMARK LABEL ─────────────────── */
+    /* Bottom-left anchored label, now styled like a postmark/ticket stub */
 
     .screen-label {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--red);
-      color: #fff;
+      background: var(--card);
+      color: var(--cyan);
       font-size: 0.72rem;
-      font-weight: 900;
+      font-weight: 700;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      padding: 5px 14px 5px 10px;
-      margin-bottom: 14px;
-      /* Clipped corner: hard top-right, sharp feel */
-      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 0 100%);
-      border-radius: 0;
-      box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+      padding: 6px 16px 6px 12px;
+      margin-bottom: 16px;
+      border: 1.5px solid var(--cyan);
+      border-radius: 999px;
+      box-shadow: 2px 2px 0 rgba(43,33,24,0.12);
+      font-family: 'Space Grotesk', Arial, sans-serif;
     }
 
     .screen-label::before {
-      content: "▶";
-      font-size: 0.6rem;
-      opacity: 0.85;
+      content: "✈";
+      font-size: 0.8rem;
+      opacity: 0.9;
     }
 
-    /* ── BUTTONS ────────────────────────────────────────────── */
+    /* ── SIGNATURE MOTIF: AIRMAIL STRIPE ─────────────────────── */
+    /* Diagonal red/blue stripe rule, used as a structural divider
+       under headers and along the top edge of cards. */
+
+    .airmail-rule {
+      height: 6px;
+      width: 100%;
+      max-width: 260px;
+      margin: 0 auto 22px;
+      border-radius: 3px;
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--red) 0px, var(--red) 10px,
+        var(--card) 10px, var(--card) 14px,
+        var(--cyan) 14px, var(--cyan) 24px,
+        var(--card) 24px, var(--card) 28px
+      );
+      box-shadow: 0 1px 0 rgba(43,33,24,0.1);
+    }
+
+    h1 + .airmail-rule,
+    .section-heading + .airmail-rule { margin-top: -4px; }
+
+    /* ── BUTTONS → INK STAMPS ───────────────────────────────── */
 
     button {
-      font-family: 'Chakra Petch', Arial, sans-serif;
-      font-weight: 800;
+      font-family: 'Space Grotesk', Arial, sans-serif;
+      font-weight: 700;
       font-size: 1rem;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       text-transform: uppercase;
       padding: 14px 28px;
       margin-top: 14px;
       border: none;
-      border-radius: var(--r-sm);
+      border-radius: 10px;
       background: var(--red);
-      color: #fff;
+      color: var(--paper);
       cursor: pointer;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 6px 0 var(--red-dark), 0 10px 28px rgba(255, 31, 53, 0.35);
-      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+      box-shadow: 0 4px 0 var(--red-dark), 0 10px 22px -6px rgba(200, 68, 45, 0.45);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     }
 
-    /* Shine sweep on hover */
+    /* Postmark-style dashed inset instead of a shine sweep */
     button::after {
       content: "";
       position: absolute;
-      inset: 0;
-      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 50%, transparent 60%);
-      transform: translateX(-100%);
-      transition: transform 0.4s ease;
+      inset: 3px;
+      border: 1.5px dashed rgba(255,255,255,0.45);
+      border-radius: 7px;
+      pointer-events: none;
+      transition: opacity 0.12s ease;
     }
 
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 0 var(--red-dark), 0 14px 36px rgba(255, 31, 53, 0.4);
+      box-shadow: 0 6px 0 var(--red-dark), 0 14px 28px -6px rgba(200, 68, 45, 0.5);
     }
-
-    button:hover::after { transform: translateX(100%); }
 
     button:active {
       transform: translateY(2px);
-      box-shadow: 0 2px 0 var(--red-dark), 0 4px 12px rgba(255, 31, 53, 0.3);
+      box-shadow: 0 1px 0 var(--red-dark), 0 4px 10px -4px rgba(200, 68, 45, 0.4);
     }
 
     button:disabled {
-      opacity: 0.35;
+      opacity: 0.4;
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
     }
 
     .secondary-btn {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--line);
-      box-shadow: none;
+      background: var(--card);
+      color: var(--cream);
+      border: 1.5px solid var(--line);
+      box-shadow: 2px 2px 0 rgba(43,33,24,0.10);
       font-weight: 700;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.02em;
     }
+
+    .secondary-btn::after { border-color: rgba(43,33,24,0.16); }
 
     .secondary-btn:hover {
       background: var(--raise);
-      border-color: var(--line-amber);
-      color: var(--cream);
-      transform: translateY(-1px);
-      box-shadow: none;
+      border-color: var(--cyan);
+      color: var(--cyan);
+      transform: translateY(-2px);
+      box-shadow: 3px 3px 0 rgba(43,33,24,0.12);
     }
 
     .secondary-btn:active {
-      transform: translateY(0);
-      box-shadow: none;
+      transform: translateY(1px);
+      box-shadow: 1px 1px 0 rgba(43,33,24,0.10);
     }
 
     .mini-btn {
       width: auto;
       margin: 0;
-      padding: 7px 13px;
+      padding: 7px 14px;
       font-size: 0.75rem;
       font-weight: 700;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       border-radius: 999px;
-      background: transparent;
-      border: 1px solid var(--line-amber);
+      background: var(--card);
+      border: 1.5px solid var(--line-amber);
       color: var(--amber);
       box-shadow: none;
       text-transform: uppercase;
     }
 
+    .mini-btn::after { display: none; }
+
     .mini-btn:hover {
       background: var(--amber-soft);
       transform: none;
       box-shadow: none;
+      border-color: var(--amber);
     }
 
     .mini-btn:active {
@@ -274,30 +312,35 @@
       box-shadow: none;
     }
 
-    /* ── CARDS & PANELS ─────────────────────────────────────── */
+    /* ── CARDS & PANELS → POSTCARDS ─────────────────────────── */
 
     .hero-card {
-      background: linear-gradient(160deg, #200a10 0%, #12040a 100%);
-      border: 1px solid rgba(255, 31, 53, 0.3);
-      border-radius: var(--r-xl);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px 22px 6px 22px;
       padding: 40px 32px 36px;
       margin: 0 auto;
       max-width: 680px;
       text-align: center;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+      box-shadow: 0 2px 0 rgba(43,33,24,0.05), 0 28px 60px -18px rgba(43,33,24,0.32);
     }
 
-    /* Diagonal stripe behind hero */
+    /* Airmail stripe along the top edge of the hero card */
     .hero-card::before {
       content: "";
       position: absolute;
-      top: -40px; right: -60px;
-      width: 260px; height: 260px;
-      background: linear-gradient(135deg, rgba(255,31,53,0.14), transparent 60%);
-      border-radius: 50%;
-      pointer-events: none;
+      top: 0; left: 26px; right: 26px;
+      height: 6px;
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--red) 0px, var(--red) 9px,
+        transparent 9px, transparent 12px,
+        var(--cyan) 12px, var(--cyan) 21px,
+        transparent 21px, transparent 24px
+      );
+      border-radius: 0 0 3px 3px;
     }
 
     .hero-card p {
@@ -308,16 +351,15 @@
 
     .status, .panel-card {
       background: var(--card);
-      border-radius: var(--r-lg);
+      border-radius: 4px 16px 4px 16px;
       padding: 20px;
       margin: 12px 0;
       line-height: 1.65;
       text-align: left;
       position: relative;
-      /* Left border accent instead of full border */
       border: 1px solid var(--line);
-      border-left: 3px solid var(--red);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+      border-left: 4px solid var(--red);
+      box-shadow: 0 1px 0 rgba(43,33,24,0.04), 0 10px 26px -12px rgba(43,33,24,0.28);
     }
 
     .page-intro {
@@ -336,25 +378,23 @@
       place-items: center;
       margin: 0 auto 20px;
       border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #2e0d14, #0d0305);
-      border: 2px solid var(--red);
+      background: var(--card);
+      border: 2.5px solid var(--red);
       font-size: 2.3rem;
-      box-shadow: 0 0 0 4px rgba(255, 31, 53, 0.15),
-                  0 0 0 8px rgba(255, 31, 53, 0.06),
-                  0 20px 40px rgba(0,0,0,0.5);
+      box-shadow: 0 0 0 4px rgba(200, 68, 45, 0.12),
+                  0 0 0 8px rgba(200, 68, 45, 0.05),
+                  0 16px 32px -10px rgba(43,33,24,0.35);
       position: relative;
     }
 
-    /* Spinning orbit ring */
+    /* Dashed compass ring instead of solid spinning orbit */
     .logo-badge::after {
       content: "";
       position: absolute;
-      inset: -8px;
+      inset: -9px;
       border-radius: 50%;
-      border: 1px solid transparent;
-      border-top-color: var(--amber);
-      border-right-color: var(--amber);
-      animation: orbit 8s linear infinite;
+      border: 1.5px dashed var(--amber);
+      animation: orbit 12s linear infinite;
     }
 
     @keyframes orbit {
@@ -371,23 +411,49 @@
       right: 14px;
       z-index: 100;
       font-size: 0.8rem;
-      padding: 9px 16px;
+      padding: 9px 18px;
       margin: 0;
-      border-radius: 0;
-      background: var(--red);
-      border: none;
-      color: #fff;
-      letter-spacing: 0.1em;
-      font-weight: 900;
-      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 100%, 0 100%);
-      box-shadow: 3px 3px 0 var(--red-dark), 0 8px 20px rgba(0,0,0,0.4);
+      border-radius: 999px;
+      background: var(--card);
+      border: 1.5px solid var(--cream);
+      color: var(--cream);
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      box-shadow: 2px 2px 0 rgba(43,33,24,0.18);
       text-transform: uppercase;
     }
 
+    #topMenuBtn::after { display: none; }
+
     #topMenuBtn:hover {
-      background: #ff3347;
+      background: var(--cream);
+      color: var(--card);
       transform: none;
-      box-shadow: 3px 3px 0 var(--red-dark), 0 10px 24px rgba(0,0,0,0.5);
+      box-shadow: 3px 3px 0 rgba(43,33,24,0.22);
+    }
+
+    .top-bar-color-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .roster-color-dot {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    /* Extra clearance under the fixed top bar so it never overlaps
+       the first heading of the active screen, even on long titles. */
+    body.has-top-bar {
+      padding-top: 78px;
     }
 
     /* ── TEAM GRID ──────────────────────────────────────────── */
@@ -404,18 +470,20 @@
       width: 100%;
       margin: 0;
       background: var(--card);
-      border: 1px solid var(--line);
-      border-left: 3px solid transparent;
-      border-radius: var(--r-sm);
+      border: 1.5px solid var(--line);
+      border-left: 4px solid transparent;
+      border-radius: 4px 14px 4px 14px;
       font-size: 0.95rem;
       font-weight: 700;
       text-align: left;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       color: var(--muted);
-      box-shadow: none;
+      box-shadow: 0 1px 0 rgba(43,33,24,0.04), 0 6px 14px -8px rgba(43,33,24,0.25);
       transition: border-color 0.12s, background 0.12s, color 0.12s, transform 0.1s;
     }
+
+    .team-btn::after { display: none; }
 
     .team-btn:hover {
       border-color: var(--line);
@@ -423,10 +491,8 @@
       background: var(--raise);
       color: var(--cream);
       transform: translateX(3px);
-      box-shadow: none;
+      box-shadow: 0 1px 0 rgba(43,33,24,0.04), 0 8px 18px -8px rgba(43,33,24,0.3);
     }
-
-    .team-btn::after { display: none; }
 
     /* ── CASH / STATS ───────────────────────────────────────── */
 
@@ -439,18 +505,18 @@
       margin: 8px 0 16px;
       color: var(--green);
       background: var(--green-soft);
-      border: 1px solid rgba(0, 224, 154, 0.3);
-      border-radius: var(--r-sm);
-      padding: 8px 16px;
-      letter-spacing: 0.03em;
+      border: 1.5px solid rgba(63, 107, 47, 0.32);
+      border-radius: 999px;
+      padding: 8px 18px;
+      letter-spacing: 0.02em;
     }
 
     .cash-pill {
       color: var(--green);
       background: var(--green-soft);
-      border: 1px solid rgba(0, 224, 154, 0.28);
-      border-radius: var(--r-sm);
-      padding: 2px 9px;
+      border: 1.5px solid rgba(63, 107, 47, 0.3);
+      border-radius: 999px;
+      padding: 2px 10px;
       white-space: nowrap;
       font-weight: 700;
     }
@@ -467,7 +533,7 @@
     .skill {
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: var(--r-sm);
+      border-radius: 4px 12px 4px 12px;
       padding: 10px 13px;
       display: flex;
       justify-content: space-between;
@@ -480,7 +546,7 @@
 
     .skill .lvl {
       font-size: 1rem;
-      font-weight: 900;
+      font-weight: 800;
       color: var(--amber);
       min-width: 22px;
       text-align: right;
@@ -496,11 +562,11 @@
       width: 100%;
       margin: 8px 0 0;
       background: var(--card);
-      border: 1px solid var(--line);
-      border-left: 3px solid transparent;
-      border-radius: var(--r-sm);
+      border: 1.5px solid var(--line);
+      border-left: 4px solid transparent;
+      border-radius: 4px 14px 4px 14px;
       text-align: left;
-      box-shadow: none;
+      box-shadow: 0 1px 0 rgba(43,33,24,0.03), 0 4px 12px -8px rgba(43,33,24,0.2);
       padding: 13px 16px;
       text-transform: none;
       letter-spacing: 0;
@@ -509,14 +575,15 @@
       transition: border-left-color 0.12s, background 0.12s, transform 0.1s;
     }
 
+    .opt-btn::after { display: none; }
+
     .opt-btn:hover {
       border-left-color: var(--amber);
       background: var(--raise);
       transform: translateX(3px);
-      box-shadow: none;
+      box-shadow: 0 1px 0 rgba(43,33,24,0.03), 0 8px 18px -10px rgba(43,33,24,0.28);
     }
 
-    .opt-btn:hover::after { display: none; }
     .opt-btn:active { transform: translateX(3px); box-shadow: none; }
 
     .transport-main {
@@ -552,9 +619,9 @@
     .flight-route,
     .route-history,
     .challenge-summary {
-      background: rgba(13, 3, 5, 0.6);
+      background: var(--surface);
       border: 1px solid var(--line);
-      border-left: 3px solid var(--amber);
+      border-left: 4px solid var(--amber);
       border-radius: var(--r-md);
       padding: 14px 16px;
       margin-top: 14px;
@@ -566,7 +633,7 @@
       justify-content: space-between;
       align-items: baseline;
       gap: 12px;
-      border-bottom: 1px solid var(--line);
+      border-bottom: 1px dashed var(--line);
       border-left: 3px solid transparent;
       padding: 8px 0 8px 10px;
       line-height: 1.35;
@@ -576,7 +643,7 @@
     .departure-row:last-child { border-bottom: none; }
 
     .departure-row.you {
-      color: var(--amber);
+      color: var(--red);
       font-weight: 700;
     }
 
@@ -589,20 +656,20 @@
       font-size: 0.88rem;
     }
 
-    .departure-row.you .departure-time { color: var(--amber); }
+    .departure-row.you .departure-time { color: var(--red); }
 
     .route-history {
       line-height: 1.65;
-      color: var(--amber);
-      font-weight: 700;
+      color: var(--cream);
+      font-weight: 600;
       overflow-wrap: anywhere;
-      border-left-color: var(--amber);
+      border-left-color: var(--cyan);
     }
 
     .presence-section {
       margin-top: 12px;
       padding-top: 11px;
-      border-top: 1px solid var(--line);
+      border-top: 1px dashed var(--line);
     }
 
     .presence-section:first-child {
@@ -616,7 +683,7 @@
     .presence-event {
       margin: 5px 0;
       padding-left: 12px;
-      border-left: 3px solid rgba(255, 184, 0, 0.4);
+      border-left: 3px solid rgba(217, 131, 36, 0.45);
       overflow-wrap: anywhere;
       font-size: 0.9rem;
       color: var(--muted);
@@ -627,11 +694,11 @@
       align-items: center;
       gap: 6px;
       margin: 4px 5px 0 0;
-      padding: 4px 8px 4px 7px;
+      padding: 4px 9px 4px 8px;
       border: 1px solid var(--line);
       border-left: 3px solid currentColor;
       border-radius: 999px;
-      background: rgba(255,255,255,0.035);
+      background: var(--card);
       color: var(--cream);
       font-size: 0.84rem;
       line-height: 1.1;
@@ -639,9 +706,10 @@
     }
 
     .challenge-summary {
-      color: var(--amber);
-      border-left-color: var(--amber);
+      color: var(--cream);
+      border-left-color: var(--red);
       line-height: 1.55;
+      background: rgba(200, 68, 45, 0.05);
     }
 
     /* ── FLIGHT ROUTE ───────────────────────────────────────── */
@@ -652,15 +720,15 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       font-size: 0.75rem;
-      font-weight: 900;
+      font-weight: 800;
     }
 
     .flight-hop {
       margin: 10px 0;
       padding: 10px 12px;
-      border-left: 2px solid rgba(0, 229, 255, 0.4);
+      border-left: 2px solid rgba(31, 92, 115, 0.4);
       overflow-wrap: anywhere;
-      background: rgba(0, 229, 255, 0.03);
+      background: rgba(31, 92, 115, 0.05);
       border-radius: 0 var(--r-sm) var(--r-sm) 0;
       font-size: 0.9rem;
     }
@@ -674,7 +742,7 @@
 
     .standings > div {
       padding: 10px 0;
-      border-bottom: 1px solid var(--line);
+      border-bottom: 1px dashed var(--line);
       line-height: 1.45;
       overflow-wrap: anywhere;
       font-size: 0.95rem;
@@ -703,7 +771,7 @@
 
     .chart th {
       color: var(--amber);
-      background: rgba(255, 184, 0, 0.07);
+      background: var(--amber-soft);
       letter-spacing: 0.06em;
       text-transform: uppercase;
       font-size: 0.75rem;
@@ -715,15 +783,15 @@
     /* ── PLACEMENT CHART REDESIGN ──────────────────────────── */
 
     .placement-chart-card {
-      background: linear-gradient(160deg, rgba(31, 8, 13, 0.96) 0%, rgba(13, 3, 5, 0.96) 100%);
-      border: 1px solid rgba(255, 245, 230, 0.12);
-      border-left: 3px solid var(--red);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--red);
       border-radius: var(--r-lg);
       padding: 16px;
       margin-top: 14px;
       overflow: hidden;
       text-align: left;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 16px 40px rgba(0,0,0,0.24);
+      box-shadow: 0 1px 0 rgba(43,33,24,0.04), 0 14px 32px -16px rgba(43,33,24,0.3);
     }
 
     .placement-chart-head {
@@ -737,7 +805,7 @@
     .placement-chart-title {
       color: var(--amber);
       font-size: 0.78rem;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: 0.12em;
       text-transform: uppercase;
     }
@@ -752,9 +820,9 @@
     .placement-chart-wrap {
       width: 100%;
       overflow-x: auto;
-      border: 1px solid rgba(255, 245, 230, 0.12);
+      border: 1px solid var(--line);
       border-radius: var(--r-md);
-      background: rgba(0, 0, 0, 0.22);
+      background: var(--surface);
     }
 
     .placement-chart {
@@ -770,29 +838,29 @@
     .placement-chart td {
       padding: 10px 11px;
       text-align: center;
-      border-bottom: 1px solid rgba(255,255,255,0.075);
+      border-bottom: 1px solid var(--line);
       white-space: nowrap;
     }
 
     .placement-chart th {
-      background: rgba(255,255,255,0.045);
+      background: rgba(43,33,24,0.05);
       color: var(--muted);
       font-size: 0.7rem;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: 0.11em;
       text-transform: uppercase;
     }
 
     .placement-chart tbody tr {
-      background: rgba(255,255,255,0.018);
+      background: var(--card);
     }
 
     .placement-chart tbody tr:nth-child(even) {
-      background: rgba(255,255,255,0.035);
+      background: rgba(43,33,24,0.025);
     }
 
     .placement-chart tbody tr:hover {
-      background: rgba(255, 184, 0, 0.07);
+      background: var(--amber-soft);
     }
 
     .placement-chart tbody tr:last-child td {
@@ -805,13 +873,13 @@
       position: sticky;
       left: 0;
       z-index: 1;
-      background: #18070b;
-      box-shadow: 10px 0 18px rgba(0,0,0,0.22);
+      background: var(--surface);
+      box-shadow: 10px 0 16px -10px rgba(43,33,24,0.15);
     }
 
     .placement-chart th.placement-team-cell {
       z-index: 2;
-      background: #160608;
+      background: rgba(43,33,24,0.06);
     }
 
     .placement-team-chip-line {
@@ -826,7 +894,7 @@
       height: 10px;
       border-radius: 50%;
       flex: 0 0 auto;
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.12);
+      box-shadow: 0 0 0 2px rgba(43,33,24,0.10);
     }
 
     .placement-team-name {
@@ -843,43 +911,43 @@
       height: 24px;
       padding: 0 8px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.075);
+      background: rgba(43,33,24,0.06);
       color: var(--cream);
-      border: 1px solid rgba(255,255,255,0.10);
-      font-weight: 900;
+      border: 1px solid var(--line);
+      font-weight: 800;
       line-height: 1;
     }
 
     .placement-rank-pill.first {
-      color: #111;
+      color: #fff;
       background: var(--amber);
-      border-color: rgba(255, 184, 0, 0.65);
-      box-shadow: 0 0 16px rgba(255, 184, 0, 0.16);
+      border-color: rgba(217, 131, 36, 0.7);
+      box-shadow: 0 0 0 3px rgba(217, 131, 36, 0.16);
     }
 
     .placement-rank-pill.empty {
-      color: rgba(255, 245, 230, 0.32);
+      color: rgba(43, 33, 24, 0.30);
       background: transparent;
-      border-color: rgba(255,255,255,0.06);
+      border-color: var(--line);
     }
 
     .placement-rank-pill.latest {
-      outline: 2px solid rgba(0, 229, 255, 0.28);
+      outline: 2px solid rgba(31, 92, 115, 0.35);
       outline-offset: 1px;
     }
 
     .placement-avg {
       color: var(--cyan);
-      font-weight: 900;
+      font-weight: 800;
     }
 
     .placement-chart tr.player-row .placement-team-name,
     .placement-chart tr.player-row .placement-avg {
-      color: var(--amber);
+      color: var(--red);
     }
 
     .placement-chart tr.player-row {
-      background: rgba(255, 184, 0, 0.075);
+      background: rgba(200, 68, 45, 0.06);
     }
 
 
@@ -903,29 +971,32 @@
     .broadcast-hero {
       position: relative;
       overflow: hidden;
-      border-radius: var(--r-xl);
+      border-radius: 6px 22px 6px 22px;
       padding: 22px;
-      background:
-        radial-gradient(circle at 16% 0%, rgba(255,31,53,0.26), transparent 42%),
-        linear-gradient(145deg, rgba(42,13,19,0.98), rgba(13,3,5,0.98));
-      border: 1px solid rgba(255,245,230,0.12);
-      border-left: 4px solid var(--hero-color, var(--red));
-      box-shadow: 0 20px 52px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--hero-color, var(--red));
+      box-shadow: 0 2px 0 rgba(43,33,24,0.05), 0 22px 46px -18px rgba(43,33,24,0.32);
     }
 
     .broadcast-hero::after {
       content: "";
       position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.035) 48%, transparent 62%);
-      transform: translateX(-35%);
+      top: 0; left: 24px; right: 24px;
+      height: 5px;
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--hero-color, var(--red)) 0px, var(--hero-color, var(--red)) 8px,
+        transparent 8px, transparent 11px,
+        var(--cyan) 11px, var(--cyan) 19px,
+        transparent 19px, transparent 22px
+      );
     }
 
     .broadcast-kicker {
       color: var(--amber);
       font-size: 0.74rem;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       margin-bottom: 8px;
@@ -933,11 +1004,13 @@
 
     .broadcast-route-title {
       margin: 0;
-      font-size: clamp(1.45rem, 4vw, 2.45rem);
-      line-height: 1.05;
-      letter-spacing: -0.03em;
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(1.4rem, 4vw, 2.3rem);
+      line-height: 1.08;
+      letter-spacing: -0.01em;
       color: var(--cream);
-      text-transform: uppercase;
+      text-transform: none;
+      font-weight: 600;
     }
 
     .broadcast-subline {
@@ -959,20 +1032,20 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 7px 10px;
+      padding: 7px 12px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.065);
-      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(43,33,24,0.06);
+      border: 1px solid var(--line);
       color: var(--cream);
       font-size: 0.82rem;
-      font-weight: 800;
+      font-weight: 700;
       white-space: nowrap;
     }
 
-    .broadcast-pill.good { color: var(--green); background: rgba(0,224,154,0.09); border-color: rgba(0,224,154,0.24); }
-    .broadcast-pill.warn { color: var(--amber); background: rgba(255,184,0,0.10); border-color: rgba(255,184,0,0.28); }
-    .broadcast-pill.danger { color: var(--red); background: rgba(255,31,53,0.10); border-color: rgba(255,31,53,0.30); }
-    .broadcast-pill.info { color: var(--cyan); background: rgba(0,229,255,0.08); border-color: rgba(0,229,255,0.22); }
+    .broadcast-pill.good { color: var(--green); background: var(--green-soft); border-color: rgba(63,107,47,0.28); }
+    .broadcast-pill.warn { color: var(--amber); background: var(--amber-soft); border-color: rgba(217,131,36,0.32); }
+    .broadcast-pill.danger { color: var(--red); background: rgba(200,68,45,0.08); border-color: rgba(200,68,45,0.32); }
+    .broadcast-pill.info { color: var(--cyan); background: var(--cyan-soft); border-color: rgba(31,92,115,0.26); }
 
     .broadcast-grid {
       display: grid;
@@ -982,12 +1055,12 @@
 
     .broadcast-panel,
     .broadcast-details {
-      background: linear-gradient(160deg, rgba(31,8,13,0.94), rgba(13,3,5,0.94));
-      border: 1px solid rgba(255,245,230,0.12);
-      border-left: 3px solid var(--panel-color, var(--amber));
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--panel-color, var(--amber));
       border-radius: var(--r-lg);
       padding: 16px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 34px rgba(0,0,0,0.24);
+      box-shadow: 0 1px 0 rgba(43,33,24,0.04), 0 12px 28px -16px rgba(43,33,24,0.26);
       overflow: hidden;
     }
 
@@ -995,7 +1068,7 @@
     .broadcast-details > summary {
       color: var(--panel-color, var(--amber));
       font-size: 0.75rem;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: 0.13em;
       text-transform: uppercase;
       margin-bottom: 10px;
@@ -1025,10 +1098,10 @@
       padding: 5px 10px;
       border-radius: 999px;
       border: 1px solid currentColor;
-      background: rgba(255,255,255,0.055);
+      background: rgba(43,33,24,0.04);
       color: var(--panel-color, var(--amber));
       font-size: 0.68rem;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: 0.10em;
       text-transform: uppercase;
       line-height: 1;
@@ -1042,9 +1115,9 @@
     .broadcast-outcome {
       border-radius: var(--r-md);
       padding: 13px 14px;
-      border: 1px solid rgba(255,245,230,0.12);
+      border: 1px solid var(--line);
       border-left: 3px solid var(--outcome-color, var(--amber));
-      background: rgba(255,255,255,0.035);
+      background: var(--surface);
       color: var(--cream);
       line-height: 1.45;
       font-size: 0.94rem;
@@ -1062,21 +1135,21 @@
       align-items: center;
       gap: 9px;
       padding: 9px 10px;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+      border: 1px solid var(--line);
+      border-bottom: 1px solid var(--line) !important;
       border-radius: var(--r-sm);
-      background: rgba(255,255,255,0.032);
+      background: var(--surface);
       font-size: 0.9rem;
     }
 
     .broadcast-standing-row.you {
-      background: rgba(255,184,0,0.075);
-      border-color: rgba(255,184,0,0.20);
+      background: rgba(217,131,36,0.10);
+      border-color: rgba(217,131,36,0.30);
     }
 
     .broadcast-place {
       color: var(--muted);
-      font-weight: 900;
+      font-weight: 800;
       font-size: 0.82rem;
     }
 
@@ -1092,7 +1165,7 @@
       height: 9px;
       border-radius: 50%;
       flex: 0 0 auto;
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.12);
+      box-shadow: 0 0 0 2px rgba(43,33,24,0.10);
     }
 
     .broadcast-team-name {
@@ -1101,12 +1174,12 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       color: var(--cream);
-      font-weight: 900;
+      font-weight: 800;
     }
 
     .broadcast-time-line {
       color: var(--cyan);
-      font-weight: 900;
+      font-weight: 800;
       white-space: nowrap;
     }
 
@@ -1116,10 +1189,10 @@
       margin-left: 7px;
       color: var(--red);
       font-size: 0.72rem;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: 0.08em;
-      background: rgba(255,31,53,0.14);
-      border: 1px solid rgba(255,31,53,0.42);
+      background: rgba(200,68,45,0.10);
+      border: 1px solid rgba(200,68,45,0.4);
       border-radius: 5px;
       padding: 2px 6px;
       vertical-align: middle;
@@ -1140,14 +1213,14 @@
       border-radius: var(--r-sm);
       padding: 10px;
       text-align: center;
-      background: rgba(0,0,0,0.24);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--inset);
+      border: 1px solid var(--line);
     }
 
     .leg-recap-label {
       color: var(--muted);
       font-size: 0.67rem;
-      font-weight: 900;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.10em;
       margin-bottom: 4px;
@@ -1155,16 +1228,16 @@
 
     .leg-recap-value {
       font-size: 0.92rem;
-      font-weight: 900;
+      font-weight: 800;
     }
 
     .leg-recap-cash {
       padding: 9px 11px;
       border-radius: var(--r-sm);
-      background: rgba(0,224,154,0.07);
-      border: 1px solid rgba(0,224,154,0.18);
+      background: var(--green-soft);
+      border: 1px solid rgba(63,107,47,0.22);
       border-left: 3px solid var(--green);
-      color: var(--muted);
+      color: var(--cream);
       font-size: 0.88rem;
     }
 
@@ -1179,7 +1252,7 @@
       gap: 10px;
       align-items: center;
       padding: 8px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.065);
+      border-bottom: 1px dashed var(--line);
     }
 
     .leg-recap-event:last-child { border-bottom: none; }
@@ -1194,7 +1267,7 @@
     .leg-recap-event-title {
       color: var(--cream);
       font-size: 0.9rem;
-      font-weight: 900;
+      font-weight: 800;
       overflow-wrap: anywhere;
     }
 
@@ -1202,7 +1275,7 @@
       color: var(--muted);
       font-size: 0.78rem;
       margin-top: 2px;
-      font-weight: 700;
+      font-weight: 600;
     }
 
     .leg-recap-duration-pill {
@@ -1211,10 +1284,10 @@
       border-radius: 999px;
       padding: 5px 8px;
       font-size: 0.76rem;
-      font-weight: 900;
+      font-weight: 800;
       color: var(--event-color, var(--cream));
-      background: rgba(255,255,255,0.055);
-      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(43,33,24,0.05);
+      border: 1px solid var(--line);
     }
 
     @media (max-width: 760px) {
@@ -1237,18 +1310,19 @@
       width: 100%;
       margin: 0;
       background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--r-sm);
+      border: 1.5px solid var(--line);
+      border-radius: 4px 14px 4px 14px;
       text-align: center;
-      box-shadow: none;
+      box-shadow: 0 1px 0 rgba(43,33,24,0.04), 0 6px 14px -8px rgba(43,33,24,0.22);
       font-size: 0.88rem;
       color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
     }
 
-    .menu-btn:hover { background: var(--raise); color: var(--cream); }
     .menu-btn::after { display: none; }
+
+    .menu-btn:hover { background: var(--raise); color: var(--cream); }
 
     .menu-btn.gold {
       border-color: var(--line-amber);
@@ -1256,7 +1330,7 @@
       background: var(--amber-soft);
     }
 
-    .menu-btn.gold:hover { background: rgba(255, 184, 0, 0.2); }
+    .menu-btn.gold:hover { background: rgba(217, 131, 36, 0.22); }
 
     .menu-note {
       color: var(--muted);
@@ -1277,7 +1351,7 @@
 
     .setup-section {
       padding: 20px;
-      border-top: 1px solid var(--line);
+      border-top: 1px dashed var(--line);
     }
 
     .setup-section:first-child { border-top: none; }
@@ -1297,19 +1371,20 @@
       margin-bottom: 5px;
       color: var(--red);
       font-size: 0.72rem;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: 0.12em;
       text-transform: uppercase;
     }
 
     .section-title {
-      font-size: 1.15rem;
-      font-weight: 800;
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.2rem;
+      font-weight: 600;
       color: var(--cream);
-      letter-spacing: -0.01em;
-      text-transform: uppercase;
+      letter-spacing: -0.005em;
+      text-transform: none;
       margin: 0;
-      line-height: 1.15;
+      line-height: 1.2;
     }
 
     .section-copy {
@@ -1347,21 +1422,21 @@
       display: block;
       color: var(--amber);
       font-size: 0.78rem;
-      font-weight: 900;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       margin-bottom: 8px;
     }
 
     input, select, textarea,
     .setting-card input, .setting-card select {
       width: 100%;
-      font-family: 'Chakra Petch', Arial, sans-serif;
+      font-family: 'Space Grotesk', Arial, sans-serif;
       font-weight: 600;
       font-size: 0.95rem;
       color: var(--cream);
       background: var(--card);
-      border: 1px solid var(--line);
+      border: 1.5px solid var(--line);
       border-radius: var(--r-sm);
       padding: 10px 12px;
       outline: none;
@@ -1371,10 +1446,10 @@
     input:focus, select:focus, textarea:focus,
     .setting-card input:focus, .setting-card select:focus {
       border-color: var(--amber);
-      box-shadow: 0 0 0 3px rgba(255, 184, 0, 0.1);
+      box-shadow: 0 0 0 3px rgba(217, 131, 36, 0.14);
     }
 
-    select option { background: #1a0608; color: var(--cream); }
+    select option { background: var(--card); color: var(--cream); }
 
     .setting-help {
       color: var(--muted);
@@ -1392,7 +1467,7 @@
 
     .setting-summary {
       margin: 0;
-      color: var(--amber);
+      color: var(--cream);
       font-size: 0.9rem;
       line-height: 1.55;
       background: var(--amber-soft);
@@ -1407,7 +1482,7 @@
     .skill-editor-card,
     .custom-skill-editor-card {
       margin-top: 14px;
-      background: rgba(13, 3, 5, 0.5);
+      background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-md);
       padding: 14px;
@@ -1429,7 +1504,7 @@
       font-size: 0.95rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
     }
 
     .team-name-editor,
@@ -1440,7 +1515,7 @@
       gap: 8px;
       overflow: auto;
       padding-right: 4px;
-      scrollbar-color: rgba(255, 184, 0, 0.45) rgba(255,255,255,0.04);
+      scrollbar-color: rgba(217, 131, 36, 0.5) rgba(43,33,24,0.06);
     }
 
     .team-name-editor { max-height: 360px; }
@@ -1477,7 +1552,7 @@
     }
 
     .skill-team-card {
-      background: var(--surface);
+      background: var(--card);
       border: 1px solid var(--line);
       border-radius: var(--r-md);
       padding: 12px;
@@ -1560,7 +1635,7 @@
     .save-slot-card {
       background: var(--card);
       border: 1px solid var(--line);
-      border-left: 3px solid var(--red);
+      border-left: 4px solid var(--red);
       border-radius: var(--r-md);
       padding: 14px;
       text-align: left;
@@ -1573,7 +1648,7 @@
       margin-bottom: 4px;
       font-size: 0.9rem;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
     }
 
     .save-slot-meta {
@@ -1594,7 +1669,7 @@
 
     .transport-editor-card {
       margin-top: 14px;
-      background: rgba(13, 3, 5, 0.5);
+      background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-md);
       padding: 14px;
@@ -1635,7 +1710,7 @@
       max-height: 520px;
       overflow: auto;
       padding-right: 4px;
-      scrollbar-color: rgba(255, 184, 0, 0.45) rgba(255,255,255,0.04);
+      scrollbar-color: rgba(217, 131, 36, 0.5) rgba(43,33,24,0.06);
     }
 
     .transport-editor-head {
@@ -1644,7 +1719,7 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
       margin-bottom: 8px;
-      font-weight: 900;
+      font-weight: 800;
     }
 
     .transport-row { display: contents; }
@@ -1657,15 +1732,17 @@
       margin: 0;
       font-size: 0.78rem;
       border-radius: var(--r-sm);
-      background: rgba(255, 31, 53, 0.12);
-      border: 1px solid rgba(255, 31, 53, 0.35);
-      color: #ff6670;
+      background: rgba(200, 68, 45, 0.10);
+      border: 1px solid rgba(200, 68, 45, 0.35);
+      color: var(--red-dark);
       box-shadow: none;
       text-transform: uppercase;
     }
 
+    .transport-remove-btn::after { display: none; }
+
     .transport-remove-btn:hover {
-      background: rgba(255, 31, 53, 0.22);
+      background: rgba(200, 68, 45, 0.18);
       transform: none;
       box-shadow: none;
     }
@@ -1681,7 +1758,7 @@
 
     .city-weight-editor-card {
       margin-top: 14px;
-      background: rgba(13, 3, 5, 0.5);
+      background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-md);
       padding: 14px;
@@ -1701,7 +1778,7 @@
       font-size: 0.95rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
     }
 
     .city-weight-editor {
@@ -1724,7 +1801,7 @@
 
     .route-editor-card {
       margin-top: 14px;
-      background: rgba(13, 3, 5, 0.5);
+      background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--r-md);
       padding: 14px;
@@ -1744,7 +1821,7 @@
       font-size: 0.95rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
     }
 
     .route-grid {
@@ -1793,8 +1870,8 @@
       grid-template-columns: 42px minmax(0, 1fr) auto;
       gap: 10px;
       align-items: center;
-      background: rgba(255, 255, 255, 0.035);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--card);
+      border: 1px solid var(--line);
       border-radius: var(--r-sm);
       padding: 9px 10px;
     }
@@ -1806,17 +1883,17 @@
       min-width: 30px;
       height: 30px;
       border-radius: 999px;
-      background: rgba(255, 184, 0, 0.12);
-      border: 1px solid rgba(255, 184, 0, 0.35);
+      background: var(--amber-soft);
+      border: 1px solid var(--line-amber);
       color: var(--amber);
-      font-weight: 900;
+      font-weight: 800;
       font-size: 0.82rem;
     }
 
     .route-row-title {
-      color: var(--text);
+      color: var(--cream);
       font-size: 0.92rem;
-      font-weight: 900;
+      font-weight: 800;
       min-width: 0;
       overflow-wrap: anywhere;
     }
@@ -1829,13 +1906,13 @@
     }
 
     .route-empty {
-      border: 1px dashed rgba(255, 184, 0, 0.28);
+      border: 1.5px dashed var(--line-amber);
       border-radius: var(--r-sm);
       padding: 18px;
       color: var(--muted);
       font-size: 0.9rem;
       line-height: 1.45;
-      background: rgba(255, 184, 0, 0.04);
+      background: var(--amber-soft);
     }
 
     .route-editor-note {
@@ -1846,11 +1923,11 @@
     }
 
     .route-editor-card.is-auto {
-      border-color: rgba(255, 184, 0, 0.18);
+      border-color: var(--line-amber);
     }
 
     .route-editor-card.is-auto .route-custom-only {
-      opacity: 0.42;
+      opacity: 0.45;
     }
 
     .route-editor-card.is-auto .route-pick-list,
@@ -1901,9 +1978,9 @@
     /* ── DETAILED LEG TIME CHART ───────────────────────────── */
 
     .time-chart-card {
-      background: rgba(13, 3, 5, 0.5);
+      background: var(--surface);
       border: 1px solid var(--line);
-      border-left: 3px solid var(--amber);
+      border-left: 4px solid var(--amber);
       border-radius: var(--r-lg);
       padding: 16px;
       margin-top: 14px;
@@ -1917,28 +1994,28 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       font-size: 0.75rem;
-      font-weight: 900;
+      font-weight: 800;
     }
 
     .time-chart-wrap {
       width: 100%;
       overflow: hidden;
       border-radius: var(--r-sm);
-      border: 1px solid rgba(255, 245, 230, 0.16);
-      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--line);
+      background: var(--card);
     }
 
     .time-chart {
       width: 100%;
       border-collapse: collapse;
       font-size: var(--tc-font-size, 0.78rem);
-      font-weight: 900;
+      font-weight: 800;
       table-layout: fixed;
     }
 
     .time-chart th,
     .time-chart td {
-      border: 1px solid rgba(0, 0, 0, 0.42);
+      border: 1px solid rgba(43,33,24,0.12);
       padding: var(--tc-pad-y, 7px) var(--tc-pad-x, 9px);
       text-align: center;
       min-width: 0;
@@ -1946,8 +2023,8 @@
     }
 
     .time-chart th {
-      background: #111;
-      color: var(--cream);
+      background: var(--cream);
+      color: var(--paper);
       letter-spacing: 0.005em;
       text-transform: uppercase;
       font-size: var(--tc-head-font-size, 0.72rem);
@@ -1968,7 +2045,7 @@
       background: #f3f3f3;
       color: #111;
       font-size: calc(var(--tc-font-size, 0.78rem) + 0.03rem);
-      box-shadow: 2px 0 0 rgba(0,0,0,0.35);
+      box-shadow: 2px 0 0 rgba(43,33,24,0.18);
       text-align: center;
       vertical-align: middle;
       line-height: 1;
@@ -1979,14 +2056,14 @@
       font-variant-numeric: tabular-nums;
     }
 
-    .time-chart .rank-head { background: #111; color: var(--cream); box-shadow: none; }
+    .time-chart .rank-head { background: var(--cream); color: var(--paper); box-shadow: none; }
 
     .time-chart .group-head {
       font-size: var(--tc-head-font-size, 0.72rem);
       vertical-align: middle;
       padding-top: max(3px, calc(var(--tc-pad-y, 7px) + 1px));
       padding-bottom: max(3px, calc(var(--tc-pad-y, 7px) + 1px));
-      text-align: center;
+      font-weight: 800;
     }
 
     .time-chart .sub-head {
@@ -1995,7 +2072,8 @@
       padding-top: max(2px, calc(var(--tc-pad-y, 7px) - 1px));
       padding-bottom: max(2px, calc(var(--tc-pad-y, 7px) - 1px));
       letter-spacing: 0.01em;
-      background: #171717;
+      background: #e2ddcb;
+      color: var(--cream);
       text-align: center;
     }
 
@@ -2029,9 +2107,9 @@
     /* ── CLUE CHART ─────────────────────────────────────────── */
 
     .clue-chart-card {
-      background: rgba(13, 3, 5, 0.5);
+      background: var(--surface);
       border: 1px solid var(--line);
-      border-left: 3px solid var(--cyan);
+      border-left: 4px solid var(--cyan);
       border-radius: var(--r-lg);
       padding: 16px;
       margin-top: 14px;
@@ -2044,7 +2122,7 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       font-size: 0.75rem;
-      font-weight: 900;
+      font-weight: 800;
     }
 
     .clue-chart-card svg {
@@ -2052,15 +2130,16 @@
       width: 100%;
       max-width: 100%;
       height: auto;
-      background: rgba(255, 255, 255, 0.97);
+      background: #ffffff;
       border-radius: var(--r-sm);
+      border: 1px solid var(--line);
     }
 
     .clue-chart-card .axis-label,
     .clue-chart-card .legend-label,
     .clue-chart-card .rank-label,
     .clue-chart-card .chart-subtitle {
-      font-family: 'Chakra Petch', Arial, sans-serif;
+      font-family: 'Space Grotesk', Arial, sans-serif;
       fill: #111;
       font-weight: 700;
     }
@@ -2072,12 +2151,80 @@
       margin-top: 8px;
     }
 
-    /* ── RACE CLOCK (live data uses cyan like a ticker) ─────── */
+    /* ── RACE CLOCK STRIP ───────────────────────────────────── */
 
-    /* Anything inside a .status that looks like a clock value */
-    .status strong, .panel-card strong {
-      color: var(--cream);
+    .race-clock-strip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--cyan-soft);
+      border: 1.5px solid rgba(31, 92, 115, 0.3);
+      border-radius: 999px;
+      padding: 7px 14px;
+      margin-bottom: 4px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--muted);
     }
+
+    .race-clock-strip strong {
+      color: var(--cyan);
+      font-weight: 800;
+    }
+
+    /* ── INFO STRIP (key/value detail rows) ─────────────────── */
+
+    .info-strip {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--red);
+      border-radius: var(--r-md);
+      padding: 4px 16px;
+      margin-top: 14px;
+      text-align: left;
+    }
+
+    .info-strip.amber { border-left-color: var(--amber); }
+    .info-strip.green { border-left-color: var(--green); }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--line);
+      font-size: 0.92rem;
+      line-height: 1.35;
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-row-label {
+      color: var(--muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .info-row-value {
+      color: var(--cream);
+      font-weight: 800;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    .info-strip-banner {
+      padding: 12px 0 4px;
+      color: var(--red);
+      font-weight: 800;
+      text-align: center;
+      border-bottom: 1px dashed var(--line);
+      margin-bottom: 4px;
+    }
+
+    .info-strip .info-row:first-child { border-top: none; }
+
+    .info-row-cash .info-row-value { padding: 0; }
 
     /* ── REDUCED MOTION ─────────────────────────────────────── */
 
@@ -2089,6 +2236,7 @@
 
     @media (max-width: 760px) {
       body { padding: 26px 12px 60px; }
+      body.has-top-bar { padding-top: 70px; }
       .screen { max-width: 100%; }
 
       h1 { font-size: clamp(1.9rem, 8vw, 3rem); }
@@ -2099,8 +2247,8 @@
       .skills,
       .team-color-editor { grid-template-columns: 1fr; }
 
-      .hero-card { padding: 28px 18px; border-radius: var(--r-lg); }
-      .status, .panel-card { border-radius: var(--r-md); padding: 16px; }
+      .hero-card { padding: 28px 18px; border-radius: 6px 18px 6px 18px; }
+      .status, .panel-card { border-radius: 4px 14px 4px 14px; padding: 16px; }
       .setup-section { padding: 16px; }
 
       .section-heading,
@@ -2159,8 +2307,8 @@
     }
 
     @keyframes titleEntrance {
-      from { opacity: 0; transform: translateY(14px); letter-spacing: 0.12em; }
-      to   { opacity: 1; transform: translateY(0);    letter-spacing: -0.02em; }
+      from { opacity: 0; transform: translateY(14px); letter-spacing: 0.06em; }
+      to   { opacity: 1; transform: translateY(0);    letter-spacing: -0.015em; }
     }
 
     @keyframes fadeUp {
@@ -2169,13 +2317,13 @@
     }
 
     @keyframes borderPulse {
-      0%, 100% { border-color: rgba(255, 31, 53, 0.30); box-shadow: 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 0 0 rgba(255,31,53,0); }
-      50%       { border-color: rgba(255, 31, 53, 0.65); box-shadow: 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 32px 4px rgba(255,31,53,0.12); }
+      0%, 100% { border-color: var(--line); box-shadow: 0 2px 0 rgba(43,33,24,0.05), 0 28px 60px -18px rgba(43,33,24,0.32), 0 0 0 0 rgba(200,68,45,0); }
+      50%       { border-color: rgba(200, 68, 45, 0.55); box-shadow: 0 2px 0 rgba(43,33,24,0.05), 0 28px 60px -18px rgba(43,33,24,0.32), 0 0 26px 3px rgba(200,68,45,0.14); }
     }
 
     @keyframes badgeGlow {
-      0%, 100% { box-shadow: 0 0 0 4px rgba(255,31,53,0.15), 0 0 0 8px rgba(255,31,53,0.06), 0 20px 40px rgba(0,0,0,0.5); }
-      50%       { box-shadow: 0 0 0 6px rgba(255,31,53,0.28), 0 0 0 14px rgba(255,31,53,0.10), 0 20px 40px rgba(0,0,0,0.5), 0 0 40px 8px rgba(255,31,53,0.15); }
+      0%, 100% { box-shadow: 0 0 0 4px rgba(200,68,45,0.12), 0 0 0 8px rgba(200,68,45,0.05), 0 16px 32px -10px rgba(43,33,24,0.35); }
+      50%       { box-shadow: 0 0 0 6px rgba(200,68,45,0.22), 0 0 0 14px rgba(200,68,45,0.08), 0 16px 32px -10px rgba(43,33,24,0.35), 0 0 30px 6px rgba(200,68,45,0.14); }
     }
 
     @keyframes titleShimmer {
@@ -2222,7 +2370,7 @@
         90deg,
         var(--cream) 0%,
         var(--cream) 35%,
-        rgba(255,209,102,0.9) 48%,
+        var(--red) 48%,
         var(--cream) 61%,
         var(--cream) 100%
       );
@@ -2232,7 +2380,7 @@
       background-clip: text;
       animation:
         titleEntrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both,
-        titleShimmer 4s linear 1.4s infinite;
+        titleShimmer 5s linear 1.4s infinite;
     }
 
     /* Tagline */
@@ -2249,25 +2397,25 @@
       animation: fadeUp 0.5s ease 1.05s both;
     }
 
-    /* Floating particles behind the hero card */
+    /* Floating dots behind the hero — like pins on a map */
     #start::before {
       content: "";
       position: absolute;
       inset: 0;
       pointer-events: none;
       background-image:
-        radial-gradient(circle, rgba(255,31,53,0.6) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,184,0,0.4) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,31,53,0.4) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,245,230,0.3) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,31,53,0.5) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,184,0,0.5) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,245,230,0.25) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,31,53,0.35) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,184,0,0.35) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,31,53,0.45) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,245,230,0.2) 1px, transparent 1px),
-        radial-gradient(circle, rgba(255,184,0,0.3) 1px, transparent 1px);
+        radial-gradient(circle, rgba(200,68,45,0.5) 1.5px, transparent 1.5px),
+        radial-gradient(circle, rgba(217,131,36,0.45) 1.5px, transparent 1.5px),
+        radial-gradient(circle, rgba(31,92,115,0.4) 1.5px, transparent 1.5px),
+        radial-gradient(circle, rgba(43,33,24,0.25) 1.5px, transparent 1.5px),
+        radial-gradient(circle, rgba(200,68,45,0.4) 1.5px, transparent 1.5px),
+        radial-gradient(circle, rgba(217,131,36,0.4) 1.5px, transparent 1.5px),
+        radial-gradient(circle, rgba(43,33,24,0.2) 1.5px, transparent 1.5px),
+        radial-gradient(circle, rgba(200,68,45,0.3) 1.5px, transparent 1.5px),
+        radial-gradient(circle, rgba(217,131,36,0.3) 1.5px, transparent 1.5px),
+        radial-gradient(circle, rgba(31,92,115,0.35) 1.5px, transparent 1.5px),
+        radial-gradient(circle, rgba(43,33,24,0.18) 1.5px, transparent 1.5px),
+        radial-gradient(circle, rgba(217,131,36,0.25) 1.5px, transparent 1.5px);
       background-size:
         17% 22%, 23% 31%, 31% 18%, 19% 27%,
         37% 24%, 13% 35%, 28% 19%, 41% 28%,
@@ -2276,7 +2424,7 @@
         8% 15%,  24% 72%, 55% 28%, 78% 61%,
         42% 88%, 91% 19%, 67% 44%, 13% 55%,
         83% 82%, 48% 7%,  31% 91%, 70% 35%;
-      animation: particleDrift 18s linear infinite;
+      animation: particleDrift 22s linear infinite;
       z-index: 0;
     }
 
@@ -2291,7 +2439,7 @@
         83% 72%, 48% -3%, 31% 81%, 70% 25%; }
     }
 
-    /* Scanline sweep across the hero card for broadcast feel */
+    /* Soft paper-light sweep across the hero card */
     #start .hero-card::after {
       content: "";
       position: absolute;
@@ -2299,13 +2447,13 @@
       background: linear-gradient(
         to bottom,
         transparent 0%,
-        rgba(255,255,255,0.03) 50%,
+        rgba(255,255,255,0.5) 50%,
         transparent 100%
       );
       height: 40%;
       top: 0;
       pointer-events: none;
-      animation: scanline 5s linear 1.5s infinite;
+      animation: scanline 6s linear 1.5s infinite;
       border-radius: inherit;
     }
 
@@ -2725,7 +2873,7 @@
           </div>
           <div class="setting-card" style="display:flex;flex-direction:column;justify-content:flex-end;gap:8px;">
             <button class="mini-btn" type="button" onclick="saveCurrentPreset()" style="width:100%;margin-top:0;">Save Preset</button>
-            <button class="mini-btn" type="button" onclick="deleteSelectedPreset()" id="deletePresetBtn" style="width:100%;margin-top:0;border-color:rgba(255,31,53,0.4);color:#ff6670;" disabled>Delete Selected</button>
+            <button class="mini-btn" type="button" onclick="deleteSelectedPreset()" id="deletePresetBtn" style="width:100%;margin-top:0;border-color:rgba(200,68,45,0.4);color:var(--red-dark);" disabled>Delete Selected</button>
           </div>
         </div>
         <div id="presetList" style="margin-top:12px;"></div>
@@ -2823,7 +2971,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 35;
+    var SAVE_VERSION = 37;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -25749,6 +25897,213 @@
       return parseInt(stop.teamBases[key], 10);
     }
 
+    function stopType(stop) {
+      return stop && stop.type === "detour" ? "detour" : "challenge";
+    }
+
+    function stopTypeLabel(stop) {
+      return stopType(stop) === "detour" ? "Detour" : "Challenge";
+    }
+
+    function stopTypeLabelForIndex(index, locationData) {
+      return stopTypeForIndex(index, locationData) === "detour" ? "Detour" : "Challenge";
+    }
+
+    function stopFinishLabel(index, locationData) {
+      return stopTypeLabelForIndex(index, locationData) + " Finish";
+    }
+
+    function skillLevelForTeam(teamName, skillName) {
+      var profile = skills && teamName ? skills[teamName] : null;
+      var level = profile && profile[skillName] != null ? parseInt(profile[skillName], 10) : NaN;
+      return isNaN(level) ? randomLevel() : level;
+    }
+
+    function detourBaseForTeam(option, teamName) {
+      if (!option) { return rollChallengeBaseTime(); }
+      if (!option.teamBases || typeof option.teamBases !== "object") {
+        option.teamBases = {};
+      }
+      var key = teamName || "Team";
+      if (option.teamBases[key] == null || isNaN(parseInt(option.teamBases[key], 10))) {
+        option.teamBases[key] = rollChallengeBaseTime();
+      }
+      return parseInt(option.teamBases[key], 10);
+    }
+
+    function randomSkillName(excludeSkill) {
+      if (!SKILL_TYPES || SKILL_TYPES.length === 0) {
+        return "Skill";
+      }
+
+      if (SKILL_TYPES.length === 1) {
+        return SKILL_TYPES[0];
+      }
+
+      var choices = SKILL_TYPES.filter(function (skill) {
+        return skill !== excludeSkill;
+      });
+
+      return choices[randomIndex(choices.length)];
+    }
+
+    function detourTaskNameForSkill(skill, optionIndex) {
+      return String(skill || "Skill").replace(/\s+/g, " ").trim() || "Skill";
+    }
+
+    function cleanDetourOptionName(name, skill) {
+      var raw = String(name || detourTaskNameForSkill(skill, 0) || "Detour").replace(/\s+/g, " ").trim();
+      return raw.replace(/\s+Task$/i, "") || String(skill || "Detour").replace(/\s+/g, " ").trim() || "Detour";
+    }
+
+    function detourOptionDisplayName(option, optionIndex) {
+      option = option || {};
+      return cleanDetourOptionName(option.name, option.skill || randomSkillName(null));
+    }
+
+    function detourOptionCompleteLabel(index, optionIndex) {
+      return "Detour " + stopLetter(index) + " Option " + (optionIndex + 1) + " Complete";
+    }
+
+    function parseDetourOptionCompleteLabel(label) {
+      var m = /^Detour ([A-Z]+) Option (\d+) Complete$/.exec(label || "");
+      if (!m) { return null; }
+      return {
+        stopIndex: m[1].charCodeAt(0) - 65,
+        optionIndex: Math.max(0, (parseInt(m[2], 10) || 1) - 1)
+      };
+    }
+
+    function stopTypeForIndex(index, locationData) {
+      if (locationData && Array.isArray(locationData.stopTypes) && locationData.stopTypes[index]) {
+        return locationData.stopTypes[index] === "detour" ? "detour" : "challenge";
+      }
+      return stopType(legStops && legStops[index] ? legStops[index] : null);
+    }
+
+    function detourOptionsForIndex(index, locationData) {
+      if (locationData && Array.isArray(locationData.stopDetours) && Array.isArray(locationData.stopDetours[index])) {
+        return locationData.stopDetours[index];
+      }
+      var stop = legStops && legStops[index] ? legStops[index] : null;
+      return detourOptionsForStop(stop).map(function (option, optionIndex) {
+        return {
+          name: detourOptionDisplayName(option, optionIndex),
+          skill: option.skill || "Skill"
+        };
+      });
+    }
+
+    function makeChallengeStop(locationName, index) {
+      return {
+        type: "challenge",
+        skill: SKILL_TYPES[randomIndex(SKILL_TYPES.length)],
+        base: randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME),
+        teamBases: {},
+        locationName: locationName || ("Challenge " + stopLetter(index))
+      };
+    }
+
+    function makeDetourStop(locationName, index) {
+      var firstSkill = randomSkillName(null);
+      var secondSkill = randomSkillName(firstSkill);
+
+      return {
+        type: "detour",
+        locationName: locationName || ("Detour " + stopLetter(index)),
+        detourOptions: [
+          {
+            name: detourTaskNameForSkill(firstSkill, 0),
+            skill: firstSkill,
+            teamBases: {}
+          },
+          {
+            name: detourTaskNameForSkill(secondSkill, 1),
+            skill: secondSkill,
+            teamBases: {}
+          }
+        ]
+      };
+    }
+
+    function makeLegStop(locationName, index) {
+      return raceRandom() < 0.5
+        ? makeChallengeStop(locationName, index)
+        : makeDetourStop(locationName, index);
+    }
+
+    function detourOptionsForStop(stop) {
+      if (!stop || !Array.isArray(stop.detourOptions) || stop.detourOptions.length === 0) {
+        return [];
+      }
+      return stop.detourOptions;
+    }
+
+    function taskResultForTeam(stop, teamName, forcedDetourIndex) {
+      if (!stop) {
+        return {
+          type: "challenge",
+          label: "Challenge",
+          optionName: "Challenge",
+          skill: "Skill",
+          level: randomLevel(),
+          adjusted: 1
+        };
+      }
+
+      if (stopType(stop) === "detour") {
+        var options = detourOptionsForStop(stop);
+        var chosenIndex = forcedDetourIndex == null ? chooseDetourOptionIndexForTeam(stop, teamName) : forcedDetourIndex;
+        if (chosenIndex < 0 || chosenIndex >= options.length) { chosenIndex = 0; }
+        var option = options[chosenIndex] || { name: "Detour Task", skill: randomSkillName(null), teamBases: {} };
+        var detourLevel = skillLevelForTeam(teamName, option.skill);
+        var detourBase = detourBaseForTeam(option, teamName);
+        var detourTime = Math.max(1, Math.round(detourBase * skillMultiplier(detourLevel)));
+        return {
+          type: "detour",
+          label: "Detour",
+          optionIndex: chosenIndex,
+          optionName: detourOptionDisplayName(option, chosenIndex),
+          skill: option.skill,
+          level: detourLevel,
+          adjusted: detourTime
+        };
+      }
+
+      var challengeLevel = skillLevelForTeam(teamName, stop.skill);
+      var challengeBase = challengeBaseForTeam(stop, teamName);
+      var challengeTime = Math.max(1, Math.round(challengeBase * skillMultiplier(challengeLevel)));
+      return {
+        type: "challenge",
+        label: "Challenge",
+        optionName: "Challenge",
+        skill: stop.skill,
+        level: challengeLevel,
+        adjusted: challengeTime
+      };
+    }
+
+    function chooseDetourOptionIndexForTeam(stop, teamName) {
+      var options = detourOptionsForStop(stop);
+      if (options.length <= 1) { return 0; }
+
+      var scored = options.map(function (option, index) {
+        var level = skillLevelForTeam(teamName, option.skill);
+        var base = detourBaseForTeam(option, teamName);
+        return {
+          index: index,
+          adjusted: Math.max(1, Math.round(base * skillMultiplier(level)))
+        };
+      });
+
+      scored.sort(function (a, b) {
+        if (a.adjusted !== b.adjusted) { return a.adjusted - b.adjusted; }
+        return a.index - b.index;
+      });
+
+      return scored[0].index;
+    }
+
     function startingLineBaseForTeam(teamName) {
       if (!startingLineChallenge) { return rollChallengeBaseTime(); }
       if (!startingLineChallenge.teamBases || typeof startingLineChallenge.teamBases !== "object") {
@@ -26058,7 +26413,7 @@
           colorPicker.dataset.teamIndex = index;
           colorPicker.value = currentColor;
           colorPicker.setAttribute("aria-label", "Team " + (index + 1) + " color picker");
-          colorPicker.style.cssText = "height:38px;padding:3px;border-radius:8px;cursor:pointer;width:44px;background:transparent;border:1px solid rgba(255,255,255,0.14);";
+          colorPicker.style.cssText = "height:38px;padding:3px;border-radius:8px;cursor:pointer;width:44px;background:transparent;border:1px solid var(--line);";
 
           var hexInput = document.createElement("input");
           hexInput.type = "text";
@@ -26660,7 +27015,7 @@
     }
 
     function raceClockHeader() {
-      return "Race Clock: <strong>" + formatRaceDateTime(raceClock) + "</strong>";
+      return '<div class="race-clock-strip">⏱ Race Clock: <strong>' + formatRaceDateTime(raceClock) + "</strong></div>";
     }
 
     function startLocationKey() {
@@ -27722,6 +28077,18 @@
         destAirport: cityAirportName(legDest),
         stops: (legStops || []).map(function (stop, index) {
           return stop && stop.locationName ? stop.locationName : "Challenge " + stopLetter(index);
+        }),
+        stopTypes: (legStops || []).map(function (stop) {
+          return stopType(stop);
+        }),
+        stopDetours: (legStops || []).map(function (stop) {
+          if (stopType(stop) !== "detour") { return []; }
+          return detourOptionsForStop(stop).map(function (option, optionIndex) {
+            return {
+              name: detourOptionDisplayName(option, optionIndex),
+              skill: option.skill || "Skill"
+            };
+          });
         })
       };
     }
@@ -27755,9 +28122,15 @@
       if (arrive) {
         return locationNameForStopIndex(arrive[1].charCodeAt(0) - 65, locationData);
       }
+      var detourOption = parseDetourOptionCompleteLabel(label);
+      if (detourOption) {
+        var options = detourOptionsForIndex(detourOption.stopIndex, locationData);
+        var option = options[detourOption.optionIndex] || {};
+        return "Detour: " + detourOptionDisplayName(option, detourOption.optionIndex);
+      }
       var complete = /^Challenge ([A-Z]+) Complete$/.exec(label || "");
       if (complete) {
-        return "Challenge Finish";
+        return stopFinishLabel(complete[1].charCodeAt(0) - 65, locationData);
       }
       return label;
     }
@@ -27773,7 +28146,7 @@
     function setTransportPromptText(elementId, destinationName) {
       var el = document.getElementById(elementId);
       if (!el) { return; }
-      el.textContent = "Travel to " + (destinationName || "next location") + ":";
+      el.textContent = "Route Info: Travel to " + (destinationName || "next location") + ":";
     }
 
     function currentRaceTransportTargetName() {
@@ -29610,7 +29983,7 @@
         if (i < route.hops.length - 1) {
           var nextHop = route.hops[i + 1];
           var layoverMin = nextHop.departClock - hop.arriveClock;
-          html += '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.12);' +
+          html += '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);' +
             'color:var(--muted);font-size:0.8rem;font-weight:600;">' +
             '🕐 Layover in <strong style="color:var(--cream);">' + escapeHtml(hop.to) + '</strong> · ' + formatDuration(layoverMin) +
             '</div>';
@@ -29625,7 +29998,7 @@
 
 
 
-    function addMilestoneToList(list, label, clock, tieMode) {
+    function addMilestoneToList(list, label, clock, tieMode, meta) {
       if (!list || !label || clock == null) {
         return;
       }
@@ -29638,13 +30011,24 @@
       if (existing) {
         existing.clock = rounded;
         existing.tieMode = tieMode || existing.tieMode || "sequential";
+        if (meta && typeof meta === "object") {
+          Object.keys(meta).forEach(function (key) {
+            existing[key] = meta[key];
+          });
+        }
       } else {
-        list.push({ label: label, clock: rounded, tieMode: tieMode || "sequential" });
+        var item = { label: label, clock: rounded, tieMode: tieMode || "sequential" };
+        if (meta && typeof meta === "object") {
+          Object.keys(meta).forEach(function (key) {
+            item[key] = meta[key];
+          });
+        }
+        list.push(item);
       }
     }
 
-    function addPlayerMilestone(label, clock, tieMode) {
-      addMilestoneToList(playerLegMilestones, label, clock, tieMode);
+    function addPlayerMilestone(label, clock, tieMode, meta) {
+      addMilestoneToList(playerLegMilestones, label, clock, tieMode, meta);
     }
 
     function challengeArriveLabel(index) {
@@ -29662,7 +30046,18 @@
 
       for (var i = 0; i < totalStopsThisLeg; i++) {
         labels.push(challengeArriveLabel(i));
-        labels.push(challengeCompleteLabel(i));
+        if (stopTypeForIndex(i) === "detour") {
+          var options = detourOptionsForIndex(i);
+          if (options.length === 0) {
+            labels.push(challengeCompleteLabel(i));
+          } else {
+            options.forEach(function (option, optionIndex) {
+              labels.push(detourOptionCompleteLabel(i, optionIndex));
+            });
+          }
+        } else {
+          labels.push(challengeCompleteLabel(i));
+        }
       }
 
       labels.push(isFinalLeg() ? "Finish Line" : "Pit Stop");
@@ -29734,13 +30129,20 @@
     }
 
 
-    function timelineStopCountFromLabels(labels) {
-      var count = 0;
+    function timelineStopCountFromLabels(labels, locationData) {
+      if (locationData && Array.isArray(locationData.stops) && locationData.stops.length > 0) {
+        return locationData.stops.length;
+      }
+      var maxIndex = -1;
       (labels || []).forEach(function (label) {
-        var m = /^Challenge ([A-Z]+) Complete$/.exec(label || "");
-        if (m) { count += 1; }
+        var complete = /^Challenge ([A-Z]+) Complete$/.exec(label || "");
+        var arrive = /^Challenge ([A-Z]+) Arrive$/.exec(label || "");
+        var detour = parseDetourOptionCompleteLabel(label);
+        if (complete) { maxIndex = Math.max(maxIndex, complete[1].charCodeAt(0) - 65); }
+        if (arrive) { maxIndex = Math.max(maxIndex, arrive[1].charCodeAt(0) - 65); }
+        if (detour) { maxIndex = Math.max(maxIndex, detour.stopIndex); }
       });
-      return count || totalStopsThisLeg || 0;
+      return maxIndex >= 0 ? maxIndex + 1 : (totalStopsThisLeg || 0);
     }
 
     function timelineTransportName(method) {
@@ -29926,7 +30328,7 @@
       if (!results || results.length === 0) { return ""; }
 
       var labels = labelsOverride || clueChartLabels();
-      var stopCount = timelineStopCountFromLabels(labels);
+      var stopCount = timelineStopCountFromLabels(labels, locationData);
       var finalLeg = isFinalOverride == null ? isFinalLeg() : !!isFinalOverride;
       var activeResults = results.slice();
       var flightMap = timelineFlightNumberMap(activeResults);
@@ -29966,16 +30368,16 @@
       }, false, { group: "Landed" });
 
       if (stopCount > 0) {
-        addColumn("fromAirport", chartStopHeader(0, locationData), function (r) { return milestoneClock(r, challengeArriveLabel(0)); }, function (r) { return timelineDetail(r, "fromAirport"); }, false, { group: chartStopHeader(0, locationData), subLabel: "Travel", isTransport: true });
+        addColumn("fromAirport", chartStopHeader(0, locationData), function (r) { return milestoneClock(r, challengeArriveLabel(0)); }, function (r) { return timelineDetail(r, "fromAirport"); }, false, { group: chartStopHeader(0, locationData), subLabel: "Route Info", isTransport: true });
       }
 
       for (var i = 0; i < stopCount; i++) {
         (function (index) {
           var currentLetter = chartStopHeader(index, locationData);
-          addColumn("finish" + index, "Challenge Finish", function (r) { return milestoneClock(r, challengeCompleteLabel(index)); }, function (r) {
+          addColumn("finish" + index, "Finish", function (r) { return milestoneClock(r, challengeCompleteLabel(index)); }, function (r) {
             var c = milestoneClock(r, challengeCompleteLabel(index));
             return c == null ? "—" : formatRaceTimeCompact(c);
-          }, false, { group: currentLetter, subLabel: "Challenge Finish" });
+          }, false, { group: currentLetter, subLabel: "Finish" });
 
           var isLastStop = index === stopCount - 1;
           var nextLabel = isLastStop ? chartPitstopHeader(finalLeg, locationData) : chartStopHeader(index + 1, locationData);
@@ -29983,7 +30385,7 @@
             return isLastStop ? r.checkInClock : milestoneClock(r, challengeArriveLabel(index + 1));
           }, function (r) { return timelineDetail(r, "afterStop", index); }, false, {
             group: nextLabel,
-            subLabel: "Travel",
+            subLabel: "Route Info",
             isTransport: true
           });
         })(i);
@@ -30140,6 +30542,52 @@
       return html;
     }
 
+    function detourChoiceForRecord(record, stopIndex) {
+      var ms = record && Array.isArray(record.milestones) ? record.milestones : [];
+      for (var i = 0; i < ms.length; i++) {
+        var parsed = parseDetourOptionCompleteLabel(ms[i].label);
+        if (parsed && parsed.stopIndex === stopIndex) {
+          return {
+            optionIndex: parsed.optionIndex,
+            optionName: ms[i].optionName || "",
+            skill: ms[i].skill || "",
+            clock: ms[i].clock
+          };
+        }
+      }
+      return null;
+    }
+
+    function detourOptionMatchesRecord(record, detourInfo) {
+      if (!detourInfo) { return false; }
+      var choice = detourChoiceForRecord(record, detourInfo.stopIndex);
+      return !!choice && choice.optionIndex === detourInfo.optionIndex;
+    }
+
+    function globalDetourCompletionRanks(records, stopIndex, previousRank) {
+      var entries = (records || []).map(function (r, teamIndex) {
+        var clock = milestoneClock(r, challengeCompleteLabel(stopIndex));
+        if (clock == null) {
+          clock = r.checkInClock + 999999 + teamIndex;
+        }
+        return { team: r.team, clock: clock, originalIndex: teamIndex, record: r };
+      });
+
+      entries.sort(function (a, b) {
+        if (a.clock !== b.clock) { return a.clock - b.clock; }
+        var pa = previousRank[a.team] != null ? previousRank[a.team] : 999;
+        var pb = previousRank[b.team] != null ? previousRank[b.team] : 999;
+        if (pa !== pb) { return pa - pb; }
+        return a.team.localeCompare(b.team);
+      });
+
+      var rankMap = {};
+      for (var i = 0; i < entries.length; i++) {
+        rankMap[entries[i].team] = i + 1;
+      }
+      return rankMap;
+    }
+
     function clueByClueChartHtml(results, labelsOverride, titleOverride, locationData) {
       if (!results || results.length === 0) {
         return "";
@@ -30216,61 +30664,75 @@
       standingsSorted.forEach(function (r, i) { trueStandingsRank[r.team] = i + 1; });
 
       labels.forEach(function (label, labelIndex) {
-        var entries = activeResults.map(function (r, teamIndex) {
-          var clock = milestoneClock(r, label);
-          if (clock == null) {
-            clock = r.checkInClock + 999999 + labelIndex;
-          }
-          return { team: r.team, clock: clock, originalIndex: teamIndex, record: r };
-        });
-
+        var detourInfo = parseDetourOptionCompleteLabel(label);
         var isPitStop = (label === "Pit Stop" || label === "Finish Line");
-
-        entries.sort(function (a, b) {
-          if (a.clock !== b.clock) {
-            return a.clock - b.clock;
-          }
-          // Pit Stop/Finish Line: sort tied clocks by true standings rank
-          // so chart end-position matches actual leg result.
-          if (isPitStop) {
-            var ra = trueStandingsRank[a.team] != null ? trueStandingsRank[a.team] : 999;
-            var rb = trueStandingsRank[b.team] != null ? trueStandingsRank[b.team] : 999;
-            if (ra !== rb) { return ra - rb; }
-            return a.team.localeCompare(b.team);
-          }
-          if (label === "Destination Airport") {
-            return a.team.localeCompare(b.team);
-          }
-          var pa = prevRank[a.team] != null ? prevRank[a.team] : 999;
-          var pb = prevRank[b.team] != null ? prevRank[b.team] : 999;
-          if (pa !== pb) {
-            return pa - pb;
-          }
-          return a.team.localeCompare(b.team);
-        });
-
         var rankMap = {};
-        var i = 0;
-        while (i < entries.length) {
-          var j = i + 1;
-          while (j < entries.length && entries[j].clock === entries[i].clock) {
-            j += 1;
-          }
 
-          if (!isPitStop && shouldAverageTieForLabel(label, entries, i, j)) {
-            var avgRank = ((i + 1) + j) / 2;
-            for (var k = i; k < j; k++) {
-              rankMap[entries[k].team] = avgRank;
+        if (detourInfo) {
+          var globalRankMap = globalDetourCompletionRanks(activeResults, detourInfo.stopIndex, prevRank);
+          activeResults.forEach(function (r) {
+            if (detourOptionMatchesRecord(r, detourInfo)) {
+              rankMap[r.team] = globalRankMap[r.team] || teamCount;
             }
-          } else {
-            for (var k2 = i; k2 < j; k2++) {
-              rankMap[entries[k2].team] = k2 + 1;
+          });
+        } else {
+          var entries = activeResults.map(function (r, teamIndex) {
+            var clock = milestoneClock(r, label);
+            if (clock == null) {
+              clock = r.checkInClock + 999999 + labelIndex;
             }
+            return { team: r.team, clock: clock, originalIndex: teamIndex, record: r };
+          });
+
+          entries.sort(function (a, b) {
+            if (a.clock !== b.clock) {
+              return a.clock - b.clock;
+            }
+            // Pit Stop/Finish Line: sort tied clocks by true standings rank
+            // so chart end-position matches actual leg result.
+            if (isPitStop) {
+              var ra = trueStandingsRank[a.team] != null ? trueStandingsRank[a.team] : 999;
+              var rb = trueStandingsRank[b.team] != null ? trueStandingsRank[b.team] : 999;
+              if (ra !== rb) { return ra - rb; }
+              return a.team.localeCompare(b.team);
+            }
+            if (label === "Destination Airport") {
+              return a.team.localeCompare(b.team);
+            }
+            var pa = prevRank[a.team] != null ? prevRank[a.team] : 999;
+            var pb = prevRank[b.team] != null ? prevRank[b.team] : 999;
+            if (pa !== pb) {
+              return pa - pb;
+            }
+            return a.team.localeCompare(b.team);
+          });
+
+          var i = 0;
+          while (i < entries.length) {
+            var j = i + 1;
+            while (j < entries.length && entries[j].clock === entries[i].clock) {
+              j += 1;
+            }
+
+            if (!isPitStop && shouldAverageTieForLabel(label, entries, i, j)) {
+              var avgRank = ((i + 1) + j) / 2;
+              for (var k = i; k < j; k++) {
+                rankMap[entries[k].team] = avgRank;
+              }
+            } else {
+              for (var k2 = i; k2 < j; k2++) {
+                rankMap[entries[k2].team] = k2 + 1;
+              }
+            }
+            i = j;
           }
-          i = j;
         }
 
         activeResults.forEach(function (r) {
+          if (detourInfo && !detourOptionMatchesRecord(r, detourInfo)) {
+            positions[r.team].push({ label: label, rank: null, clock: null, skipped: true });
+            return;
+          }
           var rank = rankMap[r.team] || teamCount;
           positions[r.team].push({ label: label, rank: rank, clock: milestoneClock(r, label) });
           prevRank[r.team] = rank;
@@ -30307,15 +30769,22 @@
 
       activeResults.forEach(function (r) {
         var color = teamColor(r.team);
-        var pts = positions[r.team].map(function (p, index) {
-          return xScale(index) + ',' + yScale(p.rank);
+        var validPositions = positions[r.team].filter(function (p) {
+          return p && p.rank != null && !isNaN(p.rank);
+        });
+        var pts = validPositions.map(function (p) {
+          return xScale(labels.indexOf(p.label)) + ',' + yScale(p.rank);
         }).join(' ');
-        svg += '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="' + lineWidth + '" stroke-linejoin="round" stroke-linecap="round" opacity="0.92"/>';
+        if (pts) {
+          svg += '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="' + lineWidth + '" stroke-linejoin="round" stroke-linecap="round" opacity="0.92"/>';
+        }
         positions[r.team].forEach(function (p, index) {
+          if (!p || p.rank == null || isNaN(p.rank)) { return; }
           var x = xScale(index);
           var y = yScale(p.rank);
           var half = pointSize / 2;
-          svg += '<rect x="' + (x - half) + '" y="' + (y - half) + '" width="' + pointSize + '" height="' + pointSize + '" transform="rotate(45 ' + x + ' ' + y + ')" fill="' + color + '" stroke="#ffffff" stroke-width="0.9"/>';
+          var title = safeSvgText(r.team + ' · ' + clueMilestoneDisplayLabel(p.label, locationData));
+          svg += '<rect x="' + (x - half) + '" y="' + (y - half) + '" width="' + pointSize + '" height="' + pointSize + '" transform="rotate(45 ' + x + ' ' + y + ')" fill="' + color + '" stroke="#ffffff" stroke-width="0.9"><title>' + title + '</title></rect>';
         });
       });
 
@@ -30330,6 +30799,27 @@
       });
 
       svg += '</svg>';
+
+      var detourKeys = [];
+      (labels || []).forEach(function (label) {
+        var detourInfo = parseDetourOptionCompleteLabel(label);
+        if (!detourInfo) { return; }
+        var option = detourOptionsForIndex(detourInfo.stopIndex, locationData)[detourInfo.optionIndex] || {};
+        var chosenTeams = activeResults.filter(function (record) {
+          return detourOptionMatchesRecord(record, detourInfo);
+        }).sort(function (a, b) {
+          var ac = milestoneClock(a, label) || 0;
+          var bc = milestoneClock(b, label) || 0;
+          if (ac !== bc) { return ac - bc; }
+          return String(a.team).localeCompare(String(b.team));
+        }).map(function (record) { return record.team; });
+        if (chosenTeams.length > 0) {
+          detourKeys.push('<div><strong>' + escapeHtml("Detour " + stopLetter(detourInfo.stopIndex) + ": " + detourOptionDisplayName(option, detourInfo.optionIndex)) + '</strong> · ' + escapeHtml(chosenTeams.join(", ")) + '</div>');
+        }
+      });
+      if (detourKeys.length > 0) {
+        svg += '<div class="clue-chart-note"><strong>Detour choices:</strong><br>' + detourKeys.join("") + '</div>';
+      }
       
       svg += '</div>';
       return svg;
@@ -30440,25 +30930,36 @@
       legStops.forEach(function (stop, index) {
         var stopArrivalClock = currentClockForTeam();
         addMilestoneToList(milestones, challengeArriveLabel(index), stopArrivalClock, "sequential");
-        var lvl = skills[name][stop.skill];
-        var base = challengeBaseForTeam(stop, name);
-        var challengeTime = Math.max(1, Math.round(base * skillMultiplier(lvl)));
-        var stopDepartureClock = stopArrivalClock + challengeTime;
+        var result = taskResultForTeam(stop, name);
+        var stopDepartureClock = stopArrivalClock + result.adjusted;
+        var stopLabel = stopTypeLabel(stop) + " " + stopLetter(index);
 
         addPresenceSegment(
           presenceSegments,
           stopLocationKey(index),
           stopArrivalClock,
           stopDepartureClock,
-          "Challenge " + stopLetter(index)
+          stopLabel
         );
 
-        addEvent("Complete " + stop.skill + " challenge", challengeTime);
+        if (result.type === "detour") {
+          addEvent("Complete Detour: " + result.optionName, result.adjusted);
+        } else {
+          addEvent("Complete " + result.skill + " challenge", result.adjusted);
+        }
         addMilestoneToList(milestones, challengeCompleteLabel(index), currentClockForTeam(), "sequential");
+        if (result.type === "detour") {
+          addMilestoneToList(milestones, detourOptionCompleteLabel(index, result.optionIndex || 0), currentClockForTeam(), "sequential", {
+            stopType: "detour",
+            optionIndex: result.optionIndex || 0,
+            optionName: result.optionName || "Detour",
+            skill: result.skill || "Skill"
+          });
+        }
 
         var transportPick = chooseTeamTransport(name, legTransportOptions[index]);
         timelineDetails.afterStops[index] = transportPick.method;
-        addEvent("Travel after stop " + (index + 1) + " by " + transportPick.method, transportPick.time);
+        addEvent("Route Info after stop " + (index + 1) + " by " + transportPick.method, transportPick.time);
       });
 
       var pitstopArrivalClock = currentClockForTeam();
@@ -30514,7 +31015,7 @@
       }
 
       var inner = entries.map(function(e) {
-        return '<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.08);' +
+        return '<div style="padding:5px 0;border-bottom:1px dashed var(--line);' +
           'color:var(--cream);font-size:0.9rem;">' + escapeHtml(e) + '</div>';
       }).join("");
 
@@ -30547,9 +31048,7 @@
       var myColor = teamColorForPlayer();
       var rosterTitle = document.getElementById("rosterTeam");
       rosterTitle.innerHTML =
-        '<span style="display:inline-block;width:16px;height:16px;border-radius:4px;'
-        + 'background:' + myColor + ';margin-right:10px;vertical-align:middle;'
-        + 'box-shadow:0 0 8px ' + myColor + ';"></span>'
+        '<span class="roster-color-dot" style="background:' + myColor + ';box-shadow:0 0 8px ' + myColor + ';"></span>'
         + escapeHtml(playerTeam);
       document.getElementById("rosterCash").textContent = "Cash: $" + STARTING_MONEY;
 
@@ -30684,16 +31183,7 @@
       legStops = [];
 
       for (var i = 0; i < totalStopsThisLeg; i++) {
-        var skill = SKILL_TYPES[randomIndex(SKILL_TYPES.length)];
-        var base = randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME);
-
-        legStops.push({
-          skill: skill,
-          base: base,
-          teamBases: {},
-          locationName: destinationLocationPicks[i] || ("Challenge " + stopLetter(i))
-        });
-
+        legStops.push(makeLegStop(destinationLocationPicks[i], i));
         legTransportOptions.push(makeTransportOptionsForSegment());
       }
 
@@ -30733,15 +31223,16 @@
         raceClockHeader() +
         departureTimesHtml() +
         presenceReportHtml(startLocationKey(), raceClock, null) +
-        "<br>" +
-        (isFinalLeg() ? "<strong>Three teams remain. First to the final mat wins.</strong><br><br>" : "") +
-        "Starting City: <strong>" + escapeHtml(cityDisplayName(legOrigin)) + "</strong><br>" +
-        "Starting Location: <strong>" + escapeHtml(legStartLocation || (legNum === 1 ? "Starting Line" : "Pit Start")) + "</strong><br>" +
-        "Origin Airport: <strong>" + escapeHtml(cityAirportName(legOrigin)) + "</strong><br>" +
-        "Destination: <strong>" + escapeHtml(cityDisplayName(legDest)) + "</strong><br>" +
-        "Destination Airport: <strong>" + escapeHtml(cityAirportName(legDest)) + "</strong><br>" +
-        "<br>Teams Remaining: <strong>" + remainingTeams.length + "</strong><br>" +
-        'Your Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
+        (isFinalLeg() ? '<div class="info-strip-banner">Three teams remain. First to the final mat wins.</div>' : "") +
+        '<div class="info-strip">' +
+        '<div class="info-row"><span class="info-row-label">Starting City</span><span class="info-row-value">' + escapeHtml(cityDisplayName(legOrigin)) + '</span></div>' +
+        '<div class="info-row"><span class="info-row-label">Starting Location</span><span class="info-row-value">' + escapeHtml(legStartLocation || (legNum === 1 ? "Starting Line" : "Pit Start")) + '</span></div>' +
+        '<div class="info-row"><span class="info-row-label">Origin Airport</span><span class="info-row-value">' + escapeHtml(cityAirportName(legOrigin)) + '</span></div>' +
+        '<div class="info-row"><span class="info-row-label">Destination</span><span class="info-row-value">' + escapeHtml(cityDisplayName(legDest)) + '</span></div>' +
+        '<div class="info-row"><span class="info-row-label">Destination Airport</span><span class="info-row-value">' + escapeHtml(cityAirportName(legDest)) + '</span></div>' +
+        '<div class="info-row"><span class="info-row-label">Teams Remaining</span><span class="info-row-value">' + remainingTeams.length + '</span></div>' +
+        '<div class="info-row info-row-cash"><span class="info-row-label">Your Cash</span><span class="info-row-value"><span class="cash-pill">$' + money[playerTeam] + '</span></span></div>' +
+        '</div>';
 
       renderFlightBody();
     }
@@ -30763,24 +31254,24 @@
           '</div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">' +
-          '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:12px;">' +
+          '<div style="background:var(--inset);border:1px solid var(--line);border-radius:10px;padding:12px;">' +
             '<div style="color:var(--muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Distance</div>' +
             '<div style="font-size:1rem;font-weight:800;">' + (distKm ? distKm.toLocaleString() + " km" : "—") + '</div>' +
           '</div>' +
-          '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:12px;">' +
+          '<div style="background:var(--inset);border:1px solid var(--line);border-radius:10px;padding:12px;">' +
             '<div style="color:var(--muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Est. Flight Time</div>' +
             '<div style="font-size:1rem;font-weight:800;">' + (estFlightMin ? formatDuration(estFlightMin) : "—") + '</div>' +
           '</div>' +
-          '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:12px;">' +
+          '<div style="background:var(--inset);border:1px solid var(--line);border-radius:10px;padding:12px;">' +
             '<div style="color:var(--muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Race Clock</div>' +
             '<div style="font-size:1rem;font-weight:800;color:var(--cyan);">' + formatRaceDateTime(raceClock) + '</div>' +
           '</div>' +
-          '<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:12px;">' +
+          '<div style="background:var(--inset);border:1px solid var(--line);border-radius:10px;padding:12px;">' +
             '<div style="color:var(--muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">Flight Chaos</div>' +
             '<div style="font-size:1rem;font-weight:800;">' + escapeHtml(chaosLabel) + '</div>' +
           '</div>' +
         '</div>' +
-        '<div style="color:var(--muted);font-size:0.88rem;font-weight:500;line-height:1.5;padding:10px 14px;background:rgba(0,0,0,0.2);border-radius:8px;border-left:3px solid var(--red);">' +
+        '<div style="color:var(--muted);font-size:0.88rem;font-weight:500;line-height:1.5;padding:10px 14px;background:var(--inset);border-radius:8px;border-left:3px solid var(--red);">' +
           'Your exact route and connections will be revealed when you arrive at the airport.' +
         '</div>';
     }
@@ -30816,11 +31307,10 @@
       document.getElementById("specialTransportStatus").innerHTML =
         raceClockHeader() +
         presenceReportHtml(startLocationKey(), raceClock, null) +
-        "<br>" +
-        "Travel from <strong>" + escapeHtml(legStartLocation || "Pit Start") + "</strong><br>" +
-        "in <strong>" + escapeHtml(cityDisplayName(legOrigin)) + "</strong><br>" +
-        "to <strong>" + escapeHtml(cityAirportName(legOrigin)) + "</strong>.<br><br>" +
-        'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
+        '<div class="route-history"><strong>Route Info:</strong> Travel from ' + escapeHtml(legStartLocation || "Pit Start") +
+        " in " + escapeHtml(cityDisplayName(legOrigin)) +
+        " to " + escapeHtml(cityAirportName(legOrigin)) + ".</div>" +
+        '<div class="info-strip green"><div class="info-row info-row-cash"><span class="info-row-label">Cash</span><span class="info-row-value"><span class="cash-pill">$' + money[playerTeam] + '</span></span></div></div>';
 
       renderSpecialTransportOptions(airportStartTransportOptions);
       showScreen("specialTransport");
@@ -30834,11 +31324,10 @@
       document.getElementById("specialTransportStatus").innerHTML =
         raceClockHeader() +
         presenceReportHtml(destinationAirportLocationKey(), raceClock, null) +
-        "<br>" +
-        "Travel from <strong>" + escapeHtml(cityAirportName(legDest)) + "</strong><br>" +
-        "to <strong>" + escapeHtml(locationNameForStopIndex(0)) + "</strong><br>" +
-        "in <strong>" + escapeHtml(cityDisplayName(legDest)) + "</strong>.<br><br>" +
-        'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
+        '<div class="route-history"><strong>Route Info:</strong> Travel from ' + escapeHtml(cityAirportName(legDest)) +
+        " to " + escapeHtml(locationNameForStopIndex(0)) +
+        " in " + escapeHtml(cityDisplayName(legDest)) + ".</div>" +
+        '<div class="info-strip green"><div class="info-row info-row-cash"><span class="info-row-label">Cash</span><span class="info-row-value"><span class="cash-pill">$' + money[playerTeam] + '</span></span></div></div>';
 
       renderSpecialTransportOptions(airportEndTransportOptions);
       showScreen("specialTransport");
@@ -30850,12 +31339,12 @@
 
       if (specialTransportMode === "toAirport") {
         playerLegTimelineDetails.toAirport = opt.method;
-        playerLegLog.push({ type: "transport", label: "To " + cityAirportName(legOrigin) + ": " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
+        playerLegLog.push({ type: "transport", label: "Route Info: To " + cityAirportName(legOrigin) + ": " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
         addPlayerMilestone("Origin Airport", raceClock, "sequential");
         showFlightScreen();
       } else if (specialTransportMode === "fromAirport") {
         playerLegTimelineDetails.fromAirport = opt.method;
-        playerLegLog.push({ type: "transport", label: "To " + locationNameForStopIndex(0) + ": " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
+        playerLegLog.push({ type: "transport", label: "Route Info: To " + locationNameForStopIndex(0) + ": " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
         autoCompleteChallengeAndShowTransport();
       }
     }
@@ -30886,7 +31375,7 @@
       var msg = "";
 
       msg += presenceReportHtml(originAirportLocationKey(), airportArrivalClock, route.firstDepartClock);
-      msg += '<div style="margin-top:12px;padding:10px 14px;background:rgba(0,0,0,0.25);border-radius:8px;'
+      msg += '<div style="margin-top:12px;padding:10px 14px;background:var(--inset);border:1px solid var(--line);border-radius:8px;'
         + 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">';
       msg += '<div><div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;'
         + 'letter-spacing:0.08em;margin-bottom:3px;">Airport Arrival</div>'
@@ -30907,54 +31396,158 @@
       flightResolved = true;
     }
 
-    function autoCompleteChallengeAndShowTransport() {
+    function showDetourChoice() {
       var stop = legStops[currentStop];
-      var level = skills[playerTeam][stop.skill];
-      var base = challengeBaseForTeam(stop, playerTeam);
-      var adjusted = Math.max(1, Math.round(base * skillMultiplier(level)));
+      var locationName = stop && stop.locationName ? stop.locationName : "Detour " + stopLetter(currentStop);
+      var options = detourOptionsForStop(stop);
+      var titleEl = document.getElementById("raceScreenTitle");
+      if (titleEl) { titleEl.textContent = locationName; }
+
+      currentChallenge = {
+        stopIndex: currentStop,
+        type: "detour",
+        pending: true,
+        locationName: locationName
+      };
+
+      var optionLines = options.map(function (option, index) {
+        var level = skillLevelForTeam(playerTeam, option.skill);
+        return "<strong>" + escapeHtml(detourOptionDisplayName(option, index)) + "</strong> · Your Level: <strong>" + level + "</strong>";
+      }).join("<br>");
+
+      document.getElementById("raceStatus").innerHTML =
+        raceClockHeader() +
+        '<div class="info-strip amber"><div class="info-row"><span class="info-row-label">Arrived</span><span class="info-row-value">' + formatRaceDateTime(raceClock) + "</span></div></div>" +
+        presenceReportHtml(stopLocationKey(currentStop), raceClock, null) +
+        '<div class="challenge-summary">' +
+        "<strong>Detour</strong><br>" +
+        optionLines +
+        "</div>" +
+        '<div class="info-strip">' +
+        '<div class="info-row"><span class="info-row-label">' + currentLegLabel() + '</span><span class="info-row-value">' + escapeHtml(cityDisplayName(legDest)) + '</span></div>' +
+        '<div class="info-row info-row-cash"><span class="info-row-label">Cash</span><span class="info-row-value"><span class="cash-pill">$' + money[playerTeam] + '</span></span></div>' +
+        '</div>';
+
+      var prompt = document.getElementById("transportPrompt");
+      if (prompt) { prompt.textContent = "Detour: Choose your task:"; }
+
+      var list = document.getElementById("transportList");
+      list.innerHTML = "";
+      options.forEach(function (option, index) {
+        var level = skillLevelForTeam(playerTeam, option.skill);
+        var btn = document.createElement("button");
+        btn.className = "opt-btn";
+        btn.innerHTML =
+          '<span class="transport-main"><strong>' + escapeHtml(detourOptionDisplayName(option, index)) + '</strong><br>' +
+          'Your Level: ' + level + '</span>' +
+          '<span class="transport-meta"><span class="meta-time">Choose</span></span>';
+        btn.onclick = function () { chooseDetourTask(index); };
+        list.appendChild(btn);
+      });
+
+      showScreen("race");
+    }
+
+    function completeCurrentStopForPlayer(detourOptionIndex) {
+      var stop = legStops[currentStop];
+      if (!stop) {
+        addPlayerPitstopMilestone();
+        showPitStopScreen();
+        return;
+      }
+
+      var result = taskResultForTeam(stop, playerTeam, detourOptionIndex);
       var arrivalClock = raceClock;
-      var departureClock = raceClock + adjusted;
-      var locationName = stop.locationName || ("Challenge " + stopLetter(currentStop));
+      var departureClock = raceClock + result.adjusted;
+      var locationName = stop.locationName || (stopType(stop) === "detour" ? "Detour " : "Challenge ") + stopLetter(currentStop);
 
       addPlayerMilestone(challengeArriveLabel(currentStop), arrivalClock, "sequential");
 
       currentChallenge = {
         stopIndex: currentStop,
-        skill: stop.skill,
-        level: level,
-        adjusted: adjusted,
+        type: result.type,
+        skill: result.skill,
+        level: result.level,
+        adjusted: result.adjusted,
         arrivalClock: arrivalClock,
         departureClock: departureClock,
-        locationName: locationName
+        locationName: locationName,
+        optionName: result.optionName || "",
+        optionIndex: result.optionIndex
       };
 
-      addRaceMinutes(adjusted);
+      addRaceMinutes(result.adjusted);
       addPlayerMilestone(challengeCompleteLabel(currentStop), raceClock, "sequential");
-      playerLegLog.push({ type: "challenge", label: locationName + " (" + stop.skill + ")", duration: adjusted, cost: 0, clock: raceClock });
+      if (result.type === "detour") {
+        addPlayerMilestone(detourOptionCompleteLabel(currentStop, result.optionIndex || 0), raceClock, "sequential", {
+          stopType: "detour",
+          optionIndex: result.optionIndex || 0,
+          optionName: result.optionName || "Detour",
+          skill: result.skill || "Skill"
+        });
+      }
+
+      if (result.type === "detour") {
+        playerLegLog.push({ type: "detour", label: locationName + " Detour: " + result.optionName, duration: result.adjusted, cost: 0, clock: raceClock });
+      } else {
+        playerLegLog.push({ type: "challenge", label: locationName + " Challenge (" + result.skill + ")", duration: result.adjusted, cost: 0, clock: raceClock });
+      }
+
       showRace();
     }
 
+    function chooseDetourTask(optionIndex) {
+      completeCurrentStopForPlayer(optionIndex);
+    }
+
+    function autoCompleteChallengeAndShowTransport() {
+      var stop = legStops[currentStop];
+
+      if (stopType(stop) === "detour") {
+        showDetourChoice();
+        return;
+      }
+
+      completeCurrentStopForPlayer(null);
+    }
+
     function showRace() {
-      var locationName = currentChallenge ? currentChallenge.locationName : "Challenge " + stopLetter(currentStop);
+      if (currentChallenge && currentChallenge.type === "detour" && currentChallenge.pending) {
+        showDetourChoice();
+        return;
+      }
+
+      var locationName = currentChallenge ? currentChallenge.locationName : locationNameForStopIndex(currentStop);
       var challengeHtml = "";
 
-      // Update the h1 to the challenge name
+      // Update the h1 to the stop location name
       var titleEl = document.getElementById("raceScreenTitle");
       if (titleEl) { titleEl.textContent = locationName; }
 
       if (currentChallenge && currentChallenge.stopIndex === currentStop) {
-        challengeHtml =
-          '<div class="challenge-summary">' +
-          "Challenge: <strong>" + escapeHtml(currentChallenge.skill) + "</strong><br>" +
-          escapeHtml(currentChallenge.skill) + " Level: <strong>" + currentChallenge.level + "</strong><br>" +
-          "Challenge Time: <strong>" + formatDuration(currentChallenge.adjusted) + "</strong>" +
-          "</div>";
+        if (currentChallenge.type === "detour") {
+          challengeHtml =
+            '<div class="challenge-summary">' +
+            "Detour: <strong>" + escapeHtml(currentChallenge.optionName || "Selected Task") + "</strong><br>" +
+            escapeHtml(currentChallenge.skill) + " Level: <strong>" + currentChallenge.level + "</strong><br>" +
+            "Detour Time: <strong>" + formatDuration(currentChallenge.adjusted) + "</strong>" +
+            "</div>";
+        } else {
+          challengeHtml =
+            '<div class="challenge-summary">' +
+            "Challenge: <strong>" + escapeHtml(currentChallenge.skill) + "</strong><br>" +
+            escapeHtml(currentChallenge.skill) + " Level: <strong>" + currentChallenge.level + "</strong><br>" +
+            "Challenge Time: <strong>" + formatDuration(currentChallenge.adjusted) + "</strong>" +
+            "</div>";
+        }
       }
 
       var arrivalLine = "";
       if (currentChallenge && currentChallenge.stopIndex === currentStop) {
-        arrivalLine = "Arrived: <strong>" + formatRaceDateTime(currentChallenge.arrivalClock) + "</strong><br>" +
-          "Departed: <strong>" + formatRaceDateTime(currentChallenge.departureClock) + "</strong><br>";
+        arrivalLine = '<div class="info-strip amber">' +
+          '<div class="info-row"><span class="info-row-label">Arrived</span><span class="info-row-value">' + formatRaceDateTime(currentChallenge.arrivalClock) + '</span></div>' +
+          '<div class="info-row"><span class="info-row-label">Departed</span><span class="info-row-value">' + formatRaceDateTime(currentChallenge.departureClock) + '</span></div>' +
+          '</div>';
       }
 
       document.getElementById("raceStatus").innerHTML =
@@ -30963,9 +31556,10 @@
           ? presenceReportHtml(stopLocationKey(currentStop), currentChallenge.arrivalClock, currentChallenge.departureClock)
           : presenceReportHtml(stopLocationKey(currentStop), raceClock, null)) +
         challengeHtml +
-        "<br>" +
-        currentLegLabel() + " · " + escapeHtml(cityDisplayName(legDest)) + "<br>" +
-        'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
+        '<div class="info-strip">' +
+        '<div class="info-row"><span class="info-row-label">' + currentLegLabel() + '</span><span class="info-row-value">' + escapeHtml(cityDisplayName(legDest)) + '</span></div>' +
+        '<div class="info-row info-row-cash"><span class="info-row-label">Cash</span><span class="info-row-value"><span class="cash-pill">$' + money[playerTeam] + '</span></span></div>' +
+        '</div>';
 
       setTransportPromptText("transportPrompt", currentRaceTransportTargetName());
       var optionsForThisSegment = optionsWithEmergencyWalkForTeam(legTransportOptions[currentStop], playerTeam);
@@ -30998,7 +31592,7 @@
         ? pitStopDisplayName()
         : locationNameForStopIndex(currentStop + 1);
       playerLegTimelineDetails.afterStops[currentStop] = opt.method;
-      playerLegLog.push({ type: "transport", label: "To " + nextLocationName + ": " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
+      playerLegLog.push({ type: "transport", label: "Route Info: To " + nextLocationName + ": " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
       currentStop = currentStop + 1;
       currentChallenge = null;
 
@@ -31017,12 +31611,13 @@
 
       document.getElementById("pitstopBody").innerHTML =
         raceClockHeader() +
-        "<br><br>" +
+        '<div class="route-history">' +
         (finalLeg
-          ? "You have reached the Finish Line at <strong>" + escapeHtml(pitStopDisplayName()) + "</strong><br>in <strong>" + escapeHtml(cityDisplayName(legDest)) + "</strong>.<br><br>"
-          : "You have reached the Pit Stop at <strong>" + escapeHtml(pitStopDisplayName()) + "</strong><br>in <strong>" + escapeHtml(cityDisplayName(legDest)) + "</strong>.<br><br>") +
-        'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span><br><br>" +
-        (finalLeg ? "Check in to reveal the winner." : "Check in to see the leg results.");
+          ? "You have reached the Finish Line at " + escapeHtml(pitStopDisplayName()) + " in " + escapeHtml(cityDisplayName(legDest)) + "."
+          : "You have reached the Pit Stop at " + escapeHtml(pitStopDisplayName()) + " in " + escapeHtml(cityDisplayName(legDest)) + ".") +
+        "</div>" +
+        '<div class="info-strip green"><div class="info-row info-row-cash"><span class="info-row-label">Cash</span><span class="info-row-value"><span class="cash-pill">$' + money[playerTeam] + '</span></span></div></div>' +
+        '<div class="info-strip-banner">' + (finalLeg ? "Check in to reveal the winner." : "Check in to see the leg results.") + '</div>';
 
       showScreen("pitstop");
     }
@@ -31052,17 +31647,20 @@
         "Challenge Time: <strong>" + formatDuration(adjusted) + "</strong>" +
         "</div>";
 
-      var arrivalLine =
-        "Arrived: <strong>" + formatRaceDateTime(arrivalClock) + "</strong><br>" +
-        "Departed: <strong>" + formatRaceDateTime(departureClock) + "</strong><br>";
+      var arrivalLine = '<div class="info-strip amber">' +
+        '<div class="info-row"><span class="info-row-label">Arrived</span><span class="info-row-value">' + formatRaceDateTime(arrivalClock) + '</span></div>' +
+        '<div class="info-row"><span class="info-row-label">Departed</span><span class="info-row-value">' + formatRaceDateTime(departureClock) + '</span></div>' +
+        '</div>';
 
       document.getElementById("raceStatus").innerHTML =
         arrivalLine +
         presenceReportHtml(startLocationKey(), arrivalClock, departureClock) +
         challengeHtml +
-        "<br>Starting Location: <strong>" + escapeHtml(legStartLocation || "Starting Line") + "</strong><br>" +
-        currentLegLabel() + " · " + escapeHtml(cityDisplayName(legDest)) + "<br>" +
-        'Cash: <span class="cash-pill">$' + money[playerTeam] + "</span>";
+        '<div class="info-strip">' +
+        '<div class="info-row"><span class="info-row-label">Starting Location</span><span class="info-row-value">' + escapeHtml(legStartLocation || "Starting Line") + '</span></div>' +
+        '<div class="info-row"><span class="info-row-label">' + currentLegLabel() + '</span><span class="info-row-value">' + escapeHtml(cityDisplayName(legDest)) + '</span></div>' +
+        '<div class="info-row info-row-cash"><span class="info-row-label">Cash</span><span class="info-row-value"><span class="cash-pill">$' + money[playerTeam] + '</span></span></div>' +
+        '</div>';
 
       // Show the real airport transport options — same as showTransportToAirport
       // but rendered inline on the race screen so the player picks their transport here
@@ -31088,7 +31686,7 @@
       spendTeamMoney(playerTeam, opt.cost);
       addRaceMinutes(opt.time);
       playerLegTimelineDetails.toAirport = opt.method;
-      playerLegLog.push({ type: "transport", label: "To " + cityAirportName(legOrigin) + ": " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
+      playerLegLog.push({ type: "transport", label: "Route Info: To " + cityAirportName(legOrigin) + ": " + opt.method.trim(), duration: opt.time, cost: opt.cost, clock: raceClock });
       addPlayerMilestone("Origin Airport", raceClock, "sequential");
       showFlightScreen();
     }
@@ -31586,11 +32184,11 @@
       var transportMin = 0, challengeMin = 0, flightMin = 0;
       playerLegLog.forEach(function(e) {
         if (e.type === "transport") { transportMin += e.duration; }
-        else if (e.type === "challenge") { challengeMin += e.duration; }
+        else if (e.type === "challenge" || e.type === "detour") { challengeMin += e.duration; }
         else if (e.type === "flight") { flightMin += e.duration; }
       });
 
-      var typeColors = { transport: "var(--cyan)", challenge: "var(--amber)", flight: "var(--red)" };
+      var typeColors = { transport: "var(--cyan)", challenge: "var(--amber)", detour: "var(--amber)", flight: "var(--red)" };
       var html = '<div class="leg-recap-card">';
 
       html += '<div class="leg-recap-stats">';
@@ -31598,7 +32196,7 @@
         { label: "Total", val: formatDuration(totalMin), color: "var(--cream)" },
         { label: "Flights", val: formatDuration(flightMin), color: "var(--red)" },
         { label: "Transport", val: formatDuration(transportMin), color: "var(--cyan)" },
-        { label: "Challenges", val: formatDuration(challengeMin), color: "var(--amber)" }
+        { label: "Tasks", val: formatDuration(challengeMin), color: "var(--amber)" }
       ].forEach(function(s) {
         html += '<div class="leg-recap-stat">' +
           '<div class="leg-recap-label">' + escapeHtml(s.label) + '</div>' +
@@ -31688,12 +32286,7 @@
       startingLineChallenge = null; // never on simulated legs
 
       for (var i = 0; i < totalStopsThisLeg; i++) {
-        legStops.push({
-          skill: SKILL_TYPES[randomIndex(SKILL_TYPES.length)],
-          base:  randomInt(CHALLENGE_MIN_TIME, CHALLENGE_MAX_TIME),
-          teamBases: {},
-          locationName: destinationLocationPicks[i] || ("Challenge " + stopLetter(i))
-        });
+        legStops.push(makeLegStop(destinationLocationPicks[i], i));
         legTransportOptions.push(makeTransportOptionsForSegment());
       }
 
@@ -31824,8 +32417,8 @@
         var isWinner = (name === raceWinner);
         var isYou    = (name === playerTeam);
         var style = isYou
-          ? ' style="color:#ffd166;font-weight:bold;"'
-          : (isWinner ? ' style="color:#00e5ff;font-weight:bold;"' : "");
+          ? ' style="color:var(--red);font-weight:bold;"'
+          : (isWinner ? ' style="color:var(--cyan);font-weight:bold;"' : "");
         var badge = isWinner ? " 🏆" : "";
         html += "<div" + style + ">" +
           "Leg " + lastLeg[name] + " · " +
@@ -31979,6 +32572,9 @@
       state.teams = Array.isArray(state.teams) ? state.teams.slice() : [];
       state.remainingTeams = Array.isArray(state.remainingTeams) ? state.remainingTeams.slice() : [];
       state.legStops = Array.isArray(state.legStops) ? state.legStops : [];
+      state.legStops.forEach(function (stop) {
+        if (stop && !stop.type) { stop.type = "challenge"; }
+      });
       state.legTransportOptions = Array.isArray(state.legTransportOptions) ? state.legTransportOptions : [];
       state.placementHistory = state.placementHistory && typeof state.placementHistory === "object" ? state.placementHistory : {};
       state.routeHistory = Array.isArray(state.routeHistory) ? state.routeHistory : [];
@@ -32500,27 +33096,27 @@
 
         statusHtml =
           '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">' +
-          '<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;">' +
+          '<div style="background:var(--inset);border:1px solid var(--line);border-radius:8px;padding:10px;">' +
             '<div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Your Team</div>' +
             '<div style="font-weight:800;font-size:1rem;">' + escapeHtml(playerTeam || "—") + '</div>' +
           '</div>' +
-          '<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;">' +
+          '<div style="background:var(--inset);border:1px solid var(--line);border-radius:8px;padding:10px;">' +
             '<div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Current Leg</div>' +
             '<div style="font-weight:800;font-size:1rem;">' + (isFinalLeg() ? "Final" : "Leg " + legNum) + '</div>' +
           '</div>' +
-          '<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;">' +
+          '<div style="background:var(--inset);border:1px solid var(--line);border-radius:8px;padding:10px;">' +
             '<div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Cash</div>' +
             '<div style="font-weight:800;font-size:1rem;color:var(--green);">$' + (money[playerTeam] || 0) + '</div>' +
           '</div>' +
-          '<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;">' +
+          '<div style="background:var(--inset);border:1px solid var(--line);border-radius:8px;padding:10px;">' +
             '<div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Avg Placement</div>' +
             '<div style="font-weight:800;font-size:1rem;">' + avg + ' <span style="color:var(--muted);font-size:0.82rem;font-weight:600;">(last: ' + lastPlaceStr + ')</span></div>' +
           '</div>' +
-          '<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;">' +
+          '<div style="background:var(--inset);border:1px solid var(--line);border-radius:8px;padding:10px;">' +
             '<div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Teams Left</div>' +
             '<div style="font-weight:800;font-size:1rem;">' + remainingTeams.length + '</div>' +
           '</div>' +
-          '<div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:10px;">' +
+          '<div style="background:var(--inset);border:1px solid var(--line);border-radius:8px;padding:10px;">' +
             '<div style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">Auto Save</div>' +
             '<div style="font-weight:700;font-size:0.82rem;color:var(--muted);">' + formatSaveStamp(readSaveFromKey(AUTO_SAVE_KEY)) + '</div>' +
           '</div>' +
@@ -32692,14 +33288,15 @@
 
       if (raceIsInProgress() && hideOn.indexOf(id) === -1) {
         btn.style.display = "block";
+        document.body.classList.add("has-top-bar");
         var color = (typeof teamColorForPlayer === "function") ? teamColorForPlayer() : "var(--red)";
         var cash = (money && playerTeam) ? "$" + money[playerTeam] : "";
         var legLabel = (typeof isFinalLeg === "function" && isFinalLeg()) ? "Final" : "Leg " + (legNum || 1);
-        btn.innerHTML = '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;'
-          + 'background:' + color + ';margin-right:6px;vertical-align:middle;"></span>'
+        btn.innerHTML = '<span class="top-bar-color-dot" style="background:' + color + ';"></span>'
           + '☰ ' + legLabel + (cash ? ' · ' + cash : '');
       } else {
         btn.style.display = "none";
+        document.body.classList.remove("has-top-bar");
         btn.innerHTML = "☰ Menu";
       }
     }
@@ -32779,7 +33376,7 @@
       container.innerHTML = "";
 
       if (presets.length === 0) {
-        container.innerHTML = "<div style=\"color:rgba(255,245,230,0.45);font-size:0.85rem;padding:6px 0;\">No presets saved yet.</div>";
+        container.innerHTML = "<div style=\"color:var(--muted);font-size:0.85rem;padding:6px 0;\">No presets saved yet.</div>";
         if (deleteBtn) { deleteBtn.disabled = true; }
         return;
       }
@@ -32788,17 +33385,17 @@
         var row = document.createElement("div");
         row.className = "preset-row";
         row.dataset.presetName = entry.name;
-        row.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;margin-bottom:8px;background:rgba(13,3,5,0.5);border:1px solid rgba(255,255,255,0.1);border-left:3px solid transparent;border-radius:8px;cursor:pointer;transition:border-left-color 0.12s,background 0.12s;";
+        row.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;margin-bottom:8px;background:var(--surface);border:1px solid var(--line);border-left:3px solid transparent;border-radius:8px;cursor:pointer;transition:border-left-color 0.12s,background 0.12s;";
 
         var info = document.createElement("div");
         info.style.cssText = "overflow-wrap:anywhere;text-align:left;";
 
         var nameSpan = document.createElement("strong");
-        nameSpan.style.cssText = "color:rgba(255,245,230,0.9);display:block;font-size:0.9rem;";
+        nameSpan.style.cssText = "color:var(--cream);display:block;font-size:0.9rem;";
         nameSpan.textContent = entry.name;
 
         var dateSpan = document.createElement("span");
-        dateSpan.style.cssText = "color:rgba(255,245,230,0.42);font-size:0.78rem;";
+        dateSpan.style.cssText = "color:var(--muted);font-size:0.78rem;";
         dateSpan.textContent = entry.savedAt ? new Date(entry.savedAt).toLocaleString() : "";
 
         info.appendChild(nameSpan);
@@ -32820,11 +33417,11 @@
         row.addEventListener("click", function() {
           document.querySelectorAll(".preset-row").forEach(function(r) {
             r.style.borderLeftColor = "transparent";
-            r.style.background = "rgba(13,3,5,0.5)";
+            r.style.background = "var(--surface)";
             r.classList.remove("selected");
           });
-          row.style.borderLeftColor = "var(--amber, #ffb800)";
-          row.style.background = "rgba(255,184,0,0.06)";
+          row.style.borderLeftColor = "var(--amber)";
+          row.style.background = "var(--amber-soft)";
           row.classList.add("selected");
           if (deleteBtn) { deleteBtn.disabled = false; }
         });
