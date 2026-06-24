@@ -4302,7 +4302,7 @@
       min-height: 48px;
       margin: 8px 0 0;
       padding: 10px 12px;
-      background: rgba(255,255,255,0.045) !important;
+      background: rgba(255,255,255,0.035) !important;
       border: 1px solid rgba(245,235,215,0.14) !important;
       border-left: 5px solid var(--team-color, var(--red)) !important;
       border-radius: 12px;
@@ -4332,7 +4332,7 @@
       padding: 0;
       background: transparent !important;
       border: none !important;
-      color: var(--cyan) !important;
+      color: var(--amber) !important;
       font-size: 0.88rem;
       font-weight: 900;
       white-space: nowrap;
@@ -4437,7 +4437,7 @@
     .meta-time {
       background: rgba(99,197,223,0.12) !important;
       border: 1px solid rgba(99,197,223,0.24) !important;
-      color: var(--cyan) !important;
+      color: var(--amber) !important;
     }
 
     .info-row-value,
@@ -6623,7 +6623,7 @@
       border-radius: 12px !important;
       border: 1px solid var(--race-line) !important;
       border-left: 4px solid var(--race-blue) !important;
-      background: rgba(255,255,255,0.045) !important;
+      background: rgba(255,255,255,0.035) !important;
       box-shadow: none !important;
       text-align: left !important;
       color: var(--race-text) !important;
@@ -6853,6 +6853,377 @@
       .setup-sticky-actions { border-radius: 14px !important; }
       .save-slot-grid.viewer-row-mode .save-slot-card { grid-template-columns: 1fr; }
       .save-slot-grid.viewer-row-mode .save-slot-actions { flex-wrap: wrap; }
+    }
+
+  
+
+    /* ── V52 GROUNDED AMAZING RACE / TRAVEL COLOR REFRESH ────
+       Dark atlas base, race-red urgency, passport blue, route cyan,
+       and checkpoint gold. Grounded first, colorful second.
+    ─────────────────────────────────────────────────────────── */
+
+    :root {
+      --void: #080608;
+      --pit: #110b0d;
+      --surface: #1A1212;
+      --raise: #241818;
+      --card: #171012;
+      --red: #E94B35;
+      --red-dark: #A92B21;
+      --red-glow: rgba(233, 75, 53, 0.26);
+      --amber: #F3C356;
+      --amber-soft: rgba(243, 195, 86, 0.15);
+      --cyan: #6BB9D2;
+      --cyan-soft: rgba(107, 185, 210, 0.11);
+      --cream: #F8EFD9;
+      --muted: rgba(248, 239, 217, 0.74);
+      --line: rgba(248, 239, 217, 0.14);
+      --line-amber: rgba(243, 195, 86, 0.32);
+      --green: #99D277;
+      --green-soft: rgba(153, 210, 119, 0.12);
+      --shadow: rgba(0, 0, 0, 0.68);
+      --inset: rgba(255, 255, 255, 0.04);
+      --paper: #171012;
+      --paper-deep: #0F090A;
+      --paper-card: #1B1314;
+      --paper-card-strong: #241819;
+      --paper-card-soft: #140F10;
+      --ink-strong: #F8EFD9;
+      --ink-soft: rgba(248, 239, 217, 0.72);
+      --soft-border: rgba(248, 239, 217, 0.13);
+      --clean-border: rgba(248, 239, 217, 0.14);
+      --clean-shadow: 0 1px 0 rgba(255,255,255,0.03), 0 18px 46px -28px rgba(0,0,0,0.92);
+      --card-shadow: 0 1px 0 rgba(255,255,255,0.035), 0 24px 62px -30px rgba(0,0,0,0.96);
+      --race-bg: #110b0d;
+      --race-panel: #1A1212;
+      --race-panel-2: #241819;
+      --race-line: rgba(248, 239, 217, 0.14);
+      --race-line-strong: rgba(248, 239, 217, 0.28);
+      --race-text: #F8EFD9;
+      --race-muted: rgba(248, 239, 217, 0.72);
+      --race-red: #E94B35;
+      --race-amber: #F3C356;
+      --race-blue: #6BB9D2;
+    }
+
+    body {
+      color: var(--cream);
+      background:
+        radial-gradient(circle at 14% 0%, rgba(233, 75, 53, 0.18), transparent 32%),
+        radial-gradient(circle at 84% 0%, rgba(243, 195, 86, 0.10), transparent 28%),
+        linear-gradient(180deg, #171012 0%, #090709 100%);
+    }
+
+    body::before {
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: auto;
+      background: radial-gradient(ellipse 80% 34% at 50% 0%, rgba(243, 195, 86, 0.11) 0%, rgba(233, 75, 53, 0.08) 42%, transparent 72%);
+      opacity: 0.9;
+    }
+
+    body::after {
+      background-image:
+        linear-gradient(rgba(248,239,217,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(248,239,217,0.035) 1px, transparent 1px),
+        radial-gradient(circle, rgba(243,195,86,0.09) 1px, transparent 1px);
+      background-size: 44px 44px, 44px 44px, 22px 22px;
+      opacity: 0.34;
+    }
+
+    h1, h2, h3,
+    .section-title,
+    .broadcast-route-title,
+    .leg-episode-title,
+    .pitstop-hero-title {
+      color: var(--cream);
+    }
+
+    .hero-card,
+    .status,
+    .panel-card,
+    .setup-panel,
+    .setting-card,
+    .team-editor-card,
+    .skill-editor-card,
+    .custom-skill-editor-card,
+    .transport-editor-card,
+    .route-editor-card,
+    .city-weight-editor-card,
+    .save-slot-card,
+    .broadcast-panel,
+    .broadcast-details,
+    .placement-chart-card,
+    .time-chart-card,
+    .clue-chart-card,
+    .leg-episode-card,
+    .pitstop-hero,
+    .menu-race-brief > div {
+      background: rgba(27, 19, 20, 0.94) !important;
+      border-color: var(--line) !important;
+      box-shadow: var(--card-shadow) !important;
+    }
+
+    .hero-card,
+    .broadcast-hero,
+    .leg-episode-card,
+    .pitstop-hero {
+      border-top: 1px solid rgba(255,209,102,0.18) !important;
+    }
+
+    .hero-card::before,
+    .broadcast-hero::after {
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--red) 0px, var(--red) 10px,
+        transparent 10px, transparent 16px,
+        var(--amber) 16px, var(--amber) 24px,
+        transparent 24px, transparent 30px
+      ) !important;
+      opacity: 0.82;
+    }
+
+    .logo-badge {
+      background: radial-gradient(circle at 35% 28%, #4A1A18, #130C0D) !important;
+      border-color: var(--amber) !important;
+      box-shadow: 0 0 0 4px rgba(255,209,102,0.12), 0 18px 38px -18px rgba(0,0,0,0.92) !important;
+    }
+    .logo-badge::after { border-color: var(--cyan) !important; }
+
+    .screen-label {
+      background: rgba(23, 16, 18, 0.90) !important;
+      color: var(--amber) !important;
+      border-color: rgba(243,195,86,0.34) !important;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.035), 0 10px 24px -18px rgba(0,0,0,0.9) !important;
+    }
+
+    button:not(.secondary-btn):not(.mini-btn):not(.opt-btn):not(.transport-row-btn):not(.detour-task-card) {
+      background: linear-gradient(180deg, #F65A45 0%, #C5372D 100%) !important;
+      color: #FFF9EC !important;
+      box-shadow: 0 4px 0 #84221D, 0 16px 30px -18px rgba(240,78,62,0.82) !important;
+      border: 1px solid rgba(255,209,102,0.18) !important;
+    }
+    button:not(.secondary-btn):not(.mini-btn):not(.opt-btn):not(.transport-row-btn):not(.detour-task-card):hover {
+      background: linear-gradient(180deg, #FF6A54 0%, #D64034 100%) !important;
+      transform: translateY(-1px);
+    }
+
+    .secondary-btn,
+    .menu-btn:not(.gold) {
+      background: rgba(23, 16, 18, 0.94) !important;
+      color: var(--cream) !important;
+      border-color: rgba(243,195,86,0.20) !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.035), 0 10px 22px -18px rgba(0,0,0,0.85) !important;
+    }
+    .secondary-btn:hover,
+    .menu-btn:not(.gold):hover {
+      color: var(--amber) !important;
+      border-color: rgba(76,201,240,0.48) !important;
+      background: rgba(21, 53, 84, 0.96) !important;
+    }
+
+    .mini-btn,
+    .menu-btn.gold {
+      background: rgba(243,195,86,0.10) !important;
+      border-color: rgba(255,209,102,0.38) !important;
+      color: var(--amber) !important;
+    }
+    .mini-btn:hover,
+    .menu-btn.gold:hover { background: rgba(255,209,102,0.17) !important; }
+
+    input,
+    select,
+    textarea,
+    .setting-card input,
+    .setting-card select {
+      background: rgba(5, 13, 25, 0.72) !important;
+      color: var(--cream) !important;
+      border-color: rgba(248,239,217,0.18) !important;
+    }
+    input:focus,
+    select:focus,
+    textarea:focus,
+    .setting-card input:focus,
+    .setting-card select:focus {
+      border-color: rgba(255,209,102,0.70) !important;
+      box-shadow: 0 0 0 3px rgba(255,209,102,0.14) !important;
+    }
+    select option { background: #0D2035 !important; color: var(--cream) !important; }
+
+    .race-header-strip {
+      background: rgba(24, 17, 18, 0.96) !important;
+      border-color: rgba(243,195,86,0.18) !important;
+      border-left-color: var(--red) !important;
+      box-shadow: 0 12px 32px -24px rgba(0,0,0,1) !important;
+    }
+    .race-header-pill,
+    .leg-episode-meta span,
+    .setup-summary-strip span,
+    #customize .setup-progress-strip span,
+    .departure-title span:last-child {
+      background: rgba(255,255,255,0.055) !important;
+      border-color: rgba(248,239,217,0.14) !important;
+    }
+    .race-header-pill.leg { color: var(--amber) !important; border-color: rgba(255,209,102,0.36) !important; }
+    .race-header-pill.task { color: var(--amber) !important; border-color: rgba(243,195,86,0.30) !important; }
+    .race-header-pill.cash,
+    .transport-cell-cost,
+    .cash,
+    .cash-pill { color: var(--green) !important; border-color: rgba(139,227,122,0.34) !important; }
+
+    .presence-report,
+    .departure-list,
+    .route-history,
+    .challenge-summary,
+    .flight-route,
+    .transport-choice-panel,
+    .race-context-strip,
+    .info-strip,
+    .broadcast-outcome {
+      background: rgba(24, 17, 18, 0.82) !important;
+      border-color: rgba(248,239,217,0.14) !important;
+    }
+    .presence-row,
+    .departure-row,
+    .transport-row-btn,
+    .broadcast-standing-row,
+    .placement-chart tbody tr,
+    .route-pick-row,
+    .skill-team-card,
+    .team-color-row,
+    .skill,
+    .leg-recap-stat {
+      background: rgba(255,255,255,0.035) !important;
+      border-color: rgba(248,239,217,0.11) !important;
+    }
+    .presence-row:hover,
+    .departure-row:hover,
+    .transport-row-btn:hover,
+    .broadcast-standing-row:hover {
+      background: rgba(243,195,86,0.07) !important;
+      border-color: rgba(243,195,86,0.22) !important;
+    }
+
+    .presence-chip,
+    .team-presence-chip {
+      background: rgba(255,255,255,0.055) !important;
+      border-color: rgba(248,239,217,0.13) !important;
+      color: var(--cream) !important;
+    }
+
+    .transport-table-head {
+      background: rgba(243,195,86,0.10) !important;
+      border-color: rgba(255,209,102,0.22) !important;
+      color: var(--amber) !important;
+    }
+    .transport-row-btn {
+      border-left-color: rgba(233,75,53,0.34) !important;
+    }
+    .transport-row-btn:hover {
+      border-left-color: var(--amber) !important;
+      transform: translateY(-1px);
+    }
+    .transport-row-btn:disabled,
+    .transport-row-btn.is-disabled {
+      opacity: 0.42 !important;
+      filter: grayscale(0.25);
+    }
+    .transport-cell-time,
+    .departure-time,
+    .presence-row-time,
+    .race-header-time,
+    .meta-time { color: var(--cyan) !important; }
+    .transport-cell-sub { color: var(--red) !important; }
+
+    .detour-task-card,
+    .opt-btn {
+      background: rgba(29, 20, 21, 0.96) !important;
+      border-color: rgba(248,239,217,0.13) !important;
+      border-left-color: var(--red) !important;
+    }
+    .detour-task-card:hover,
+    .opt-btn:hover {
+      background: rgba(38, 24, 24, 0.98) !important;
+      border-left-color: var(--amber) !important;
+    }
+
+    .presence-section-title,
+    .departure-title,
+    .transport-prompt,
+    .flight-route-title,
+    .broadcast-panel-title,
+    .broadcast-details > summary,
+    .section-kicker,
+    .setting-card label,
+    .placement-chart-title,
+    .time-chart-title,
+    .clue-chart-title {
+      color: var(--amber) !important;
+    }
+
+    .broadcast-hero {
+      background:
+        radial-gradient(circle at 18% 0%, rgba(233,75,53,0.18), transparent 42%),
+        linear-gradient(135deg, rgba(36, 24, 24, 0.98), rgba(18, 12, 13, 0.98)) !important;
+      border-color: rgba(248,239,217,0.15) !important;
+      box-shadow: var(--card-shadow) !important;
+    }
+    .broadcast-pill.info { color: var(--cyan) !important; background: var(--cyan-soft) !important; border-color: rgba(76,201,240,0.28) !important; }
+    .broadcast-pill.warn { color: var(--amber) !important; background: var(--amber-soft) !important; border-color: rgba(255,209,102,0.30) !important; }
+    .broadcast-pill.danger { color: var(--red) !important; background: rgba(240,78,62,0.12) !important; border-color: rgba(240,78,62,0.32) !important; }
+    .broadcast-pill.good { color: var(--green) !important; background: var(--green-soft) !important; border-color: rgba(139,227,122,0.30) !important; }
+
+    .placement-chart-wrap,
+    .time-chart-wrap {
+      background: rgba(5, 13, 25, 0.72) !important;
+      border-color: rgba(248,239,217,0.16) !important;
+    }
+    .placement-chart th,
+    .time-chart th,
+    .time-chart .rank-head {
+      background: #181012 !important;
+      color: var(--cream) !important;
+      border-color: rgba(248,239,217,0.16) !important;
+    }
+    .placement-chart .placement-team-cell,
+    .placement-chart th.placement-team-cell {
+      background: #211617 !important;
+    }
+    .time-chart .rank-cell {
+      background: rgba(255,209,102,0.12) !important;
+      color: var(--amber) !important;
+      border-color: rgba(255,209,102,0.20) !important;
+    }
+    .time-chart .sub-head {
+      background: #27191A !important;
+      color: var(--cream) !important;
+    }
+    .clue-chart-card svg {
+      background: #F7F1E3 !important;
+      border-color: rgba(248,239,217,0.18) !important;
+    }
+
+    .setup-sticky-actions {
+      background: rgba(17, 12, 13, 0.94) !important;
+      border-color: rgba(243,195,86,0.20) !important;
+    }
+    #customize .setup-progress-strip,
+    .setup-summary-strip,
+    .setting-summary {
+      background: rgba(255,255,255,0.035) !important;
+      border-color: rgba(248,239,217,0.14) !important;
+      color: var(--cream) !important;
+    }
+
+    .empty-state {
+      color: var(--muted) !important;
+    }
+
+    ::selection {
+      background: rgba(255,209,102,0.34);
+      color: #FFF9EC;
     }
 
   </style>
@@ -7371,7 +7742,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 51;
+    var SAVE_VERSION = 53;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
