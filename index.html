@@ -5326,6 +5326,532 @@
       }
     }
 
+
+    /* ── SETUP PAGE FULL REDESIGN v47 ───────────────────────── */
+    #customize.setup-redesign {
+      max-width: min(1180px, calc(100vw - 24px));
+      text-align: left;
+    }
+
+    #customize.setup-redesign > .screen-label,
+    #customize.setup-redesign > h1 {
+      display: block;
+      text-align: center;
+    }
+
+    #customize.setup-redesign > h1 {
+      margin-bottom: 14px;
+    }
+
+    .setup-command-card,
+    .setup-overview-card,
+    .setup-side-rail,
+    .setup-accordion,
+    .setup-sticky-actions {
+      background: linear-gradient(180deg, rgba(33,28,27,0.98), rgba(21,20,22,0.98));
+      border: 1px solid rgba(245,235,215,0.14);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.035), 0 22px 54px -34px rgba(0,0,0,0.9);
+    }
+
+    .setup-command-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 20px;
+      border-left: 4px solid var(--red);
+      border-radius: 18px;
+      margin: 0 0 12px;
+    }
+
+    .setup-command-kicker {
+      color: var(--amber);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .setup-command-copy h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 3vw, 2.05rem);
+      line-height: 1.04;
+      color: var(--cream);
+    }
+
+    .setup-command-copy p {
+      margin: 7px 0 0;
+      max-width: 680px;
+      color: var(--muted);
+      line-height: 1.38;
+    }
+
+    .setup-command-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .setup-command-buttons button {
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .setup-overview-card {
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--amber);
+    }
+
+    .setup-overview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .setup-overview-head .section-title {
+      margin: 0;
+    }
+
+    #customize .setting-summary {
+      background: transparent;
+      border: none;
+      padding: 0;
+      color: var(--cream);
+    }
+
+    .setup-summary-hero-row {
+      display: grid;
+      grid-template-columns: 0.7fr 1.1fr 1.3fr 1fr;
+      gap: 8px;
+    }
+
+    .setup-summary-main-stat {
+      min-width: 0;
+      padding: 10px 11px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(245,235,215,0.13);
+    }
+
+    .setup-summary-main-stat span,
+    .setup-summary-detail-row span,
+    .setup-summary-seed {
+      display: block;
+      color: var(--muted);
+      font-size: 0.66rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .setup-summary-main-stat strong,
+    .setup-summary-detail-row strong {
+      color: var(--cream);
+      font-size: 0.92rem;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .setup-summary-detail-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .setup-summary-detail-row span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin: 0;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(245,235,215,0.11);
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    .setup-summary-detail-row span.muted {
+      opacity: 0.75;
+    }
+
+    .setup-summary-cast-line {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.25;
+    }
+
+    .setup-redesign-layout {
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .setup-side-rail {
+      position: sticky;
+      top: 72px;
+      border-radius: 16px;
+      padding: 12px;
+      display: grid;
+      gap: 7px;
+      border-left: 4px solid var(--cyan);
+    }
+
+    .setup-side-title {
+      color: var(--amber);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .setup-side-rail a {
+      color: var(--cream);
+      text-decoration: none;
+      padding: 7px 9px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(245,235,215,0.09);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .setup-side-rail a:hover {
+      border-color: rgba(243,181,69,0.35);
+      background: rgba(243,181,69,0.08);
+      color: var(--amber);
+    }
+
+    .setup-side-note {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      line-height: 1.32;
+      border-top: 1px dashed rgba(245,235,215,0.15);
+      padding-top: 9px;
+    }
+
+    .setup-accordion-stack {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .setup-accordion {
+      border-radius: 17px;
+      overflow: hidden;
+      border-left: 4px solid rgba(245,235,215,0.18);
+    }
+
+    .setup-accordion:nth-child(1) { border-left-color: var(--red); }
+    .setup-accordion:nth-child(2) { border-left-color: var(--cyan); }
+    .setup-accordion:nth-child(3) { border-left-color: var(--amber); }
+    .setup-accordion:nth-child(4) { border-left-color: var(--green); }
+    .setup-accordion:nth-child(5) { border-left-color: var(--cyan); }
+    .setup-accordion:nth-child(6) { border-left-color: var(--red); }
+
+    .setup-accordion > summary {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) auto;
+      gap: 11px;
+      align-items: center;
+      list-style: none;
+      cursor: pointer;
+      padding: 13px 15px;
+      background: rgba(255,255,255,0.035);
+    }
+
+    .setup-accordion > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .setup-step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: rgba(243,181,69,0.10);
+      border: 1px solid rgba(243,181,69,0.28);
+      color: var(--amber);
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    .setup-summary-text {
+      display: grid;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .setup-summary-kicker {
+      color: var(--red);
+      font-size: 0.62rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .setup-summary-text strong {
+      font-size: 1rem;
+      line-height: 1.1;
+      color: var(--cream);
+    }
+
+    .setup-summary-text small {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.24;
+      overflow-wrap: anywhere;
+    }
+
+    .setup-summary-open {
+      min-width: 62px;
+      padding: 5px 10px;
+      text-align: center;
+      border-radius: 999px;
+      border: 1px solid rgba(99,197,223,0.28);
+      color: var(--cyan);
+      background: rgba(99,197,223,0.08);
+      font-size: 0.68rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .setup-accordion[open] .setup-summary-open {
+      color: var(--amber);
+      border-color: rgba(243,181,69,0.30);
+      background: rgba(243,181,69,0.08);
+    }
+
+    .setup-accordion[open] .setup-summary-open::before { content: "Close"; }
+    .setup-accordion:not([open]) .setup-summary-open::before { content: "Open"; }
+    .setup-summary-open { font-size: 0; }
+    .setup-summary-open::before { font-size: 0.68rem; }
+
+    .setup-accordion-body {
+      padding: 12px;
+      border-top: 1px solid rgba(245,235,215,0.10);
+    }
+
+    #customize .settings-grid {
+      gap: 9px;
+    }
+
+    #customize .settings-grid.three,
+    #customize .setup-core-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    #customize .setting-card.compact-setting {
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.045);
+      border-color: rgba(245,235,215,0.12);
+      box-shadow: none;
+      min-height: auto;
+    }
+
+    #customize .setting-card.compact-setting label,
+    #customize .setting-card label {
+      margin-bottom: 6px;
+      color: var(--amber);
+      font-size: 0.68rem;
+      letter-spacing: 0.07em;
+      line-height: 1.1;
+    }
+
+    #customize .setting-card input,
+    #customize .setting-card select,
+    #customize textarea {
+      min-height: 34px;
+      padding: 7px 9px;
+      font-size: 0.86rem;
+      border-radius: 9px;
+    }
+
+    #customize .setting-help {
+      margin-top: 5px;
+      font-size: 0.72rem;
+      line-height: 1.25;
+    }
+
+    .setup-range-labels {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .setup-editor-card-flat {
+      margin-top: 0 !important;
+      background: rgba(255,255,255,0.035) !important;
+      box-shadow: none !important;
+      border-color: rgba(245,235,215,0.12) !important;
+    }
+
+    #customize .team-name-editor,
+    #customize .skill-name-editor,
+    #customize .transport-editor,
+    #customize .custom-skill-editor,
+    #customize .route-pick-list {
+      max-height: 290px;
+      padding-right: 3px;
+    }
+
+    #customize .team-name-row {
+      grid-template-columns: 62px minmax(0, 1fr) 40px 82px !important;
+      gap: 6px !important;
+    }
+
+    #customize .team-name-row span,
+    #customize .skill-name-row span {
+      font-size: 0.76rem;
+    }
+
+    #customize .transport-editor,
+    #customize .transport-editor-head {
+      grid-template-columns: 54px minmax(120px, 1fr) 74px 74px 74px;
+      gap: 6px;
+    }
+
+    #customize .transport-editor-head {
+      margin-bottom: 6px;
+      font-size: 0.65rem;
+    }
+
+    #customize .route-picker-bar {
+      grid-template-columns: minmax(130px, 0.75fr) minmax(0, 1fr) auto;
+      gap: 7px;
+    }
+
+    .setup-preset-actions {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 7px;
+    }
+
+    .setup-preset-actions .mini-btn {
+      width: 100%;
+      margin: 0;
+    }
+
+    .danger-mini {
+      border-color: rgba(225,63,47,0.38) !important;
+      color: #ff8a7d !important;
+    }
+
+    .preset-list-shell {
+      margin-top: 10px;
+    }
+
+    .setup-sticky-actions {
+      position: sticky;
+      bottom: 10px;
+      z-index: 5;
+      justify-content: flex-end;
+      padding: 10px;
+      border-radius: 14px;
+      backdrop-filter: blur(14px);
+      background: rgba(20,18,19,0.92);
+      border-left: 4px solid var(--red);
+    }
+
+    .setup-sticky-actions button {
+      margin: 0;
+    }
+
+    @media (max-width: 980px) {
+      .setup-redesign-layout {
+        grid-template-columns: 1fr;
+      }
+      .setup-side-rail {
+        position: static;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .setup-side-title,
+      .setup-side-note {
+        grid-column: 1 / -1;
+      }
+      .setup-summary-hero-row,
+      #customize .setup-core-grid,
+      #customize .settings-grid.three {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      #customize.setup-redesign {
+        max-width: calc(100vw - 16px);
+      }
+      .setup-command-card {
+        grid-template-columns: 1fr;
+        padding: 15px;
+      }
+      .setup-command-buttons {
+        justify-content: stretch;
+      }
+      .setup-command-buttons button,
+      .setup-overview-head .mini-btn,
+      .setup-sticky-actions button {
+        width: 100%;
+      }
+      .setup-overview-head {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .setup-side-rail,
+      .setup-summary-hero-row,
+      .setup-summary-detail-row,
+      #customize .setup-core-grid,
+      #customize .settings-grid,
+      #customize .settings-grid.three {
+        grid-template-columns: 1fr !important;
+      }
+      .setup-summary-detail-row {
+        display: grid;
+      }
+      .setup-accordion > summary {
+        grid-template-columns: 38px minmax(0, 1fr);
+      }
+      .setup-summary-open {
+        grid-column: 2;
+        justify-self: start;
+      }
+      #customize .team-name-row,
+      #customize .route-picker-bar {
+        grid-template-columns: 1fr !important;
+      }
+      #customize .transport-editor,
+      #customize .transport-editor-head {
+        grid-template-columns: 1fr;
+      }
+      #customize .transport-editor-head {
+        display: none;
+      }
+      .setup-sticky-actions {
+        position: static;
+        justify-content: stretch;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -5365,402 +5891,404 @@
   </div>
 
 
-  <div id="customize" class="screen">
+  <div id="customize" class="screen setup-redesign">
     <span class="screen-label">Race Setup</span>
-    <h1>Customize Race</h1>
-    <div class="page-intro">
-      Tune the season before choosing your team. Keep it simple with defaults, or open the little control drawers and make the race your own.
+    <h1>Race Setup</h1>
+
+    <div class="setup-command-card">
+      <div class="setup-command-copy">
+        <div class="setup-command-kicker">Season Control</div>
+        <h2>Build the race in layers.</h2>
+        <p>Start with the essentials, then open the deeper panels only when you want to tune the machine. Defaults are ready to race.</p>
+      </div>
+      <div class="setup-command-buttons">
+        <button onclick="confirmCustomization()">Continue</button>
+        <button class="secondary-btn" onclick="resetCustomizationDefaults()">Reset</button>
+      </div>
     </div>
 
-    <div class="panel-card setup-panel">
-      <div class="setup-section">
-        <div class="section-heading">
-          <div>
-            <div class="section-kicker">Teams</div>
-            <h2 class="section-title">Cast setup</h2>
-            <div class="section-copy">Choose the size of the cast and edit the team names. Defaults stay clean as Team 1, Team 2, and onward.</div>
-          </div>
+    <div class="setup-overview-card">
+      <div class="setup-overview-head">
+        <div>
+          <div class="section-kicker">At a Glance</div>
+          <h2 class="section-title">Current season</h2>
         </div>
-
-        <div class="settings-grid">
-          <div class="setting-card">
-            <label for="settingTeamCount">Number of Teams</label>
-            <input id="settingTeamCount" type="number" min="4" max="50" step="1">
-            <div class="setting-help">Creates default teams named Team 1, Team 2, Team 3, and so on.</div>
-          </div>
-        </div>
-
-        <div class="team-editor-card">
-          <div class="team-editor-header">
-            <div>
-              <strong>Team Names &amp; Colors</strong>
-              <div class="setting-help">Edit names and pick a color per team. Colors appear in the clue-by-clue chart.</div>
-            </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-              <button class="mini-btn" type="button" onclick="resetTeamNamesToDefault()">Reset Names</button>
-              <button class="mini-btn" type="button" onclick="resetTeamColorsToDefault()">Reset Colors</button>
-            </div>
-          </div>
-          <div id="teamNameEditor" class="team-name-editor"></div>
-          <div id="teamNameNote" class="team-name-note"></div>
-        </div>
-
-        <div id="teamColorEditor" style="display:none"></div>
-        <div id="teamColorNote" style="display:none"></div>
+        <button class="mini-btn" type="button" onclick="showScreen('start')">Back</button>
       </div>
+      <div class="setting-summary" id="customizationSummary"></div>
+    </div>
 
-      <div class="setup-section">
-        <div class="section-heading">
-          <div>
-            <div class="section-kicker">Money</div>
-            <h2 class="section-title">Race economy</h2>
-            <div class="section-copy">Control how tight the wallets feel. More money means faster travel choices; less money makes every taxi feel like a jewel heist.</div>
-          </div>
-        </div>
+    <div class="setup-redesign-layout">
+      <aside class="setup-side-rail" aria-label="Setup guide">
+        <div class="setup-side-title">Setup path</div>
+        <a href="#setup-quick">1. Essentials</a>
+        <a href="#setup-teams">2. Cast</a>
+        <a href="#setup-route">3. Route</a>
+        <a href="#setup-skills">4. Skills</a>
+        <a href="#setup-transport">5. Transport</a>
+        <a href="#setup-presets">6. Presets</a>
+        <div class="setup-side-note">Only the Essentials panel is required. Everything else is optional seasoning.</div>
+      </aside>
 
-        <div class="settings-grid">
-          <div class="setting-card">
-            <label for="settingStartingMoney">Starting Money</label>
-            <input id="settingStartingMoney" type="number" min="0" max="999999" step="50">
-            <div class="setting-help">Cash every team starts with on Leg 1.</div>
-          </div>
-
-          <div class="setting-card">
-            <label for="settingLegStipend">Leg Stipend</label>
-            <input id="settingLegStipend" type="number" min="0" max="999999" step="50">
-            <div class="setting-help">Cash added to each remaining team at the start of every leg after Leg 1.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="setup-section">
-        <div class="section-heading">
-          <div>
-            <div class="section-kicker">Transport</div>
-            <h2 class="section-title">Local travel options</h2>
-            <div class="section-copy">Control how many travel choices appear each segment, then edit the emoji, name, price, and time for every transport option.</div>
-          </div>
-        </div>
-
-        <div class="settings-grid">
-          <div class="setting-card">
-            <label>Transport Options Per Segment</label>
-            <div class="range-pair">
-              <input id="settingMinTransportOptions" type="number" min="1" max="50" step="1" aria-label="Minimum transport options">
-              <input id="settingMaxTransportOptions" type="number" min="1" max="50" step="1" aria-label="Maximum transport options">
-            </div>
-            <div class="setting-help">Minimum and maximum number of options shown whenever teams choose local travel.</div>
-          </div>
-        </div>
-
-        <div class="transport-editor-card">
-          <div class="transport-editor-header">
-            <div>
-              <strong>Transport List</strong>
-              <div class="setting-help">Edit up to 50 transport options. Emoji and name combine into the button label racers see.</div>
-            </div>
-            <div class="mini-button-row">
-              <button class="mini-btn" type="button" onclick="addTransportOption()">Add Transport</button>
-              <button class="mini-btn" type="button" onclick="resetTransportsToDefault()">Reset Default Transports</button>
-            </div>
-          </div>
-          <div class="transport-editor-head">
-            <span>Emoji</span>
-            <span>Name</span>
-            <span>Cost</span>
-            <span>Time</span>
-            <span></span>
-          </div>
-          <div id="transportEditor" class="transport-editor"></div>
-          <div id="transportNote" class="transport-note"></div>
-        </div>
-      </div>
-
-      <div class="setup-section">
-        <div class="section-heading">
-          <div>
-            <div class="section-kicker">Format</div>
-            <h2 class="section-title">Leg structure</h2>
-            <div class="section-copy">Set how long each leg feels and how often a last-place team gets spared.</div>
-          </div>
-        </div>
-
-        <div class="settings-grid">
-          <div class="setting-card">
-            <label for="settingNonElimChance">Non-Elimination Chance</label>
-            <select id="settingNonElimChance">
-              <option value="0">None - 0%</option>
-              <option value="0.10">Rare - 10%</option>
-              <option value="0.15">Normal - 15%</option>
-              <option value="0.25">Frequent - 25%</option>
-              <option value="0.35">Wild - 35%</option>
-            </select>
-            <div class="setting-help">Chance that a non-final leg saves the last-place team.</div>
-          </div>
-
-          <div class="setting-card">
-            <label>Challenges Per Normal Leg</label>
-            <div class="range-pair">
-              <input id="settingMinStops" type="number" min="1" max="25" step="1" aria-label="Minimum normal leg challenges">
-              <input id="settingMaxStops" type="number" min="1" max="25" step="1" aria-label="Maximum normal leg challenges">
-            </div>
-            <div class="setting-help">Minimum and maximum challenge stops before the pit stop.</div>
-          </div>
-
-          <div class="setting-card">
-            <label>Challenges Per Final Leg</label>
-            <div class="range-pair">
-              <input id="settingFinalMinStops" type="number" min="1" max="25" step="1" aria-label="Minimum final leg challenges">
-              <input id="settingFinalMaxStops" type="number" min="1" max="25" step="1" aria-label="Maximum final leg challenges">
-            </div>
-            <div class="setting-help">Final leg can stay bigger and more dramatic than regular legs.</div>
-          </div>
-
-          <div class="setting-card">
-            <label>Challenge Time Range</label>
-            <div class="range-pair">
-              <input id="settingChallengeMinTime" type="number" min="1" max="1440" step="1" aria-label="Minimum base challenge time">
-              <input id="settingChallengeMaxTime" type="number" min="1" max="1440" step="1" aria-label="Maximum base challenge time">
-            </div>
-            <div class="setting-help">Base minutes for each challenge before skill level modifies the time.</div>
-          </div>
-          <div class="setting-card full">
-            <label for="settingGapScaling">Departure Gap Scaling</label>
-            <select id="settingGapScaling" onchange="updateGapScalingCustomVisibility();renderCustomizationSummary();">
-              <option value="1.0">No scaling — gaps stay as-is (10h → 10h)</option>
-              <option value="0.667">Gentle — 10h gap becomes 6h 40m</option>
-              <option value="0.5" selected>Standard — 10h gap becomes 5h</option>
-              <option value="0.333">Aggressive — 10h gap becomes 3h 20m</option>
-              <option value="custom">Custom — set your own multiplier</option>
-            </select>
-            <div id="gapScalingCustomRow" style="display:none;margin-top:9px;">
-              <input id="settingGapScalingCustom" type="number" min="0" max="1" step="0.01" value="0.5" aria-label="Custom gap scaling multiplier">
-              <div class="setting-help">A number from 0 (everyone departs simultaneously) to 1 (no scaling at all). 0.5 halves every gap.</div>
-            </div>
-            <div class="setting-help">Controls how much finishing order affects your departure time on the next leg. Smaller values mean tighter racing.</div>
-          </div>
-
-          <div class="setting-card">
-            <label for="settingFinalTeamCount">Finale Trigger</label>
-            <select id="settingFinalTeamCount" onchange="renderCustomizationSummary();">
-              <option value="2">Final 2 — last two teams race to the finish</option>
-              <option value="3" selected>Final 3 — standard (top 3 teams)</option>
-              <option value="4">Final 4 — four teams in the finale</option>
-              <option value="5">Final 5 — five teams in the finale</option>
-              <option value="6">Final 6 — six teams in the finale</option>
-              <option value="7">Final 7 — seven teams in the finale</option>
-              <option value="8">Final 8 — eight teams in the finale</option>
-            </select>
-            <div class="setting-help">How many teams remain when the final leg begins.</div>
-          </div>
-
-          <div class="setting-card full">
-            <label for="settingLegGapHours">Gap Between Legs: <span id="legGapLabel">36h</span></label>
-            <input id="settingLegGapHours" type="range" min="12" max="240" step="12" value="36"
-              oninput="updateLegGapLabel();renderCustomizationSummary();"
-              style="width:100%;margin:8px 0 4px;accent-color:var(--red);">
-            <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:0.78rem;font-weight:600;">
-              <span>12h</span><span>3 days</span><span>7 days</span><span>10 days</span>
-            </div>
-            <div class="setting-help">Time between the winner checking in and the first team's next departure. Shorter gaps mean tighter, sprint-style racing.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="setup-section">
-        <div class="section-heading">
-          <div>
-            <div class="section-kicker">Airports</div>
-            <h2 class="section-title">Flight chaos</h2>
-            <div class="section-copy">Routing still uses the realistic coordinate network. This only changes how angry the airport gremlins are.</div>
-          </div>
-        </div>
-
-        <div class="settings-grid">
-          <div class="setting-card">
-            <label for="settingFlightChaos">Flight Chaos</label>
-            <select id="settingFlightChaos">
-              <option value="calm">Calm - fewer/smaller delays</option>
-              <option value="normal">Normal - current delay feel</option>
-              <option value="chaotic">Chaotic - more delays</option>
-              <option value="nightmare">Airport Nightmare - delay goblin mode</option>
-            </select>
-            <div class="setting-help">Controls delay odds and delay size. Flight routing still uses the realistic coordinate network.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="setup-section">
-        <div class="section-heading">
-          <div>
-            <div class="section-kicker">Replay</div>
-            <h2 class="section-title">Seeded randomness</h2>
-            <div class="section-copy">Use a seed to make a season replayable. Same setup + same choices + same seed means the same race chaos returns instead of vanishing into the fog machine.</div>
-          </div>
-        </div>
-
-        <div class="settings-grid">
-          <div class="setting-card full">
-            <label for="settingRaceSeed">Race Seed</label>
-            <input id="settingRaceSeed" type="text" maxlength="60" placeholder="Leave blank for normal randomness">
-            <div class="setting-help">Optional. Type anything, like <strong>Season 1 Test</strong>, to make random rolls reproducible for debugging and replays.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="setup-section">
-        <div class="section-heading">
-          <div>
-            <div class="section-kicker">Route Builder</div>
-            <h2 class="section-title">Route customization</h2>
-            <div class="section-copy">Choose whether the season uses the private weighted city pool or a custom city order. Non-elims do not need exact leg numbers: the custom route simply feeds normal legs in order, and the finale jumps to the chosen U.S. finish city whenever the final-team trigger happens.</div>
-          </div>
-        </div>
-
-        <div id="routeEditorCard" class="route-editor-card">
-          <div class="route-editor-header">
-            <div>
-              <strong>Season Route</strong>
-              <div class="setting-help">Auto keeps the hidden city-weight system. Custom lets you pick a U.S. start, an ordered non-U.S. route list, and a U.S. finale.</div>
-            </div>
-            <div class="mini-button-row">
-              <button class="mini-btn" type="button" onclick="fillSuggestedCustomRoute()">Suggested Route</button>
-              <button class="mini-btn" type="button" onclick="clearCustomRoute()">Clear Route</button>
-            </div>
-          </div>
-
-          <div class="route-grid">
-            <div class="setting-card full">
-              <label for="settingRouteMode">Route Mode</label>
-              <select id="settingRouteMode" onchange="updateRouteEditorVisibility();renderCustomizationSummary();">
-                <option value="auto">Auto - hidden weighted city pool</option>
-                <option value="custom">Custom - use my route order</option>
-              </select>
-              <div class="setting-help">Auto is the current default behavior. Custom still respects U.S. start/finale rules.</div>
-            </div>
-
-            <div class="setting-card route-custom-only">
-              <label for="customRouteStartSelect">Starting City</label>
-              <select id="customRouteStartSelect" onchange="updateRouteEditorNote();renderCustomizationSummary();"></select>
-              <div class="setting-help">United States only. This is the starting city before Leg 1.</div>
-            </div>
-
-            <div class="setting-card route-custom-only">
-              <label for="customRouteFinaleSelect">Finale City</label>
-              <select id="customRouteFinaleSelect" onchange="updateRouteEditorNote();renderCustomizationSummary();"></select>
-              <div class="setting-help">United States only. The finale uses this city whenever the race reaches the final-team trigger.</div>
-            </div>
-
-            <div class="setting-card full route-custom-only">
-              <label for="customRouteAddSelect">Normal Leg Route</label>
-              <div class="route-picker-bar">
-                <input id="customRouteSearch" type="text" placeholder="Search city..." oninput="renderCustomRouteAddSelect(currentCustomRouteKeys())">
-                <select id="customRouteAddSelect"></select>
-                <button class="mini-btn" type="button" onclick="addSelectedRouteCity()">Add City</button>
+      <div class="setup-accordion-stack">
+        <details id="setup-quick" class="setup-accordion" open>
+          <summary>
+            <span class="setup-step-number">01</span>
+            <span class="setup-summary-text">
+              <span class="setup-summary-kicker">Required</span>
+              <strong>Essentials</strong>
+              <small>Cast size, money, leg length, finale, chaos, seed.</small>
+            </span>
+            <span class="setup-summary-open">Open</span>
+          </summary>
+          <div class="setup-accordion-body">
+            <div class="settings-grid setup-core-grid">
+              <div class="setting-card compact-setting">
+                <label for="settingTeamCount">Teams</label>
+                <input id="settingTeamCount" type="number" min="4" max="50" step="1">
+                <div class="setting-help">How many teams start the season.</div>
               </div>
-              <div id="customRouteList" class="route-pick-list"></div>
-              <textarea id="customRouteEditor" class="route-editor route-editor-hidden" spellcheck="false" aria-hidden="true" tabindex="-1"></textarea>
-              <div class="setting-help">Choose non-U.S. cities from the dropdown, then use Move Up, Move Down, or Remove to set the route. These are used in order for normal legs. If the list runs out, the simulator fills the remaining route from the hidden weighted pool.</div>
+
+              <div class="setting-card compact-setting">
+                <label for="settingStartingMoney">Starting Cash</label>
+                <input id="settingStartingMoney" type="number" min="0" max="999999" step="50">
+                <div class="setting-help">Cash each team starts with.</div>
+              </div>
+
+              <div class="setting-card compact-setting">
+                <label for="settingLegStipend">Leg Stipend</label>
+                <input id="settingLegStipend" type="number" min="0" max="999999" step="50">
+                <div class="setting-help">Cash added after Leg 1.</div>
+              </div>
+
+              <div class="setting-card compact-setting">
+                <label for="settingNonElimChance">Non-Elim Chance</label>
+                <select id="settingNonElimChance">
+                  <option value="0">None - 0%</option>
+                  <option value="0.10">Rare - 10%</option>
+                  <option value="0.15">Normal - 15%</option>
+                  <option value="0.25">Frequent - 25%</option>
+                  <option value="0.35">Wild - 35%</option>
+                </select>
+                <div class="setting-help">Chance last place survives a non-final leg.</div>
+              </div>
+
+              <div class="setting-card compact-setting">
+                <label>Normal Leg Stops</label>
+                <div class="range-pair">
+                  <input id="settingMinStops" type="number" min="1" max="25" step="1" aria-label="Minimum normal leg challenges">
+                  <input id="settingMaxStops" type="number" min="1" max="25" step="1" aria-label="Maximum normal leg challenges">
+                </div>
+                <div class="setting-help">Minimum and maximum tasks before the pit stop.</div>
+              </div>
+
+              <div class="setting-card compact-setting">
+                <label>Final Leg Stops</label>
+                <div class="range-pair">
+                  <input id="settingFinalMinStops" type="number" min="1" max="25" step="1" aria-label="Minimum final leg challenges">
+                  <input id="settingFinalMaxStops" type="number" min="1" max="25" step="1" aria-label="Maximum final leg challenges">
+                </div>
+                <div class="setting-help">Finale task range.</div>
+              </div>
+
+              <div class="setting-card compact-setting">
+                <label>Task Time Range</label>
+                <div class="range-pair">
+                  <input id="settingChallengeMinTime" type="number" min="1" max="1440" step="1" aria-label="Minimum base challenge time">
+                  <input id="settingChallengeMaxTime" type="number" min="1" max="1440" step="1" aria-label="Maximum base challenge time">
+                </div>
+                <div class="setting-help">Base minutes before skills modify the time.</div>
+              </div>
+
+              <div class="setting-card compact-setting">
+                <label for="settingFinalTeamCount">Finale Trigger</label>
+                <select id="settingFinalTeamCount" onchange="renderCustomizationSummary();">
+                  <option value="2">Final 2</option>
+                  <option value="3" selected>Final 3</option>
+                  <option value="4">Final 4</option>
+                  <option value="5">Final 5</option>
+                  <option value="6">Final 6</option>
+                  <option value="7">Final 7</option>
+                  <option value="8">Final 8</option>
+                </select>
+                <div class="setting-help">How many teams remain when the finale begins.</div>
+              </div>
+
+              <div class="setting-card compact-setting full">
+                <label for="settingGapScaling">Departure Gap Scaling</label>
+                <select id="settingGapScaling" onchange="updateGapScalingCustomVisibility();renderCustomizationSummary();">
+                  <option value="1.0">No scaling — gaps stay as-is</option>
+                  <option value="0.667">Gentle — 10h gap becomes 6h 40m</option>
+                  <option value="0.5" selected>Standard — 10h gap becomes 5h</option>
+                  <option value="0.333">Aggressive — 10h gap becomes 3h 20m</option>
+                  <option value="custom">Custom — set your own multiplier</option>
+                </select>
+                <div id="gapScalingCustomRow" style="display:none;margin-top:9px;">
+                  <input id="settingGapScalingCustom" type="number" min="0" max="1" step="0.01" value="0.5" aria-label="Custom gap scaling multiplier">
+                  <div class="setting-help">0 makes teams depart together. 1 keeps gaps unchanged.</div>
+                </div>
+                <div class="setting-help">Controls how much finishing order affects the next departure.</div>
+              </div>
+
+              <div class="setting-card compact-setting full">
+                <label for="settingLegGapHours">Gap Between Legs: <span id="legGapLabel">36h</span></label>
+                <input id="settingLegGapHours" type="range" min="12" max="240" step="12" value="36"
+                  oninput="updateLegGapLabel();renderCustomizationSummary();"
+                  style="width:100%;margin:8px 0 4px;accent-color:var(--red);">
+                <div class="setup-range-labels">
+                  <span>12h</span><span>3 days</span><span>7 days</span><span>10 days</span>
+                </div>
+                <div class="setting-help">Time between the winner checking in and the next leg starting.</div>
+              </div>
+
+              <div class="setting-card compact-setting">
+                <label for="settingFlightChaos">Flight Chaos</label>
+                <select id="settingFlightChaos">
+                  <option value="calm">Calm</option>
+                  <option value="normal">Normal</option>
+                  <option value="chaotic">Chaotic</option>
+                  <option value="nightmare">Airport Nightmare</option>
+                </select>
+                <div class="setting-help">Controls delay odds and size.</div>
+              </div>
+
+              <div class="setting-card compact-setting">
+                <label for="settingRaceSeed">Race Seed</label>
+                <input id="settingRaceSeed" type="text" maxlength="60" placeholder="Optional replay seed">
+                <div class="setting-help">Same setup + seed can replay the same race chaos.</div>
+              </div>
             </div>
           </div>
+        </details>
 
-          <div id="routeEditorNote" class="route-editor-note"></div>
-        </div>
-      </div>
-
-      <div class="setup-section">
-        <div class="section-heading">
-          <div>
-            <div class="section-kicker">Skills</div>
-            <h2 class="section-title">Skill setup</h2>
-            <div class="section-copy">Keep everyone randomized, give only your chosen team a fixed profile, or hand-edit the whole cast.</div>
-          </div>
-        </div>
-
-        <div class="settings-grid three">
-          <div class="setting-card">
-            <label for="settingSkillMode">Skill Setup</label>
-            <select id="settingSkillMode">
-              <option value="random">Default - every team randomized</option>
-              <option value="player_all">Set your team - rivals randomized</option>
-              <option value="custom_all">Custom - edit every team</option>
-            </select>
-            <div class="setting-help">Choose whether skills are fully random, only your chosen team is customized, or every team is manually edited.</div>
-          </div>
-
-          <div class="setting-card" id="playerSkillLevelCard">
-            <label for="settingPlayerAllSkillLevel">Your Team: Set All Skills To</label>
-            <input id="settingPlayerAllSkillLevel" type="number" min="1" max="11" step="1">
-            <div class="setting-help">Whichever team you pick later will get this level for every skill. Other teams stay randomized.</div>
-          </div>
-
-          <div class="setting-card">
-            <label for="settingSkillCount">Number of Skills</label>
-            <input id="settingSkillCount" type="number" min="1" max="30" step="1">
-            <div class="setting-help">Controls how many skills exist this season. Skill names can be edited below.</div>
-          </div>
-        </div>
-
-        <div class="skill-editor-card">
-          <div class="skill-editor-header">
-            <div>
-              <strong>Skill Names</strong>
-              <div class="setting-help">Edit the skill list for this season. Blank names will turn into Skill 1, Skill 2, etc.</div>
+        <details id="setup-teams" class="setup-accordion">
+          <summary>
+            <span class="setup-step-number">02</span>
+            <span class="setup-summary-text">
+              <span class="setup-summary-kicker">Cast</span>
+              <strong>Team names &amp; colors</strong>
+              <small>Edit the roster shown in results, charts, and race screens.</small>
+            </span>
+            <span class="setup-summary-open">Open</span>
+          </summary>
+          <div class="setup-accordion-body">
+            <div class="team-editor-card setup-editor-card-flat">
+              <div class="team-editor-header">
+                <div>
+                  <strong>Roster Editor</strong>
+                  <div class="setting-help">Team colors appear in the clue-by-clue chart and active race rows.</div>
+                </div>
+                <div class="mini-button-row">
+                  <button class="mini-btn" type="button" onclick="resetTeamNamesToDefault()">Reset Names</button>
+                  <button class="mini-btn" type="button" onclick="resetTeamColorsToDefault()">Reset Colors</button>
+                </div>
+              </div>
+              <div id="teamNameEditor" class="team-name-editor"></div>
+              <div id="teamNameNote" class="team-name-note"></div>
             </div>
-            <button class="mini-btn" type="button" onclick="resetSkillNamesToDefault()">Reset Skill Names</button>
+            <div id="teamColorEditor" style="display:none"></div>
+            <div id="teamColorNote" style="display:none"></div>
           </div>
-          <div id="skillNameEditor" class="skill-name-editor"></div>
-          <div id="skillNameNote" class="skill-note"></div>
-        </div>
+        </details>
 
-        <div class="custom-skill-editor-card" id="customSkillGridCard">
-          <div class="skill-editor-header">
-            <div>
-              <strong>Custom Team Skills</strong>
-              <div class="setting-help">Edit every team manually. Use Set All for quick profiles, or adjust each skill one by one.</div>
+        <details id="setup-route" class="setup-accordion">
+          <summary>
+            <span class="setup-step-number">03</span>
+            <span class="setup-summary-text">
+              <span class="setup-summary-kicker">Route</span>
+              <strong>Season route</strong>
+              <small>Auto weighted route or a custom city order.</small>
+            </span>
+            <span class="setup-summary-open">Open</span>
+          </summary>
+          <div class="setup-accordion-body">
+            <div id="routeEditorCard" class="route-editor-card setup-editor-card-flat">
+              <div class="route-editor-header">
+                <div>
+                  <strong>Route Builder</strong>
+                  <div class="setting-help">Auto keeps the hidden city-weight system. Custom lets you pick a U.S. start, ordered non-U.S. cities, and a U.S. finale.</div>
+                </div>
+                <div class="mini-button-row">
+                  <button class="mini-btn" type="button" onclick="fillSuggestedCustomRoute()">Suggested Route</button>
+                  <button class="mini-btn" type="button" onclick="clearCustomRoute()">Clear Route</button>
+                </div>
+              </div>
+
+              <div class="route-grid">
+                <div class="setting-card full compact-setting">
+                  <label for="settingRouteMode">Route Mode</label>
+                  <select id="settingRouteMode" onchange="updateRouteEditorVisibility();renderCustomizationSummary();">
+                    <option value="auto">Auto - hidden weighted city pool</option>
+                    <option value="custom">Custom - use my route order</option>
+                  </select>
+                  <div class="setting-help">Custom routes feed normal legs in order; the finale triggers when the final-team count is reached.</div>
+                </div>
+
+                <div class="setting-card route-custom-only compact-setting">
+                  <label for="customRouteStartSelect">Starting City</label>
+                  <select id="customRouteStartSelect" onchange="updateRouteEditorNote();renderCustomizationSummary();"></select>
+                  <div class="setting-help">United States only.</div>
+                </div>
+
+                <div class="setting-card route-custom-only compact-setting">
+                  <label for="customRouteFinaleSelect">Finale City</label>
+                  <select id="customRouteFinaleSelect" onchange="updateRouteEditorNote();renderCustomizationSummary();"></select>
+                  <div class="setting-help">United States only.</div>
+                </div>
+
+                <div class="setting-card full route-custom-only compact-setting">
+                  <label for="customRouteAddSelect">Normal Leg Route</label>
+                  <div class="route-picker-bar">
+                    <input id="customRouteSearch" type="text" placeholder="Search city..." oninput="renderCustomRouteAddSelect(currentCustomRouteKeys())">
+                    <select id="customRouteAddSelect"></select>
+                    <button class="mini-btn" type="button" onclick="addSelectedRouteCity()">Add City</button>
+                  </div>
+                  <div id="customRouteList" class="route-pick-list"></div>
+                  <textarea id="customRouteEditor" class="route-editor route-editor-hidden" spellcheck="false" aria-hidden="true" tabindex="-1"></textarea>
+                  <div class="setting-help">Use Move Up, Move Down, or Remove to set the order. If the list runs out, auto-fill takes over.</div>
+                </div>
+              </div>
+              <div id="routeEditorNote" class="route-editor-note"></div>
             </div>
-            <button class="mini-btn" type="button" onclick="resetCustomSkillGridToLevel(6)">Set Every Team to 6</button>
           </div>
-          <div id="customSkillEditor" class="custom-skill-editor"></div>
-          <div id="customSkillNote" class="custom-skill-note"></div>
-        </div>
-      </div>
+        </details>
 
-      <div class="setup-section">
-        <div class="section-heading">
-          <div>
-            <div class="section-kicker">Presets</div>
-            <h2 class="section-title">Season presets</h2>
-            <div class="section-copy">Save your current setup as a named preset and reload it any time. Presets are stored in this browser.</div>
-          </div>
-        </div>
-        <div class="settings-grid">
-          <div class="setting-card">
-            <label for="presetNameInput">Preset Name</label>
-            <input id="presetNameInput" type="text" maxlength="60" placeholder="My favorite setup">
-            <div class="setting-help">Give this preset a name, then hit Save Preset.</div>
-          </div>
-          <div class="setting-card" style="display:flex;flex-direction:column;justify-content:flex-end;gap:8px;">
-            <button class="mini-btn" type="button" onclick="saveCurrentPreset()" style="width:100%;margin-top:0;">Save Preset</button>
-            <button class="mini-btn" type="button" onclick="deleteSelectedPreset()" id="deletePresetBtn" style="width:100%;margin-top:0;border-color:rgba(200,68,45,0.4);color:var(--red-dark);" disabled>Delete Selected</button>
-          </div>
-        </div>
-        <div id="presetList" style="margin-top:12px;"></div>
-      </div>
+        <details id="setup-skills" class="setup-accordion">
+          <summary>
+            <span class="setup-step-number">04</span>
+            <span class="setup-summary-text">
+              <span class="setup-summary-kicker">Skills</span>
+              <strong>Team abilities</strong>
+              <small>Randomize, set your team, or hand-edit the full cast.</small>
+            </span>
+            <span class="setup-summary-open">Open</span>
+          </summary>
+          <div class="setup-accordion-body">
+            <div class="settings-grid three">
+              <div class="setting-card compact-setting">
+                <label for="settingSkillMode">Skill Setup</label>
+                <select id="settingSkillMode">
+                  <option value="random">Default - every team randomized</option>
+                  <option value="player_all">Set your team - rivals randomized</option>
+                  <option value="custom_all">Custom - edit every team</option>
+                </select>
+                <div class="setting-help">Choose how skills are assigned.</div>
+              </div>
 
-      <div class="setup-section">
-        <div class="section-heading">
-          <div>
-            <div class="section-kicker">Summary</div>
-            <h2 class="section-title">Current setup</h2>
-            <div class="section-copy">A quick check before you lock the cast and head to team selection.</div>
+              <div class="setting-card compact-setting" id="playerSkillLevelCard">
+                <label for="settingPlayerAllSkillLevel">Your Team: Set All To</label>
+                <input id="settingPlayerAllSkillLevel" type="number" min="1" max="11" step="1">
+                <div class="setting-help">Applies to whichever team you select later.</div>
+              </div>
+
+              <div class="setting-card compact-setting">
+                <label for="settingSkillCount">Number of Skills</label>
+                <input id="settingSkillCount" type="number" min="1" max="30" step="1">
+                <div class="setting-help">Skill names can be edited below.</div>
+              </div>
+            </div>
+
+            <div class="skill-editor-card setup-editor-card-flat">
+              <div class="skill-editor-header">
+                <div>
+                  <strong>Skill Names</strong>
+                  <div class="setting-help">Blank names become Skill 1, Skill 2, etc.</div>
+                </div>
+                <button class="mini-btn" type="button" onclick="resetSkillNamesToDefault()">Reset Skill Names</button>
+              </div>
+              <div id="skillNameEditor" class="skill-name-editor"></div>
+              <div id="skillNameNote" class="skill-note"></div>
+            </div>
+
+            <div class="custom-skill-editor-card setup-editor-card-flat" id="customSkillGridCard">
+              <div class="skill-editor-header">
+                <div>
+                  <strong>Custom Team Skills</strong>
+                  <div class="setting-help">Edit every team manually. Use Set All for quick profiles.</div>
+                </div>
+                <button class="mini-btn" type="button" onclick="resetCustomSkillGridToLevel(6)">Set Every Team to 6</button>
+              </div>
+              <div id="customSkillEditor" class="custom-skill-editor"></div>
+              <div id="customSkillNote" class="custom-skill-note"></div>
+            </div>
           </div>
-        </div>
-        <div class="setting-summary" id="customizationSummary"></div>
+        </details>
+
+        <details id="setup-transport" class="setup-accordion">
+          <summary>
+            <span class="setup-step-number">05</span>
+            <span class="setup-summary-text">
+              <span class="setup-summary-kicker">Travel</span>
+              <strong>Transport options</strong>
+              <small>How many choices appear and what they cost.</small>
+            </span>
+            <span class="setup-summary-open">Open</span>
+          </summary>
+          <div class="setup-accordion-body">
+            <div class="settings-grid">
+              <div class="setting-card compact-setting full">
+                <label>Transport Choices Per Segment</label>
+                <div class="range-pair">
+                  <input id="settingMinTransportOptions" type="number" min="1" max="50" step="1" aria-label="Minimum transport options">
+                  <input id="settingMaxTransportOptions" type="number" min="1" max="50" step="1" aria-label="Maximum transport options">
+                </div>
+                <div class="setting-help">Minimum and maximum number of local travel choices shown each segment.</div>
+              </div>
+            </div>
+
+            <div class="transport-editor-card setup-editor-card-flat">
+              <div class="transport-editor-header">
+                <div>
+                  <strong>Transport List</strong>
+                  <div class="setting-help">Edit up to 50 options. Emoji and name become the button label racers see.</div>
+                </div>
+                <div class="mini-button-row">
+                  <button class="mini-btn" type="button" onclick="addTransportOption()">Add Transport</button>
+                  <button class="mini-btn" type="button" onclick="resetTransportsToDefault()">Reset Default Transports</button>
+                </div>
+              </div>
+              <div class="transport-editor-head">
+                <span>Emoji</span>
+                <span>Name</span>
+                <span>Cost</span>
+                <span>Time</span>
+                <span></span>
+              </div>
+              <div id="transportEditor" class="transport-editor"></div>
+              <div id="transportNote" class="transport-note"></div>
+            </div>
+          </div>
+        </details>
+
+        <details id="setup-presets" class="setup-accordion">
+          <summary>
+            <span class="setup-step-number">06</span>
+            <span class="setup-summary-text">
+              <span class="setup-summary-kicker">Save</span>
+              <strong>Season presets</strong>
+              <small>Store and reload setup combinations.</small>
+            </span>
+            <span class="setup-summary-open">Open</span>
+          </summary>
+          <div class="setup-accordion-body">
+            <div class="settings-grid">
+              <div class="setting-card compact-setting">
+                <label for="presetNameInput">Preset Name</label>
+                <input id="presetNameInput" type="text" maxlength="60" placeholder="My favorite setup">
+                <div class="setting-help">Give this preset a name, then save it.</div>
+              </div>
+              <div class="setting-card compact-setting setup-preset-actions">
+                <button class="mini-btn" type="button" onclick="saveCurrentPreset()">Save Preset</button>
+                <button class="mini-btn danger-mini" type="button" onclick="deleteSelectedPreset()" id="deletePresetBtn" disabled>Delete Selected</button>
+              </div>
+            </div>
+            <div id="presetList" class="preset-list-shell"></div>
+          </div>
+        </details>
       </div>
     </div>
 
-    <div class="action-row">
+    <div class="action-row setup-sticky-actions">
       <button onclick="confirmCustomization()">Continue to Team Select</button>
       <button class="secondary-btn" onclick="resetCustomizationDefaults()">Reset Defaults</button>
       <button class="secondary-btn" onclick="showScreen('start')">Back</button>
@@ -5840,7 +6368,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 46;
+    var SAVE_VERSION = 47;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -31631,35 +32159,38 @@
       });
       var chaos = FLIGHT_CHAOS_PROFILES[preview.flightChaos] || FLIGHT_CHAOS_PROFILES.normal;
       var teamPreviewNames = sanitizeTeamNames(readRawTeamNamesFromEditor(), preview.teamCount);
-      var previewList = teamPreviewNames.slice(0, 4).map(escapeHtml).join(", ");
+      var previewList = teamPreviewNames.slice(0, 5).map(escapeHtml).join(", ");
       var modeLabel = SKILL_SETUP_MODES[preview.skillMode] || SKILL_SETUP_MODES.random;
 
-      if (teamPreviewNames.length > 4) {
-        previewList += ", +" + (teamPreviewNames.length - 4) + " more";
+      if (teamPreviewNames.length > 5) {
+        previewList += ", +" + (teamPreviewNames.length - 5) + " more";
       }
 
       var routePreview = sanitizeRouteSettings(preview);
-      var routeSummary = routePreview.routeMode === "custom"
-        ? "Custom route: <strong>" + routePreview.customRouteDestinationKeys.length + "</strong> planned normal cities"
-        : "Route: <strong>Auto weighted</strong>";
+      var routeLabel = routePreview.routeMode === "custom"
+        ? routePreview.customRouteDestinationKeys.length + " custom cities"
+        : "Auto weighted";
+      var seedHtml = preview.raceSeed
+        ? '<span class="setup-summary-seed">Seed: <strong>' + escapeHtml(preview.raceSeed) + '</strong></span>'
+        : '<span class="setup-summary-seed muted">No replay seed</span>';
 
       box.innerHTML =
-        '<div class="summary-chip-grid">' +
-          '<div class="summary-chip"><span>Teams</span><strong>' + preview.teamCount + '</strong></div>' +
-          '<div class="summary-chip"><span>Starting Cash</span><strong>$' + preview.startingMoney + '</strong></div>' +
-          '<div class="summary-chip"><span>Leg Stipend</span><strong>$' + preview.legStipend + '</strong></div>' +
-          '<div class="summary-chip"><span>Non-Elim</span><strong>' + Math.round(preview.nonElimChance * 100) + '%</strong></div>' +
-          '<div class="summary-chip"><span>Normal Stops</span><strong>' + preview.minStopsPerLeg + '-' + preview.maxStopsPerLeg + '</strong></div>' +
-          '<div class="summary-chip"><span>Final Stops</span><strong>' + preview.finalMinStopsPerLeg + '-' + preview.finalMaxStopsPerLeg + '</strong></div>' +
-          '<div class="summary-chip"><span>Task Time</span><strong>' + preview.challengeMinTime + '-' + preview.challengeMaxTime + 'm</strong></div>' +
-          '<div class="summary-chip"><span>Transport</span><strong>' + preview.minTransportOptions + '-' + preview.maxTransportOptions + ' of ' + preview.transportOptions.length + '</strong></div>' +
-          '<div class="summary-chip"><span>Flight Chaos</span><strong>' + escapeHtml(chaos.label) + '</strong></div>' +
-          '<div class="summary-chip"><span>Route</span><strong>' + (routePreview.routeMode === "custom" ? routePreview.customRouteDestinationKeys.length + ' planned' : 'Auto weighted') + '</strong></div>' +
-          '<div class="summary-chip"><span>Skills</span><strong>' + escapeHtml(modeLabel) + ' · ' + preview.skillTypes.length + '</strong></div>' +
-          (preview.raceSeed ? '<div class="summary-chip"><span>Seed</span><strong>' + escapeHtml(preview.raceSeed) + '</strong></div>' : '') +
+        '<div class="setup-summary-hero-row">' +
+          '<div class="setup-summary-main-stat"><span>Teams</span><strong>' + preview.teamCount + '</strong></div>' +
+          '<div class="setup-summary-main-stat"><span>Money</span><strong>$' + preview.startingMoney + ' / +$' + preview.legStipend + '</strong></div>' +
+          '<div class="setup-summary-main-stat"><span>Tasks</span><strong>' + preview.minStopsPerLeg + '-' + preview.maxStopsPerLeg + ' normal · ' + preview.finalMinStopsPerLeg + '-' + preview.finalMaxStopsPerLeg + ' finale</strong></div>' +
+          '<div class="setup-summary-main-stat"><span>Route</span><strong>' + escapeHtml(routeLabel) + '</strong></div>' +
         '</div>' +
-        '<div class="summary-footnote">Preview cast: ' + escapeHtml(previewList || "Team 1") + '</div>' +
-        (preview.skillMode === "player_all" ? '<div class="summary-footnote">Your selected team will start with all skills set to <strong>' + preview.playerAllSkillLevel + '</strong>.</div>' : '');
+        '<div class="setup-summary-detail-row">' +
+          '<span>Non-elim <strong>' + Math.round(preview.nonElimChance * 100) + '%</strong></span>' +
+          '<span>Task time <strong>' + preview.challengeMinTime + '-' + preview.challengeMaxTime + 'm</strong></span>' +
+          '<span>Transport <strong>' + preview.minTransportOptions + '-' + preview.maxTransportOptions + ' of ' + preview.transportOptions.length + '</strong></span>' +
+          '<span>Flights <strong>' + escapeHtml(chaos.label) + '</strong></span>' +
+          '<span>Skills <strong>' + escapeHtml(modeLabel) + ' · ' + preview.skillTypes.length + '</strong></span>' +
+          seedHtml +
+        '</div>' +
+        '<div class="setup-summary-cast-line">Preview cast: <strong>' + escapeHtml(previewList || "Team 1") + '</strong></div>' +
+        (preview.skillMode === "player_all" ? '<div class="setup-summary-cast-line">Your selected team will start with all skills set to <strong>' + preview.playerAllSkillLevel + '</strong>.</div>' : '');
     }
 
     function fillCustomizationForm(settings) {
