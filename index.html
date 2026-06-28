@@ -7226,6 +7226,222 @@
       color: #FFF9EC;
     }
 
+    .yield-card {
+      margin: 8px 0;
+      padding: 12px 14px;
+      border: 1px solid var(--race-line);
+      border-left: 4px solid var(--red);
+      border-radius: 12px;
+      background: rgba(233, 75, 53, 0.08);
+      text-align: left;
+    }
+    .yield-kicker {
+      color: var(--amber);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .yield-title {
+      color: var(--cream);
+      font-size: 1.05rem;
+      font-weight: 950;
+      margin-bottom: 5px;
+    }
+    .yield-copy {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.35;
+    }
+    .yield-target-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .yield-target-list .secondary-btn {
+      grid-column: 1 / -1;
+      margin-top: 2px;
+    }
+    @media (max-width: 640px) {
+      .yield-target-list { grid-template-columns: 1fr; }
+    }
+
+
+
+    /* ── V55 FEATURE/UI CLEANUP ───────────────────────────────
+       Yield chart support, cleaner setup width, less pill-shaped UI,
+       and cleaner Amazing Race-style setup summary. */
+
+    :root { --ui-radius: 9px; --ui-radius-sm: 6px; }
+
+    .screen-label,
+    button,
+    .secondary-btn,
+    .mini-btn,
+    .menu-btn,
+    .team-btn,
+    .opt-btn,
+    .race-header-strip,
+    .race-header-pill,
+    .race-header-time,
+    .presence-chip,
+    .team-presence-chip,
+    .cash,
+    .cash-pill,
+    .broadcast-pill,
+    .placement-rank-pill,
+    .route-row-index,
+    .empty-state,
+    .flight-status-pill,
+    .race-clock-strip,
+    .setup-summary-strip span,
+    #customize .setup-progress-strip,
+    #customize .setup-progress-strip span,
+    .leg-episode-meta span,
+    .meta-money,
+    .meta-time,
+    .transport-cell-note,
+    .you-tag {
+      border-radius: var(--ui-radius) !important;
+    }
+
+    .race-header-strip {
+      align-items: center !important;
+      border-radius: 10px !important;
+    }
+
+    .race-header-pill,
+    .race-header-time,
+    .race-header-pill.cash {
+      height: 22px !important;
+      min-height: 22px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      line-height: 1 !important;
+      padding-top: 3px !important;
+      padding-bottom: 3px !important;
+      margin-top: 0 !important;
+      transform: none !important;
+      vertical-align: middle !important;
+    }
+
+    #customize .setup-side-rail,
+    #setupProgressStrip,
+    #customize .setup-progress-strip {
+      display: none !important;
+    }
+
+    .setup-redesign-layout {
+      display: block !important;
+      grid-template-columns: 1fr !important;
+    }
+
+    .setup-accordion-stack {
+      width: 100% !important;
+    }
+
+    .setup-overview-card {
+      padding: 16px 18px !important;
+    }
+
+    #customize .setting-summary {
+      background: rgba(255,255,255,0.035) !important;
+      border: 1px solid var(--race-line) !important;
+      border-left: 4px solid var(--amber) !important;
+      border-radius: 10px !important;
+      padding: 12px !important;
+    }
+
+    .setup-glance-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 9px;
+    }
+
+    .setup-glance-item {
+      min-width: 0;
+      padding: 9px 10px;
+      border: 1px solid rgba(248,239,217,0.12);
+      border-left: 3px solid var(--red);
+      background: rgba(0,0,0,0.14);
+      border-radius: 8px;
+    }
+
+    .setup-glance-item span {
+      display: block;
+      color: var(--amber);
+      font-size: 0.64rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .setup-glance-item strong {
+      display: block;
+      color: var(--cream);
+      font-size: 0.9rem;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .setup-glance-line {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 750;
+      line-height: 1.28;
+    }
+
+    .team-btn.color-card {
+      border-left-width: 0 !important;
+      border-width: 1px !important;
+      font-weight: 950 !important;
+      box-shadow: 0 10px 24px -18px rgba(0,0,0,0.8) !important;
+    }
+
+    .team-btn.color-card:hover {
+      transform: translateX(2px) !important;
+      filter: brightness(1.08);
+    }
+
+    @media (max-width: 820px) {
+      .setup-glance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 520px) {
+      .setup-glance-grid { grid-template-columns: 1fr; }
+    }
+
+
+
+    /* V55 rectangle pass: remove remaining pill-like controls without touching true dots. */
+    #topMenuBtn,
+    .page-intro,
+    .departure-time,
+    .presence-row-time,
+    .departure-place,
+    .route-count-pill,
+    .setup-summary-detail-row span,
+    .setup-step-number,
+    .setup-summary-open,
+    .setup-sticky-actions,
+    .broadcast-details-toggle,
+    .leg-recap-duration-pill,
+    .skill-mode-pill,
+    .flight-mini-stat,
+    .flight-status-pill,
+    .transport-table-head span,
+    .transport-cell-cost,
+    .transport-cell-time,
+    .transport-cell-note,
+    .recap-story-row span,
+    .summary-footnote,
+    .info-strip-banner {
+      border-radius: var(--ui-radius) !important;
+    }
+
   </style>
 </head>
 <body>
@@ -7236,7 +7452,6 @@
     <div class="hero-card">
       <div class="logo-badge">🌎</div>
       <h1>The Amazing Race</h1>
-      <p>Race around the world, manage your cash, choose your transport, and survive each leg.</p>
       <button onclick="openCustomization()">New Race</button>
       <br>
       <button id="startLoadBtn" class="secondary-btn" onclick="openSaveManager('start')">Save Manager</button>
@@ -7348,6 +7563,24 @@
               </div>
 
               <div class="setting-card compact-setting">
+                <label for="settingYieldChance">Yield Chance</label>
+                <select id="settingYieldChance">
+                  <option value="0">None - 0%</option>
+                  <option value="0.10">Rare - 10%</option>
+                  <option value="0.25">Normal - 25%</option>
+                  <option value="0.35">Frequent - 35%</option>
+                  <option value="0.50">Wild - 50%</option>
+                </select>
+                <div class="setting-help">Chance a Yield Board appears on a non-final leg until one gets used.</div>
+              </div>
+
+              <div class="setting-card compact-setting">
+                <label for="settingYieldDurationMinutes">Yield Duration</label>
+                <input id="settingYieldDurationMinutes" type="number" min="0" max="360" step="5">
+                <div class="setting-help">How long a yielded team must wait. Default is 60 minutes.</div>
+              </div>
+
+              <div class="setting-card compact-setting">
                 <label>Normal Leg Stops</label>
                 <div class="range-pair">
                   <input id="settingMinStops" type="number" min="1" max="25" step="1" aria-label="Minimum normal leg challenges">
@@ -7435,7 +7668,7 @@
           </div>
         </details>
 
-        <details id="setup-teams" class="setup-accordion">
+        <details id="setup-teams" class="setup-accordion" open>
           <summary>
             <span class="setup-step-number">02</span>
             <span class="setup-summary-text">
@@ -7465,7 +7698,7 @@
           </div>
         </details>
 
-        <details id="setup-route" class="setup-accordion">
+        <details id="setup-route" class="setup-accordion" open>
           <summary>
             <span class="setup-step-number">03</span>
             <span class="setup-summary-text">
@@ -7527,7 +7760,7 @@
           </div>
         </details>
 
-        <details id="setup-skills" class="setup-accordion">
+        <details id="setup-skills" class="setup-accordion" open>
           <summary>
             <span class="setup-step-number">04</span>
             <span class="setup-summary-text">
@@ -7588,7 +7821,7 @@
           </div>
         </details>
 
-        <details id="setup-transport" class="setup-accordion">
+        <details id="setup-transport" class="setup-accordion" open>
           <summary>
             <span class="setup-step-number">05</span>
             <span class="setup-summary-text">
@@ -7634,7 +7867,7 @@
           </div>
         </details>
 
-        <details id="setup-presets" class="setup-accordion">
+        <details id="setup-presets" class="setup-accordion" open>
           <summary>
             <span class="setup-step-number">06</span>
             <span class="setup-summary-text">
@@ -7742,7 +7975,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 53;
+    var SAVE_VERSION = 57;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -12636,6 +12869,8 @@
     var CHALLENGE_MIN_TIME = 10;
     var CHALLENGE_MAX_TIME = 40;
     var NON_ELIM_CHANCE = 0.15;
+    var YIELD_CHANCE = 0.25;
+    var YIELD_DURATION_MINUTES = 60;
     var DEFAULT_RACE_SETTINGS = {
       teamCount: DEFAULT_TEAM_COUNT,
       teamColors: {},
@@ -12651,6 +12886,8 @@
       maxTransportOptions: 5,
       transportOptions: DEFAULT_STANDARD_TRANSPORT.map(function (opt) { return { method: opt.method, cost: opt.cost, time: opt.time }; }),
       nonElimChance: 0.15,
+      yieldChance: 0.25,
+      yieldDurationMinutes: 60,
       flightChaos: "normal",
       skillMode: "random",
       playerAllSkillLevel: DEFAULT_PLAYER_ALL_SKILL_LEVEL,
@@ -30954,6 +31191,8 @@
     var activeFlightRoute = null;
     var flightResolved = false;
     var legIsNonElim = false;
+    var yieldUsedThisRace = false;
+    var currentYieldBoard = null;
 
     var airportStartTransportOptions = null;
     var airportEndTransportOptions = null;
@@ -31729,8 +31968,14 @@
       list.innerHTML = "";
       teams.forEach(function (name) {
         var btn = document.createElement("button");
-        btn.className = "team-btn";
-        btn.style.borderLeftColor = teamColor(name);
+        var teamCol = teamColor(name);
+        var textCol = contrastTextColor(teamCol);
+        btn.className = "team-btn color-card";
+        btn.style.setProperty("background", teamCol, "important");
+        btn.style.setProperty("border-color", teamCol, "important");
+        btn.style.setProperty("color", textCol, "important");
+        btn.style.setProperty("box-shadow", "0 10px 24px -18px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(255,255,255,0.16)", "important");
+        btn.style.textShadow = textCol === "#ffffff" ? "0 1px 2px rgba(0,0,0,0.45)" : "none";
         btn.textContent = name;
         btn.onclick = function () { selectTeam(name); };
         list.appendChild(btn);
@@ -32215,7 +32460,7 @@
 
         html += '<div class="departure-row' + youClass + '" style="--team-color:' + escapeHtml(color) + ';border-left-color:' + escapeHtml(color) + ';">';
         html += '<span class="departure-rank">' + ordinal(index + 1) + '</span>';
-        html += '<span class="departure-team"><span class="chip-dot" style="background:' + escapeHtml(color) + ';"></span>' + escapeHtml(team) + (team === playerTeam ? '<em class="you-tag">YOU</em>' : '') + '</span>';
+        html += '<span class="departure-team"><span class="chip-dot" style="background:' + escapeHtml(color) + ';"></span>' + escapeHtml(team) + '</span>';
         html += '<span class="departure-time">' + formatRaceDayTimeShort(clock) + '</span>';
         html += '</div>';
       });
@@ -33060,6 +33305,9 @@
       if (label === "Pit Stop" || label === "Finish Line") {
         return pitStopDisplayName(locationData);
       }
+      if (label === "Yield") {
+        return "Yield";
+      }
 
       var arrive = /^Challenge ([A-Z]+) Arrive$/.exec(label || "");
       if (arrive) {
@@ -33425,6 +33673,8 @@
         maxTransportOptions: parseInt(base.maxTransportOptions, 10),
         transportOptions: cloneTransportOptions(baseTransportOptions),
         nonElimChance: Number(base.nonElimChance),
+        yieldChance: Number(base.yieldChance != null ? base.yieldChance : DEFAULT_RACE_SETTINGS.yieldChance),
+        yieldDurationMinutes: parseInt(base.yieldDurationMinutes != null ? base.yieldDurationMinutes : DEFAULT_RACE_SETTINGS.yieldDurationMinutes, 10),
         flightChaos: base.flightChaos || "normal",
         skillMode: base.skillMode || "random",
         playerAllSkillLevel: parseInt(base.playerAllSkillLevel, 10),
@@ -33468,6 +33718,8 @@
       settings.minTransportOptions = clampNumber(isNaN(settings.minTransportOptions) ? DEFAULT_RACE_SETTINGS.minTransportOptions : settings.minTransportOptions, 1, Math.max(1, settings.transportOptions.length));
       settings.maxTransportOptions = clampNumber(isNaN(settings.maxTransportOptions) ? DEFAULT_RACE_SETTINGS.maxTransportOptions : settings.maxTransportOptions, 1, Math.max(1, settings.transportOptions.length));
       settings.nonElimChance = clampNumber(isNaN(settings.nonElimChance) ? DEFAULT_RACE_SETTINGS.nonElimChance : settings.nonElimChance, 0, 1);
+      settings.yieldChance = clampNumber(isNaN(settings.yieldChance) ? DEFAULT_RACE_SETTINGS.yieldChance : settings.yieldChance, 0, 1);
+      settings.yieldDurationMinutes = clampNumber(isNaN(settings.yieldDurationMinutes) ? DEFAULT_RACE_SETTINGS.yieldDurationMinutes : settings.yieldDurationMinutes, 0, 360);
 
       if (settings.maxStopsPerLeg < settings.minStopsPerLeg) {
         settings.maxStopsPerLeg = settings.minStopsPerLeg;
@@ -33526,6 +33778,8 @@
       teamColors = sanitizeTeamColors(raceSettings.teamColors, teams);
       raceSettings.teamColors = teamColors;
       NON_ELIM_CHANCE = raceSettings.nonElimChance;
+      YIELD_CHANCE = raceSettings.yieldChance;
+      YIELD_DURATION_MINUTES = raceSettings.yieldDurationMinutes;
       SKILL_TYPES = raceSettings.skillTypes.slice();
       LEG_GAP_MINUTES = raceSettings.legGapHours * 60;
       FINAL_TEAM_COUNT = raceSettings.finalTeamCount;
@@ -33570,6 +33824,8 @@
         maxTransportOptions: settingValue("settingMaxTransportOptions", DEFAULT_RACE_SETTINGS.maxTransportOptions),
         transportOptions: readTransportEditor(),
         nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
+        yieldChance: settingValue("settingYieldChance", DEFAULT_RACE_SETTINGS.yieldChance),
+        yieldDurationMinutes: settingValue("settingYieldDurationMinutes", DEFAULT_RACE_SETTINGS.yieldDurationMinutes),
         flightChaos: settingValue("settingFlightChaos", DEFAULT_RACE_SETTINGS.flightChaos),
         gapScaling: settingValue("settingGapScaling", DEFAULT_RACE_SETTINGS.gapScaling),
         gapScalingCustom: settingValue("settingGapScalingCustom", DEFAULT_RACE_SETTINGS.gapScalingCustom),
@@ -33605,16 +33861,17 @@
         : '<span class="setup-summary-seed muted">No replay seed</span>';
 
       box.innerHTML =
-        '<div class="setup-summary-strip">' +
-          '<span><strong>' + preview.teamCount + '</strong> teams</span>' +
-          '<span><strong>' + preview.skillTypes.length + '</strong> skills</span>' +
-          '<span><strong>' + preview.minStopsPerLeg + '-' + preview.maxStopsPerLeg + '</strong> normal tasks</span>' +
-          '<span><strong>' + preview.finalMinStopsPerLeg + '-' + preview.finalMaxStopsPerLeg + '</strong> finale tasks</span>' +
-          '<span><strong>' + escapeHtml(routeLabel) + '</strong></span>' +
-          '<span><strong>' + escapeHtml(chaos.label) + '</strong> flights</span>' +
-          '<span><strong>$' + preview.startingMoney + '</strong> start · <strong>+$' + preview.legStipend + '</strong> stipend</span>' +
+        '<div class="setup-glance-grid">' +
+          '<div class="setup-glance-item"><span>Teams</span><strong>' + preview.teamCount + ' racing</strong></div>' +
+          '<div class="setup-glance-item"><span>Tasks</span><strong>' + preview.minStopsPerLeg + '-' + preview.maxStopsPerLeg + ' normal · ' + preview.finalMinStopsPerLeg + '-' + preview.finalMaxStopsPerLeg + ' finale</strong></div>' +
+          '<div class="setup-glance-item"><span>Route</span><strong>' + escapeHtml(routeLabel) + '</strong></div>' +
+          '<div class="setup-glance-item"><span>Money</span><strong>$' + preview.startingMoney + ' start · +$' + preview.legStipend + '</strong></div>' +
+          '<div class="setup-glance-item"><span>Skills</span><strong>' + preview.skillTypes.length + ' · ' + escapeHtml(modeLabel) + '</strong></div>' +
+          '<div class="setup-glance-item"><span>Flights</span><strong>' + escapeHtml(chaos.label) + '</strong></div>' +
+          '<div class="setup-glance-item"><span>Non-Elim</span><strong>' + Math.round(preview.nonElimChance * 100) + '%</strong></div>' +
+          '<div class="setup-glance-item"><span>Yield</span><strong>' + Math.round(preview.yieldChance * 100) + '% · ' + escapeHtml(formatDuration(preview.yieldDurationMinutes)) + '</strong></div>' +
         '</div>' +
-        '<div class="setup-summary-line">' + escapeHtml(modeLabel) + ' · Non-elim ' + Math.round(preview.nonElimChance * 100) + '% · Transport choices ' + preview.minTransportOptions + '-' + preview.maxTransportOptions + ' · ' + (preview.raceSeed ? 'Seed: ' + escapeHtml(preview.raceSeed) : 'No replay seed') + '</div>';
+        '<div class="setup-glance-line">Transport choices ' + preview.minTransportOptions + '-' + preview.maxTransportOptions + ' · ' + (preview.raceSeed ? 'Seed: ' + escapeHtml(preview.raceSeed) : 'No replay seed') + '</div>';
 
     }
 
@@ -33624,6 +33881,8 @@
       setSettingValue("settingStartingMoney", s.startingMoney);
       setSettingValue("settingLegStipend", s.legStipend);
       setSettingValue("settingNonElimChance", String(s.nonElimChance));
+      setSettingValue("settingYieldChance", String(s.yieldChance));
+      setSettingValue("settingYieldDurationMinutes", s.yieldDurationMinutes);
       setSettingValue("settingMinStops", s.minStopsPerLeg);
       setSettingValue("settingMaxStops", s.maxStopsPerLeg);
       setSettingValue("settingFinalMinStops", s.finalMinStopsPerLeg);
@@ -33658,6 +33917,7 @@
     function bindCustomizationFormEvents() {
       [
         "settingTeamCount", "settingStartingMoney", "settingLegStipend", "settingNonElimChance",
+        "settingYieldChance", "settingYieldDurationMinutes",
         "settingMinStops", "settingMaxStops", "settingFinalMinStops",
         "settingFinalMaxStops", "settingChallengeMinTime", "settingChallengeMaxTime",
         "settingMinTransportOptions", "settingMaxTransportOptions",
@@ -33759,12 +34019,8 @@
     }
 
     function applySetupAccordionState() {
-      var state = readSetupAccordionState();
       Array.prototype.forEach.call(document.querySelectorAll("#customize details.setup-accordion"), function (el) {
-        if (!el.id) { return; }
-        if (Object.prototype.hasOwnProperty.call(state, el.id)) {
-          el.open = !!state[el.id];
-        }
+        el.open = true;
       });
     }
 
@@ -33777,21 +34033,9 @@
     }
 
     function ensureSetupProgressStrip() {
-      var customize = document.getElementById("customize");
-      if (!customize) { return; }
       var existing = document.getElementById("setupProgressStrip");
-      var html = '<span>Teams ✓</span><span>Route ✓</span><span>Skills ✓</span><span>Transport ✓</span><span>Presets optional</span>';
-      if (existing) {
-        existing.innerHTML = html;
-        return;
-      }
-      var strip = document.createElement("div");
-      strip.id = "setupProgressStrip";
-      strip.className = "setup-progress-strip";
-      strip.innerHTML = html;
-      var overview = customize.querySelector(".setup-overview-card");
-      if (overview && overview.parentNode) {
-        overview.parentNode.insertBefore(strip, overview);
+      if (existing && existing.parentNode) {
+        existing.parentNode.removeChild(existing);
       }
     }
 
@@ -33880,7 +34124,7 @@
         var color = teamColor(team);
         html += '<div class="departure-row' + youClass + '" style="--team-color:' + escapeHtml(color) + ';border-left-color:' + escapeHtml(color) + ';">' +
           '<span class="departure-rank">' + ordinal(index + 1) + '</span>' +
-          '<span class="departure-team"><span class="chip-dot" style="background:' + escapeHtml(color) + ';"></span>' + escapeHtml(team) + (team === playerTeam ? '<em class="you-tag">YOU</em>' : '') + '</span>' +
+          '<span class="departure-team"><span class="chip-dot" style="background:' + escapeHtml(color) + ';"></span>' + escapeHtml(team) + '</span>' +
           '<span class="departure-time">' + formatRaceDayTimeShort(clock) + '</span>' +
         '</div>';
       });
@@ -34028,11 +34272,27 @@
         rows += '<div class="' + rowClass + '">' +
           '<div class="broadcast-place">' + ordinal(i + 1) + '</div>' +
           '<div class="broadcast-team-line"><span class="broadcast-team-dot" style="background:' + escapeHtml(teamCol) + ';"></span>' +
-            '<span class="broadcast-team-name">' + escapeHtml(r.team) + (isYou ? ' <em class="you-tag">YOU</em>' : '') + '</span></div>' +
+            '<span class="broadcast-team-name">' + escapeHtml(r.team) + '</span></div>' +
           '<div class="broadcast-time-line">' + formatRaceDateTimeShort(r.checkInClock) + (isElim ? ' <span class="elim-badge">ELIM</span>' : '') + '</div>' +
         '</div>';
       });
       return '<div class="standings broadcast-standings">' + rows + '</div>';
+    }
+
+    function yieldBoardRecapHtml() {
+      if (!currentYieldBoard || !Array.isArray(currentYieldBoard.events) || currentYieldBoard.events.length === 0) {
+        return "";
+      }
+
+      var html = '<div class="broadcast-outcome" style="--outcome-color:var(--race-red);"><strong>Yield Board:</strong> ';
+      html += currentYieldBoard.events.map(function (event) {
+        var resultText = event.hit
+          ? escapeHtml(event.target) + ' waited ' + escapeHtml(formatDuration(event.duration)) + '.'
+          : escapeHtml(event.target) + ' had already passed, so it missed.';
+        return escapeHtml(event.user) + ' yielded ' + resultText;
+      }).join('<br>');
+      html += '</div>';
+      return html;
     }
 
     function resultsBroadcastHtml(opts) {
@@ -34073,6 +34333,7 @@
       if (opts.outcomeHtml) {
         html += '<div class="broadcast-outcome" style="--outcome-color:' + outcomeColor + ';">' + opts.outcomeHtml + '</div>';
       }
+      html += yieldBoardRecapHtml();
       html += broadcastDetailsHtml('Your Leg Recap', legRecapHtml(), 'var(--race-blue)', true);
       html += '<div class="broadcast-grid">';
       html += '<section class="broadcast-panel" style="--panel-color:var(--race-amber);"><div class="broadcast-panel-title">Mat Standings</div>' + standingsHtml(results, opts.eliminatedTeam || null) + '</section>';
@@ -34218,6 +34479,11 @@
       var legGapEl = document.getElementById("settingLegGapHours");
       if (finalTeamEl) { raceSettings.finalTeamCount = parseInt(finalTeamEl.value, 10) || DEFAULT_RACE_SETTINGS.finalTeamCount; }
       if (legGapEl) { raceSettings.legGapHours = parseInt(legGapEl.value, 10) || DEFAULT_RACE_SETTINGS.legGapHours; }
+      var yieldChanceEl = document.getElementById("settingYieldChance");
+      var yieldDurationEl = document.getElementById("settingYieldDurationMinutes");
+      if (yieldChanceEl) { raceSettings.yieldChance = parseFloat(yieldChanceEl.value); }
+      if (yieldDurationEl) { raceSettings.yieldDurationMinutes = parseInt(yieldDurationEl.value, 10); }
+      raceSettings = sanitizeRaceSettings(raceSettings);
       teams = sanitizeTeamNames(readRawTeamNamesFromEditor(), raceSettings.teamCount);
       raceSettings.teamCount = teams.length;
       raceSettings.teamColors = sanitizeTeamColors(raceSettings.teamColors, teams);
@@ -35394,6 +35660,9 @@
 
       for (var i = 0; i < totalStopsThisLeg; i++) {
         labels.push(challengeArriveLabel(i));
+        if (currentYieldBoard && currentYieldBoard.stopIndex === i) {
+          labels.push("Yield");
+        }
         if (stopTypeForIndex(i) === "detour") {
           var options = detourOptionsForIndex(i);
           if (options.length === 0) {
@@ -35798,29 +36067,45 @@
       var rankWidth = 42;
 
       if (densityScore >= 14) {
+        fontSize = 0.70;
+        headFontSize = 0.58;
         padX = 6;
         padY = 5;
         rankWidth = 38;
       }
       if (densityScore >= 18) {
+        fontSize = 0.64;
+        headFontSize = 0.52;
         padX = 5;
         padY = 4;
         rankWidth = 35;
       }
       if (densityScore >= 24) {
+        fontSize = 0.56;
+        headFontSize = 0.46;
         padX = 4;
         padY = 4;
         rankWidth = 32;
       }
       if (densityScore >= 32) {
+        fontSize = 0.50;
+        headFontSize = 0.40;
         padX = 3;
         padY = 3;
         rankWidth = 28;
       }
       if (densityScore >= 42) {
+        fontSize = 0.44;
+        headFontSize = 0.34;
         padX = 2;
         padY = 2;
         rankWidth = 24;
+      }
+      if (columnCount >= 28) {
+        fontSize = Math.min(fontSize, 0.40);
+        headFontSize = Math.min(headFontSize, 0.30);
+        padX = Math.min(padX, 2);
+        padY = Math.min(padY, 2);
       }
 
       var timeChartStyle = '--tc-font-size:' + fontSize + 'rem;--tc-head-font-size:' + headFontSize + 'rem;--tc-pad-x:' + padX + 'px;--tc-pad-y:' + padY + 'px;--tc-rank-w:' + rankWidth + 'px;';
@@ -35880,7 +36165,7 @@
           } else {
             extraStyle += 'letter-spacing:-0.01em;white-space:nowrap;';
           }
-          html += '<td class="time-chart-cell" title="' + escapeHtml(entry.team + ' · ' + colData.column.label) + '" style="background:' + color + ';color:' + textColor + ';' + extraStyle + '">' + escapeHtml(value) + '</td>';
+          html += '<td class="time-chart-cell" title="' + escapeHtml(entry.team + ' · ' + colData.column.label + ': ' + value) + '" style="background:' + color + ';color:' + textColor + ';' + extraStyle + '">' + escapeHtml(value) + '</td>';
         });
         html += '</tr>';
       }
@@ -36013,6 +36298,7 @@
 
       labels.forEach(function (label, labelIndex) {
         var detourInfo = parseDetourOptionCompleteLabel(label);
+        var isYieldLabel = label === "Yield";
         var isPitStop = (label === "Pit Stop" || label === "Finish Line");
         var rankMap = {};
 
@@ -36022,6 +36308,42 @@
             if (detourOptionMatchesRecord(r, detourInfo)) {
               rankMap[r.team] = globalRankMap[r.team] || teamCount;
             }
+          });
+        } else if (isYieldLabel) {
+          var yieldBoardStopIndex = currentYieldBoard && currentYieldBoard.stopIndex != null ? currentYieldBoard.stopIndex : null;
+          var yieldArriveLabel = yieldBoardStopIndex != null ? challengeArriveLabel(yieldBoardStopIndex) : null;
+          var yieldEntries = activeResults.map(function (r, teamIndex) {
+            var clock = milestoneClock(r, label);
+            if (clock == null) { return null; }
+            return { team: r.team, clock: clock, originalIndex: teamIndex, record: r };
+          }).filter(Boolean);
+
+          yieldEntries.forEach(function (entry) {
+            var yieldedPrev = prevRank[entry.team] != null ? prevRank[entry.team] : 999;
+            var aheadCount = 0;
+
+            activeResults.forEach(function (other, otherIndex) {
+              if (other.team === entry.team) { return; }
+              var otherClock = yieldArriveLabel ? milestoneClock(other, yieldArriveLabel) : null;
+
+              if (otherClock == null) {
+                return;
+              }
+
+              if (otherClock < entry.clock) {
+                aheadCount += 1;
+                return;
+              }
+
+              if (otherClock === entry.clock) {
+                var otherPrev = prevRank[other.team] != null ? prevRank[other.team] : 999;
+                if (otherPrev < yieldedPrev || (otherPrev === yieldedPrev && other.team.localeCompare(entry.team) < 0)) {
+                  aheadCount += 1;
+                }
+              }
+            });
+
+            rankMap[entry.team] = Math.min(teamCount, aheadCount + 1);
           });
         } else {
           var entries = activeResults.map(function (r, teamIndex) {
@@ -36078,6 +36400,10 @@
 
         activeResults.forEach(function (r) {
           if (detourInfo && !detourOptionMatchesRecord(r, detourInfo)) {
+            positions[r.team].push({ label: label, rank: null, clock: null, skipped: true });
+            return;
+          }
+          if (isYieldLabel && milestoneClock(r, label) == null) {
             positions[r.team].push({ label: label, rank: null, clock: null, skipped: true });
             return;
           }
@@ -36396,6 +36722,399 @@ svg += '</div>';
       return 1.6 - 0.1 * level;
     }
 
+    function createYieldBoardForLeg() {
+      if (yieldUsedThisRace || isFinalLeg() || totalStopsThisLeg <= 0 || YIELD_CHANCE <= 0 || YIELD_DURATION_MINUTES <= 0) {
+        return null;
+      }
+
+      if (raceRandom() >= YIELD_CHANCE) {
+        return null;
+      }
+
+      return {
+        stopIndex: randomIndex(totalStopsThisLeg),
+        duration: Math.max(0, Math.round(YIELD_DURATION_MINUTES)),
+        used: false,
+        user: null,
+        target: null,
+        hit: false,
+        miss: false,
+        events: [],
+        playerResolved: false,
+        playerPenaltyApplied: false
+      };
+    }
+
+    function yieldBoardActiveForCurrentStop() {
+      return currentYieldBoard &&
+        currentYieldBoard.stopIndex === currentStop &&
+        currentStop < totalStopsThisLeg;
+    }
+
+    function yieldBoardLocationName() {
+      if (!currentYieldBoard) { return "Yield Board"; }
+      return locationNameForStopIndex(currentYieldBoard.stopIndex);
+    }
+
+    function yieldArrivalClockForTeam(teamName) {
+      if (!currentYieldBoard || !teamName) { return null; }
+
+      if (teamName === playerTeam && remainingTeams.indexOf(playerTeam) !== -1) {
+        if (currentStop === currentYieldBoard.stopIndex) {
+          return raceClock;
+        }
+        var playerMilestone = playerLegMilestones.find(function (m) {
+          return m.label === challengeArriveLabel(currentYieldBoard.stopIndex);
+        });
+        return playerMilestone ? playerMilestone.clock : null;
+      }
+
+      var record = teamLegRecords ? teamLegRecords[teamName] : null;
+      if (!record || !Array.isArray(record.milestones)) { return null; }
+
+      var milestone = record.milestones.find(function (m) {
+        return m.label === challengeArriveLabel(currentYieldBoard.stopIndex);
+      });
+
+      return milestone ? milestone.clock : null;
+    }
+
+    function shiftRivalRecordAfterClock(record, pivotClock, delayMinutes) {
+      if (!record || !delayMinutes) { return; }
+
+      var delay = Math.max(0, Math.round(delayMinutes));
+      record.time = Math.max(0, Math.round((record.time || 0) + delay));
+      record.checkInClock = Math.max(0, Math.round((record.checkInClock || 0) + delay));
+
+      if (Array.isArray(record.events)) {
+        record.events.forEach(function (event) {
+          if (event.clock >= pivotClock) {
+            event.clock += delay;
+            event.elapsed = (event.elapsed || 0) + delay;
+          }
+        });
+        record.events.push({
+          label: "Yield penalty",
+          elapsed: Math.max(0, Math.round((pivotClock - (record.startClock || 0)) + delay)),
+          clock: pivotClock + delay
+        });
+        record.events.sort(function (a, b) { return (a.clock || 0) - (b.clock || 0); });
+      }
+
+      if (Array.isArray(record.milestones)) {
+        record.milestones.forEach(function (m) {
+          if (m.clock > pivotClock) {
+            m.clock += delay;
+          }
+        });
+      }
+
+      if (Array.isArray(record.presenceSegments)) {
+        record.presenceSegments.forEach(function (segment) {
+          if (segment.startClock > pivotClock) {
+            segment.startClock += delay;
+            segment.endClock += delay;
+          } else if (segment.endClock >= pivotClock) {
+            segment.endClock += delay;
+          }
+        });
+      }
+    }
+
+    function applyYieldDelayToTeam(targetTeam, userTeam, activationClock) {
+      if (!currentYieldBoard || !targetTeam) { return; }
+
+      var duration = Math.max(0, Math.round(currentYieldBoard.duration || YIELD_DURATION_MINUTES));
+      var pivotClock = Math.max(0, Math.round(activationClock || yieldArrivalClockForTeam(targetTeam) || raceClock));
+
+      if (targetTeam === playerTeam) {
+        if (currentYieldBoard.playerPenaltyApplied) { return; }
+        currentYieldBoard.playerPenaltyApplied = true;
+        addRaceMinutes(duration);
+        addPlayerMilestone("Yield", raceClock, "sequential", { type: "yield", user: userTeam || "another team" });
+        playerLegLog.push({
+          type: "yield",
+          label: "Yielded by " + (userTeam || "another team"),
+          duration: duration,
+          cost: 0,
+          clock: raceClock
+        });
+        return;
+      }
+
+      var record = teamLegRecords[targetTeam];
+      if (record) {
+        shiftRivalRecordAfterClock(record, pivotClock, duration);
+        addMilestoneToList(record.milestones, "Yield", pivotClock + duration, "sequential", { type: "yield", user: userTeam || "another team" });
+      }
+    }
+
+    function activateYieldBoard(userTeam, targetTeam, activationClock) {
+      if (!currentYieldBoard || currentYieldBoard.used || yieldUsedThisRace) {
+        return null;
+      }
+
+      var userClock = Math.max(0, Math.round(activationClock || yieldArrivalClockForTeam(userTeam) || raceClock));
+      var targetClock = yieldArrivalClockForTeam(targetTeam);
+      var hit = targetClock == null || targetClock > userClock;
+
+      currentYieldBoard.used = true;
+      currentYieldBoard.user = userTeam;
+      currentYieldBoard.target = targetTeam;
+      currentYieldBoard.hit = !!hit;
+      currentYieldBoard.miss = !hit;
+      currentYieldBoard.usedClock = userClock;
+      yieldUsedThisRace = true;
+
+      var event = {
+        user: userTeam,
+        target: targetTeam,
+        clock: userClock,
+        duration: currentYieldBoard.duration,
+        hit: !!hit
+      };
+      currentYieldBoard.events = currentYieldBoard.events || [];
+      currentYieldBoard.events.push(event);
+
+      if (hit && targetTeam) {
+        applyYieldDelayToTeam(targetTeam, userTeam, targetClock || userClock);
+      }
+
+      return event;
+    }
+
+    function resolveAiYieldOpportunities(upToClock) {
+      if (!currentYieldBoard || currentYieldBoard.used || yieldUsedThisRace) {
+        return null;
+      }
+
+      var cutoff = upToClock == null ? Infinity : upToClock;
+      var users = remainingTeams.filter(function (name) {
+        if (name === playerTeam) { return false; }
+        var arrival = yieldArrivalClockForTeam(name);
+        return arrival != null && arrival <= cutoff;
+      }).map(function (name) {
+        return { team: name, clock: yieldArrivalClockForTeam(name) };
+      }).sort(function (a, b) {
+        if (a.clock !== b.clock) { return a.clock - b.clock; }
+        return a.team.localeCompare(b.team);
+      });
+
+      for (var i = 0; i < users.length; i++) {
+        if (currentYieldBoard.used || yieldUsedThisRace) { break; }
+
+        var user = users[i];
+        var denom = Math.max(1, remainingTeams.length - 1);
+        if (raceRandom() >= (1 / denom)) {
+          continue;
+        }
+
+        var candidates = remainingTeams.filter(function (target) {
+          if (target === user.team) { return false; }
+          var arrival = yieldArrivalClockForTeam(target);
+          return arrival != null && arrival > user.clock;
+        });
+
+        if (candidates.length === 0) {
+          continue;
+        }
+
+        var targetTeam = candidates[randomIndex(candidates.length)];
+        return activateYieldBoard(user.team, targetTeam, user.clock);
+      }
+
+      return null;
+    }
+
+    function yieldResultCardHtml(event, perspective) {
+      if (!event) { return ""; }
+      var hitText = event.hit
+        ? '<strong>' + escapeHtml(event.target) + '</strong> must wait <strong>' + escapeHtml(formatDuration(event.duration)) + '</strong>.'
+        : '<strong>' + escapeHtml(event.target) + '</strong> had already passed the board, so the Yield had no effect.';
+      var title = perspective === "hitPlayer"
+        ? "You have been Yielded"
+        : "Yield Board Used";
+
+      return '<div class="yield-card">' +
+        '<div class="yield-kicker">Yield Board</div>' +
+        '<div class="yield-title">' + escapeHtml(title) + '</div>' +
+        '<div class="yield-copy"><strong>' + escapeHtml(event.user) + '</strong> yielded <strong>' + escapeHtml(event.target) + '</strong>. ' + hitText + '</div>' +
+      '</div>';
+    }
+
+    function showYieldHitScreen(event) {
+      currentYieldBoard.playerResolved = true;
+      document.getElementById("raceScreenTitle").textContent = yieldBoardLocationName();
+      document.getElementById("raceStatus").innerHTML =
+        raceClockHeader("Yield") +
+        yieldResultCardHtml(event, "hitPlayer") +
+        presenceReportHtml(stopLocationKey(currentStop), event.clock, raceClock) +
+        raceContextStripHtml();
+
+      var prompt = document.getElementById("transportPrompt");
+      if (prompt) { prompt.textContent = "Continue racing"; }
+
+      var list = document.getElementById("transportList");
+      list.className = "";
+      list.innerHTML = "";
+      var btn = document.createElement("button");
+      btn.textContent = "Continue to Task";
+      btn.onclick = proceedToCurrentStopTask;
+      list.appendChild(btn);
+      showScreen("race");
+    }
+
+    function showYieldBoardResult(event) {
+      currentYieldBoard.playerResolved = true;
+      document.getElementById("raceScreenTitle").textContent = yieldBoardLocationName();
+      document.getElementById("raceStatus").innerHTML =
+        raceClockHeader("Yield") +
+        yieldResultCardHtml(event, "used") +
+        presenceReportHtml(stopLocationKey(currentStop), raceClock, raceClock) +
+        raceContextStripHtml();
+
+      var prompt = document.getElementById("transportPrompt");
+      if (prompt) { prompt.textContent = "Continue racing"; }
+
+      var list = document.getElementById("transportList");
+      list.innerHTML = "";
+      var btn = document.createElement("button");
+      btn.textContent = "Continue to Task";
+      btn.onclick = proceedToCurrentStopTask;
+      list.appendChild(btn);
+      showScreen("race");
+    }
+
+    function showYieldBoardAlreadyUsed(event) {
+      currentYieldBoard.playerResolved = true;
+      document.getElementById("raceScreenTitle").textContent = yieldBoardLocationName();
+      document.getElementById("raceStatus").innerHTML =
+        raceClockHeader("Yield") +
+        yieldResultCardHtml(event, "used") +
+        '<div class="yield-card"><div class="yield-kicker">Your Decision</div><div class="yield-title">The Yield is no longer available</div><div class="yield-copy">You still reached the board, but it has already been used. Choose not to Yield and continue to the task.</div></div>' +
+        presenceReportHtml(stopLocationKey(currentStop), raceClock, raceClock) +
+        raceContextStripHtml();
+
+      var prompt = document.getElementById("transportPrompt");
+      if (prompt) { prompt.textContent = "Yield Board"; }
+
+      var list = document.getElementById("transportList");
+      list.innerHTML = "";
+      list.className = "";
+      var btn = document.createElement("button");
+      btn.className = "secondary-btn";
+      btn.textContent = "Do Not Yield";
+      btn.onclick = proceedToCurrentStopTask;
+      list.appendChild(btn);
+      showScreen("race");
+    }
+
+    function skipYieldBoard() {
+      if (currentYieldBoard) {
+        currentYieldBoard.playerResolved = true;
+      }
+      proceedToCurrentStopTask();
+    }
+
+    function useYieldOnTeam(targetTeam) {
+      if (!currentYieldBoard || !targetTeam) {
+        skipYieldBoard();
+        return;
+      }
+      var event = activateYieldBoard(playerTeam, targetTeam, raceClock) || {
+        user: playerTeam,
+        target: targetTeam,
+        clock: raceClock,
+        duration: currentYieldBoard.duration,
+        hit: false
+      };
+      playerLegLog.push({
+        type: "yield",
+        label: "Yielded " + targetTeam + (event.hit ? "" : " (missed)"),
+        duration: 0,
+        cost: 0,
+        clock: raceClock
+      });
+      showYieldBoardResult(event);
+    }
+
+    function showYieldBoard() {
+      var locationName = yieldBoardLocationName();
+      document.getElementById("raceScreenTitle").textContent = locationName;
+      document.getElementById("raceStatus").innerHTML =
+        raceClockHeader("Yield") +
+        '<div class="yield-card">' +
+          '<div class="yield-kicker">Yield Board</div>' +
+          '<div class="yield-title">Choose a team to Yield</div>' +
+          '<div class="yield-copy">You can yield any active team for <strong>' + escapeHtml(formatDuration(currentYieldBoard.duration)) + '</strong>. If they already passed this board, it will have no effect.</div>' +
+        '</div>' +
+        presenceReportHtml(stopLocationKey(currentStop), raceClock, null) +
+        raceContextStripHtml();
+
+      var prompt = document.getElementById("transportPrompt");
+      if (prompt) { prompt.textContent = "Yield Board"; }
+
+      var list = document.getElementById("transportList");
+      list.innerHTML = "";
+      list.className = "yield-target-list";
+
+      remainingTeams.filter(function (name) { return name !== playerTeam; }).forEach(function (name) {
+        var btn = document.createElement("button");
+        btn.className = "opt-btn yield-target-btn";
+        btn.innerHTML = '<span class="transport-main"><span class="chip-dot" style="background:' + escapeHtml(teamColor(name)) + ';"></span><strong>' + escapeHtml(name) + '</strong></span>';
+        btn.onclick = function () { useYieldOnTeam(name); };
+        list.appendChild(btn);
+      });
+
+      var skip = document.createElement("button");
+      skip.className = "secondary-btn";
+      skip.textContent = "Do Not Yield";
+      skip.onclick = skipYieldBoard;
+      list.appendChild(skip);
+
+      showScreen("race");
+    }
+
+    function maybeHandleYieldBeforeCurrentStop() {
+      if (!yieldBoardActiveForCurrentStop() || (currentYieldBoard && currentYieldBoard.playerResolved)) {
+        return false;
+      }
+
+      var aiEvent = resolveAiYieldOpportunities(raceClock);
+      if (aiEvent && aiEvent.target === playerTeam) {
+        showYieldHitScreen(aiEvent);
+        return true;
+      }
+
+      currentYieldBoard.playerResolved = false;
+
+      if (currentYieldBoard.used || yieldUsedThisRace) {
+        var usedEvent = currentYieldBoard.events && currentYieldBoard.events.length ? currentYieldBoard.events[0] : {
+          user: currentYieldBoard.user || "Another team",
+          target: currentYieldBoard.target || "another team",
+          clock: currentYieldBoard.usedClock || raceClock,
+          duration: currentYieldBoard.duration,
+          hit: !!currentYieldBoard.hit
+        };
+        showYieldBoardAlreadyUsed(usedEvent);
+        return true;
+      }
+
+      showYieldBoard();
+      return true;
+    }
+
+    function proceedToCurrentStopTask() {
+      var stop = legStops[currentStop];
+
+      if (stopType(stop) === "detour") {
+        showDetourChoice();
+        return;
+      }
+
+      completeCurrentStopForPlayer(null);
+    }
+
     function startSeason() {
       applyRaceSettingsToGlobals();
       var playerRolledSkills = skills[playerTeam] || makeStartingSkillProfile(playerTeam, true);
@@ -36415,6 +37134,8 @@ svg += '</div>';
       playerLegTimelineDetails = {};
       lastCompletedLegClueData = null;
       legHistory = [];
+      yieldUsedThisRace = false;
+      currentYieldBoard = null;
       raceClock = 0;
       legStartClock = 0;
       nextLegDepartureGap = 0;
@@ -36514,6 +37235,8 @@ svg += '</div>';
         legStops.push(makeLegStop(destinationLocationPicks[i], i));
         legTransportOptions.push(makeTransportOptionsForSegment());
       }
+
+      currentYieldBoard = createYieldBoardForLeg();
 
       // Leg 1: create the Starting Line challenge BEFORE building rivals
       if (legNum === 1) {
@@ -36714,6 +37437,7 @@ svg += '</div>';
       if (prompt) { prompt.textContent = "Choose one Detour task"; }
 
       var list = document.getElementById("transportList");
+      list.className = "";
       list.innerHTML = "";
       options.forEach(function (option, index) {
         var level = skillLevelForTeam(playerTeam, option.skill);
@@ -36785,14 +37509,11 @@ svg += '</div>';
     }
 
     function autoCompleteChallengeAndShowTransport() {
-      var stop = legStops[currentStop];
-
-      if (stopType(stop) === "detour") {
-        showDetourChoice();
+      if (maybeHandleYieldBeforeCurrentStop()) {
         return;
       }
 
-      completeCurrentStopForPlayer(null);
+      proceedToCurrentStopTask();
     }
 
     function showRace() {
@@ -36831,6 +37552,7 @@ svg += '</div>';
       setTransportPromptText("transportPrompt", currentRaceTransportTargetName());
       var optionsForThisSegment = optionsWithEmergencyWalkForTeam(legTransportOptions[currentStop], playerTeam);
       var list = document.getElementById("transportList");
+      list.className = "";
       list.innerHTML = "";
 
       optionsForThisSegment.forEach(function (opt) {
@@ -36957,7 +37679,7 @@ svg += '</div>';
           '<div class="broadcast-place">' + ordinal(i + 1) + '</div>' +
           '<div class="broadcast-team-line">' +
             '<span class="broadcast-team-dot" style="background:' + escapeHtml(teamCol) + ';"></span>' +
-            '<span class="broadcast-team-name">' + escapeHtml(r.team) + (isYou ? ' <em class="you-tag">YOU</em>' : '') + '</span>' +
+            '<span class="broadcast-team-name">' + escapeHtml(r.team) + '</span>' +
           '</div>' +
           '<div class="broadcast-time-line">' + formatRaceDateTimeShort(r.checkInClock) +
             (isElim ? ' <span class="elim-badge">ELIM</span>' : '') +
@@ -37041,7 +37763,7 @@ svg += '</div>';
         html += '<tr' + (isYou ? ' class="player-row"' : '') + '>';
         html += '<td class="placement-team-cell"><div class="placement-team-chip-line">';
         html += '<span class="placement-team-dot" style="background:' + escapeHtml(teamCol) + ';"></span>';
-        html += '<span class="placement-team-name">' + escapeHtml(truncateName(name, 18)) + (isYou ? ' <em class="you-tag">YOU</em>' : '') + '</span>';
+        html += '<span class="placement-team-name">' + escapeHtml(truncateName(name, 18)) + '</span>';
         html += '</div></td>';
         h.forEach(function (p, idx) {
           html += '<td>' + placementRankPill(p, idx === numLegs - 1 && p != null) + '</td>';
@@ -37210,7 +37932,7 @@ svg += '</div>';
       var text = (el.textContent || "").trim();
       var isHeader = el.tagName && el.tagName.toLowerCase() === "th";
       var looksLikeClock = /^\d{1,2}:\d{2}$/.test(text);
-      var minPx = isHeader ? 3.2 : (looksLikeClock ? 5.4 : 5.8);
+      var minPx = isHeader ? 2.4 : (looksLikeClock ? 3.4 : 3.0);
       var currentPx = basePx;
       var guard = 0;
 
@@ -37232,13 +37954,14 @@ svg += '</div>';
         guard += 1;
       }
 
-      // Second pass: for words/transport/location names that still cannot fit without becoming
-      // specks, allow only that cell to wrap. Short clock values stay one-line and shrink tighter.
-      if (!looksLikeClock && !isHeader && el.scrollWidth > el.clientWidth + 1) {
-        el.classList.add("fit-wrap-text");
+      // Final pass: if a long value still overflows in very dense legs, squeeze it harder
+      // instead of letting it break the cell. The full value stays available in the tooltip.
+      if (el.scrollWidth > el.clientWidth + 1) {
+        el.classList.add("fit-tight-time");
         guard = 0;
-        while (guard < 8 && el.scrollWidth > el.clientWidth + 1 && currentPx > minPx - 0.6) {
-          currentPx = Math.max(minPx - 0.6, currentPx * 0.94);
+        var hardFloor = isHeader ? 2.0 : 2.2;
+        while (guard < 10 && el.scrollWidth > el.clientWidth + 1 && currentPx > hardFloor) {
+          currentPx = Math.max(hardFloor, currentPx * 0.90);
           el.style.fontSize = currentPx + "px";
           guard += 1;
         }
@@ -37294,6 +38017,10 @@ svg += '</div>';
     }
 
     function showLegResults() {
+      if (currentYieldBoard && !currentYieldBoard.used && !yieldUsedThisRace) {
+        resolveAiYieldOpportunities(Infinity);
+      }
+
       var route = legRouteDisplayName();
       var results = [];
 
@@ -37501,7 +38228,7 @@ svg += '</div>';
         else if (e.type === "flight") { flightMin += e.duration; }
       });
 
-      var typeColors = { transport: "var(--cyan)", challenge: "var(--amber)", detour: "var(--amber)", flight: "var(--red)" };
+      var typeColors = { transport: "var(--cyan)", challenge: "var(--amber)", detour: "var(--amber)", yield: "var(--red)", flight: "var(--red)" };
       var html = '<div class="leg-recap-card">';
 
       html += '<div class="leg-recap-stats">';
@@ -37603,11 +38330,17 @@ svg += '</div>';
         legTransportOptions.push(makeTransportOptionsForSegment());
       }
 
+      currentYieldBoard = createYieldBoardForLeg();
+
       // Simulate every rival
       teamLegRecords = {};
       remainingTeams.forEach(function (name) {
         teamLegRecords[name] = simulateRivalLegRecord(name);
       });
+
+      if (currentYieldBoard && !currentYieldBoard.used && !yieldUsedThisRace) {
+        resolveAiYieldOpportunities(Infinity);
+      }
 
       // Sort by check-in
       var results = remainingTeams.map(function (name) {
@@ -37750,6 +38483,8 @@ svg += '</div>';
       playerLegTimelineDetails = {};
       lastCompletedLegClueData = null;
       legHistory = [];
+      yieldUsedThisRace = false;
+      currentYieldBoard = null;
       activeRaceSeed = "";
       raceRngState = null;
       seasonCityOrder = [];
@@ -37836,6 +38571,8 @@ svg += '</div>';
         activeFlightRoute: activeFlightRoute,
         flightResolved: flightResolved,
         legIsNonElim: legIsNonElim,
+        yieldUsedThisRace: yieldUsedThisRace,
+        currentYieldBoard: currentYieldBoard,
         startingLineChallenge: startingLineChallenge,
         gapScalingValue: currentGapScalingMultiplier(),
 
@@ -37904,6 +38641,8 @@ svg += '</div>';
       state.legPitStopLocation = state.legPitStopLocation || "";
       state.currentCityStartLocation = state.currentCityStartLocation || "";
       state.currentCityStartCityKey = state.currentCityStartCityKey || "";
+      state.yieldUsedThisRace = !!state.yieldUsedThisRace;
+      state.currentYieldBoard = state.currentYieldBoard && typeof state.currentYieldBoard === "object" ? state.currentYieldBoard : null;
 
       if (state.activeRaceSeed == null) {
         state.activeRaceSeed = state.raceSettings.raceSeed || "";
@@ -37998,6 +38737,8 @@ svg += '</div>';
       activeFlightRoute = state.activeFlightRoute || null;
       flightResolved = !!state.flightResolved;
       legIsNonElim = !!state.legIsNonElim;
+      yieldUsedThisRace = !!state.yieldUsedThisRace;
+      currentYieldBoard = state.currentYieldBoard || null;
       startingLineChallenge = state.startingLineChallenge || null;
 
       airportStartTransportOptions = state.airportStartTransportOptions || makeTransportOptionsForSegment();
@@ -38056,7 +38797,8 @@ svg += '</div>';
           return null;
         }
 
-        return JSON.parse(raw);
+        var parsed = JSON.parse(raw);
+        return parsed && typeof parsed === "object" ? parsed : null;
       } catch (err) {
         return null;
       }
@@ -38106,21 +38848,25 @@ svg += '</div>';
       updateStartLoadButton();
     }
 
+    function loadSaveStateSafely(state, label) {
+      var status = document.getElementById("menuStatus") || document.getElementById("saveManagerBody");
+      if (!state) {
+        if (status) { status.innerHTML = escapeHtml((label || "Save") + " is empty or could not be read."); }
+        return false;
+      }
+      try {
+        var ok = applyGameState(state);
+        if (!ok && status) { status.innerHTML = escapeHtml(unsupportedSaveMessage(state)); }
+        return !!ok;
+      } catch (err) {
+        if (status) { status.innerHTML = "That save could not be restored. It may be too old or corrupted."; }
+        return false;
+      }
+    }
+
     function loadManualSlot(slot) {
       var state = readSaveFromKey(slotKey(slot));
-
-      if (!state) {
-        var emptyStatus = document.getElementById("menuStatus") || document.getElementById("saveManagerBody");
-        if (emptyStatus) { emptyStatus.innerHTML = "Slot " + slot + " is empty."; }
-        return;
-      }
-
-      var ok = applyGameState(state);
-
-      if (!ok) {
-        var badStatus = document.getElementById("menuStatus") || document.getElementById("saveManagerBody");
-        if (badStatus) { badStatus.innerHTML = escapeHtml(unsupportedSaveMessage(state)); }
-      }
+      loadSaveStateSafely(state, "Slot " + slot);
     }
 
     function latestSaveState() {
@@ -38158,7 +38904,12 @@ svg += '</div>';
         return;
       }
 
-      var ok = applyGameState(state);
+      var ok = false;
+      try {
+        ok = applyGameState(state);
+      } catch (err) {
+        ok = false;
+      }
 
       if (!ok) {
         alert(unsupportedSaveMessage(state));
@@ -38271,11 +39022,7 @@ svg += '</div>';
       loadAuto.textContent = "Load";
       loadAuto.disabled = !autoState;
       loadAuto.onclick = function () {
-        var ok = applyGameState(autoState);
-        if (!ok) {
-          var badStatus = document.getElementById("saveManagerBody");
-          if (badStatus) { badStatus.innerHTML = escapeHtml(unsupportedSaveMessage(autoState)); }
-        }
+        loadSaveStateSafely(autoState, "Auto Save");
       };
       autoActions.appendChild(loadAuto);
 
@@ -38753,6 +39500,8 @@ svg += '</div>';
         startingMoney: settingValue("settingStartingMoney", DEFAULT_RACE_SETTINGS.startingMoney),
         legStipend: settingValue("settingLegStipend", DEFAULT_RACE_SETTINGS.legStipend),
         nonElimChance: settingValue("settingNonElimChance", DEFAULT_RACE_SETTINGS.nonElimChance),
+        yieldChance: settingValue("settingYieldChance", DEFAULT_RACE_SETTINGS.yieldChance),
+        yieldDurationMinutes: settingValue("settingYieldDurationMinutes", DEFAULT_RACE_SETTINGS.yieldDurationMinutes),
         minStopsPerLeg: settingValue("settingMinStops", DEFAULT_RACE_SETTINGS.minStopsPerLeg),
         maxStopsPerLeg: settingValue("settingMaxStops", DEFAULT_RACE_SETTINGS.maxStopsPerLeg),
         finalMinStopsPerLeg: settingValue("settingFinalMinStops", DEFAULT_RACE_SETTINGS.finalMinStopsPerLeg),
