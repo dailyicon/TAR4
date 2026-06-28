@@ -7769,6 +7769,7 @@
                   <option value="0.25">Normal - 25%</option>
                   <option value="0.35">Frequent - 35%</option>
                   <option value="0.50">Wild - 50%</option>
+                  <option value="1">Always - 100%</option>
                 </select>
                 <div class="setting-help">Chance a Yield Board appears on each non-final leg. Each team may use one Yield per race.</div>
               </div>
@@ -8174,7 +8175,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 60;
+    var SAVE_VERSION = 62;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -35851,6 +35852,32 @@
       return "Challenge " + stopLetter(index) + " Complete";
     }
 
+    function stopIndexFromLetter(letter) {
+      var value = String(letter || "").trim().toUpperCase();
+      if (!value) { return null; }
+      var code = value.charCodeAt(0);
+      if (code < 65 || code > 90) { return null; }
+      return code - 65;
+    }
+
+    function parseChallengeArriveLabel(label) {
+      var match = String(label || "").match(/^Challenge\s+([A-Z])\s+Arrive$/i);
+      if (!match) { return null; }
+      return stopIndexFromLetter(match[1]);
+    }
+
+    function yieldStopIndexFromLabels(labels) {
+      var list = Array.isArray(labels) ? labels : [];
+      for (var i = 0; i < list.length; i++) {
+        if (list[i] !== "Yield") { continue; }
+        for (var j = i - 1; j >= 0; j--) {
+          var parsed = parseChallengeArriveLabel(list[j]);
+          if (parsed != null) { return parsed; }
+        }
+      }
+      return currentYieldBoard && currentYieldBoard.stopIndex != null ? currentYieldBoard.stopIndex : null;
+    }
+
     function clueChartLabels() {
       var labels = [legNum === 1 ? "Starting Line" : "Pit Start"];
       if (legNum === 1) { labels.push("Starting Line Complete"); }
@@ -36508,7 +36535,7 @@
             }
           });
         } else if (isYieldLabel) {
-          var yieldBoardStopIndex = currentYieldBoard && currentYieldBoard.stopIndex != null ? currentYieldBoard.stopIndex : null;
+          var yieldBoardStopIndex = yieldStopIndexFromLabels(labels);
           var yieldArriveLabel = yieldBoardStopIndex != null ? challengeArriveLabel(yieldBoardStopIndex) : null;
           var yieldEntries = activeResults.map(function (r, teamIndex) {
             var clock = milestoneClock(r, label);
@@ -36921,11 +36948,12 @@ svg += '</div>';
     }
 
     function createYieldBoardForLeg() {
-      if (isFinalLeg() || totalStopsThisLeg <= 0 || YIELD_CHANCE <= 0 || YIELD_DURATION_MINUTES <= 0) {
+      if (isFinalLeg() || totalStopsThisLeg <= 0 || YIELD_DURATION_MINUTES <= 0) {
         return null;
       }
 
-      if (raceRandom() >= YIELD_CHANCE) {
+      var chance = clampNumber(Number(YIELD_CHANCE), 0, 1);
+      if (chance <= 0 || raceRandom() >= chance) {
         return null;
       }
 
@@ -36998,7 +37026,10 @@ svg += '</div>';
 
       if (Array.isArray(record.events)) {
         record.events.forEach(function (event) {
-          if (event.clock >= pivotClock) {
+          // Only shift events that happen after the team reaches the Yield Board.
+          // The travel event that ended exactly at the board should stay put;
+          // the Yield penalty itself accounts for the waiting time.
+          if (event.clock > pivotClock) {
             event.clock += delay;
             event.elapsed = (event.elapsed || 0) + delay;
           }
@@ -38132,7 +38163,7 @@ svg += '</div>';
 
     function flightTeamRowHtml(record) {
       var team = record && record.team ? record.team : "Unknown Team";
-      var color = normalizeHexColor(teamColors && teamColors[team], defaultTeamColor(teams.indexOf(team)));
+      var color = normalizeHexColor(teamColors && teamColors[team], defaultColorForIndex(teams.indexOf(team) >= 0 ? teams.indexOf(team) : 0));
       var airportArrival = milestoneClock(record, "Origin Airport");
       var firstDepart = timelineFlightDepartClock(record);
       var landing = timelineFlightArrivalClock(record);
