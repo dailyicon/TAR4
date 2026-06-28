@@ -7476,101 +7476,161 @@
 
 
 
-    /* ── V60 FLIGHT DETAILER ────────────────────────────────── */
+    /* ── V63 FLIGHT DETAILER POLISH ──────────────────────────
+       Cleaner itinerary cards, scannable team manifests, and a
+       flight-hop timeline that reads like a race travel board.
+    ─────────────────────────────────────────────────────────── */
     .flight-detailer {
       display: grid;
-      gap: 10px;
+      gap: 12px;
       text-align: left;
     }
 
-    .flight-detailer-intro {
-      color: var(--race-muted);
-      font-size: 0.82rem;
-      line-height: 1.35;
-      padding: 8px 10px;
-      border: 1px solid var(--race-line);
-      background: rgba(255,255,255,0.035);
-      border-radius: 8px;
+    .flight-detailer-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
     }
 
-    .flight-detail-group {
+    .flight-detailer-stat {
+      min-width: 0;
+      padding: 10px 11px;
       border: 1px solid var(--race-line);
-      border-left: 3px solid var(--race-amber);
+      border-left: 3px solid var(--race-red);
+      border-radius: 8px;
       background: rgba(255,255,255,0.035);
+    }
+
+    .flight-detailer-stat span {
+      display: block;
+      color: var(--race-muted);
+      font-size: 0.64rem;
+      font-weight: 900;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .flight-detailer-stat strong {
+      display: block;
+      color: var(--race-text);
+      font-size: 0.95rem;
+      font-weight: 950;
+      line-height: 1.08;
+      overflow-wrap: anywhere;
+    }
+
+    .flight-detail-card {
+      border: 1px solid var(--race-line);
+      border-left: 4px solid var(--race-amber);
+      background: rgba(255,255,255,0.032);
       border-radius: 10px;
-      padding: 10px;
+      padding: 11px;
       display: grid;
-      gap: 9px;
+      gap: 10px;
+      overflow: hidden;
     }
 
     .flight-detail-head {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px;
+      gap: 10px;
       align-items: start;
-      padding-bottom: 8px;
-      border-bottom: 1px dashed var(--race-line);
+      padding-bottom: 9px;
+      border-bottom: 1px solid var(--race-line);
     }
 
     .flight-detail-kicker {
       color: var(--race-amber);
       font-size: 0.66rem;
-      font-weight: 900;
-      letter-spacing: 0.10em;
+      font-weight: 950;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
 
     .flight-detail-route {
       color: var(--race-text);
-      font-size: 0.96rem;
-      font-weight: 900;
-      line-height: 1.25;
+      font-size: 1rem;
+      font-weight: 950;
+      line-height: 1.22;
       overflow-wrap: anywhere;
     }
 
     .flight-detail-meta {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(82px, auto));
       gap: 5px;
-      justify-content: flex-end;
+      justify-content: end;
+      align-content: start;
     }
 
     .flight-detail-meta span,
     .flight-team-time,
-    .flight-hop-mini-stat {
+    .flight-hop-mini-stat,
+    .flight-hop-layover-chip {
       display: inline-flex;
       align-items: center;
-      min-height: 22px;
+      min-height: 21px;
       padding: 3px 7px;
       border: 1px solid var(--race-line);
-      border-radius: 6px;
+      border-radius: 5px;
       color: var(--race-muted);
       background: rgba(0,0,0,0.14);
-      font-size: 0.72rem;
-      font-weight: 800;
+      font-size: 0.70rem;
+      font-weight: 850;
       white-space: nowrap;
+      line-height: 1.12;
     }
 
-    .flight-detail-meta span.strong { color: var(--race-amber); border-color: rgba(243,195,86,0.28); }
-    .flight-detail-meta span.warn { color: var(--race-red); border-color: rgba(233,75,53,0.28); }
-    .flight-detail-meta span.good { color: var(--green); border-color: rgba(153,210,119,0.24); }
+    .flight-detail-meta span.strong { color: var(--race-amber); border-color: rgba(243,195,86,0.30); }
+    .flight-detail-meta span.warn { color: var(--race-red); border-color: rgba(233,75,53,0.32); }
+    .flight-detail-meta span.good { color: var(--green); border-color: rgba(153,210,119,0.26); }
 
-    .flight-team-list {
-      display: grid;
-      gap: 5px;
+    .flight-manifest {
+      border: 1px solid rgba(248,239,217,0.10);
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(0,0,0,0.10);
     }
 
+    .flight-manifest-head,
     .flight-team-row {
       display: grid;
-      grid-template-columns: minmax(120px, 1fr) repeat(3, minmax(88px, auto));
-      gap: 7px;
+      grid-template-columns: minmax(150px, 1.35fr) repeat(3, minmax(100px, 1fr));
+      gap: 0;
       align-items: center;
-      padding: 6px 7px;
-      border: 1px solid rgba(248,239,217,0.10);
-      background: rgba(0,0,0,0.11);
-      border-radius: 8px;
     }
+
+    .flight-manifest-head {
+      background: rgba(243,195,86,0.08);
+      color: var(--race-amber);
+      font-size: 0.62rem;
+      font-weight: 950;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(248,239,217,0.10);
+    }
+
+    .flight-manifest-head span,
+    .flight-team-row > span,
+    .flight-team-row > div {
+      min-width: 0;
+      padding: 6px 8px;
+      border-left: 1px solid rgba(248,239,217,0.08);
+    }
+
+    .flight-manifest-head span:first-child,
+    .flight-team-row > *:first-child { border-left: none; }
+
+    .flight-team-row {
+      min-height: 34px;
+      border-bottom: 1px solid rgba(248,239,217,0.08);
+    }
+
+    .flight-team-row:last-child { border-bottom: none; }
+
+    .flight-team-row:nth-child(odd) { background: rgba(255,255,255,0.025); }
 
     .flight-team-name {
       display: inline-flex;
@@ -7579,7 +7639,13 @@
       min-width: 0;
       color: var(--race-text);
       font-weight: 900;
-      overflow-wrap: anywhere;
+      overflow: visible;
+    }
+
+    .flight-team-name span:last-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .flight-team-dot {
@@ -7587,31 +7653,65 @@
       height: 10px;
       border-radius: 50%;
       flex: 0 0 auto;
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.10);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.12);
       margin-left: 2px;
     }
 
-    .flight-hop-detail-list {
+    .flight-team-time {
+      width: max-content;
+      max-width: 100%;
+      color: var(--race-muted);
+      background: transparent;
+      border-color: transparent;
+      padding: 0;
+      min-height: auto;
+    }
+
+    .flight-hop-timeline {
       display: grid;
-      gap: 7px;
+      gap: 8px;
     }
 
     .flight-hop-detail {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .flight-hop-step {
+      display: grid;
+      place-items: center;
+      align-self: start;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(233,75,53,0.16);
+      border: 1px solid rgba(233,75,53,0.34);
+      color: var(--race-amber);
+      font-size: 0.70rem;
+      font-weight: 950;
+      letter-spacing: 0.05em;
+    }
+
+    .flight-hop-card {
       border: 1px solid rgba(248,239,217,0.10);
       background: rgba(0,0,0,0.10);
       border-radius: 8px;
-      padding: 8px;
+      padding: 8px 9px;
       display: grid;
       gap: 7px;
+      min-width: 0;
     }
 
     .flight-hop-detail-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 8px;
+      align-items: center;
       color: var(--race-text);
-      font-weight: 900;
+      font-weight: 950;
+      line-height: 1.2;
       overflow-wrap: anywhere;
     }
 
@@ -7623,21 +7723,41 @@
       gap: 5px;
     }
 
-    .flight-layover-detail {
-      color: var(--race-muted);
-      font-size: 0.76rem;
-      font-weight: 800;
-      padding-top: 4px;
-      border-top: 1px dashed var(--race-line);
+    .flight-hop-mini-stat strong {
+      color: var(--race-text);
+      margin-left: 3px;
     }
 
-    @media (max-width: 760px) {
-      .flight-detail-head,
+    .flight-hop-layover-chip {
+      justify-self: start;
+      color: var(--race-amber);
+      border-color: rgba(243,195,86,0.24);
+      background: rgba(243,195,86,0.07);
+    }
+
+    @media (max-width: 900px) {
+      .flight-detailer-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flight-detail-head { grid-template-columns: 1fr; }
+      .flight-detail-meta { justify-content: start; grid-template-columns: repeat(2, minmax(0, max-content)); }
+    }
+
+    @media (max-width: 660px) {
+      .flight-detailer-summary { grid-template-columns: 1fr; }
+      .flight-manifest-head { display: none; }
       .flight-team-row {
         grid-template-columns: 1fr;
+        gap: 3px;
+        padding: 7px 8px;
       }
-      .flight-detail-meta { justify-content: flex-start; }
-      .flight-team-time { justify-content: flex-start; width: max-content; }
+      .flight-team-row > span,
+      .flight-team-row > div {
+        padding: 0;
+        border-left: none;
+      }
+      .flight-hop-detail { grid-template-columns: 1fr; }
+      .flight-hop-step { width: max-content; padding: 0 9px; }
+      .flight-hop-detail-head { grid-template-columns: 1fr; }
+      .flight-detail-meta { grid-template-columns: 1fr; }
     }
 
 
@@ -8175,7 +8295,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 62;
+    var SAVE_VERSION = 63;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -38169,9 +38289,9 @@ svg += '</div>';
       var landing = timelineFlightArrivalClock(record);
       return '<div class="flight-team-row">' +
         '<div class="flight-team-name"><span class="flight-team-dot" style="background:' + escapeHtml(color) + ';"></span><span>' + escapeHtml(team) + '</span></div>' +
-        '<span class="flight-team-time">Airport: ' + escapeHtml(airportArrival != null ? formatRaceDateTimeShort(airportArrival) : "—") + '</span>' +
-        '<span class="flight-team-time">First flight: ' + escapeHtml(firstDepart != null ? formatRaceDateTimeShort(firstDepart) : "—") + '</span>' +
-        '<span class="flight-team-time">Lands: ' + escapeHtml(landing != null ? formatRaceDateTimeShort(landing) : "—") + '</span>' +
+        '<span class="flight-team-time">' + escapeHtml(airportArrival != null ? formatRaceDateTimeShort(airportArrival) : "—") + '</span>' +
+        '<span class="flight-team-time">' + escapeHtml(firstDepart != null ? formatRaceDateTimeShort(firstDepart) : "—") + '</span>' +
+        '<span class="flight-team-time">' + escapeHtml(landing != null ? formatRaceDateTimeShort(landing) : "—") + '</span>' +
       '</div>';
     }
 
@@ -38183,24 +38303,44 @@ svg += '</div>';
       return "On time";
     }
 
-    function flightHopDetailHtml(hop, nextHop) {
+    function flightHopDetailHtml(hop, nextHop, hopIndex) {
       if (!hop) { return ""; }
+      var statusClass = ((hop.delay || 0) > 0 || hop.missedConnection || hop.rebooked) ? "warn" : "good";
       var html = '<div class="flight-hop-detail">';
-      html += '<div class="flight-hop-detail-head"><div>' + escapeHtml(hop.from || "?") + ' <span>→</span> ' + escapeHtml(hop.to || "?") + '</div><em class="flight-status-pill ' + (((hop.delay || 0) > 0 || hop.missedConnection || hop.rebooked) ? "warn" : "good") + '">' + escapeHtml(flightHopStatusText(hop)) + '</em></div>';
+      html += '<div class="flight-hop-step">F' + escapeHtml(String((hopIndex || 0) + 1)) + '</div>';
+      html += '<div class="flight-hop-card">';
+      html += '<div class="flight-hop-detail-head"><div>' + escapeHtml(hop.from || "?") + ' <span>→</span> ' + escapeHtml(hop.to || "?") + '</div><em class="flight-status-pill ' + statusClass + '">' + escapeHtml(flightHopStatusText(hop)) + '</em></div>';
       html += '<div class="flight-hop-detail-stats">';
       if ((hop.delay || 0) > 0) {
-        html += '<span class="flight-hop-mini-stat">Scheduled: ' + escapeHtml(formatRaceDateTimeShort(hop.scheduledDepartClock)) + '</span>';
+        html += '<span class="flight-hop-mini-stat">Scheduled <strong>' + escapeHtml(formatRaceDateTimeShort(hop.scheduledDepartClock)) + '</strong></span>';
       }
-      html += '<span class="flight-hop-mini-stat">Departs: ' + escapeHtml(formatRaceDateTimeShort(hop.departClock)) + '</span>';
-      html += '<span class="flight-hop-mini-stat">Arrives: ' + escapeHtml(formatRaceDateTimeShort(hop.arriveClock)) + '</span>';
-      html += '<span class="flight-hop-mini-stat">Flight: ' + escapeHtml(formatDuration(hop.duration || 0)) + '</span>';
+      html += '<span class="flight-hop-mini-stat">Departs <strong>' + escapeHtml(formatRaceDateTimeShort(hop.departClock)) + '</strong></span>';
+      html += '<span class="flight-hop-mini-stat">Arrives <strong>' + escapeHtml(formatRaceDateTimeShort(hop.arriveClock)) + '</strong></span>';
+      html += '<span class="flight-hop-mini-stat">Flight <strong>' + escapeHtml(formatDuration(hop.duration || 0)) + '</strong></span>';
       html += '</div>';
       if (nextHop) {
         var layover = Math.max(0, Math.round((nextHop.departClock || 0) - (hop.arriveClock || 0)));
-        html += '<div class="flight-layover-detail">Layover in ' + escapeHtml(hop.to || "connection") + ': ' + escapeHtml(formatDuration(layover)) + '</div>';
+        html += '<div class="flight-hop-layover-chip">Layover in ' + escapeHtml(hop.to || "connection") + ': ' + escapeHtml(formatDuration(layover)) + '</div>';
       }
-      html += '</div>';
+      html += '</div></div>';
       return html;
+    }
+
+    function flightDetailerSummaryHtml(groups) {
+      var teamTotal = groups.reduce(function (sum, group) { return sum + group.records.length; }, 0);
+      var delayedCount = groups.filter(function (group) { return flightRouteStatusInfo(group.route).cls === "warn"; }).length;
+      var directCount = groups.filter(function (group) { return (group.route && (group.route.connections || 0)) <= 0; }).length;
+      var earliestLanding = groups.reduce(function (best, group) {
+        return group.landing != null ? Math.min(best, group.landing) : best;
+      }, 999999999);
+      if (earliestLanding === 999999999) { earliestLanding = null; }
+      return '<div class="flight-detailer-summary">' +
+        '<div class="flight-detailer-stat"><span>Itineraries</span><strong>' + escapeHtml(String(groups.length)) + '</strong></div>' +
+        '<div class="flight-detailer-stat"><span>Teams flown</span><strong>' + escapeHtml(String(teamTotal)) + '</strong></div>' +
+        '<div class="flight-detailer-stat"><span>Direct routes</span><strong>' + escapeHtml(String(directCount)) + '</strong></div>' +
+        '<div class="flight-detailer-stat"><span>First landing</span><strong>' + escapeHtml(earliestLanding != null ? formatRaceDateTimeShort(earliestLanding) : "—") + '</strong></div>' +
+        (delayedCount ? '<div class="flight-detailer-stat"><span>Travel trouble</span><strong>' + escapeHtml(delayedCount + ' route' + (delayedCount === 1 ? '' : 's')) + '</strong></div>' : '') +
+      '</div>';
     }
 
     function flightDetailerHtml(results) {
@@ -38240,7 +38380,7 @@ svg += '</div>';
       });
 
       var html = '<div class="flight-detailer">';
-      html += '<div class="flight-detailer-intro">Each itinerary below shows which teams took it, when they reached the airport, when they departed, connections, delays, layovers, and landing times.</div>';
+      html += flightDetailerSummaryHtml(groups);
 
       groups.forEach(function (group, index) {
         var route = group.route || {};
@@ -38254,23 +38394,33 @@ svg += '</div>';
           if (aa !== bb) { return aa - bb; }
           return String(a.team).localeCompare(String(b.team));
         });
+        var bestAirportToLanding = group.records.reduce(function (best, record) {
+          var airport = milestoneClock(record, "Origin Airport");
+          var landing = timelineFlightArrivalClock(record);
+          if (airport == null || landing == null) { return best; }
+          return Math.min(best, Math.max(0, Math.round(landing - airport)));
+        }, 999999999);
+        if (bestAirportToLanding === 999999999) { bestAirportToLanding = null; }
 
-        html += '<section class="flight-detail-group">';
+        html += '<section class="flight-detail-card">';
         html += '<div class="flight-detail-head">' +
           '<div><div class="flight-detail-kicker">Itinerary ' + (index + 1) + ' · ' + escapeHtml(group.records.length + ' team' + (group.records.length === 1 ? '' : 's')) + '</div>' +
           '<div class="flight-detail-route">' + escapeHtml(flightRouteFullPath(route)) + '</div></div>' +
           '<div class="flight-detail-meta">' +
             '<span class="strong">' + escapeHtml(flightConnectionText(route)) + '</span>' +
+            '<span class="' + escapeHtml(status.cls) + '">' + escapeHtml(status.label) + '</span>' +
             '<span>First flight: ' + escapeHtml(firstHop.departClock != null ? formatRaceDateTimeShort(firstHop.departClock) : "—") + '</span>' +
             '<span>Lands: ' + escapeHtml(lastHop.arriveClock != null ? formatRaceDateTimeShort(lastHop.arriveClock) : "—") + '</span>' +
-            '<span>Total: ' + escapeHtml(formatDuration(route.totalFromAirportArrival || ((lastHop.arriveClock || 0) - (group.records[0] ? milestoneClock(group.records[0], "Origin Airport") || 0 : 0)))) + '</span>' +
-            '<span class="' + escapeHtml(status.cls) + '">' + escapeHtml(status.label) + '</span>' +
+            '<span>Airport→Land: ' + escapeHtml(bestAirportToLanding != null ? formatDuration(bestAirportToLanding) : "—") + '</span>' +
           '</div>' +
         '</div>';
-        html += '<div class="flight-team-list">' + group.records.map(flightTeamRowHtml).join("") + '</div>';
-        html += '<div class="flight-hop-detail-list">';
+        html += '<div class="flight-manifest">' +
+          '<div class="flight-manifest-head"><span>Team</span><span>Airport</span><span>First flight</span><span>Landed</span></div>' +
+          group.records.map(flightTeamRowHtml).join("") +
+        '</div>';
+        html += '<div class="flight-hop-timeline">';
         hops.forEach(function (hop, hopIndex) {
-          html += flightHopDetailHtml(hop, hops[hopIndex + 1] || null);
+          html += flightHopDetailHtml(hop, hops[hopIndex + 1] || null, hopIndex);
         });
         html += '</div>';
         html += '</section>';
