@@ -7442,6 +7442,39 @@
       border-radius: var(--ui-radius) !important;
     }
 
+
+    /* V58 dot clipping / secret-leg polish */
+    .chip-dot,
+    .broadcast-team-dot,
+    .placement-team-dot,
+    .top-bar-color-dot,
+    .roster-color-dot,
+    .placement-team-dot {
+      margin-left: 4px !important;
+      flex-shrink: 0;
+    }
+
+    .team-btn,
+    .presence-row,
+    .departure-row,
+    .broadcast-standing-row,
+    .transport-main,
+    .presence-row-team,
+    .departure-team,
+    .broadcast-team-line,
+    .placement-team-chip-line,
+    .team-presence-chip {
+      overflow: visible !important;
+    }
+
+    .team-btn,
+    .presence-row,
+    .departure-row,
+    .broadcast-standing-row {
+      padding-left: max(12px, var(--density-pad, 12px)) !important;
+    }
+
+
   </style>
 </head>
 <body>
@@ -7571,7 +7604,7 @@
                   <option value="0.35">Frequent - 35%</option>
                   <option value="0.50">Wild - 50%</option>
                 </select>
-                <div class="setting-help">Chance a Yield Board appears on a non-final leg until one gets used.</div>
+                <div class="setting-help">Chance a Yield Board appears on each non-final leg. Each team may use one Yield per race.</div>
               </div>
 
               <div class="setting-card compact-setting">
@@ -7975,7 +8008,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 57;
+    var SAVE_VERSION = 59;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -31191,7 +31224,9 @@
     var activeFlightRoute = null;
     var flightResolved = false;
     var legIsNonElim = false;
-    var yieldUsedThisRace = false;
+    var yieldUsedThisRace = false; // legacy: true once any Yield has been used in old saves
+    var yieldUsedByTeam = {}; // each team may use one Yield across the race
+    var yieldEventsThisRace = [];
     var currentYieldBoard = null;
 
     var airportStartTransportOptions = null;
@@ -32175,16 +32210,13 @@
 
     function legIntroOverviewHtml() {
       var playerDepart = currentLegStartClocks && currentLegStartClocks[playerTeam] != null ? currentLegStartClocks[playerTeam] : raceClock;
-      var taskText = totalStopsThisLeg + " task" + (totalStopsThisLeg === 1 ? "" : "s");
       return '<div class="leg-episode-card">' +
         '<div class="leg-episode-kicker">' + escapeHtml(currentLegLabel()) + '</div>' +
         '<div class="leg-episode-title">' + escapeHtml(cityDisplayName(legOrigin)) + ' <span>→</span> ' + escapeHtml(cityDisplayName(legDest)) + '</div>' +
-        '<div class="leg-episode-sub">' + escapeHtml(legStartLocation || (legNum === 1 ? "Starting Line" : "Pit Start")) + ' to ' + escapeHtml(legPitStopLocation || (isFinalLeg() ? "Finish Line" : "Pit Stop")) + '</div>' +
         '<div class="leg-episode-meta">' +
           '<span>' + remainingTeams.length + ' teams racing</span>' +
           '<span>$' + money[playerTeam] + ' cash</span>' +
           '<span>Departing ' + formatRaceDateTimeShort(playerDepart) + '</span>' +
-          '<span>' + escapeHtml(taskText) + '</span>' +
         '</div>' +
       '</div>';
     }
@@ -36723,7 +36755,7 @@ svg += '</div>';
     }
 
     function createYieldBoardForLeg() {
-      if (yieldUsedThisRace || isFinalLeg() || totalStopsThisLeg <= 0 || YIELD_CHANCE <= 0 || YIELD_DURATION_MINUTES <= 0) {
+      if (isFinalLeg() || totalStopsThisLeg <= 0 || YIELD_CHANCE <= 0 || YIELD_DURATION_MINUTES <= 0) {
         return null;
       }
 
@@ -36739,10 +36771,22 @@ svg += '</div>';
         target: null,
         hit: false,
         miss: false,
+        usedClock: null,
         events: [],
         playerResolved: false,
         playerPenaltyApplied: false
       };
+    }
+
+    function teamHasUsedYield(teamName) {
+      return !!(teamName && yieldUsedByTeam && yieldUsedByTeam[teamName]);
+    }
+
+    function markTeamYieldUsed(teamName) {
+      if (!teamName) { return; }
+      yieldUsedByTeam = yieldUsedByTeam && typeof yieldUsedByTeam === "object" ? yieldUsedByTeam : {};
+      yieldUsedByTeam[teamName] = true;
+      yieldUsedThisRace = true;
     }
 
     function yieldBoardActiveForCurrentStop() {
@@ -36850,7 +36894,7 @@ svg += '</div>';
     }
 
     function activateYieldBoard(userTeam, targetTeam, activationClock) {
-      if (!currentYieldBoard || currentYieldBoard.used || yieldUsedThisRace) {
+      if (!currentYieldBoard || currentYieldBoard.used || teamHasUsedYield(userTeam)) {
         return null;
       }
 
@@ -36864,7 +36908,7 @@ svg += '</div>';
       currentYieldBoard.hit = !!hit;
       currentYieldBoard.miss = !hit;
       currentYieldBoard.usedClock = userClock;
-      yieldUsedThisRace = true;
+      markTeamYieldUsed(userTeam);
 
       var event = {
         user: userTeam,
@@ -36875,6 +36919,8 @@ svg += '</div>';
       };
       currentYieldBoard.events = currentYieldBoard.events || [];
       currentYieldBoard.events.push(event);
+      yieldEventsThisRace = Array.isArray(yieldEventsThisRace) ? yieldEventsThisRace : [];
+      yieldEventsThisRace.push(event);
 
       if (hit && targetTeam) {
         applyYieldDelayToTeam(targetTeam, userTeam, targetClock || userClock);
@@ -36884,13 +36930,13 @@ svg += '</div>';
     }
 
     function resolveAiYieldOpportunities(upToClock) {
-      if (!currentYieldBoard || currentYieldBoard.used || yieldUsedThisRace) {
+      if (!currentYieldBoard || currentYieldBoard.used) {
         return null;
       }
 
       var cutoff = upToClock == null ? Infinity : upToClock;
       var users = remainingTeams.filter(function (name) {
-        if (name === playerTeam) { return false; }
+        if (name === playerTeam || teamHasUsedYield(name)) { return false; }
         var arrival = yieldArrivalClockForTeam(name);
         return arrival != null && arrival <= cutoff;
       }).map(function (name) {
@@ -36901,7 +36947,7 @@ svg += '</div>';
       });
 
       for (var i = 0; i < users.length; i++) {
-        if (currentYieldBoard.used || yieldUsedThisRace) { break; }
+        if (currentYieldBoard.used) { break; }
 
         var user = users[i];
         var denom = Math.max(1, remainingTeams.length - 1);
@@ -36985,6 +37031,29 @@ svg += '</div>';
       showScreen("race");
     }
 
+    function showYieldBoardOwnYieldAlreadyUsed() {
+      currentYieldBoard.playerResolved = true;
+      document.getElementById("raceScreenTitle").textContent = yieldBoardLocationName();
+      document.getElementById("raceStatus").innerHTML =
+        raceClockHeader("Yield") +
+        '<div class="yield-card"><div class="yield-kicker">Yield Board</div><div class="yield-title">You already used your Yield</div><div class="yield-copy">Each team can use one Yield during the race. You reached this board, but your Yield has already been spent.</div></div>' +
+        presenceReportHtml(stopLocationKey(currentStop), raceClock, raceClock) +
+        raceContextStripHtml();
+
+      var prompt = document.getElementById("transportPrompt");
+      if (prompt) { prompt.textContent = "Yield Board"; }
+
+      var list = document.getElementById("transportList");
+      list.innerHTML = "";
+      list.className = "";
+      var btn = document.createElement("button");
+      btn.className = "secondary-btn";
+      btn.textContent = "Do Not Yield";
+      btn.onclick = proceedToCurrentStopTask;
+      list.appendChild(btn);
+      showScreen("race");
+    }
+
     function showYieldBoardAlreadyUsed(event) {
       currentYieldBoard.playerResolved = true;
       document.getElementById("raceScreenTitle").textContent = yieldBoardLocationName();
@@ -37021,13 +37090,11 @@ svg += '</div>';
         skipYieldBoard();
         return;
       }
-      var event = activateYieldBoard(playerTeam, targetTeam, raceClock) || {
-        user: playerTeam,
-        target: targetTeam,
-        clock: raceClock,
-        duration: currentYieldBoard.duration,
-        hit: false
-      };
+      var event = activateYieldBoard(playerTeam, targetTeam, raceClock);
+      if (!event) {
+        showYieldBoardOwnYieldAlreadyUsed();
+        return;
+      }
       playerLegLog.push({
         type: "yield",
         label: "Yielded " + targetTeam + (event.hit ? "" : " (missed)"),
@@ -37088,15 +37155,20 @@ svg += '</div>';
 
       currentYieldBoard.playerResolved = false;
 
-      if (currentYieldBoard.used || yieldUsedThisRace) {
+      if (currentYieldBoard.used) {
         var usedEvent = currentYieldBoard.events && currentYieldBoard.events.length ? currentYieldBoard.events[0] : {
-          user: currentYieldBoard.user || "Another team",
+          user: currentYieldBoard.user || "A team",
           target: currentYieldBoard.target || "another team",
           clock: currentYieldBoard.usedClock || raceClock,
           duration: currentYieldBoard.duration,
           hit: !!currentYieldBoard.hit
         };
         showYieldBoardAlreadyUsed(usedEvent);
+        return true;
+      }
+
+      if (teamHasUsedYield(playerTeam)) {
+        showYieldBoardOwnYieldAlreadyUsed();
         return true;
       }
 
@@ -37135,6 +37207,8 @@ svg += '</div>';
       lastCompletedLegClueData = null;
       legHistory = [];
       yieldUsedThisRace = false;
+      yieldUsedByTeam = {};
+      yieldEventsThisRace = [];
       currentYieldBoard = null;
       raceClock = 0;
       legStartClock = 0;
@@ -38017,7 +38091,7 @@ svg += '</div>';
     }
 
     function showLegResults() {
-      if (currentYieldBoard && !currentYieldBoard.used && !yieldUsedThisRace) {
+      if (currentYieldBoard && !currentYieldBoard.used) {
         resolveAiYieldOpportunities(Infinity);
       }
 
@@ -38338,7 +38412,7 @@ svg += '</div>';
         teamLegRecords[name] = simulateRivalLegRecord(name);
       });
 
-      if (currentYieldBoard && !currentYieldBoard.used && !yieldUsedThisRace) {
+      if (currentYieldBoard && !currentYieldBoard.used) {
         resolveAiYieldOpportunities(Infinity);
       }
 
@@ -38484,6 +38558,8 @@ svg += '</div>';
       lastCompletedLegClueData = null;
       legHistory = [];
       yieldUsedThisRace = false;
+      yieldUsedByTeam = {};
+      yieldEventsThisRace = [];
       currentYieldBoard = null;
       activeRaceSeed = "";
       raceRngState = null;
@@ -38572,6 +38648,8 @@ svg += '</div>';
         flightResolved: flightResolved,
         legIsNonElim: legIsNonElim,
         yieldUsedThisRace: yieldUsedThisRace,
+        yieldUsedByTeam: yieldUsedByTeam,
+        yieldEventsThisRace: yieldEventsThisRace,
         currentYieldBoard: currentYieldBoard,
         startingLineChallenge: startingLineChallenge,
         gapScalingValue: currentGapScalingMultiplier(),
@@ -38642,6 +38720,16 @@ svg += '</div>';
       state.currentCityStartLocation = state.currentCityStartLocation || "";
       state.currentCityStartCityKey = state.currentCityStartCityKey || "";
       state.yieldUsedThisRace = !!state.yieldUsedThisRace;
+      state.yieldEventsThisRace = Array.isArray(state.yieldEventsThisRace) ? state.yieldEventsThisRace : [];
+      if (state.yieldUsedByTeam && typeof state.yieldUsedByTeam === "object") {
+        state.yieldUsedByTeam = Object.assign({}, state.yieldUsedByTeam);
+      } else {
+        state.yieldUsedByTeam = {};
+        state.yieldEventsThisRace.forEach(function (event) {
+          if (event && event.user) { state.yieldUsedByTeam[event.user] = true; }
+        });
+      }
+      state.yieldUsedThisRace = Object.keys(state.yieldUsedByTeam).length > 0 || state.yieldUsedThisRace;
       state.currentYieldBoard = state.currentYieldBoard && typeof state.currentYieldBoard === "object" ? state.currentYieldBoard : null;
 
       if (state.activeRaceSeed == null) {
@@ -38738,6 +38826,12 @@ svg += '</div>';
       flightResolved = !!state.flightResolved;
       legIsNonElim = !!state.legIsNonElim;
       yieldUsedThisRace = !!state.yieldUsedThisRace;
+      yieldUsedByTeam = state.yieldUsedByTeam && typeof state.yieldUsedByTeam === "object" ? Object.assign({}, state.yieldUsedByTeam) : {};
+      yieldEventsThisRace = Array.isArray(state.yieldEventsThisRace) ? state.yieldEventsThisRace : [];
+      yieldEventsThisRace.forEach(function (event) {
+        if (event && event.user) { yieldUsedByTeam[event.user] = true; }
+      });
+      yieldUsedThisRace = Object.keys(yieldUsedByTeam).length > 0 || yieldUsedThisRace;
       currentYieldBoard = state.currentYieldBoard || null;
       startingLineChallenge = state.startingLineChallenge || null;
 
