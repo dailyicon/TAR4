@@ -7475,6 +7475,172 @@
     }
 
 
+
+    /* ── V60 FLIGHT DETAILER ────────────────────────────────── */
+    .flight-detailer {
+      display: grid;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .flight-detailer-intro {
+      color: var(--race-muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+      padding: 8px 10px;
+      border: 1px solid var(--race-line);
+      background: rgba(255,255,255,0.035);
+      border-radius: 8px;
+    }
+
+    .flight-detail-group {
+      border: 1px solid var(--race-line);
+      border-left: 3px solid var(--race-amber);
+      background: rgba(255,255,255,0.035);
+      border-radius: 10px;
+      padding: 10px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .flight-detail-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: start;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--race-line);
+    }
+
+    .flight-detail-kicker {
+      color: var(--race-amber);
+      font-size: 0.66rem;
+      font-weight: 900;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .flight-detail-route {
+      color: var(--race-text);
+      font-size: 0.96rem;
+      font-weight: 900;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .flight-detail-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: flex-end;
+    }
+
+    .flight-detail-meta span,
+    .flight-team-time,
+    .flight-hop-mini-stat {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 3px 7px;
+      border: 1px solid var(--race-line);
+      border-radius: 6px;
+      color: var(--race-muted);
+      background: rgba(0,0,0,0.14);
+      font-size: 0.72rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .flight-detail-meta span.strong { color: var(--race-amber); border-color: rgba(243,195,86,0.28); }
+    .flight-detail-meta span.warn { color: var(--race-red); border-color: rgba(233,75,53,0.28); }
+    .flight-detail-meta span.good { color: var(--green); border-color: rgba(153,210,119,0.24); }
+
+    .flight-team-list {
+      display: grid;
+      gap: 5px;
+    }
+
+    .flight-team-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 1fr) repeat(3, minmax(88px, auto));
+      gap: 7px;
+      align-items: center;
+      padding: 6px 7px;
+      border: 1px solid rgba(248,239,217,0.10);
+      background: rgba(0,0,0,0.11);
+      border-radius: 8px;
+    }
+
+    .flight-team-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      color: var(--race-text);
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .flight-team-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.10);
+      margin-left: 2px;
+    }
+
+    .flight-hop-detail-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .flight-hop-detail {
+      border: 1px solid rgba(248,239,217,0.10);
+      background: rgba(0,0,0,0.10);
+      border-radius: 8px;
+      padding: 8px;
+      display: grid;
+      gap: 7px;
+    }
+
+    .flight-hop-detail-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      color: var(--race-text);
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .flight-hop-detail-head span { color: var(--race-red); }
+
+    .flight-hop-detail-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .flight-layover-detail {
+      color: var(--race-muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      padding-top: 4px;
+      border-top: 1px dashed var(--race-line);
+    }
+
+    @media (max-width: 760px) {
+      .flight-detail-head,
+      .flight-team-row {
+        grid-template-columns: 1fr;
+      }
+      .flight-detail-meta { justify-content: flex-start; }
+      .flight-team-time { justify-content: flex-start; width: max-content; }
+    }
+
+
   </style>
 </head>
 <body>
@@ -8008,7 +8174,7 @@
   </div>
 
   <script>
-    var SAVE_VERSION = 59;
+    var SAVE_VERSION = 60;
     var MIN_SUPPORTED_SAVE_VERSION = 1;
     var AUTO_SAVE_KEY = "amazingRaceSimulatorAutoSave";
     var SAVE_SLOT_PREFIX = "amazingRaceSimulatorSlot";
@@ -37916,6 +38082,173 @@ svg += '</div>';
         '</details>';
     }
 
+
+    function flightRouteDetailKey(route) {
+      if (!route || !Array.isArray(route.hops) || route.hops.length === 0) {
+        return "no-flight";
+      }
+      return route.hops.map(function (hop) {
+        return [
+          hop.from || "?",
+          hop.to || "?",
+          Math.round(hop.scheduledDepartClock || hop.departClock || 0),
+          Math.round(hop.departClock || 0),
+          Math.round(hop.arriveClock || 0),
+          Math.round(hop.delay || 0),
+          hop.missedConnection ? "M" : "",
+          hop.rebooked ? "R" : ""
+        ].join("@");
+      }).join("||");
+    }
+
+    function flightRouteStatusInfo(route) {
+      var hops = route && Array.isArray(route.hops) ? route.hops : [];
+      var missedAny = hops.some(function (h) { return !!h.missedConnection; });
+      var delayedAny = hops.some(function (h) { return (h.delay || 0) > 0; });
+      var totalDelay = hops.reduce(function (sum, h) { return sum + Math.max(0, Math.round(h.delay || 0)); }, 0);
+      if (missedAny) {
+        return { label: "Missed connection", cls: "warn", delay: totalDelay };
+      }
+      if (delayedAny) {
+        return { label: "Delayed " + formatDuration(totalDelay), cls: "warn", delay: totalDelay };
+      }
+      return { label: "On time", cls: "good", delay: 0 };
+    }
+
+    function flightRouteFullPath(route) {
+      if (!route || !Array.isArray(route.hops) || route.hops.length === 0) {
+        return "No flight route";
+      }
+      var path = [route.hops[0].from];
+      route.hops.forEach(function (hop) { path.push(hop.to); });
+      return path.join(" → ");
+    }
+
+    function flightConnectionText(route) {
+      var connections = route && route.connections != null ? route.connections : 0;
+      if (connections <= 0) { return "Direct"; }
+      return connections + " connection" + (connections === 1 ? "" : "s");
+    }
+
+    function flightTeamRowHtml(record) {
+      var team = record && record.team ? record.team : "Unknown Team";
+      var color = normalizeHexColor(teamColors && teamColors[team], defaultTeamColor(teams.indexOf(team)));
+      var airportArrival = milestoneClock(record, "Origin Airport");
+      var firstDepart = timelineFlightDepartClock(record);
+      var landing = timelineFlightArrivalClock(record);
+      return '<div class="flight-team-row">' +
+        '<div class="flight-team-name"><span class="flight-team-dot" style="background:' + escapeHtml(color) + ';"></span><span>' + escapeHtml(team) + '</span></div>' +
+        '<span class="flight-team-time">Airport: ' + escapeHtml(airportArrival != null ? formatRaceDateTimeShort(airportArrival) : "—") + '</span>' +
+        '<span class="flight-team-time">First flight: ' + escapeHtml(firstDepart != null ? formatRaceDateTimeShort(firstDepart) : "—") + '</span>' +
+        '<span class="flight-team-time">Lands: ' + escapeHtml(landing != null ? formatRaceDateTimeShort(landing) : "—") + '</span>' +
+      '</div>';
+    }
+
+    function flightHopStatusText(hop) {
+      if (!hop) { return "—"; }
+      if (hop.missedConnection) { return "Missed connection"; }
+      if (hop.rebooked) { return "Rebooked"; }
+      if ((hop.delay || 0) > 0) { return "Delayed " + formatDuration(hop.delay); }
+      return "On time";
+    }
+
+    function flightHopDetailHtml(hop, nextHop) {
+      if (!hop) { return ""; }
+      var html = '<div class="flight-hop-detail">';
+      html += '<div class="flight-hop-detail-head"><div>' + escapeHtml(hop.from || "?") + ' <span>→</span> ' + escapeHtml(hop.to || "?") + '</div><em class="flight-status-pill ' + (((hop.delay || 0) > 0 || hop.missedConnection || hop.rebooked) ? "warn" : "good") + '">' + escapeHtml(flightHopStatusText(hop)) + '</em></div>';
+      html += '<div class="flight-hop-detail-stats">';
+      if ((hop.delay || 0) > 0) {
+        html += '<span class="flight-hop-mini-stat">Scheduled: ' + escapeHtml(formatRaceDateTimeShort(hop.scheduledDepartClock)) + '</span>';
+      }
+      html += '<span class="flight-hop-mini-stat">Departs: ' + escapeHtml(formatRaceDateTimeShort(hop.departClock)) + '</span>';
+      html += '<span class="flight-hop-mini-stat">Arrives: ' + escapeHtml(formatRaceDateTimeShort(hop.arriveClock)) + '</span>';
+      html += '<span class="flight-hop-mini-stat">Flight: ' + escapeHtml(formatDuration(hop.duration || 0)) + '</span>';
+      html += '</div>';
+      if (nextHop) {
+        var layover = Math.max(0, Math.round((nextHop.departClock || 0) - (hop.arriveClock || 0)));
+        html += '<div class="flight-layover-detail">Layover in ' + escapeHtml(hop.to || "connection") + ': ' + escapeHtml(formatDuration(layover)) + '</div>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function flightDetailerHtml(results) {
+      results = results || [];
+      var groupsByKey = {};
+      var groups = [];
+      results.forEach(function (record) {
+        if (!record || !record.flightRoute || !Array.isArray(record.flightRoute.hops) || record.flightRoute.hops.length === 0) {
+          return;
+        }
+        var key = flightRouteDetailKey(record.flightRoute);
+        if (!groupsByKey[key]) {
+          groupsByKey[key] = {
+            key: key,
+            route: record.flightRoute,
+            records: [],
+            firstDepart: timelineFlightDepartClock(record) == null ? 999999999 : timelineFlightDepartClock(record),
+            landing: timelineFlightArrivalClock(record) == null ? 999999999 : timelineFlightArrivalClock(record)
+          };
+          groups.push(groupsByKey[key]);
+        }
+        groupsByKey[key].records.push(record);
+        var dep = timelineFlightDepartClock(record);
+        var land = timelineFlightArrivalClock(record);
+        if (dep != null) { groupsByKey[key].firstDepart = Math.min(groupsByKey[key].firstDepart, dep); }
+        if (land != null) { groupsByKey[key].landing = Math.min(groupsByKey[key].landing, land); }
+      });
+
+      if (groups.length === 0) {
+        return '<div class="empty-state">No flight details were recorded for this leg.</div>';
+      }
+
+      groups.sort(function (a, b) {
+        if (a.landing !== b.landing) { return a.landing - b.landing; }
+        if (a.firstDepart !== b.firstDepart) { return a.firstDepart - b.firstDepart; }
+        return flightRouteFullPath(a.route).localeCompare(flightRouteFullPath(b.route));
+      });
+
+      var html = '<div class="flight-detailer">';
+      html += '<div class="flight-detailer-intro">Each itinerary below shows which teams took it, when they reached the airport, when they departed, connections, delays, layovers, and landing times.</div>';
+
+      groups.forEach(function (group, index) {
+        var route = group.route || {};
+        var hops = Array.isArray(route.hops) ? route.hops : [];
+        var firstHop = hops[0] || {};
+        var lastHop = hops[hops.length - 1] || {};
+        var status = flightRouteStatusInfo(route);
+        group.records.sort(function (a, b) {
+          var aa = milestoneClock(a, "Origin Airport") || 999999999;
+          var bb = milestoneClock(b, "Origin Airport") || 999999999;
+          if (aa !== bb) { return aa - bb; }
+          return String(a.team).localeCompare(String(b.team));
+        });
+
+        html += '<section class="flight-detail-group">';
+        html += '<div class="flight-detail-head">' +
+          '<div><div class="flight-detail-kicker">Itinerary ' + (index + 1) + ' · ' + escapeHtml(group.records.length + ' team' + (group.records.length === 1 ? '' : 's')) + '</div>' +
+          '<div class="flight-detail-route">' + escapeHtml(flightRouteFullPath(route)) + '</div></div>' +
+          '<div class="flight-detail-meta">' +
+            '<span class="strong">' + escapeHtml(flightConnectionText(route)) + '</span>' +
+            '<span>First flight: ' + escapeHtml(firstHop.departClock != null ? formatRaceDateTimeShort(firstHop.departClock) : "—") + '</span>' +
+            '<span>Lands: ' + escapeHtml(lastHop.arriveClock != null ? formatRaceDateTimeShort(lastHop.arriveClock) : "—") + '</span>' +
+            '<span>Total: ' + escapeHtml(formatDuration(route.totalFromAirportArrival || ((lastHop.arriveClock || 0) - (group.records[0] ? milestoneClock(group.records[0], "Origin Airport") || 0 : 0)))) + '</span>' +
+            '<span class="' + escapeHtml(status.cls) + '">' + escapeHtml(status.label) + '</span>' +
+          '</div>' +
+        '</div>';
+        html += '<div class="flight-team-list">' + group.records.map(flightTeamRowHtml).join("") + '</div>';
+        html += '<div class="flight-hop-detail-list">';
+        hops.forEach(function (hop, hopIndex) {
+          html += flightHopDetailHtml(hop, hops[hopIndex + 1] || null);
+        });
+        html += '</div>';
+        html += '</section>';
+      });
+
+      html += '</div>';
+      return html;
+    }
+
     function resultsBroadcastHtml(opts) {
       opts = opts || {};
       var results = opts.results || [];
@@ -37965,6 +38298,9 @@ svg += '</div>';
 
       if (opts.routeTrail) {
         html += broadcastDetailsHtml('Route Trail', opts.routeTrail, 'var(--green)', true);
+      }
+      if (opts.flightDetailer) {
+        html += broadcastDetailsHtml('Flight Detailer', opts.flightDetailer, 'var(--amber)', true);
       }
       if (opts.placementChart) {
         html += broadcastDetailsHtml('Placement Chart', opts.placementChart, 'var(--amber)', true);
@@ -38156,6 +38492,7 @@ svg += '</div>';
       legHistory.push({ legNum: legNum, route: route, labels: savedLabels, results: results, isFinal: isFinalLeg(), title: savedTitle, locations: savedLocations });
       var timeChart = legTimelineChartHtml(results, savedLabels, savedTitle, isFinalLeg(), savedLocations);
       var clueChart = clueByClueChartHtml(results, savedLabels, savedTitle, savedLocations);
+      var flightDetailer = flightDetailerHtml(results);
       var chart = placementChartHtml();
 
       if (isFinalLeg()) {
@@ -38171,6 +38508,7 @@ svg += '</div>';
           statusKind: winner === playerTeam ? "good" : "info",
           outcomeHtml: finalOutcome,
           routeTrail: routeTrail,
+          flightDetailer: flightDetailer,
           timeChart: timeChart,
           clueChart: clueChart,
           placementChart: placementChartHtml(),
@@ -38192,6 +38530,7 @@ svg += '</div>';
           statusKind: "warn",
           outcomeHtml: "<strong>" + escapeHtml(lastPlaceTeam) + "</strong> finished last, but this is a <strong>NON-ELIMINATION</strong> leg.<br>No team has been eliminated. Teams left: <strong>" + remainingTeams.length + "</strong>.",
           routeTrail: routeTrail,
+          flightDetailer: flightDetailer,
           timeChart: timeChart,
           clueChart: clueChart,
           placementChart: chart
@@ -38215,6 +38554,7 @@ svg += '</div>';
           statusKind: "danger",
           outcomeHtml: "You finished last on <strong>Leg " + legNum + "</strong> and have been eliminated.",
           routeTrail: routeTrail,
+          flightDetailer: flightDetailer,
           timeChart: timeChart,
           clueChart: clueChart,
           placementChart: chart
