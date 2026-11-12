@@ -1,19 +1,5 @@
 
 Loading older messages…
-i still want it to just be something i can download like a text if possible
-Download 
-TAR4-index.txt
-. It contains the full tested build, with no ZIP to extract.
-
-To play, rename the downloaded file to index.html and open it in your browser.
-
-alright so what do u think we should work on next?
-I’d work on making airport legs more interactive. In the legs I playtested, I chose how to get to the airport, then the simulator showed me an itinerary it had already picked. That’s a natural place to add one meaningful decision without redesigning the game.
-
-I’d start with an optional manual flight booking setting. When you reach the airport, you’d see up to three distinct itineraries with their departure time, landing time, connections, and any known delays. You could grab the earliest arrival or take a direct flight that lands a little later. Auto-booking would stay the default, and we could test the feature on one airport leg before expanding it.
-
-If you’d rather do a smaller update first, I’d fix the Race Traffic panel when you’re ready to revisit those bugs. Seeing rivals arrive or depart before it actually happens gives away information that would matter even more once you can choose your own flight.
-
 let's think more generally, give suggestions for things we coukd change/add/remove for the future
 I’d focus future updates on making legs feel different from each other. The simulator already has a lot of season settings and detailed results. The bigger opportunity is to make the route itself change how you race.
 
@@ -52,6 +38,15 @@ Results	The standings are one of the most race-specific parts of the sim. But on
 I’d keep the color and the travel theme. I’d get stricter about where each belongs. Use the airmail stripe on the title screen and clue envelopes, where it has a purpose. Use team colors to follow teams through departure order, traffic, and placements. Give setup fields a quieter treatment so you can scan them. And use the actual route, clue, and standings to give the gameplay screens their character.
 
 My first design pass would be Choose Your Team and the first clue. Fix the obvious name-wrap problem, then make opening a clue feel like a race moment. Those are two small screens where we can agree on what feels like your sim before touching the rest.
+
+work on choose your team and first clue
+Choose Your Team now looks like a printed roster. Team names get the space, with a stripe for each team’s color. On phones, the roster stacks into one column.
+First clue now opens as an airmail envelope. The departure board gives way to the destination in large type, with the next instruction and button directly below.
+I checked both layouts in Chromium and tested the reveal on Leg 1, Leg 2, and the finale. Opening the clue leaves the race clock and cash unchanged.
+
+Download 
+TAR4-team-and-clue.txt
+. Rename it to index.html to play locally.
 
 
 
@@ -17350,7 +17345,6 @@ body:has(#legIntro.screen.active) #legIntro.screen.active {
 
 <style id="v118-departure-order-leg-details">
 #legStartClue[hidden], #legStartDepartureBoard[hidden] { display: none; }
-#legStartClueDirections { margin: 0; padding: 0 14px 14px; }
 /* v118: Departure Order / Leg Intro Details pass. */
 
 #legIntro .leg-start-board-head-v117 strong {
@@ -26856,33 +26850,13 @@ body:has(#saveManager.screen.active) #topMenuBtn {
     </div>
   </div>
 
-  <div id="teams" class="screen choose-team-redesign-v114">
-    <main class="team-desk-v114" aria-label="Choose your team">
-      <section class="team-hero-v114">
-        <div class="team-hero-copy-v114">
-          <h1>Choose Your Team</h1>
-          <div class="team-hero-chips-v114">
-            <span id="teamChoiceCountChip">Cast Cards</span>
-            
-          </div>
-        </div>
-        <div class="team-hero-art-v114" aria-hidden="true">
-          <div class="team-polaroid-v114">🎒</div>
-          <div class="team-mini-card-v114 one"></div>
-          <div class="team-mini-card-v114 two"></div>
-        </div>
-      </section>
-
-      <section class="team-board-v114">
-        <div class="team-board-head-v114">
-          <div>
-            
-            
-          </div>
-          <button class="secondary-btn team-back-v114" onclick="openCustomization()">Back</button>
-        </div>
-        <div id="teamList" class="team-card-grid-v114"></div>
-      </section>
+  <div id="teams" class="screen">
+    <main class="team-picker" aria-labelledby="teamPickerTitle">
+      <header class="team-picker-header">
+        <h1 id="teamPickerTitle">Choose Your Team</h1>
+        <button type="button" onclick="openCustomization()">Back to Setup</button>
+      </header>
+      <div id="teamList" class="team-picker-list"></div>
     </main>
   </div>
 
@@ -26946,14 +26920,12 @@ body:has(#saveManager.screen.active) #topMenuBtn {
         </div>
       </section>
 
-      <section id="legStartClue" class="leg-start-board-v117" aria-labelledby="legStartClueTitle" hidden>
-        <div class="leg-start-board-head-v117">
-          <div>
-            <span>Route Info</span>
-            <strong id="legStartClueTitle" tabindex="-1"></strong>
-          </div>
+      <section id="legStartClue" class="route-envelope" aria-labelledby="legStartClueTitle" hidden>
+        <div class="route-envelope-paper">
+          <div class="route-envelope-label">Route Info</div>
+          <h2 id="legStartClueTitle" tabindex="-1"></h2>
+          <p id="legStartClueDirections"></p>
         </div>
-        <p id="legStartClueDirections"></p>
       </section>
 
       <section id="legStartDepartureBoard" class="leg-start-board-v117">
@@ -66743,6 +66715,7 @@ svg += '</div>';
     var clueTitle = document.getElementById("legStartClueTitle");
     var clueDirections = document.getElementById("legStartClueDirections");
     clue.hidden = true;
+    clue.parentElement.classList.remove("clue-open");
     clueTitle.textContent = "";
     clueDirections.textContent = "";
 
@@ -66759,6 +66732,7 @@ svg += '</div>';
         : "Make your way to " + cityAirportName(legOrigin) + ".";
       departureBoard.hidden = true;
       clue.hidden = false;
+      clue.parentElement.classList.add("clue-open");
       beginBtn.textContent = atStartingLine ? "Begin Starting Line" : "Choose Transport";
       beginBtn.onclick = atStartingLine ? doStartingLineChallenge : showTransportToAirport;
       clueTitle.focus();
@@ -68392,32 +68366,18 @@ svg += '</div>';
   function safeColor(team) { try { return teamColor(team); } catch (err) { return "#78D8E5"; } }
   function safeContrast(color) { try { return contrastTextColor(color); } catch (err) { return "#2B3943"; } }
 
-  /* Choose Your Team: remove chips/card labels and center the text. */
   window.buildTeamButtons = function() {
     var list = document.getElementById("teamList");
-    if (!list) { return; }
-    list.innerHTML = "";
-    list.classList.add("team-card-grid-v114");
-
-    var countChip = document.getElementById("teamChoiceCountChip");
-    if (countChip) { countChip.textContent = ""; countChip.style.display = "none"; }
+    list.replaceChildren();
 
     teams.forEach(function(name) {
-      var btn = document.createElement("button");
-      var teamCol = safeColor(name);
-      var textCol = safeContrast(teamCol);
-      btn.className = "team-btn color-card team-choice-card-v114";
-      btn.type = "button";
-      btn.style.setProperty("--team-color", teamCol);
-      btn.style.setProperty("--team-soft", "rgba(255,255,255,.24)");
-      btn.style.setProperty("color", textCol, "important");
-      btn.style.setProperty("-webkit-text-fill-color", textCol, "important");
-      btn.style.textShadow = textCol === "#ffffff" ? "0 1px 2px rgba(0,0,0,.45)" : "none";
-      btn.innerHTML =
-        '<span class="team-choice-swatch-v114" aria-hidden="true"></span>' +
-        '<span class="team-choice-copy-v114"><strong>' + esc(name) + '</strong></span>';
-      btn.onclick = function() { selectTeam(name); };
-      list.appendChild(btn);
+      var button = document.createElement("button");
+      button.className = "team-picker-option";
+      button.type = "button";
+      button.style.setProperty("--cast-color", safeColor(name));
+      button.textContent = name;
+      button.onclick = function() { selectTeam(name); };
+      list.appendChild(button);
     });
   };
 
@@ -69811,5 +69771,125 @@ svg += '</div>';
 })();
 </script>
 
+<style>
+  #teams .team-picker {
+    box-sizing: border-box;
+    width: min(100% - 32px, 790px);
+    margin: clamp(36px, 8vh, 100px) auto;
+    padding: clamp(18px, 4vw, 44px);
+    background: #fff5da !important;
+    color: #173739 !important;
+    border: 1px solid #45625e !important;
+    box-shadow: 7px 7px 0 #26544e36 !important;
+  }
+  #teams .team-picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-bottom: 2px solid #173739 !important;
+    padding-bottom: 16px;
+    margin-bottom: 10px;
+  }
+  #teams #teamPickerTitle {
+    color: #173739 !important;
+    margin: 0;
+    line-height: 1.05;
+    font-size: clamp(1.8rem, 5vw, 3.2rem);
+    overflow-wrap: normal;
+  }
+  #teams .team-picker-header button {
+    border: 1px solid #173739 !important;
+    background: transparent !important;
+    color: #173739 !important;
+    padding: 8px 12px;
+    border-radius: 2px !important;
+    box-shadow: none !important;
+  }
+  #teams #teamList {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 28px;
+    padding: 0;
+    margin: 0;
+    max-height: none;
+  }
+  #teams #teamList .team-picker-option {
+    display: block;
+    min-width: 0;
+    width: 100%;
+    min-height: 49px;
+    margin: 0;
+    padding: 11px 13px;
+    border: 0 !important;
+    border-bottom: 1px solid #1737393b !important;
+    border-left: 7px solid var(--cast-color) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    color: #173739 !important;
+    text-align: left !important;
+    -webkit-text-fill-color: #173739 !important;
+    text-shadow: none !important;
+    text-transform: none !important;
+    font-size: 1rem;
+    line-height: 1.3;
+    letter-spacing: normal;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  #teams #teamList .team-picker-option:hover {
+    background: #f2e4bc !important;
+    transform: none !important;
+  }
+  #teams #teamList .team-picker-option:focus-visible,
+  #teams .team-picker-header button:focus-visible {
+    outline: 2px solid #173739;
+    outline-offset: 2px;
+  }
+  #legIntro .clue-open .leg-start-hero-v117 { display: none !important; }
+  #legIntro #legStartClue:not([hidden]) {
+    box-sizing: border-box;
+    width: min(100%, 630px);
+    margin: clamp(40px, 10vh, 110px) auto 16px;
+    padding: 9px;
+    background: repeating-linear-gradient(125deg, #a73529 0 17px, #f8df95 17px 34px) !important;
+    border: 1px solid #772c23 !important;
+    box-shadow: 8px 8px 0 #26544e36 !important;
+  }
+  #legIntro .route-envelope-paper {
+    background: #fff1bf !important;
+    color: #302b22 !important;
+    padding: clamp(22px, 5vw, 48px);
+  }
+  #legIntro .route-envelope-label {
+    color: #802b20 !important;
+    text-transform: uppercase !important;
+    font-size: .84rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    border-bottom: 1px solid #802b2070 !important;
+    padding-bottom: 10px;
+  }
+  #legIntro #legStartClueTitle {
+    color: #302b22 !important;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    line-height: 1.04;
+    margin: 20px 0 12px;
+    overflow-wrap: anywhere;
+  }
+  #legIntro #legStartClueTitle:focus { outline: none; }
+  #legIntro #legStartClueDirections {
+    color: #302b22 !important;
+    font-size: clamp(1rem, 2.5vw, 1.14rem);
+    line-height: 1.45;
+    margin: 0;
+    padding: 0;
+  }
+  @media (max-width: 520px) {
+    #teams #teamList { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
 </body>
 </html>
